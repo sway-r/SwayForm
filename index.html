@@ -55,9 +55,9 @@
 :root{
   /* ── Light base ── */
   --bg:#ffffff;
-  --bg2:#f5f5f7;
-  --bg3:#e8e8ed;
-  --bg4:#d2d2d7;
+  --bg2:#f4f7ff;
+  --bg3:#e8eeff;
+  --bg4:#d8deff;
   /* ── Dark sections ── */
   --dark:#000000;
   --dark2:#111111;
@@ -73,8 +73,8 @@
   --panel:rgba(0,0,0,.03);
   --panel2:rgba(0,0,0,.05);
   /* ── Primary accent (monochrome) ── */
-  --blue:#1d1d1f;
-  --blue-lt:#3d3d3f;
+  --blue:#0057ff;
+  --blue-lt:#2268ff;
   --cyan:#6e6e73;
   /* ── Semantic / functional colors ── */
   --green:#1a5c38;
@@ -92,7 +92,7 @@
   --ds-cyan:#a1a1a6;
   /* ── Misc ── */
   --radius:12px; --r-sm:8px; --r-lg:16px;
-  --blue-dim:rgba(29,29,31,.06); --green-dim:rgba(29,29,31,.06);
+  --blue-dim:rgba(0,87,255,.06); --green-dim:rgba(29,29,31,.06);
   --font:"Inter",-apple-system,sans-serif;
   --mono:"JetBrains Mono",monospace;
   --nav-h:62px;
@@ -242,7 +242,7 @@ p{color:var(--muted);line-height:1.75}
 .c4{bottom:20%;right:-36px;animation-delay:2.4s}
 
 /* ── STATS STRIP ─────────────────────────────────────── */
-#stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg)}
+#stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
 .stats-inner{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:1440px;margin:0 auto}
 .stat{
   padding:36px 40px;border-right:1px solid var(--line);
@@ -284,8 +284,8 @@ p{color:var(--muted);line-height:1.75}
   padding:16px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
 }
 .plat-spec-item{text-align:center}
-.plat-spec-val{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-0.02em}
-.plat-spec-key{font-size:11px;color:var(--muted);margin-top:2px}
+.plat-spec-val{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.02em}
+.plat-spec-key{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 
 /* ── LEARNING SECTION ────────────────────────────────── */
 #learning-sec{background:var(--bg2)}
@@ -329,9 +329,9 @@ p{color:var(--muted);line-height:1.75}
 .demo-card:hover{background:var(--bg2);box-shadow:0 4px 20px rgba(0,87,255,.08)}
 .demo-num{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
 .demo-icon{font-size:28px;margin:4px 0}
-.demo-card h4{font-size:16px;font-weight:700;letter-spacing:-0.01em}
-.demo-card p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
-.demo-tag{margin-top:auto;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--blue)}
+.demo-card h4{font-size:20px;font-weight:700;letter-spacing:-0.01em}
+.demo-card p{font-size:15px;color:var(--muted);margin:0;line-height:1.6}
+.demo-tag{margin-top:auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--blue)}
 
 /* ── COMPARE SECTION ─────────────────────────────────── */
 #compare-sec{background:#fff}
@@ -811,7 +811,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .faq-a{font-size:14px;color:var(--muted);line-height:1.75}
 /* ── SPECS BAND ── */
 .specs-band{background:var(--ink);padding:72px 0}
-.specs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06)}
+.specs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(255,255,255,.06)}
 .spec-item{padding:36px 32px;background:var(--ink)}
 .spec-val{font-size:28px;font-weight:800;letter-spacing:-.03em;color:#fff;margin-bottom:6px;font-family:var(--mono)}
 .spec-key{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35)}
@@ -833,7 +833,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ═══════════════════════════════════════════════════ ANNOUNCEMENT BAR -->
 <div id="announce-bar">
   Fall 2026 pilot and program interest now open. &nbsp;
-  <a href="#" onclick="showPage('schools');return false">Express interest &rarr;</a>
+  <a href="#" onclick="requestDemo();return false">Express interest &rarr;</a>
 </div>
 
 <!-- ═══════════════════════════════════════════════════ TOPBAR -->
@@ -848,7 +848,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <a href="#" onclick="showPage('schools');return false">Contact</a>
     </div>
     <div class="nav-right">
-      <button class="btn btn-ghost btn-sm" onclick="showPage('schools')">Request Demo</button>
+      <button class="btn btn-ghost btn-sm" onclick="requestDemo()">Request Demo</button>
       <button class="hub-cta" onclick="openHubNewTab('hub-welcome')">Learning Hub</button>
       <div class="hamburger" onclick="document.getElementById('mobile-nav').classList.add('open')" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -1098,7 +1098,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           </ul>
         </div>
       </div>
-      <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--faint)">Programs that grow can add more units later. Starting with one is the right move.</p>
+
     </div>
   </section>
 
@@ -1143,7 +1143,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="demo-card" onclick="openHub('hub-demo-dist')">
           <div class="demo-num">04</div>
           <h4>Proximity</h4>
-          <p>Ultrasonic sensor triggers three behavioral zones with hysteresis to prevent rapid switching.</p>
+          <p>Sensor-based proximity detection triggers three behavioral zones with hysteresis to prevent rapid switching.</p>
           <div class="demo-tag">Sensor + state</div>
         </div>
         <div class="demo-card" onclick="openHub('hub-demo-present')">
@@ -1266,7 +1266,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="spec-item"><div class="spec-val">Pi&thinsp;5</div><div class="spec-key">On-board compute</div></div>
           <div class="spec-item"><div class="spec-val">8 GB</div><div class="spec-key">RPi 5 RAM</div></div>
           <div class="spec-item"><div class="spec-val">IMU</div><div class="spec-key">MPU-6050</div></div>
-          <div class="spec-item"><div class="spec-val">HC&#8209;SR04</div><div class="spec-key">Proximity sensor</div></div>
+          
           <div class="spec-item"><div class="spec-val">Servo</div><div class="spec-key">Multi-class drive system</div></div>
           <div class="spec-item"><div class="spec-val">ROS 2</div><div class="spec-key">Software stack</div></div>
         </div>
@@ -1385,7 +1385,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <p style="font-size:clamp(16px,1.8vw,19px);color:rgba(200,220,240,.7);max-width:480px;line-height:1.7;margin-bottom:24px">SwayForm arrives as a complete upper-body humanoid robotics system: physical robot, control software, learning materials, demo programs, and classroom-ready workflows built around real hardware.</p>
         <p style="font-size:15px;color:rgba(200,220,240,.48);max-width:460px;line-height:1.72;margin-bottom:36px">Students are not just watching robotics happen. They are changing code, testing motion, reading sensor feedback, and seeing their decisions move a machine in front of them.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-lg" onclick="showPage('schools')">Request a Demo</button>
+          <button class="btn btn-primary btn-lg" onclick="requestDemo()">Request a Demo</button>
           <button class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.15);color:rgba(237,245,255,.8)" onclick="showPage('labs')">View Learning Path</button>
         </div>
       </div>
@@ -1474,7 +1474,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
               <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Upper body</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Left &amp; right arms</div><div style="font-size:12px;color:var(--faint);margin-top:2px">Shoulder · elbow · wrist</div></div>
               <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Head</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Neck motion</div><div style="font-size:12px;color:var(--faint);margin-top:2px">Pan · tilt</div></div>
               <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Base</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Torso rotation</div><div style="font-size:12px;color:var(--faint);margin-top:2px">DC motor · encoder</div></div>
-              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Sensors</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Depth · IMU · Proximity</div><div style="font-size:12px;color:var(--faint);margin-top:2px">D435i · MPU-6050 · HC-SR04</div></div>
+              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Sensors</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Depth · IMU · Proximity</div><div style="font-size:12px;color:var(--faint);margin-top:2px">D435i · MPU-6050</div></div>
             </div>
             <div style="background:var(--bg);padding:16px 20px;font-size:12px;color:var(--faint)">8 major upper-body joints, all accessible via ROS 2 topics. Demos and labs include prebuilt control for all systems.</div>
           </div>
@@ -1525,9 +1525,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="spec-item"><div class="spec-val">ROS 2</div><div class="spec-key">Full software stack</div></div>
           <div class="spec-item"><div class="spec-val">PCA9685</div><div class="spec-key">Servo controller</div></div>
           <div class="spec-item"><div class="spec-val">IMU</div><div class="spec-key">MPU-6050</div></div>
-          <div class="spec-item"><div class="spec-val">HC&#8209;SR04</div><div class="spec-key">Proximity sensor</div></div>
+          
           <div class="spec-item"><div class="spec-val">Mixed</div><div class="spec-key">Multi-class servo system</div></div>
-          <div class="spec-item"><div class="spec-val">12V</div><div class="spec-key">Separated servo + compute rails</div></div>
+          
         </div>
       </div>
     </div>
@@ -1571,7 +1571,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.03em;color:#edf5ff;margin-bottom:20px">Bring real humanoid robotics into your program.</h2>
       <p style="font-size:17px;color:rgba(200,220,240,.55);max-width:520px;margin:0 auto 40px;line-height:1.7">We are working with pilot programs now. Fall 2026 is the target for broader availability. Get in touch to stay updated.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-primary btn-lg" style="background:#fff;color:#000;font-weight:700" onclick="showPage('schools')">Request a Demo</button>
+        <button class="btn btn-primary btn-lg" style="background:#fff;color:#000;font-weight:700" onclick="requestDemo()">Request a Demo</button>
         <button class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.8)" onclick="showPage('labs')">View Learning Path</button>
       </div>
     </div>
@@ -2466,7 +2466,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <h3>Sensor Feedback Loops</h3>
         </div>
         <p>Students design systems where sensor readings drive actuator commands in real time. They encounter noise, latency, and the difference between a simple threshold and a hysteresis band. The IMU, ultrasonic sensor, and camera each introduce different failure modes worth studying.</p>
-        <div class="learn-area-tags"><span class="tag">IMU</span><span class="tag">HC-SR04</span><span class="tag">Hysteresis</span><span class="tag">Feedback control</span></div>
+        <div class="learn-area-tags"><span class="tag">IMU</span><span class="tag">Hysteresis</span><span class="tag">Feedback control</span></div>
       </div>
 
       <div class="learn-area">
@@ -5966,7 +5966,15 @@ ros2 run &lt;package&gt; &lt;node&gt;</div></div>
 
 <script>
 // ── PAGE SYSTEM ──────────────────────────────────────────────
-const pages = ['home','platform','labs','demos','schools'];
+const pages = ['home','platform','labs','schools'];
+
+function requestDemo() {
+  showPage('schools');
+  setTimeout(function() {
+    var el = document.getElementById('contact-form');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 120);
+}
 
 function showPage(id) {
   try {
@@ -5990,7 +5998,7 @@ function showPage(id) {
     document.querySelectorAll('.nav-links a').forEach(function(a) {
       a.classList.remove('active');
     });
-    var navMap = {home:0,platform:1,robot:1,labs:2,learn:2,demos:3,schools:4,errors:4};
+    var navMap = {home:0,platform:1,robot:1,labs:2,learn:2,demos:2,schools:3,errors:3};
     var idx = navMap[id];
     if (idx !== undefined) {
       var links = document.querySelectorAll('.nav-links a');
@@ -6635,9 +6643,9 @@ document.addEventListener('DOMContentLoaded', function() {
 #hero .hero-actions .btn-ghost:hover{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.07);color:#fff}
 /* swap .hero-cinema-img <img> for <video autoplay muted loop playsinline> when robot demo is ready */
 .hero-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
-.hero-cinema-img{position:absolute;right:0;top:0;height:100%;width:62%;object-fit:cover;object-position:center top}
+.hero-cinema-img{position:static;height:clamp(400px,50vh,640px);width:auto;object-fit:contain;filter:drop-shadow(0 32px 64px rgba(0,0,0,.13))}
 .hero-cinema-gradient{position:absolute;inset:0;background:linear-gradient(to right,#040608 0%,#040608 25%,rgba(4,6,8,.9) 42%,rgba(4,6,8,.52) 58%,rgba(4,6,8,.1) 78%,transparent 100%)}
-@media(max-width:1100px){.hero-cinema-img{width:55%}.hero-cinema-gradient{background:linear-gradient(to right,#040608 0%,#040608 30%,rgba(4,6,8,.92) 50%,rgba(4,6,8,.6) 65%,transparent 100%)}}
+
 @media(max-width:768px){
   #hero{align-items:flex-start;padding-bottom:52vw}
   #hero .hero-text{padding:24px 20px 0;max-width:100%}
@@ -6681,8 +6689,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .steps-track{position:absolute;top:21px;left:10%;right:10%;height:1px;background:linear-gradient(to right,transparent 0%,var(--line) 12%,var(--line) 88%,transparent 100%)}
 .step-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 6px}
 .step-dot{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);margin-bottom:14px;position:relative;z-index:1;flex-shrink:0;box-shadow:0 0 0 5px var(--bg)}
-.step-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
-.step-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.step-label{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.3}
+.step-sub{font-size:14px;color:var(--muted);line-height:1.6}
 @media(max-width:860px){.steps-flow{grid-template-columns:1fr 1fr;gap:28px 12px}.steps-track{display:none}}
 @media(max-width:480px){.steps-flow{grid-template-columns:1fr}}
 
@@ -6709,9 +6717,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .c3-col.hi{background:var(--bg2)}
 .c3-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
 .c3-title{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px;line-height:1.2}
-.c3-sub{font-size:13px;color:var(--muted);line-height:1.65;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.c3-sub{font-size:15px;color:var(--muted);line-height:1.7;padding-bottom:20px;border-bottom:1px solid var(--line)}
 .c3-items{display:flex;flex-direction:column;gap:9px;margin-top:20px}
-.c3-item{font-size:13px;line-height:1.5;padding-left:20px;position:relative;color:var(--muted)}
+.c3-item{font-size:14px;line-height:1.55;padding-left:20px;position:relative;color:var(--muted)}
 .c3-item.pro{color:var(--soft)}
 .c3-item.pro::before{content:'✓';position:absolute;left:0;color:#007a44;font-weight:800;font-size:11px;top:1px}
 .c3-item.con::before{content:'·';position:absolute;left:7px;color:var(--faint);font-size:14px;line-height:1;top:0}

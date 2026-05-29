@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    { "source": "/robot",    "destination": "/robot.html" },
+    { "source": "/learn",    "destination": "/learn.html" },
+    { "source": "/demos",    "destination": "/demos.html" },
+    { "source": "/labs",     "destination": "/labs.html" },
+    { "source": "/platform", "destination": "/platform.html" },
+    { "source": "/schools",  "destination": "/schools.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

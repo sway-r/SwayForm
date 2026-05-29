@@ -1,10 +1,48 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SwayForm — Educational Robotics</title>
-<meta name="description" content="SwayForm builds humanoid robots for high schools and community colleges. Real hardware. Real ROS 2. Real learning.">
+<title>SwayForm: Hands-On Robotics Learning Platform</title>
+<meta name="description" content="SwayForm puts a 21-DoF humanoid robot in your classroom. Students write real ROS 2 code, work with depth cameras, servo control, and sensor feedback — on actual hardware, not simulators.">
+<link rel="canonical" href="https://swayform.net/">
+<meta property="og:title" content="SwayForm: Hands-On Robotics Learning Platform">
+<meta property="og:description" content="SwayForm puts a 21-DoF humanoid robot in your classroom. Students write real ROS 2 code, work with depth cameras, servo control, and sensor feedback — on actual hardware, not simulators.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://swayform.net/">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://swayform.net/#organization",
+      "name": "SwayForm",
+      "url": "https://swayform.net/",
+      "description": "SwayForm builds humanoid robotics platforms for educational institutions. Real 21-DoF hardware running ROS 2 for high schools and community colleges.",
+      "email": "contact@swayform.net",
+      "foundingDate": "2024",
+      "knowsAbout": ["humanoid robotics", "ROS 2", "educational technology", "servo control", "computer vision", "depth cameras"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://swayform.net/#website",
+      "url": "https://swayform.net/",
+      "name": "SwayForm",
+      "description": "Hands-on humanoid robotics learning platform for educational institutions",
+      "publisher": {"@id": "https://swayform.net/#organization"},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://swayform.net/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -807,6 +845,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <a href="#" onclick="showPage('platform');return false">Platform</a>
       <a href="#" onclick="showPage('robot');return false">Robot</a>
       <a href="#" onclick="showPage('labs');return false">Labs</a>
+      <a href="#" onclick="showPage('learn');return false">Learn</a>
       <a href="#" onclick="showPage('demos');return false">Demos</a>
       <a href="#" onclick="showPage('schools');return false">For Schools</a>
       <a href="#" onclick="showPage('errors');return false">Error Ref</a>
@@ -828,6 +867,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">Platform</a>
   <a href="#" onclick="showPage('robot');document.getElementById('mobile-nav').classList.remove('open');return false">Robot</a>
   <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Labs</a>
+  <a href="#" onclick="showPage('learn');document.getElementById('mobile-nav').classList.remove('open');return false">Learn</a>
   <a href="#" onclick="openHubNewTab('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
   <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">For Schools</a>
 </div>
@@ -889,6 +929,92 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="stat"><div class="stat-n">40</div><div class="stat-l">Structured labs</div></div>
       <div class="stat"><div class="stat-n">ROS&thinsp;2</div><div class="stat-l">Native middleware</div></div>
       <div class="stat" style="border-right:none"><div class="stat-n" style="font-size:28px;font-family:var(--mono)">Pi&thinsp;5</div><div class="stat-l">On-board compute</div></div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section id="pipeline-sec" style="background:var(--bg);padding:96px 0;border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <div style="text-align:center;max-width:600px;margin:0 auto 60px">
+        <span class="label" style="display:block;margin-bottom:12px">System Architecture</span>
+        <h2 class="d3">How SwayForm thinks.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Every behavior students write travels this path. Camera input becomes perception data, perception data drives behavior decisions, behavior decisions become motor commands — then the robot moves and the camera sees what happened.</p>
+      </div>
+      <div class="pipeline-diagram">
+        <svg viewBox="0 0 860 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;overflow:visible" font-family="Inter,system-ui,sans-serif">
+          <defs>
+            <marker id="pl-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="rgba(255,255,255,.3)"/>
+            </marker>
+            <marker id="pl-arr-loop" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="rgba(122,241,255,.4)"/>
+            </marker>
+          </defs>
+          <!-- Node 1: Camera -->
+          <rect x="10" y="40" width="130" height="60" rx="10" fill="rgba(200,132,252,.1)" stroke="rgba(200,132,252,.4)" stroke-width="1.5"/>
+          <text x="75" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Camera</text>
+          <text x="75" y="82" fill="rgba(200,132,252,.7)" font-size="9" text-anchor="middle">D435i · RGB + Depth</text>
+          <!-- Arrow 1→2 -->
+          <line x1="140" y1="70" x2="180" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
+          <!-- Node 2: Perception -->
+          <rect x="180" y="40" width="140" height="60" rx="10" fill="rgba(95,183,255,.1)" stroke="rgba(95,183,255,.35)" stroke-width="1.5"/>
+          <text x="250" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Perception</text>
+          <text x="250" y="82" fill="rgba(95,183,255,.65)" font-size="9" text-anchor="middle">detect · measure · classify</text>
+          <!-- Arrow 2→3 -->
+          <line x1="320" y1="70" x2="360" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
+          <!-- Node 3: Behavior -->
+          <rect x="360" y="40" width="140" height="60" rx="10" fill="rgba(95,183,255,.1)" stroke="rgba(95,183,255,.35)" stroke-width="1.5"/>
+          <text x="430" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Behavior</text>
+          <text x="430" y="82" fill="rgba(95,183,255,.65)" font-size="9" text-anchor="middle">state machine · decide</text>
+          <!-- Arrow 3→4 -->
+          <line x1="500" y1="70" x2="540" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
+          <!-- Node 4: Motion -->
+          <rect x="540" y="40" width="140" height="60" rx="10" fill="rgba(122,241,255,.08)" stroke="rgba(122,241,255,.3)" stroke-width="1.5"/>
+          <text x="610" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Motion Control</text>
+          <text x="610" y="82" fill="rgba(122,241,255,.65)" font-size="9" text-anchor="middle">clamp · target · publish</text>
+          <!-- Arrow 4→5 -->
+          <line x1="680" y1="70" x2="720" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
+          <!-- Node 5: Robot -->
+          <rect x="720" y="40" width="130" height="60" rx="10" fill="rgba(125,255,189,.08)" stroke="rgba(125,255,189,.3)" stroke-width="1.5"/>
+          <text x="785" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Robot</text>
+          <text x="785" y="82" fill="rgba(125,255,189,.6)" font-size="9" text-anchor="middle">servos move · base rotates</text>
+          <!-- Feedback loop arrow: Robot back to Camera -->
+          <path d="M 785,100 C 785,138 75,138 75,100" fill="none" stroke="rgba(122,241,255,.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#pl-arr-loop)"/>
+          <text x="430" y="150" fill="rgba(122,241,255,.45)" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">FEEDBACK LOOP — camera observes result</text>
+        </svg>
+      </div>
+      <div class="pipeline-legend">
+        <div class="pipe-item">
+          <div class="pipe-item-label">Input</div>
+          <h5>Camera</h5>
+          <p>RGB and depth frames published at up to 30 fps. The perception layer subscribes here.</p>
+          <div class="pipe-topic">/camera/color/image_raw</div>
+        </div>
+        <div class="pipe-item">
+          <div class="pipe-item-label">Layer 1</div>
+          <h5>Perception Node</h5>
+          <p>Student-authored or provided node. Runs OpenCV, face detection, depth reads. Publishes structured observations.</p>
+          <div class="pipe-topic">/swayform/perception</div>
+        </div>
+        <div class="pipe-item">
+          <div class="pipe-item-label">Layer 2</div>
+          <h5>Behavior Node</h5>
+          <p>State machine logic. Subscribes to perception, decides which action to run, publishes the action name.</p>
+          <div class="pipe-topic">/swayform/action</div>
+        </div>
+        <div class="pipe-item">
+          <div class="pipe-item-label">Layer 3</div>
+          <h5>Motion Node</h5>
+          <p>Translates actions into joint angles. Clamps to safe ranges. Handles action locking so motions don't conflict.</p>
+          <div class="pipe-topic">/swayform/joint_targets</div>
+        </div>
+        <div class="pipe-item">
+          <div class="pipe-item-label">Output</div>
+          <h5>Robot Hardware</h5>
+          <p>Servo driver receives joint targets. Servos move. Camera sees the result. Loop repeats.</p>
+          <div class="pipe-topic">hardware layer</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1138,13 +1264,63 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </div>
 
-  <!-- PROTOTYPE STATUS -->
-  <div style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:48px 0">
-    <div class="wrap" style="max-width:760px;text-align:center">
-      <span class="label" style="display:block;margin-bottom:12px">Development Status</span>
-      <p style="font-size:17px;color:var(--soft);line-height:1.75">SwayForm is currently in active development. The platform described here represents the current prototype direction and the classroom workflows being designed around it. We are working with early programs to validate motion, perception, and system integration before broader deployment.</p>
+  <!-- ROADMAP -->
+  <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
+    <div class="wrap">
+      <div style="text-align:center;max-width:600px;margin:0 auto 56px">
+        <span class="label" style="display:block;margin-bottom:12px">Development Status</span>
+        <h2 class="d3">Where we are.</h2>
+        <p style="margin-top:14px;color:var(--muted)">SwayForm is in active development. This is what exists now, what is actively being built, and what comes after validation.</p>
+      </div>
+      <div class="roadmap-grid">
+        <div class="roadmap-col roadmap-current">
+          <div class="roadmap-col-header">
+            <span class="roadmap-status-dot current"></span>
+            <span class="roadmap-col-label">Current</span>
+          </div>
+          <div class="roadmap-col-title">What exists today</div>
+          <ul class="roadmap-items">
+            <li>21-axis upper-body structure — fabricated and tested</li>
+            <li>Rotating base — DC motor + encoder, functional</li>
+            <li>Intel D435i camera — mounted and publishing</li>
+            <li>ROS 2 architecture — nodes, topics, driver running</li>
+            <li>5 demo programs — wave, greet, face track, proximity, present</li>
+            <li>40-lab curriculum — drafted, first 10 labs complete</li>
+            <li>Learning Hub — live, content being expanded</li>
+          </ul>
+        </div>
+        <div class="roadmap-col roadmap-indev">
+          <div class="roadmap-col-header">
+            <span class="roadmap-status-dot indev"></span>
+            <span class="roadmap-col-label">In Development</span>
+          </div>
+          <div class="roadmap-col-title">Active work, no ship date yet</div>
+          <ul class="roadmap-items">
+            <li>Expanded demo library — 8 programs, 3 complete</li>
+            <li>Classroom software interface for non-SSH use</li>
+            <li>Repeatable assembly documentation</li>
+            <li>Instructor session guides and onboarding materials</li>
+            <li>Early program validation — motion, safety, pacing</li>
+            <li>Hardware revision 2 — improved wiring and structure</li>
+          </ul>
+        </div>
+        <div class="roadmap-col roadmap-planned">
+          <div class="roadmap-col-header">
+            <span class="roadmap-status-dot planned"></span>
+            <span class="roadmap-col-label">Planned</span>
+          </div>
+          <div class="roadmap-col-title">Post-validation scope</div>
+          <ul class="roadmap-items">
+            <li>Structured curriculum PDFs per level</li>
+            <li>Teacher dashboard — session and group progress</li>
+            <li>Expanded demo library — pick/place, spatial awareness</li>
+            <li>Documented spare parts catalog</li>
+            <li>Assessment rubrics — NGSS + CS standards alignment</li>
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <!-- FAQ -->
   <section class="faq-section">
@@ -2021,6 +2197,192 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
+  <!-- ANATOMY -->
+  <section id="anatomy-section" class="section-wide" style="padding-top:80px;padding-bottom:100px">
+    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Interactive Anatomy</span>
+    <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:12px">The robot, labeled.</h2>
+    <p style="color:var(--muted);margin-bottom:40px;max-width:520px">Click any hotspot to see what that component does, how it connects to code, and what students learn from working with it.</p>
+    <div class="anatomy-wrap">
+      <!-- SVG diagram -->
+      <div class="anatomy-svg-wrap">
+        <svg id="anatomy-svg" viewBox="0 0 360 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block" font-family="Inter,system-ui,sans-serif">
+          <!-- Robot silhouette — schematic style -->
+          <!-- Head -->
+          <rect x="140" y="30" width="80" height="65" rx="12" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
+          <!-- Camera indicator on head -->
+          <rect x="158" y="44" width="44" height="22" rx="5" fill="rgba(200,132,252,.12)" stroke="rgba(200,132,252,.4)" stroke-width="1"/>
+          <text x="180" y="59" fill="rgba(200,132,252,.8)" font-size="8" font-weight="700" text-anchor="middle">D435i</text>
+          <!-- Neck -->
+          <rect x="163" y="95" width="34" height="28" rx="4" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+          <!-- Torso -->
+          <rect x="110" y="123" width="140" height="160" rx="14" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>
+          <!-- Electronics panel indicator on torso -->
+          <rect x="125" y="200" width="110" height="60" rx="8" fill="rgba(122,241,255,.06)" stroke="rgba(122,241,255,.18)" stroke-width="1"/>
+          <text x="180" y="224" fill="rgba(122,241,255,.5)" font-size="8" text-anchor="middle">RPi 5</text>
+          <text x="180" y="238" fill="rgba(122,241,255,.35)" font-size="7" text-anchor="middle">+ Electronics</text>
+          <!-- Left upper arm -->
+          <rect x="55" y="130" width="55" height="26" rx="6" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.13)" stroke-width="1.5" transform="rotate(12 82 143)"/>
+          <!-- Left forearm -->
+          <rect x="32" y="175" width="50" height="22" rx="6" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.1)" stroke-width="1" transform="rotate(8 57 186)"/>
+          <!-- Left hand -->
+          <rect x="15" y="225" width="38" height="30" rx="6" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.09)" stroke-width="1"/>
+          <!-- Right upper arm -->
+          <rect x="250" y="130" width="55" height="26" rx="6" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.13)" stroke-width="1.5" transform="rotate(-12 278 143)"/>
+          <!-- Right forearm -->
+          <rect x="278" y="175" width="50" height="22" rx="6" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.1)" stroke-width="1" transform="rotate(-8 303 186)"/>
+          <!-- Right hand -->
+          <rect x="307" y="225" width="38" height="30" rx="6" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.09)" stroke-width="1"/>
+          <!-- Base -->
+          <ellipse cx="180" cy="340" rx="80" ry="22" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.14)" stroke-width="1.5"/>
+          <rect x="130" y="285" width="100" height="57" rx="8" fill="rgba(125,255,189,.04)" stroke="rgba(125,255,189,.18)" stroke-width="1"/>
+          <text x="180" y="318" fill="rgba(125,255,189,.4)" font-size="8" text-anchor="middle">Rotating Base</text>
+
+          <!-- HOTSPOTS -->
+          <!-- Camera -->
+          <circle class="anatomy-spot" id="spot-camera" cx="180" cy="55" r="11" fill="rgba(200,132,252,.2)" stroke="rgba(200,132,252,.7)" stroke-width="2" onclick="showAnatomyDetail('camera')"/>
+          <text x="180" y="59" fill="rgba(200,132,252,.0)" font-size="1">·</text>
+          <!-- Neck -->
+          <circle class="anatomy-spot" id="spot-neck" cx="180" cy="111" r="10" fill="rgba(95,183,255,.18)" stroke="rgba(95,183,255,.65)" stroke-width="2" onclick="showAnatomyDetail('neck')"/>
+          <!-- Right shoulder -->
+          <circle class="anatomy-spot" id="spot-r-shoulder" cx="252" cy="140" r="10" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.55)" stroke-width="2" onclick="showAnatomyDetail('shoulder')"/>
+          <!-- Right elbow -->
+          <circle class="anatomy-spot" id="spot-elbow" cx="292" cy="185" r="10" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.55)" stroke-width="2" onclick="showAnatomyDetail('elbow')"/>
+          <!-- Right wrist -->
+          <circle class="anatomy-spot" id="spot-wrist" cx="311" cy="228" r="10" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.55)" stroke-width="2" onclick="showAnatomyDetail('wrist')"/>
+          <!-- Fingers -->
+          <circle class="anatomy-spot" id="spot-fingers" cx="326" cy="250" r="10" fill="rgba(122,241,255,.15)" stroke="rgba(122,241,255,.55)" stroke-width="2" onclick="showAnatomyDetail('fingers')"/>
+          <!-- Electronics -->
+          <circle class="anatomy-spot" id="spot-electronics" cx="180" cy="230" r="10" fill="rgba(122,241,255,.15)" stroke="rgba(122,241,255,.55)" stroke-width="2" onclick="showAnatomyDetail('electronics')"/>
+          <!-- Base -->
+          <circle class="anatomy-spot" id="spot-base" cx="180" cy="330" r="11" fill="rgba(125,255,189,.18)" stroke="rgba(125,255,189,.6)" stroke-width="2" onclick="showAnatomyDetail('base')"/>
+
+          <!-- Hotspot labels -->
+          <text x="197" y="52" fill="rgba(200,132,252,.6)" font-size="9" font-weight="600">Camera</text>
+          <text x="197" y="114" fill="rgba(95,183,255,.55)" font-size="9" font-weight="600">Neck</text>
+          <text x="268" y="138" fill="rgba(95,183,255,.55)" font-size="9" font-weight="600">Shoulder</text>
+          <text x="308" y="183" fill="rgba(95,183,255,.55)" font-size="9" font-weight="600">Elbow</text>
+          <text x="327" y="226" fill="rgba(95,183,255,.55)" font-size="9" font-weight="600">Wrist</text>
+          <text x="342" y="248" fill="rgba(122,241,255,.5)" font-size="9" font-weight="600">Fingers</text>
+          <text x="196" y="232" fill="rgba(122,241,255,.5)" font-size="9" font-weight="600">Electronics</text>
+          <text x="196" y="328" fill="rgba(125,255,189,.5)" font-size="9" font-weight="600">Base</text>
+        </svg>
+      </div>
+      <!-- Detail panel -->
+      <div class="anatomy-panel" id="anatomy-panel">
+        <div id="anatomy-default" style="display:flex;align-items:center;justify-content:center;height:100%;min-height:200px;flex-direction:column;gap:12px;text-align:center">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <p style="color:var(--muted);font-size:14px;margin:0">Click any hotspot to see component details.</p>
+        </div>
+        <!-- Camera -->
+        <div class="anatomy-detail" id="anat-camera" style="display:none">
+          <div class="anatomy-detail-label">Vision System</div>
+          <h3>Intel RealSense D435i</h3>
+          <p>Mounted on the head bracket. Publishes synchronized RGB and depth streams — each pixel in the depth frame is a distance in millimeters from the sensor. Used by every perception-layer demo and lab.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>How RGB and depth data are published as separate ROS topics</li>
+            <li>Why camera minimum range (about 0.3m) matters for close interactions</li>
+            <li>How lighting and texture affect detection reliability</li>
+            <li>HSV color segmentation vs depth-based proximity</li>
+          </ul>
+        </div>
+        <!-- Neck -->
+        <div class="anatomy-detail" id="anat-neck" style="display:none">
+          <div class="anatomy-detail-label">2-DOF Joint</div>
+          <h3>Neck — Pan / Tilt</h3>
+          <p>Two MG90S servos providing neck_yaw (left-right rotation) and neck_pitch (up-down tilt). The joints most commonly used for feedback-driven behaviors like face tracking and object following.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Compound 2-DOF control from two independent topics</li>
+            <li>Proportional controllers and why dead zones prevent jitter</li>
+            <li>The difference between position control and velocity control</li>
+            <li>How camera feedback loops drive physical joint movement</li>
+          </ul>
+        </div>
+        <!-- Shoulder -->
+        <div class="anatomy-detail" id="anat-shoulder" style="display:none">
+          <div class="anatomy-detail-label">High-Torque Joint</div>
+          <h3>Shoulder</h3>
+          <p>MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Why mechanical load matters — not just angle range</li>
+            <li>How joint limits interact with each other in a chain</li>
+            <li>The importance of motion sequencing order</li>
+            <li>Torque vs. speed tradeoffs in servo selection</li>
+          </ul>
+        </div>
+        <!-- Elbow -->
+        <div class="anatomy-detail" id="anat-elbow" style="display:none">
+          <div class="anatomy-detail-label">Mid-Arm Joint</div>
+          <h3>Elbow</h3>
+          <p>MG996R elbow_pitch. The joint that determines how extended or compact the arm is. Students learn that moving the shoulder and elbow simultaneously creates very different motion arcs than moving them in sequence.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Multi-joint coordination and timing</li>
+            <li>Mechanical advantage and why elbow angle affects shoulder load</li>
+            <li>Keyframe interpolation across a joint chain</li>
+            <li>Safe range design for compound motion</li>
+          </ul>
+        </div>
+        <!-- Wrist -->
+        <div class="anatomy-detail" id="anat-wrist" style="display:none">
+          <div class="anatomy-detail-label">Precision Joint</div>
+          <h3>Wrist</h3>
+          <p>MG90S wrist_pitch. Smaller servo than shoulder/elbow — lower torque, higher positional precision. Students observe how different servo models behave differently even when given the same PWM timing.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Servo model differences — MG996R vs MG90S behavior</li>
+            <li>Why PWM timing precision matters at smaller joints</li>
+            <li>Wrist-end orientation in a 3-joint arm chain</li>
+            <li>Voltage regulation at small-signal servo loads</li>
+          </ul>
+        </div>
+        <!-- Fingers -->
+        <div class="anatomy-detail" id="anat-fingers" style="display:none">
+          <div class="anatomy-detail-label">Fine Motor</div>
+          <h3>Five-Finger Hand</h3>
+          <p>Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Individual joint addressing within a single message type</li>
+            <li>Simultaneous multi-joint commands vs sequential</li>
+            <li>Servo driver channel assignment</li>
+            <li>Fine PWM precision requirements at low-torque joints</li>
+          </ul>
+        </div>
+        <!-- Electronics -->
+        <div class="anatomy-detail" id="anat-electronics" style="display:none">
+          <div class="anatomy-detail-label">Compute + Control</div>
+          <h3>Raspberry Pi 5 + Electronics</h3>
+          <p>Raspberry Pi 5 (8 GB) running Ubuntu and a ROS 2-based software stack. Servo drivers on the I²C bus. Buck converters for rail separation. Everything is accessible, labeled, and replaceable — no black boxes.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>Onboard Linux compute and why it runs ROS natively</li>
+            <li>I²C bus, device addressing, and how the servo driver is configured</li>
+            <li>Two-rail power architecture and why rails are separated</li>
+            <li>SSH workflow — how students connect and deploy code</li>
+          </ul>
+        </div>
+        <!-- Base -->
+        <div class="anatomy-detail" id="anat-base" style="display:none">
+          <div class="anatomy-detail-label">Actuated Base</div>
+          <h3>Rotating Base</h3>
+          <p>DC motor with encoder driving a belt/pulley system for torso yaw rotation. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.</p>
+          <div class="anatomy-learns-label">What students learn from this</div>
+          <ul class="anatomy-learns">
+            <li>DC motor control vs servo control — different command interfaces</li>
+            <li>Encoder feedback and position estimation</li>
+            <li>Belt/pulley mechanical advantage and backlash</li>
+            <li>Why actuator type selection matters at the design stage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ──────────────────────────────────── LABS PAGE (stub) -->
@@ -2249,6 +2611,117 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
 </div>
 
+<!-- ─────────────────────────────────────── LEARN PAGE -->
+<div id="pg-learn" class="page">
+
+  <!-- hero -->
+  <section style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(95,183,255,.07) 0%,transparent 70%);pointer-events:none"></div>
+    <div class="section-wide">
+      <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Curriculum</span>
+      <h1 style="font-size:clamp(34px,5vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:20px;color:#edf5ff">What students actually learn.</h1>
+      <p style="font-size:18px;color:rgba(200,220,240,.65);max-width:580px;line-height:1.7">Concrete subject areas — not lab numbers. Designed for students, instructors, and program directors who need to know what working with SwayForm actually teaches.</p>
+    </div>
+  </section>
+
+  <!-- grid -->
+  <section class="section-wide" style="padding-top:80px;padding-bottom:100px">
+    <div class="learn-grid">
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">01</span>
+          <h3>ROS 2 Nodes and Topics</h3>
+        </div>
+        <p>Students author, launch, and debug ROS 2 nodes from scratch. They understand publishers, subscribers, message types, QoS settings, and the node graph. By Level 2, every student has written a node that both publishes and subscribes at the same time.</p>
+        <div class="learn-area-tags"><span class="tag">rclpy</span><span class="tag">pub / sub</span><span class="tag">ros2 topic echo</span><span class="tag">rqt_graph</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">02</span>
+          <h3>Servo Control</h3>
+        </div>
+        <p>Students trace the path from a Python float to physical joint movement — angle value, safe range clamping, driver write, servo response. They calibrate individual joints, observe the precision limits of PWM, and understand why voltage regulation matters for repeatable motion.</p>
+        <div class="learn-area-tags"><span class="tag">Joint targets</span><span class="tag">Safe ranges</span><span class="tag">PWM timing</span><span class="tag">MG996R / MG90S</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">03</span>
+          <h3>Depth Camera Perception</h3>
+        </div>
+        <p>Students work with the Intel D435i to extract both color and per-pixel depth data. They implement color segmentation in HSV space, face detection, and depth-based proximity triggers. They learn why camera minimum range matters and how lighting changes detection reliability.</p>
+        <div class="learn-area-tags"><span class="tag">D435i</span><span class="tag">HSV segmentation</span><span class="tag">Haar cascade</span><span class="tag">Depth reads</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">04</span>
+          <h3>Sensor Feedback Loops</h3>
+        </div>
+        <p>Students design systems where sensor readings drive actuator commands in real time. They encounter noise, latency, and the difference between a simple threshold and a hysteresis band. The IMU, ultrasonic sensor, and camera each introduce different failure modes worth studying.</p>
+        <div class="learn-area-tags"><span class="tag">IMU</span><span class="tag">HC-SR04</span><span class="tag">Hysteresis</span><span class="tag">Feedback control</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">05</span>
+          <h3>Mechanical Limits</h3>
+        </div>
+        <p>Students learn that hardware has hard constraints. They encounter joint stops, understand why range clamping matters before a command reaches hardware, and see what happens when it doesn't. This is not abstract — students who skip safe-range checks hear the servo strain.</p>
+        <div class="learn-area-tags"><span class="tag">Joint clamping</span><span class="tag">Safe ranges</span><span class="tag">Driver validation</span><span class="tag">Physical limits</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">06</span>
+          <h3>Power Distribution</h3>
+        </div>
+        <p>Students examine the two-rail power architecture: why the servo rail and Pi rail are separated, what happens to a Pi when servo current spikes reach it, and how to read voltage under load. Practical electrical reasoning, not just theory.</p>
+        <div class="learn-area-tags"><span class="tag">12V main rail</span><span class="tag">Buck converters</span><span class="tag">Rail separation</span><span class="tag">Voltage under load</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">07</span>
+          <h3>Debugging Real Hardware</h3>
+        </div>
+        <p>Students learn that hardware debugging is different from software debugging. They use i2cdetect, ros2 topic echo, rqt_graph, and a multimeter as diagnostic tools. They learn to isolate the question: is this a code bug, a wiring issue, or a configuration problem?</p>
+        <div class="learn-area-tags"><span class="tag">i2cdetect</span><span class="tag">ros2 topic echo</span><span class="tag">rqt_graph</span><span class="tag">Voltage testing</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">08</span>
+          <h3>Motion Sequencing</h3>
+        </div>
+        <p>Students author multi-phase motion sequences: define keyframes, interpolate between them, manage timing, and compose sequences into reusable functions. They observe that 20 Hz is sufficient for smooth motion — and why publishing at 100 Hz changes nothing except CPU load.</p>
+        <div class="learn-area-tags"><span class="tag">Keyframes</span><span class="tag">Interpolation</span><span class="tag">Loop rate</span><span class="tag">Sequence composition</span></div>
+      </div>
+
+      <div class="learn-area">
+        <div class="learn-area-head">
+          <span class="learn-num">09</span>
+          <h3>Human-Robot Interaction</h3>
+        </div>
+        <p>Students design systems that respond to people — proximity detection, face tracking, gesture responses. They encounter the design tension between responsiveness and stability. Hysteresis, dead zones, and state machine guard conditions stop being theoretical the first time the robot twitches uncontrollably without them.</p>
+        <div class="learn-area-tags"><span class="tag">Proximity triggers</span><span class="tag">Face tracking</span><span class="tag">Dead zones</span><span class="tag">State guards</span></div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:48px;padding:28px 32px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px">
+        <div style="font-weight:700;margin-bottom:6px;color:var(--ink)">For administrators and curriculum reviewers</div>
+        <p style="font-size:14px;color:var(--muted);margin:0;line-height:1.65">These subject areas map to NGSS engineering practices and CS standards in most state frameworks. Contact us for a detailed curriculum alignment document.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="showPage('schools')">Request curriculum info &#8594;</button>
+    </div>
+  </section>
+
+</div><!-- /pg-learn -->
+
 <!-- ──────────────────────────────────── DEMOS PAGE (stub) -->
 <div id="pg-demos" class="pg">
 
@@ -2265,85 +2738,145 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <section class="section-wide" style="padding-top:56px;padding-bottom:100px">
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px">
 
-      <!-- Demo 01 -->
-      <div class="card glow-blue" style="cursor:pointer" onclick="openHub('hub-demo-wave')">
-        <span class="card-accent blue"></span>
-        <div class="card-body">
-          <div class="demo-num blue">01</div>
-          <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Wave Demo</h3>
-          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:22px">Five keyframes, smoothstep interpolation, 20Hz loop. The robot raises its right arm through a natural greeting wave and returns to neutral. The canonical "Hello World" of the platform.</p>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <span class="tag">Motion</span><span class="tag">Keyframes</span><span class="tag">Beginner</span>
+        <!-- Demo 01 -->
+        <div class="card glow-blue" style="cursor:pointer" onclick="openHub('hub-demo-wave')">
+          <span class="card-accent blue"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">01</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Wave</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Smooth 5-keyframe arm wave using smoothstep interpolation at 20 Hz. The canonical first demo — shows the full node-to-servo path in one motion.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Joint commands</span><span class="tag">Keyframe timing</span><span class="tag">20 Hz loop</span></div>
             </div>
-            <span style="font-size:13px;color:var(--blue);font-weight:600;white-space:nowrap">Open →</span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff easy">● Beginner</span>
+              <span style="font-size:12px;color:var(--faint)">right arm chain</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Demo 02 -->
-      <div class="card glow-cyan" style="cursor:pointer" onclick="openHub('hub-demo-greet')">
-        <span class="card-accent cyan"></span>
-        <div class="card-body">
-          <div class="demo-num cyan">02</div>
-          <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Greeting Demo</h3>
-          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:22px">Subscribes to /swayform/greet. When a message arrives, the robot performs a full greeting sequence: bow, open arms, wave, speak. Uses threading to run sequences without blocking the node.</p>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <span class="tag">Subscriber</span><span class="tag">Threading</span><span class="tag">Beginner</span>
+        <!-- Demo 02 -->
+        <div class="card glow-cyan" style="cursor:pointer" onclick="openHub('hub-demo-greet')">
+          <span class="card-accent cyan"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">02</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Greet</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Head turn, arm raise, and spoken output triggered by a ROS 2 String topic. Students see how one published message coordinates multiple systems at once.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Topics + subscribers</span><span class="tag">Audio output</span><span class="tag">Coordinated motion</span></div>
             </div>
-            <span style="font-size:13px;color:var(--cyan);font-weight:600;white-space:nowrap">Open →</span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff easy">● Beginner</span>
+              <span style="font-size:12px;color:var(--faint)">neck + arm + speaker</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Demo 03 -->
-      <div class="card glow-green" style="cursor:pointer" onclick="openHub('hub-demo-face')">
-        <span class="card-accent green"></span>
-        <div class="card-body">
-          <div class="demo-num green">03</div>
-          <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Face Tracker</h3>
-          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:22px">Haar cascade face detection on the depth camera feed. Proportional controller drives neck_yaw and neck_pitch toward the detected face. Dead zone prevents micro-jitter when the face is centered.</p>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <span class="tag">Vision</span><span class="tag">OpenCV</span><span class="tag">Intermediate</span>
+        <!-- Demo 03 -->
+        <div class="card glow-green" style="cursor:pointer" onclick="openHub('hub-demo-face')">
+          <span class="card-accent green"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">03</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Face Track</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Haar cascade detection drives neck pan/tilt via a proportional controller. The robot holds its gaze on a detected face with a dead zone to prevent jitter.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Haar cascade</span><span class="tag">Proportional control</span><span class="tag">Dead zones</span></div>
             </div>
-            <span style="font-size:13px;color:var(--green);font-weight:600;white-space:nowrap">Open →</span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff med">● Intermediate</span>
+              <span style="font-size:12px;color:var(--faint)">D435i · neck joints</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Demo 04 -->
-      <div class="card glow-yellow" style="cursor:pointer" onclick="openHub('hub-demo-dist')">
-        <span class="card-accent yellow"></span>
-        <div class="card-body">
-          <div class="demo-num yellow">04</div>
-          <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Distance React</h3>
-          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:22px">Three-state machine: idle → prepare → greet. The ultrasonic sensor drives transitions. Hysteresis thresholds prevent rapid toggling at the boundary distance. Greet state triggers wave + TTS.</p>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <span class="tag">Sensor</span><span class="tag">State machine</span><span class="tag">Intermediate</span>
+        <!-- Demo 04 -->
+        <div class="card glow-yellow" style="cursor:pointer" onclick="openHub('hub-demo-dist')">
+          <span class="card-accent yellow"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">04</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Proximity</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Ultrasonic sensor triggers three behavioral zones — idle, alert, and close — with hysteresis to prevent rapid switching between states.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Sensor thresholds</span><span class="tag">Hysteresis</span><span class="tag">State machine</span></div>
             </div>
-            <span style="font-size:13px;color:var(--yellow);font-weight:600;white-space:nowrap">Open →</span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff easy">● Beginner</span>
+              <span style="font-size:12px;color:var(--faint)">HC-SR04 · full body</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Demo 05 -->
-      <div class="card glow-purple" style="cursor:pointer" onclick="openHub('hub-demo-present')">
-        <span class="card-accent purple"></span>
-        <div class="card-body">
-          <div class="demo-num purple">05</div>
-          <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Presentation Mode</h3>
-          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:22px">Subscribes to slide_forward and slide_back commands. Cycles through a gesture library using itertools.cycle(). Each slide triggers a distinct pointing or explanatory gesture. Attentive idle between slides.</p>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <span class="tag">Presentation</span><span class="tag">Gestures</span><span class="tag">Advanced</span>
+        <!-- Demo 05 -->
+        <div class="card glow-purple" style="cursor:pointer" onclick="openHub('hub-demo-present')">
+          <span class="card-accent purple"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">05</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Present</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Subscribes to slide-advance commands and maps each to a gesture + spoken callout. Combines motion, audio, and topic-driven control in a single behavior.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Multi-system behavior</span><span class="tag">Event-driven</span><span class="tag">TTS</span></div>
             </div>
-            <span style="font-size:13px;color:var(--purple);font-weight:600;white-space:nowrap">Open →</span>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff med">● Intermediate</span>
+              <span style="font-size:12px;color:var(--faint)">arm + neck + speaker</span>
+            </div>
           </div>
         </div>
-      </div>
+        <!-- Demo 06 -->
+        <div class="card" style="cursor:pointer;border:1px solid var(--line)" onclick="openHub('hub-demo-wave')">
+          <span class="card-accent" style="background:linear-gradient(180deg,#f97316,transparent)"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">06</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Finger Control</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Individual finger joints independently commanded via keyboard input mapped to ROS 2 topics. Each key opens or closes one finger — 5 joints addressed simultaneously.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">Individual joint addressing</span><span class="tag">Simultaneous commands</span><span class="tag">Fine servo control</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff easy">● Beginner</span>
+              <span style="font-size:12px;color:var(--faint)">finger servos × 5</span>
+            </div>
+          </div>
+        </div>
+        <!-- Demo 07 -->
+        <div class="card" style="cursor:pointer;border:1px solid var(--line)" onclick="openHub('hub-demo-wave')">
+          <span class="card-accent blue"></span>
+          <div class="card-body">
+            <div class="demo-num" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:12px">07</div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Object Tracking</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">HSV color segmentation isolates a colored object in the camera feed. Centroid calculation drives neck pan/tilt to keep the object centered in frame.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">HSV color space</span><span class="tag">Contour detection</span><span class="tag">Camera feedback loop</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff med">● Intermediate</span>
+              <span style="font-size:12px;color:var(--faint)">D435i · neck joints</span>
+            </div>
+          </div>
+        </div>
+        <!-- Demo 08 -->
+        <div class="card" style="cursor:pointer;border:1px solid var(--line);opacity:.85" onclick="openHub('hub-demo-wave')">
+          <span class="card-accent purple"></span>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted)">08</div>
+              <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px">Prototype</span>
+            </div>
+            <h3 style="font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;color:var(--ink)">Pick / Place</h3>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:16px">Locates an ArUco-marked object using depth camera, positions the arm above it, and closes the fingers. Early-stage prototype — no force feedback. Shown honestly as work in progress.</p>
+            <div style="margin-bottom:16px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Students learn</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="tag">ArUco detection</span><span class="tag">Coordinate frames</span><span class="tag">Multi-phase motion</span><span class="tag">Open-loop limits</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="diff hard">● Advanced</span>
+              <span style="font-size:12px;color:var(--faint)">D435i · right arm · fingers</span>
+            </div>
+          </div>
+        </div>
 
       <!-- Run any demo CTA -->
       <div class="card" style="display:flex;flex-direction:column;justify-content:center">
@@ -5628,7 +6161,7 @@ ros2 run &lt;package&gt; &lt;node&gt;</div></div>
 
 <script>
 // ── PAGE SYSTEM ──────────────────────────────────────────────
-const pages = ['home','platform','robot','labs','demos','schools'];
+const pages = ['home','platform','robot','labs','learn','demos','schools'];
 
 function showPage(id) {
   try {
@@ -5652,7 +6185,7 @@ function showPage(id) {
     document.querySelectorAll('.nav-links a').forEach(function(a) {
       a.classList.remove('active');
     });
-    var navMap = {home:0,platform:1,robot:2,labs:3,demos:4,schools:5,errors:5};
+    var navMap = {home:0,platform:1,robot:2,labs:3,learn:4,demos:5,schools:6,errors:6};
     var idx = navMap[id];
     if (idx !== undefined) {
       var links = document.querySelectorAll('.nav-links a');
@@ -5662,6 +6195,20 @@ function showPage(id) {
     if (tb) tb.style.top = '';
     if (id === 'errors') { setTimeout(initErrorPage, 50); }
   } catch(e) { console.error('showPage error:', e); }
+}
+
+// ── ANATOMY DIAGRAM ───────────────────────────────────────────
+function showAnatomyDetail(id) {
+  try {
+    document.querySelectorAll('.anatomy-detail').forEach(function(d) { d.style.display = 'none'; });
+    var def = document.getElementById('anatomy-default');
+    if (def) def.style.display = 'none';
+    var detail = document.getElementById('anat-' + id);
+    if (detail) detail.style.display = 'block';
+    document.querySelectorAll('.anatomy-spot').forEach(function(s) { s.classList.remove('active'); });
+    var spot = document.getElementById('spot-' + id);
+    if (spot) spot.classList.add('active');
+  } catch(e) { console.error('anatomy error:', e); }
 }
 
 // ── JOINT TABLE FILTER ────────────────────────────────────────
@@ -6206,6 +6753,64 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+<style>
+/* ── PIPELINE DIAGRAM ── */
+.pipeline-diagram{background:#0d0d0f;border-radius:12px;overflow:hidden;padding:40px 32px;margin-bottom:48px;border:1px solid rgba(255,255,255,.06)}
+.pipeline-legend{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pipe-item{background:var(--bg);padding:20px 18px}
+.pipe-item-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.pipe-item h5{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em;margin-top:0}
+.pipe-item p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.pipe-topic{display:inline-block;font-family:var(--mono);font-size:11px;color:#0057ff;background:rgba(0,87,255,.06);border:1px solid rgba(0,87,255,.1);border-radius:4px;padding:2px 7px;margin-top:8px}
+@media(max-width:900px){.pipeline-legend{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.pipeline-legend{grid-template-columns:1fr}}
+
+/* ── LEARN PAGE ── */
+.learn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:60px}
+.learn-area{background:#fff;padding:36px 28px;transition:background .2s}
+.learn-area:hover{background:var(--bg2)}
+.learn-area-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.learn-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--faint);letter-spacing:.08em}
+.learn-area h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin:0}
+.learn-area p{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:16px}
+.learn-area-tags{display:flex;flex-wrap:wrap;gap:6px}
+@media(max-width:1100px){.learn-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.learn-grid{grid-template-columns:1fr}}
+
+/* ── ANATOMY DIAGRAM ── */
+.anatomy-wrap{display:grid;grid-template-columns:380px 1fr;gap:48px;align-items:start}
+.anatomy-svg-wrap{background:#0d0d0f;border-radius:12px;padding:32px;border:1px solid rgba(255,255,255,.06)}
+.anatomy-panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:36px;min-height:360px;position:sticky;top:100px}
+.anatomy-spot{cursor:pointer;transition:opacity .2s}
+.anatomy-spot:hover{opacity:.8}
+.anatomy-detail-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.anatomy-detail h3{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:14px;margin-top:0}
+.anatomy-detail p{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:20px}
+.anatomy-learns-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00804a;margin-bottom:12px}
+.anatomy-learns li{font-size:14px;color:var(--soft);padding-left:20px;position:relative;margin-bottom:8px;list-style:none}
+.anatomy-learns li::before{content:'→';position:absolute;left:0;color:#00804a;font-size:11px;font-weight:800;top:2px}
+@keyframes anat-pulse{0%,100%{r:14;opacity:.5}50%{r:17;opacity:.15}}
+@media(max-width:900px){.anatomy-wrap{grid-template-columns:1fr}.anatomy-panel{position:static;min-height:auto}}
+
+/* ── ROADMAP ── */
+.roadmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.roadmap-col{background:#fff;padding:36px 28px}
+.roadmap-col-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.roadmap-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.roadmap-status-dot.current{background:#00804a;box-shadow:0 0 0 3px rgba(0,128,74,.15)}
+.roadmap-status-dot.indev{background:#b35d00;box-shadow:0 0 0 3px rgba(179,93,0,.12)}
+.roadmap-status-dot.planned{background:#86868b}
+.roadmap-col-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.roadmap-col.roadmap-current .roadmap-col-label{color:#00804a}
+.roadmap-col.roadmap-indev .roadmap-col-label{color:#b35d00}
+.roadmap-col-title{font-size:16px;font-weight:700;color:var(--ink);margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid var(--line);letter-spacing:-.01em}
+.roadmap-items{display:flex;flex-direction:column;gap:10px;list-style:none;padding:0;margin:0}
+.roadmap-items li{font-size:14px;color:var(--muted);line-height:1.5;padding-left:18px;position:relative}
+.roadmap-col.roadmap-current .roadmap-items li::before{content:'✓';position:absolute;left:0;color:#00804a;font-weight:800;font-size:11px;top:1px}
+.roadmap-col.roadmap-indev .roadmap-items li::before{content:'◌';position:absolute;left:0;color:#b35d00;font-size:13px;top:0}
+.roadmap-col.roadmap-planned .roadmap-items li::before{content:'○';position:absolute;left:0;color:var(--faint);font-size:13px;top:0}
+@media(max-width:860px){.roadmap-grid{grid-template-columns:1fr}}
+</style>
 </body>
 </html>
 

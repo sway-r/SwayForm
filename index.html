@@ -6628,19 +6628,18 @@ document.addEventListener('DOMContentLoaded', function() {
    HOMEPAGE v3 — cinematic hero, restructured flow
    ══════════════════════════════════════════════════════ */
 
-/* ── CINEMATIC HERO ── */
-#hero{display:flex;align-items:center;background:#040608;color:#edf5ff;position:relative;overflow:hidden;padding-top:calc(var(--nav-h) + 42px);min-height:100vh}
-#hero h1{color:#edf5ff}
-#hero .hero-text{position:relative;z-index:2;padding:clamp(48px,6vh,100px) 0 clamp(48px,6vh,100px) clamp(28px,5vw,96px);max-width:580px;display:flex;flex-direction:column}
-#hero .hero-sub{color:rgba(220,235,255,.72);max-width:520px}
-#hero .label{color:rgba(200,220,240,.45)}
-#hero .hero-meta-item{color:rgba(200,220,240,.5)}
-#hero .hero-meta-num{color:#edf5ff}
-#hero .hero-meta-sep{color:rgba(255,255,255,.12)}
-#hero .hero-badge{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(200,220,240,.6)}
-#hero .hero-badge-dot{background:rgba(95,183,255,.85)}
-#hero .hero-actions .btn-ghost{border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.82)}
-#hero .hero-actions .btn-ghost:hover{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.07);color:#fff}
+/* ── HERO (white background, two-column grid) ── */
+#hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;background:#ffffff;color:var(--ink);position:relative;overflow:hidden;padding-top:calc(var(--nav-h) + 42px);min-height:100vh}
+#hero h1{color:var(--ink)}
+#hero .hero-text{position:relative;z-index:2;padding:clamp(60px,8vh,120px) 40px clamp(60px,8vh,100px) clamp(28px,4vw,60px);display:flex;flex-direction:column;justify-content:center}
+#hero .hero-sub{color:var(--muted);max-width:460px}
+#hero .label{color:var(--muted)}
+#hero .hero-meta-item{color:var(--faint)}
+#hero .hero-meta-num{color:var(--soft);font-family:var(--mono)}
+#hero .hero-meta-sep{color:var(--line)}
+#hero .hero-badge{border-color:rgba(0,0,0,.08);background:rgba(0,0,0,.03);color:var(--muted)}
+#hero .hero-badge-dot{background:#0057ff}
+#hero .hero-actions .btn-ghost{border-color:rgba(0,0,0,.12);color:var(--soft)}
 /* swap .hero-cinema-img <img> for <video autoplay muted loop playsinline> when robot demo is ready */
 .hero-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
 .hero-cinema-img{position:static;height:clamp(400px,50vh,640px);width:auto;object-fit:contain;filter:drop-shadow(0 32px 64px rgba(0,0,0,.13))}

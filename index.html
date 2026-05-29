@@ -852,10 +852,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         Institutional Access Only
       </div>
       <h1 class="d1">The future feels<br>different when<br><em>you build it.</em></h1>
-      <p class="hero-sub">SwayForm is a 21-DOF humanoid platform available exclusively to accredited academic programs. Every joint is commanded through ROS 2. Every sensor publishes data students can read and act on. Nothing is simulated.</p>
+      <p class="hero-sub">SwayForm gives students a real humanoid robotics platform to learn programming, sensors, motion, and control through hands-on experimentation.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" onclick="showPage('schools')">Apply for Your Program</button>
-        <button class="btn btn-ghost btn-lg" onclick="openHub('hub-welcome')">Explore the Hub</button>
+        <button class="btn btn-primary btn-lg" onclick="showPage('robot')">See the Platform</button>
+        <button class="btn btn-ghost btn-lg" onclick="showPage('labs')">Explore Learning</button>
       </div>
       <p style="font-size:12px;color:var(--faint);margin-top:16px;letter-spacing:.02em">Not available for individual or consumer purchase.</p>
       <div class="hero-meta">
@@ -910,28 +910,28 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="plat-grid">
         <div class="plat-content">
           <span class="label" style="display:block;margin-bottom:16px">The Platform</span>
-          <h2 class="d3">Built for programs<br>that do not simulate.</h2>
-          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">SwayForm pairs a fully articulated humanoid body with an uncompromising learning architecture. Students work directly on the hardware — SSH into the onboard Raspberry Pi 5, author Python nodes, publish to ROS 2 topics, and observe mechanical joints respond in real time. There is no abstraction layer between the student and the machine.</p>
+          <h2 class="d3">A system students can study, test, and improve.</h2>
+          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">SwayForm is a waist-up humanoid robotics platform designed for hands-on learning. It brings together mechanical design, electronics, depth vision, servo control, and ROS 2 software so students can understand robotics through real hardware. Instead of only reading about robotics or watching simulations, students can write code, test movement, debug real systems, and see how each part of the robot works together.</p>
           <div class="plat-features">
             <div class="plat-feat">
               <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
               <div>
-                <h4>Consequences, not approximations</h4>
-                <p>17 servo joints, Intel RealSense D435i depth camera, and MPU-6050 IMU. A wrong joint limit does not log an error — it stalls a motor. Students learn that difference once.</p>
+                <h4>Real hardware, real consequences</h4>
+                <p>A wrong joint limit does not log a warning — it stalls a motor. Students who work on real hardware build a different kind of understanding than students who work in simulation. Calibration, wiring, mechanical limits, and sensor noise are lessons that only physical hardware teaches.</p>
               </div>
             </div>
             <div class="plat-feat">
               <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
               <div>
-                <h4>Industry middleware from day one</h4>
-                <p>Every joint is a ROS 2 topic. Every sensor publishes on a node. Students work in the same framework used at Boston Dynamics, NASA JPL, and major research institutions — not a simplified wrapper.</p>
+                <h4>Built around ROS 2</h4>
+                <p>Every joint is a topic. Every sensor publishes on a node. Students work in the same middleware used across research and industry robotics — not a simplified wrapper, not a custom API. What they learn here transfers directly.</p>
               </div>
             </div>
             <div class="plat-feat">
               <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
               <div>
                 <h4>40 structured labs, included</h4>
-                <p>Four levels of progression, 40 structured labs, five preloaded demos, and ten reference chapters. Instructors receive lab rubrics and a full content guide aligned to engineering standards.</p>
+                <p>Forty labs organized into four levels of increasing complexity. Each lab includes starter code, step-by-step instructions, and reference material. Students progress from basic joint control through sensor integration, vision pipelines, and fully authored multi-node systems.</p>
               </div>
             </div>
           </div>
@@ -1068,8 +1068,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="wrap">
       <div class="compare-head-txt">
         <span class="label" style="display:block;margin-bottom:12px">Why SwayForm</span>
-        <h2 class="d3">Simulation teaches<br>concepts. Hardware teaches<br>judgment.</h2>
-        <p style="margin-top:14px;max-width:520px">When a joint limit is incorrect in simulation, the program logs an error. When it is incorrect on SwayForm, students hear the motor stall, trace the value through the node graph, and develop an intuition that no digital environment produces.</p>
+        <h2 class="d3">Robotics becomes easier to understand when students can interact with the system directly.</h2>
+        <p style="margin-top:14px;max-width:520px">SwayForm helps students connect code to motion, sensors to feedback, and engineering decisions to real-world behavior. It gives classrooms and labs a physical platform for learning how robots are actually built, controlled, tested, and improved.</p>
       </div>
       <div class="compare-table">
         <div class="ct-head">
@@ -1086,7 +1086,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ct-row"><div class="ct-val feature">Fully offline capable — no cloud</div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val"><span class="ck">&#10003;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
         <div class="ct-row"><div class="ct-val feature">Students SSH + use real Linux terminal</div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
       </div>
-      <p class="compare-note">"The robot does not know your intent. A command that is syntactically valid can still damage a joint if the constraints are wrong. That is the lesson no simulator can replicate."</p>
+      <p class="compare-note">Code feels different when it controls something real.</p>
     </div>
   </section>
 
@@ -1094,22 +1094,22 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <section class="how-section">
     <div class="wrap">
       <span class="label" style="display:block;margin-bottom:12px">Deployment</span>
-      <h2 class="d3">Operational on<br>the day it arrives.</h2>
+      <h2 class="d3">Operational on the day it arrives.</h2>
       <div class="how-grid">
         <div class="how-step">
           <div class="how-num">01</div>
-          <div class="how-title">Arrives fully operational</div>
-          <div class="how-desc">Every SwayForm is assembled, tested, and validated before shipment. Ubuntu 22.04 LTS, ROS 2 Humble, all hardware driver nodes, and five demo packages are configured and confirmed operational. No IT setup. No external licenses. No provisioning of any kind.</div>
+          <div class="how-title">Arrives fully built</div>
+          <div class="how-desc">Every SwayForm ships assembled, tested, and ready to run. Ubuntu, ROS 2, all hardware drivers, and five demo programs are pre-installed and confirmed working. No IT setup required.</div>
         </div>
         <div class="how-step">
           <div class="how-num">02</div>
-          <div class="how-title">First command in under five minutes</div>
-          <div class="how-desc">Students SSH in from any device on the school network. Demo 01 — a smooth five-keyframe arm wave — executes in under 30 seconds from boot. No account creation, no driver installation, no dependency management. The robot is the only infrastructure the lab requires.</div>
+          <div class="how-title">Up and running in minutes</div>
+          <div class="how-desc">Students SSH into the onboard Raspberry Pi 5 from any device on the local network. Demo 01 — a smooth arm wave — runs in under 30 seconds from boot. No accounts, no driver installs, no configuration.</div>
         </div>
         <div class="how-step">
           <div class="how-num">03</div>
-          <div class="how-title">Forty labs, accessible from day one</div>
-          <div class="how-desc">The SwayForm Learning Hub is available immediately: ten structured chapters, 40 lab sequences with starter code and instructor rubrics, and five fully annotated demo walkthroughs. Instructors receive a dedicated onboarding track and a direct support contact before the program begins.</div>
+          <div class="how-title">Learning Hub available from day one</div>
+          <div class="how-desc">The Learning Hub includes structured lab guides, demo walkthroughs, hardware reference material, and ROS 2 documentation. All accessible locally. No internet required after initial setup.</div>
         </div>
       </div>
     </div>
@@ -1121,8 +1121,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
         <div>
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Hardware</span>
-          <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:20px">Engineered with the rigor<br>expected of research-grade<br>platforms.</h2>
-          <p style="font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:420px">Every component selected for durability, repairability, and educational depth. No black boxes. No proprietary connectors. Every subsystem is documented, replaceable, and fully teachable. Students who understand the hardware understand the software that runs on it.</p>
+          <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:20px">Engineered for hands-on learning.</h2>
+          <p style="font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:420px">Every component chosen for durability, repairability, and educational depth. No black boxes. No proprietary connectors. Students who understand the hardware understand the software that runs on it.</p>
         </div>
         <div class="specs-grid" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06)">
           <div class="spec-item"><div class="spec-val">21</div><div class="spec-key">Degrees of Freedom</div></div>
@@ -1143,7 +1143,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="wrap">
       <div class="faq-head">
         <span class="label" style="display:block;margin-bottom:12px">Common Questions</span>
-        <h2 class="d3">What program directors ask before they apply.</h2>
+        <h2 class="d3">Common questions.</h2>
       </div>
       <div class="faq-grid">
         <div>
@@ -1167,7 +1167,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div>
           <div class="faq-item">
             <div class="faq-q">What is included with each unit?</div>
-            <div class="faq-a">The robot, fully assembled and validated. All software pre-installed. Lifetime access to the Learning Hub. Instructor onboarding package with lab rubrics, pacing guide, and full curriculum map. A dedicated support contact for the duration of the program year.</div>
+            <div class="faq-a">The robot, fully assembled and tested. All software pre-installed. Lifetime access to the Learning Hub. Lab materials, setup documentation, and direct support during onboarding.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">What does the application process involve?</div>
@@ -1175,11 +1175,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           </div>
           <div class="faq-item">
             <div class="faq-q">Can the curriculum be integrated into an existing course?</div>
-            <div class="faq-a">Yes. The four-quarter structure is modular by design. Programs can begin at any quarter, run a condensed single-semester track, or integrate individual labs into an existing engineering or computer science curriculum. All lab materials are available for instructor adaptation.</div>
+            <div class="faq-a">Yes. The labs are organized into four levels but can be used independently. Programs can start at any level, use selected labs as part of an existing course, or work through them in order. All lab materials are available for instructor adaptation.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">What happens if a hardware component fails?</div>
-            <div class="faq-a">Every mechanical and electronic component is an off-the-shelf part with a documented replacement procedure. SwayForm provides a hardware repair guide, replacement parts at cost, and direct engineering support for any issue that arises during the program year. No component is proprietary.</div>
+            <div class="faq-a">Every component is an off-the-shelf part with a documented replacement procedure. SwayForm provides a hardware repair guide, replacement parts, and direct support for any issue. No component is proprietary.</div>
           </div>
         </div>
       </div>
@@ -1192,8 +1192,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="cta-split">
         <div class="cta-side left">
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">For Students</span>
-          <h2>Everything you need to understand the platform.</h2>
-          <p>The SwayForm Learning Hub covers the full technical stack, from hardware architecture to advanced multi-node systems. Read the chapter, run the code, observe the result.</p>
+          <h2>Everything you need to start building.</h2>
+          <p>The SwayForm Learning Hub covers hardware, ROS 2, motion control, sensors, and vision — all structured around real labs you run on the robot.</p>
           <ul class="cta-list">
             <li>Ten structured chapters, hardware through advanced systems</li>
             <li>Five annotated demo walkthroughs with full source code</li>
@@ -1204,8 +1204,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
         <div class="cta-side right">
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">For Schools</span>
-          <h2>Apply for institutional access.</h2>
-          <p>SwayForm is deployed as a complete, self-contained unit. No recurring licensing. No cloud dependency. No configuration beyond a local network. Submit the form below to begin the application process.</p>
+          <h2>Get in touch.</h2>
+          <p>SwayForm is designed for educational programs that want students working on real hardware. Fill out the form and we will follow up within five business days.</p>
           <form class="contact-form" onsubmit="handleForm(event)">
             <div class="form-row">
               <div class="field"><label>Your name</label><input type="text" placeholder="Ms. Rodriguez"></div>

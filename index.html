@@ -5776,13 +5776,16 @@ async function handleDemoRequest(e) {
 window.addEventListener('scroll', function() {
   var tb = document.getElementById('topbar');
   var ab = document.getElementById('announce-bar');
-  if (tb && !tb.classList.contains('force-scrolled')) {
+  if (!tb) return;
+  if (!tb.classList.contains('force-scrolled')) {
     tb.classList.toggle('scrolled', window.scrollY > 20);
   }
-  // Slide topbar up to top:0 once announce bar scrolls out of view
-  if (tb && ab) {
+  if (ab && ab.style.display !== 'none') {
     var abH = ab.offsetHeight || 42;
-    tb.style.top = window.scrollY > abH ? '0' : (abH - window.scrollY) + 'px';
+    var sy = window.scrollY;
+    // Slide announce bar off-screen as user scrolls; topbar follows behind it
+    ab.style.top = Math.max(-abH, -sy) + 'px';
+    tb.style.top = Math.max(0, abH - sy) + 'px';
   }
 }, { passive: true });
 

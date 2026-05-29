@@ -957,7 +957,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="learning-head">
         <span class="label" style="display:block;margin-bottom:12px">Structured Labs</span>
         <h2 class="d3">From first connection to fully authored systems.</h2>
-        <p style="margin-top:14px;color:var(--muted)">From the first SSH connection to a fully student-authored interactive system. Each level introduces a new layer of complexity. Nothing is optional, nothing is abstract.</p>
+        <p style="margin-top:14px;color:var(--muted)">From the first SSH connection to a fully student-authored interactive system. Each level builds on the last. Nothing in the curriculum is purely theoretical.</p>
       </div>
       <div class="quarters">
         <div class="qcard q1">
@@ -1079,7 +1079,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="ct-cell hi">SwayForm</div>
         </div>
         <div class="ct-row"><div class="ct-val feature">Real physical consequences of code errors</div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val"><span class="cp">Partial</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
-        <div class="ct-row"><div class="ct-val feature">Industry-standard middleware (ROS 2)</div><div class="ct-val"><span class="cp">Some</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
+        <div class="ct-row"><div class="ct-val feature">Real robotics middleware (ROS 2)</div><div class="ct-val"><span class="cp">Some</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
         <div class="ct-row"><div class="ct-val feature">Humanoid form factor</div><div class="ct-val"><span class="cp">Partial</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
         <div class="ct-row"><div class="ct-val feature">Structured 40-lab curriculum included</div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
         <div class="ct-row"><div class="ct-val feature">Vision, audio, depth, IMU in one unit</div><div class="ct-val"><span class="cp">Partial</span></div><div class="ct-val"><span class="cx">&#10005;</span></div><div class="ct-val hi"><span class="ck">&#10003;</span></div></div>
@@ -1099,7 +1099,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="how-step">
           <div class="how-num">01</div>
           <div class="how-title">Arrives fully built</div>
-          <div class="how-desc">Every SwayForm ships assembled, tested, and ready to run. Ubuntu, ROS 2, all hardware drivers, and five demo programs are pre-installed and confirmed working. No IT setup required.</div>
+          <div class="how-desc">Every SwayForm ships assembled and tested before shipping. Ubuntu, ROS 2, all hardware drivers, and five demo programs are pre-installed and confirmed working. No IT setup required.</div>
         </div>
         <div class="how-step">
           <div class="how-num">02</div>
@@ -1138,6 +1138,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </div>
 
+  <!-- PROTOTYPE STATUS -->
+  <div style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:48px 0">
+    <div class="wrap" style="max-width:760px;text-align:center">
+      <span class="label" style="display:block;margin-bottom:12px">Development Status</span>
+      <p style="font-size:17px;color:var(--soft);line-height:1.75">SwayForm is currently in active development. The platform described here represents the current prototype direction and the classroom workflows being designed around it. We are working with early programs to validate motion, perception, and system integration before broader deployment.</p>
+    </div>
+  </div>
+
   <!-- FAQ -->
   <section class="faq-section">
     <div class="wrap">
@@ -1157,7 +1165,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           </div>
           <div class="faq-item">
             <div class="faq-q">Does the platform require internet access?</div>
-            <div class="faq-a">No. The robot, Learning Hub, and all associated software operate entirely on the local network. There are no cloud services, no external dependencies, and no ongoing subscriptions. Programs with restricted internet access can run the full curriculum without modification.</div>
+            <div class="faq-a">No. The robot, Learning Hub, and all associated software operate entirely on the local network. There are no cloud services, no external dependencies, and no ongoing subscriptions. Programs with restricted internet access can run the full curriculum without modification to the software.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">How many units does a program need?</div>
@@ -1167,7 +1175,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div>
           <div class="faq-item">
             <div class="faq-q">What is included with each unit?</div>
-            <div class="faq-a">The robot, fully assembled and tested. All software pre-installed. Lifetime access to the Learning Hub. Lab materials, setup documentation, and direct support during onboarding.</div>
+            <div class="faq-a">The robot, assembled and tested before shipping. All software pre-installed. Lifetime access to the Learning Hub. Lab materials, setup documentation, and direct support during onboarding.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">What does the application process involve?</div>
@@ -1266,9 +1274,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <span class="card-accent cyan"></span>
         <div class="card-body">
           <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Control System</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">ROS 2 Humble pre-installed, hardware driver nodes running at boot, all five demo packages ready to run. Students SSH in and issue their first joint command in under five minutes.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.65">ROS 2 pre-installed, hardware driver nodes running at boot, all five demo packages ready to run. Students SSH in and issue their first joint command in under five minutes.</p>
           <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">ROS 2 Humble</span><span class="tag">SSH-ready</span><span class="tag">Local network</span>
+            <span class="tag">ROS 2</span><span class="tag">SSH-ready</span><span class="tag">Local network</span>
           </div>
         </div>
       </div>
@@ -1288,9 +1296,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <span class="card-accent orange"></span>
         <div class="card-body">
           <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Classroom Materials</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">Printable joint reference card, lab rubrics, instructor setup checklist, team role cards, showcase scoring guide, and a full-year curriculum map across four quarters.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.65">Printable joint reference card, lab rubrics, instructor setup checklist, team role cards, showcase scoring guide, and a structured curriculum map across four levels.</p>
           <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">Rubrics included</span><span class="tag">Year curriculum</span><span class="tag">Printable PDFs</span>
+            <span class="tag">Rubrics included</span><span class="tag">Curriculum map</span><span class="tag">Printable PDFs</span>
           </div>
         </div>
       </div>
@@ -1315,7 +1323,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">Labs 01–10 in 8 sessions (Q1 track)</div>
+              <div style="font-weight:600">Labs 01–10 in 8 sessions (Level 1 track)</div>
             </div>
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Team size</div>
@@ -1331,13 +1339,13 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start">
           <div style="order:2">
             <span class="tag" style="margin-bottom:16px;display:inline-block">High School Engineering</span>
-            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">One-semester or full-year course</h3>
-            <p style="color:var(--muted);line-height:1.7">Maps directly to engineering design standards. Q1 covers hardware and control fundamentals, Q2 adds sensor integration, Q3 introduces expression and architecture, Q4 is entirely student-directed project work with a final showcase.</p>
+            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">Flexible pacing to fit your program timeline</h3>
+            <p style="color:var(--muted);line-height:1.7">Structured around real engineering concepts. Level 1 covers hardware and control fundamentals, Level 2 adds sensor integration, Level 3 introduces expression and architecture, Level 4 is entirely student-directed project work with a final showcase.</p>
           </div>
           <div style="order:1;display:flex;flex-direction:column;gap:12px;padding-top:8px">
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">Full 40-lab curriculum, 4 quarters</div>
+              <div style="font-weight:600">Full 40-lab curriculum across 4 levels</div>
             </div>
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Robots needed</div>
@@ -1359,7 +1367,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">One semester, Chapters 1–9</div>
+              <div style="font-weight:600">At a pace that fits your program, Chapters 1–9</div>
             </div>
             <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
               <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Prerequisites</div>
@@ -1399,8 +1407,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       </div>
       <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Middleware</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">ROS 2 Humble</div>
-        <div style="font-size:13px;color:var(--muted)">LTS release, node/topic/launch system</div>
+        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">ROS 2</div>
+        <div style="font-size:13px;color:var(--muted)">Node/topic/launch system</div>
       </div>
       <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Driver Layer</div>
@@ -1613,7 +1621,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="section-wide" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:0">
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
         <div style="font-size:28px;font-weight:800;color:#5fb7ff;letter-spacing:-.03em">17</div>
-        <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Degrees of Freedom</div>
+        <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Servo Joints</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
         <div style="font-size:28px;font-weight:800;color:#7af1ff;letter-spacing:-.03em">8 GB</div>
@@ -1628,7 +1636,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div style="font-size:12px;color:var(--muted);margin-top:4px">RealSense depth</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-        <div style="font-size:28px;font-weight:800;color:#ffab6e;letter-spacing:-.03em">4GB</div>
+        <div style="font-size:28px;font-weight:800;color:#ffab6e;letter-spacing:-.03em">8GB</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">Raspberry Pi 5</div>
       </div>
       <div style="padding:28px 20px;text-align:center">
@@ -1850,10 +1858,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
         <div class="card" style="padding:22px">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-            <div style="font-weight:700">Raspberry Pi 5 (4GB)</div>
+            <div style="font-weight:700">Raspberry Pi 5 (8GB)</div>
             <span class="tag">Compute</span>
           </div>
-          <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">The robot's brain. Runs Ubuntu 22.04, ROS 2 Humble, the hardware driver, and all student nodes. Connects to everything over GPIO, I²C, USB, and WiFi.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">The robot's brain. Runs Ubuntu 22.04, ROS 2, the hardware driver, and all student nodes. Connects to everything over GPIO, I²C, USB, and WiFi.</p>
           <div style="font-size:12px;color:var(--faint)">Python lib: <span style="font-family:var(--mono);color:var(--blue)">rclpy</span> · Chapter 3.5</div>
         </div>
 
@@ -2023,7 +2031,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="section-wide">
       <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Labs</span>
       <h1 style="font-size:clamp(32px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:16px;color:#edf5ff">40 labs. Each one builds on the last.</h1>
-      <p style="font-size:17px;color:rgba(200,220,240,.7);max-width:580px;line-height:1.7">Four quarters of structured practice. Every lab ships with starter code, step-by-step instructions, hints, a collapsible solution, and a debug checklist. Open any lab in the Learning Hub.</p>
+      <p style="font-size:17px;color:rgba(200,220,240,.7);max-width:580px;line-height:1.7">Four levels of structured practice. Every lab ships with starter code, step-by-step instructions, hints, a collapsible solution, and a debug checklist. Open any lab in the Learning Hub.</p>
     </div>
   </section>
 
@@ -2033,10 +2041,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <!-- filter tabs -->
     <div style="display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap" id="lab-filter-tabs">
       <button onclick="filterLabsPage('all')" id="lpf-all" style="padding:8px 18px;border-radius:20px;background:var(--blue);color:#05070d;font-size:13px;font-weight:700;border:none;cursor:pointer">All</button>
-      <button onclick="filterLabsPage('q1')" id="lpf-q1" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Q1 — Foundation</button>
-      <button onclick="filterLabsPage('q2')" id="lpf-q2" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Q2 — Sensors</button>
-      <button onclick="filterLabsPage('q3')" id="lpf-q3" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Q3 — Expression</button>
-      <button onclick="filterLabsPage('q4')" id="lpf-q4" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Q4 — Projects</button>
+      <button onclick="filterLabsPage('q1')" id="lpf-q1" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 1 — Foundation</button>
+      <button onclick="filterLabsPage('q2')" id="lpf-q2" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 2 — Sensors</button>
+      <button onclick="filterLabsPage('q3')" id="lpf-q3" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 3 — Expression</button>
+      <button onclick="filterLabsPage('q4')" id="lpf-q4" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 4 — Projects</button>
     </div>
 
     <!-- Q1 -->
@@ -2385,7 +2393,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <div style="font-size:22px;flex-shrink:0">🤖</div>
             <div>
               <div style="font-weight:700;margin-bottom:6px">SwayForm Robot Unit</div>
-              <p style="font-size:13px;color:var(--muted);line-height:1.6">21-DOF humanoid, pre-assembled and tested. All wiring complete. Raspberry Pi 5 pre-flashed with Ubuntu 22.04, ROS 2, and the SwayForm software stack. Boot to working demo in under 2 minutes.</p>
+              <p style="font-size:13px;color:var(--muted);line-height:1.6">21-DOF waist-up humanoid, assembled and tested before shipping. All wiring complete. Raspberry Pi 5 (8 GB) pre-flashed with Ubuntu 22.04, ROS 2, and the SwayForm software stack. Boot to working demo in under 2 minutes.</p>
             </div>
           </div>
           <div class="card" style="padding:24px;display:flex;gap:16px;align-items:start">
@@ -2679,7 +2687,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="sidebar-item" onclick="showHub('hub-lab-06')">Lab 06 — Gesture Sequence</div>
           <div class="sidebar-item" onclick="showHub('hub-lab-07')">Lab 07 — Motion Dictionary</div>
           <div class="sidebar-item" onclick="showHub('hub-lab-08')">Lab 08 — Safety Stop</div>
-          <div class="sidebar-item" onclick="showHub('hub-lab-09')">Lab 09 — Full Q1 Routine</div>
+          <div class="sidebar-item" onclick="showHub('hub-lab-09')">Lab 09 — Full Level 1 Routine</div>
         </div>
       </div>
 
@@ -2754,7 +2762,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="article-meta-item">📍 <strong>Start here</strong> — no prerequisites</div>
         </div>
         <h2>How this hub is organized</h2>
-        <p>The hub is split into four types of content. Each serves a different purpose, and you'll use all of them throughout the year.</p>
+        <p>The hub is split into four types of content. Each serves a different purpose, and you'll use all of them throughout your program.</p>
         <ul>
           <li><strong>Getting Started</strong> — safety rules, how SSH works, VS Code setup, your first session step by step.</li>
           <li><strong>Demo Codes</strong> — five programs that ship on every SwayForm robot. You'll run these first, then read how they work, then build your own versions.</li>
@@ -3039,7 +3047,7 @@ ros2 topic list</div>
       <article id="hub-demo-wave" class="hub-article">
         <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span class="sep">Demo Codes</span><span class="sep">›</span><span class="current">Demo 01 — Wave Demo</span></div>
         <h1>Demo 01 — Wave Demo</h1>
-        <div class="article-lead">The robot raises its right arm and performs a smooth back-and-forth wave using five keyframes and smoothstep interpolation, publishing joint commands at 20Hz. Run this first — it introduces nearly every concept you'll use all year.</div>
+        <div class="article-lead">The robot raises its right arm and performs a smooth back-and-forth wave using five keyframes and smoothstep interpolation, publishing joint commands at 20Hz. Run this first — it introduces nearly every concept you'll use throughout the curriculum.</div>
         <div class="article-meta">
           <div class="article-meta-item">⏱ <strong>20 min to read</strong></div>
           <div class="article-meta-item"><span class="diff easy">● Beginner</span></div>
@@ -3980,7 +3988,7 @@ if __name__ == "__main__":
 
       <!-- ── LAB 01 ── -->
       <article id="hub-lab-01" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 01</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 01</span></div>
         <h1>Lab 01 — Hello Robot Node</h1>
         <div class="article-lead">Write your first ROS 2 node from scratch. It logs a message, creates a timer, and publishes a simple joint command to confirm the driver is receiving your output.</div>
         <div class="article-meta">
@@ -4277,7 +4285,7 @@ if __name__ == "__main__":
 
       <!-- ── LAB 02 ── -->
       <article id="hub-lab-02" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 02</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 02</span></div>
         <h1>Lab 02 — Move One Joint</h1>
         <div class="article-lead">Publish a user-specified angle to a user-specified joint, with a proper clamp function that prevents out-of-range values from reaching the hardware driver.</div>
         <div class="article-meta">
@@ -4456,7 +4464,7 @@ if __name__ == "__main__":
 
       <!-- ── LABS 03-09 STUBS ── -->
       <article id="hub-lab-03" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 03</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 03</span></div>
         <h1>Lab 03 — Basic Wave</h1>
         <div class="article-lead">Build a three-keyframe wave sequence using the patterns from Demo 01. Your node should move through prepare → wave → neutral using your own keyframe data structure and the smoothstep interpolation function.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>45 min</strong></div><div class="article-meta-item"><span class="diff easy">● Beginner</span></div></div>
@@ -4486,7 +4494,7 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-04" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 04</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 04</span></div>
         <h1>Lab 04 — Head Scan</h1>
         <div class="article-lead">Use math.sin() to drive neck_yaw through a continuous oscillation, creating a slow left-right head scan. Introduces the concept of time-driven motion rather than keyframe-driven motion.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>45 min</strong></div><div class="article-meta-item"><span class="diff easy">● Beginner</span></div></div>
@@ -4516,7 +4524,7 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-05" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 05</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 05</span></div>
         <h1>Lab 05 — Command Menu Node</h1>
         <div class="article-lead">Subscribe to a String topic and use a dictionary to map command names to pose dictionaries. Publish the matching pose when a command is received. Introduce the idea of a named-pose library.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>45 min</strong></div><div class="article-meta-item"><span class="diff easy">● Beginner–Intermediate</span></div></div>
@@ -4546,7 +4554,7 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-06" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 06</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 06</span></div>
         <h1>Lab 06 — Gesture Sequence</h1>
         <div class="article-lead">Design a custom 5+ keyframe gesture entirely from scratch — no demo code to reference. Choose the joints, choose the angles, time each keyframe, and animate it using the smoothstep interpolation pattern.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>60–90 min</strong></div><div class="article-meta-item"><span class="diff med">● Intermediate</span></div></div>
@@ -4576,7 +4584,7 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-07" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 07</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 07</span></div>
         <h1>Lab 07 — Motion Dictionary Publisher</h1>
         <div class="article-lead">Build a node that holds a library of named poses and subscribes to a command topic. Publish whichever pose is requested. Extend it with at least 5 unique poses of your own design.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>60 min</strong></div><div class="article-meta-item"><span class="diff med">● Intermediate</span></div></div>
@@ -4606,12 +4614,12 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-08" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 08</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 08</span></div>
         <h1>Lab 08 — Safety Stop Publisher</h1>
-        <div class="article-lead">Write a standalone node that publishes the neutral pose at 20Hz for exactly 2 seconds, regardless of what any other node is doing. This is your emergency reset tool — keep it in your toolkit for the rest of the year.</div>
+        <div class="article-lead">Write a standalone node that publishes the neutral pose at 20Hz for exactly 2 seconds, regardless of what any other node is doing. This is your emergency reset tool — keep it in your toolkit throughout the curriculum.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>30 min</strong></div><div class="article-meta-item"><span class="diff easy">● Beginner</span></div></div>
         <div class="callout note"><div class="callout-label">Coming Soon</div><p>Full content in Stage 2. Key pattern: count ticks, destroy the node after 40 ticks (2 seconds at 20Hz).</p></div>
-        <div class="hub-next"><div class="hub-next-card" onclick="showHub('hub-lab-09')"><div><div class="hub-next-sub">Next Lab</div><div class="hub-next-title">Lab 09 — Full Q1 Routine →</div></div><div class="hub-next-arrow">→</div></div></div>
+        <div class="hub-next"><div class="hub-next-card" onclick="showHub('hub-lab-09')"><div><div class="hub-next-sub">Next Lab</div><div class="hub-next-title">Lab 09 — Full Level 1 Routine →</div></div><div class="hub-next-arrow">→</div></div></div>
       
       <!-- ── SELF-ASSESSMENT CHECKLIST ── -->
       <div class="lab-checklist" onclick="initLabChecklists()">
@@ -4636,8 +4644,8 @@ if __name__ == "__main__":
 </article>
 
       <article id="hub-lab-09" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q1</span><span class="sep">›</span><span class="current">Lab 09</span></div>
-        <h1>Lab 09 — Full Q1 Routine</h1>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 1</span><span class="sep">›</span><span class="current">Lab 09</span></div>
+        <h1>Lab 09 — Full Level 1 Routine</h1>
         <div class="article-lead">Your Q1 capstone. Combine head scan, a custom multi-joint gesture, and a named-pose command interface into one node that demonstrates everything from Labs 01–08.</div>
         <div class="article-meta"><div class="article-meta-item">⏱ <strong>90+ min</strong></div><div class="article-meta-item"><span class="diff hard">● Q1 Capstone</span></div></div>
         <div class="callout note"><div class="callout-label">Coming Soon</div><p>Full content in Stage 2. This lab has no starter code — you design and build it entirely. The rubric evaluates: motion quality, code clarity, clamping, naming, and return-to-neutral behavior.</p></div>
@@ -4667,7 +4675,7 @@ if __name__ == "__main__":
 
       <!-- ── Q2 STUB ── -->
       <article id="hub-lab-q2-stub" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q2</span><span class="sep">›</span><span class="current">Lab 11</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 2</span><span class="sep">›</span><span class="current">Lab 11</span></div>
 
         <h1>Lab 11 — Read Joint State Feedback</h1>
         <div class="article-lead">Subscribe to <code>/swayform/joint_states</code> and log what the robot's joints are actually doing — not what you commanded, but what the driver reports back. This is how you verify your commands landed.</div>
@@ -4844,7 +4852,7 @@ cp src/swayform_labs/lab11/joint_reader.py src/swayform_labs/my_work/joint_reade
 
       <!-- Q3 lab -->
       <article id="hub-lab-q3" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q3</span><span class="sep">›</span><span class="current">Lab 21</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 3</span><span class="sep">›</span><span class="current">Lab 21</span></div>
 
         <h1>Lab 21 — Emotion State Machine</h1>
         <div class="article-lead">Build a state machine with four emotional states — Happy, Thinking, Explaining, and Idle. Each state triggers a distinct pose and audio line. Transitions arrive as ROS 2 String messages on <code>/swayform/emotion</code>.</div>
@@ -5050,7 +5058,7 @@ ros2 topic pub --once /swayform/emotion std_msgs/String "data: explaining"</pre>
 
       <!-- Q4 lab -->
       <article id="hub-lab-q4" class="hub-article">
-        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Q4</span><span class="sep">›</span><span class="current">Lab 31</span></div>
+        <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span>Practice Labs — Level 4</span><span class="sep">›</span><span class="current">Lab 31</span></div>
 
         <h1>Lab 31 — Project Architecture Design</h1>
         <div class="article-lead">Before writing a single line of project code, design it. This lab takes you through creating a new ROS 2 package, drawing the node graph, listing all topics, and writing a one-page project proposal that your instructor approves before you proceed.</div>
@@ -5189,8 +5197,8 @@ What could go wrong? List at least three things and how you'll handle them.
             <div style="padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Student code connection</div>
           </div>
           <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1.5fr;border-bottom:1px solid var(--line2)">
-            <div style="padding:14px 16px;font-size:14px;font-weight:600;color:var(--soft)">Raspberry Pi 5 (4GB)</div>
-            <div style="padding:14px 16px;font-size:13px;color:var(--muted)">4GB RAM, quad-core</div>
+            <div style="padding:14px 16px;font-size:14px;font-weight:600;color:var(--soft)">Raspberry Pi 5 (8GB)</div>
+            <div style="padding:14px 16px;font-size:13px;color:var(--muted)">8GB RAM, quad-core</div>
             <div style="padding:14px 16px;font-size:13px;color:var(--muted)">5V via USB-C</div>
             <div style="padding:14px 16px;font-size:13px;color:var(--muted)">SSH target, runs ROS 2, all nodes run here</div>
           </div>
@@ -5477,8 +5485,8 @@ What could go wrong? List at least three things and how you'll handle them.
       <article id="hub-curriculum" class="hub-article">
         <div class="breadcrumb"><a onclick="showHub('hub-welcome')">Hub</a><span class="sep">›</span><span class="current">Curriculum Overview</span></div>
         <h1>Full Curriculum Overview</h1>
-        <div class="article-lead">The complete four-quarter curriculum map — which chapters connect to which labs, and suggested pacing for different program lengths.</div>
-        <div class="callout note"><div class="callout-label">Coming in Stage 2</div><p>Full curriculum mapping, pacing tables for 4-week / 9-week / semester / full-year programs, and PDF download links will be added in the next update.</p></div>
+        <div class="article-lead">The complete four-level curriculum map — which chapters connect to which labs, and suggested pacing for different program timelines.</div>
+        <div class="callout note"><div class="callout-label">Coming in Stage 2</div><p>Full curriculum mapping, pacing tables for different program lengths, and PDF download links will be added in the next update.</p></div>
       </article>
 
 

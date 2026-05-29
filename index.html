@@ -110,8 +110,8 @@ p{color:var(--muted);line-height:1.75}
   box-shadow:0 1px 0 rgba(0,0,0,.05);
 }
 .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1440px;margin:0 auto;padding:0 48px}
-.logo{font-size:18px;font-weight:800;letter-spacing:-0.03em;color:var(--ink);display:flex;align-items:center;gap:0;flex-shrink:0;transition:color .25s}
-.logo .s{color:inherit}
+.logo{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:var(--ink);display:flex;align-items:center;gap:0;flex-shrink:0;transition:color .25s}
+.logo .s{color:#0057ff}
 .nav-links{display:flex;align-items:center;gap:2px}
 .nav-links a{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--muted);transition:color .15s,background .15s;letter-spacing:.01em}
 .nav-links a:hover,.nav-links a.active{color:var(--ink);background:var(--panel2)}
@@ -813,7 +813,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showPage('schools')">Request Demo</button>
-      <button class="hub-cta" onclick="openHub('hub-welcome')">Learning Hub</button>
+      <button class="hub-cta" onclick="openHubNewTab('hub-welcome')">Learning Hub</button>
       <div class="hamburger" onclick="document.getElementById('mobile-nav').classList.add('open')" aria-label="Menu">
         <span></span><span></span><span></span>
       </div>
@@ -828,7 +828,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">Platform</a>
   <a href="#" onclick="showPage('robot');document.getElementById('mobile-nav').classList.remove('open');return false">Robot</a>
   <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Labs</a>
-  <a href="#" onclick="openHub('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
+  <a href="#" onclick="openHubNewTab('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
   <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">For Schools</a>
 </div>
 
@@ -849,7 +849,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="hero-text">
       <div class="hero-badge">
         <div class="hero-badge-dot"></div>
-        By Application Only
+        Institutional Access Only
       </div>
       <h1 class="d1">The future feels<br>different when<br><em>you build it.</em></h1>
       <p class="hero-sub">SwayForm is a 21-DOF humanoid platform available exclusively to accredited academic programs. Every joint is commanded through ROS 2. Every sensor publishes data students can read and act on. Nothing is simulated.</p>
@@ -857,6 +857,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <button class="btn btn-primary btn-lg" onclick="showPage('schools')">Apply for Your Program</button>
         <button class="btn btn-ghost btn-lg" onclick="openHub('hub-welcome')">Explore the Hub</button>
       </div>
+      <p style="font-size:12px;color:var(--faint);margin-top:16px;letter-spacing:.02em">Not available for individual or consumer purchase.</p>
       <div class="hero-meta">
         <div class="hero-meta-item"><span class="hero-meta-num">21</span>&nbsp;degrees of freedom</div>
         <div class="hero-meta-sep">|</div>
@@ -874,7 +875,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
              onerror="this.style.cssText='width:320px;height:520px;background:var(--bg3);border-radius:12px;border:1px solid var(--line)'">
         <div class="chip c1"><div class="chip-dot" style="background:var(--ink)"></div>21 DoF</div>
         <div class="chip c2"><div class="chip-dot" style="background:var(--muted)"></div>ROS 2 Native</div>
-        <div class="chip c3"><div class="chip-dot" style="background:var(--soft)"></div>Depth Camera</div>
+        <div class="chip c3"><div class="chip-dot" style="background:var(--soft)"></div>D435i</div>
         <div class="chip c4"><div class="chip-dot" style="background:var(--faint)"></div>Pi 5 On-board</div>
       </div>
     </div>
@@ -891,6 +892,17 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
+  <!-- QUOTE -->
+  <div class="testimonial-band">
+    <div class="testimonial-inner">
+      <div class="testimonial-quote">&#8220;What I cannot create, I do not understand.&#8221;</div>
+      <div class="testimonial-attr">
+        <div class="testimonial-line"></div>
+        <div class="testimonial-name">Richard Feynman</div>
+        <div class="testimonial-line"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- PLATFORM -->
   <section id="platform-sec" class="section">
@@ -905,7 +917,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
               <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
               <div>
                 <h4>Consequences, not approximations</h4>
-                <p>17 servo joints, dual PCA9685 controllers, Intel RealSense depth camera, and MPU-6050 IMU. A wrong joint limit does not log an error — it stalls a motor. Students learn that difference once.</p>
+                <p>17 servo joints, Intel RealSense D435i depth camera, and MPU-6050 IMU. A wrong joint limit does not log an error — it stalls a motor. Students learn that difference once.</p>
               </div>
             </div>
             <div class="plat-feat">
@@ -930,8 +942,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
                  onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
             <div class="plat-specs">
               <div class="plat-spec-item"><div class="plat-spec-val">MG996R</div><div class="plat-spec-key">Main servos</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">6V</div><div class="plat-spec-key">Servo rail</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">I&#178;C</div><div class="plat-spec-key">PCA9685</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">8 GB</div><div class="plat-spec-key">RPi 5 RAM</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">D435i</div><div class="plat-spec-key">Depth Camera</div></div>
             </div>
           </div>
         </div>
@@ -1116,24 +1128,12 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="spec-item"><div class="spec-val">21</div><div class="spec-key">Degrees of Freedom</div></div>
           <div class="spec-item"><div class="spec-val">MG996R</div><div class="spec-key">Primary Servos</div></div>
           <div class="spec-item"><div class="spec-val">Pi&thinsp;5</div><div class="spec-key">On-board Compute</div></div>
-          <div class="spec-item"><div class="spec-val">D435</div><div class="spec-key">Depth Camera</div></div>
+          <div class="spec-item"><div class="spec-val">D435i</div><div class="spec-key">Depth Camera</div></div>
+          <div class="spec-item"><div class="spec-val">8 GB</div><div class="spec-key">RPi 5 RAM</div></div>
           <div class="spec-item"><div class="spec-val">6V</div><div class="spec-key">Servo Rail</div></div>
-          <div class="spec-item"><div class="spec-val">I²C</div><div class="spec-key">PCA9685 Bus</div></div>
           <div class="spec-item"><div class="spec-val">IMU</div><div class="spec-key">MPU-6050</div></div>
           <div class="spec-item"><div class="spec-val">HC&#8209;SR04</div><div class="spec-key">Proximity Sensor</div></div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TESTIMONIAL -->
-  <div class="testimonial-band">
-    <div class="testimonial-inner">
-      <div class="testimonial-quote">&#8220;What I cannot create, I do not understand.&#8221;</div>
-      <div class="testimonial-attr">
-        <div class="testimonial-line"></div>
-        <div class="testimonial-name">Richard Feynman</div>
-        <div class="testimonial-line"></div>
       </div>
     </div>
   </div>
@@ -1255,7 +1255,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <span class="card-accent blue"></span>
         <div class="card-body">
           <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Physical Robot Unit</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">21-DOF humanoid frame, Raspberry Pi 5 brain, dual PCA9685 servo controllers, RealSense depth camera, IMU, distance sensor, speaker, GPIO buttons. Pre-assembled and tested before shipping.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.65">21-DOF humanoid frame, Raspberry Pi 5 (8 GB), Intel RealSense D435i depth camera, IMU, distance sensor, speaker, GPIO buttons. Pre-assembled and tested before shipping.</p>
           <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
             <span class="tag">17 joints</span><span class="tag">Depth camera</span><span class="tag">Pre-assembled</span>
           </div>
@@ -1405,7 +1405,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Driver Layer</div>
         <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">swayform_driver</div>
-        <div style="font-size:13px;color:var(--muted)">PCA9685 I²C, joint validation, PWM output</div>
+        <div style="font-size:13px;color:var(--muted)">Joint driver, safe range validation</div>
       </div>
       <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Vision</div>
@@ -1616,16 +1616,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Degrees of Freedom</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-        <div style="font-size:28px;font-weight:800;color:#7af1ff;letter-spacing:-.03em">32</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">PWM channels</div>
+        <div style="font-size:28px;font-weight:800;color:#7af1ff;letter-spacing:-.03em">8 GB</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">RPi 5 RAM</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
         <div style="font-size:28px;font-weight:800;color:#7dffbd;letter-spacing:-.03em">12V</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">Main supply rail</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-        <div style="font-size:28px;font-weight:800;color:#c084fc;letter-spacing:-.03em">RGB-D</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">Depth camera</div>
+        <div style="font-size:28px;font-weight:800;color:#c084fc;letter-spacing:-.03em">D435i</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">RealSense depth</div>
       </div>
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
         <div style="font-size:28px;font-weight:800;color:#ffab6e;letter-spacing:-.03em">4GB</div>
@@ -1859,7 +1859,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
         <div class="card" style="padding:22px">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-            <div style="font-weight:700">Intel RealSense (RGB-D)</div>
+            <div style="font-weight:700">Intel RealSense D435i</div>
             <span class="tag">Vision</span>
           </div>
           <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">Publishes synchronized color and depth image streams. Color at 640×480, depth per pixel in millimeters. USB-connected to Pi. Min range ~0.3m.</p>
@@ -5651,6 +5651,7 @@ function showPage(id) {
       if (links[idx]) links[idx].classList.add('active');
     }
     window.scrollTo(0, 0);
+    if (tb) tb.style.top = '';
     if (id === 'errors') { setTimeout(initErrorPage, 50); }
   } catch(e) { console.error('showPage error:', e); }
 }
@@ -5736,15 +5737,27 @@ window.addEventListener('scroll', function() {
 function openHub(articleId) {
   try {
     var article = articleId || 'hub-welcome';
-    var url = window.location.pathname + '?hub=' + article;
-    window.open(url, '_blank');
+    var hub = document.getElementById('hub');
+    if (!hub) return;
+    hub.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showHub(article);
   } catch(e) { console.error('openHub error:', e); }
+}
+
+function openHubNewTab(articleId) {
+  var article = articleId || 'hub-welcome';
+  window.open(window.location.pathname + '?hub=' + article, '_blank');
 }
 
 function closeHub() {
   var hub = document.getElementById('hub');
   if (hub) hub.classList.remove('open');
   document.body.style.overflow = '';
+  var bar = document.getElementById('announce-bar');
+  if (bar) bar.style.display = '';
+  var tb = document.getElementById('topbar');
+  if (tb) tb.style.top = '';
 }
 
 // Auto-open hub when loaded with ?hub= param (new tab behaviour)

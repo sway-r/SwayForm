@@ -209,7 +209,7 @@ p{color:var(--muted);line-height:1.75}
 }
 .hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:pulse 2.2s ease infinite}
 .hero-text h1{color:var(--ink)}
-.hero-text h1 em{font-style:normal;color:var(--ink);-webkit-text-fill-color:var(--ink);background:none}
+.hero-text h1 em{font-style:normal;color:inherit;-webkit-text-fill-color:inherit;background:none}
 .hero-sub{margin-top:24px;max-width:460px;font-size:clamp(16px,1.8vw,19px);color:var(--muted);line-height:1.65}
 .hero-actions{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap}
 .hero-meta{margin-top:52px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
@@ -837,17 +837,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 </div>
 
 <!-- ═══════════════════════════════════════════════════ TOPBAR -->
-<nav id="topbar">
+<nav id="topbar" class="scrolled force-scrolled">
   <div class="nav-inner">
     <div class="logo"><span class="s">S</span>wayForm</div>
     <div class="nav-links">
       <a href="#" class="active" onclick="showPage('home');return false">Overview</a>
-      <a href="#" onclick="showPage('platform');return false">Platform</a>
-      <a href="#" onclick="showPage('robot');return false">Robot</a>
-      <a href="#" onclick="showPage('labs');return false">Labs</a>
-      <a href="#" onclick="showPage('learn');return false">Learn</a>
-      <a href="#" onclick="showPage('demos');return false">Demos</a>
-      <a href="#" onclick="showPage('schools');return false">For Schools</a>
+      <a href="#" onclick="showPage('platform');return false">The Robot</a>
+      <a href="#" onclick="showPage('labs');return false">Learning Path</a>
+      <a href="#" onclick="showPage('demos');return false">Demo Programs</a>
+      <a href="#" onclick="showPage('schools');return false">Contact</a>
     </div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showPage('schools')">Request Demo</button>
@@ -863,13 +861,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <div id="mobile-nav">
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="#" onclick="showPage('home');document.getElementById('mobile-nav').classList.remove('open');return false">Overview</a>
-  <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">Platform</a>
-  <a href="#" onclick="showPage('robot');document.getElementById('mobile-nav').classList.remove('open');return false">Robot</a>
-  <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Labs</a>
-  <a href="#" onclick="showPage('learn');document.getElementById('mobile-nav').classList.remove('open');return false">Learn</a>
+  <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">The Robot</a>
+  <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Path</a>
+  <a href="#" onclick="showPage('demos');document.getElementById('mobile-nav').classList.remove('open');return false">Demo Programs</a>
+  <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">Contact</a>
   <a href="#" onclick="openHubNewTab('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
-  <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">For Schools</a>
-  <a href="#" onclick="showPage('learn');document.getElementById('mobile-nav').classList.remove('open');return false">What Students Learn</a>
 </div>
 
 
@@ -879,14 +875,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ──────────────────────────────────── HOME PAGE -->
 <div id="pg-home" class="pg active">
 
-  <!-- ═══ HERO — cinematic dark layout; swap <img> for <video> when demo is ready ═══ -->
+  <!-- ═══ HERO — light/white layout, video-ready right panel ═══ -->
   <section id="hero">
-    <div class="hero-cinema-bg">
-      <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot" class="hero-cinema-img"
-           onerror="this.style.display='none'">
-      <div class="hero-cinema-gradient"></div>
-      <div class="hero-bg-grid" style="opacity:.25"></div>
-    </div>
+    <div class="hero-bg-grid"></div>
+    <!-- LEFT: text -->
     <div class="hero-text">
       <div class="hero-badge">
         <div class="hero-badge-dot"></div>
@@ -895,8 +887,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <h1 class="d1">The future feels<br>different when<br><em>you build it.</em></h1>
       <p class="hero-sub">SwayForm gives schools and student teams access to a real humanoid robotics platform, built for learning AI, robotics, motion, sensors, and code through physical experimentation.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" onclick="showPage('robot')">Explore the Platform</button>
-        <button class="btn btn-ghost btn-lg" onclick="openHubNewTab('hub-welcome')">Open Learning Hub</button>
+        <button class="btn btn-primary btn-lg" onclick="showPage('platform')">The Robot</button>
+        <button class="btn btn-ghost btn-lg" onclick="openHubNewTab('hub-welcome')">Learning Hub</button>
       </div>
       <div class="hero-meta" style="margin-top:44px">
         <div class="hero-meta-item"><span class="hero-meta-num">8</span>&thinsp;major joints</div>
@@ -906,6 +898,17 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="hero-meta-item"><span class="hero-meta-num">5</span>&thinsp;preloaded demos</div>
         <div class="hero-meta-sep">|</div>
         <div class="hero-meta-item"><span class="hero-meta-num">ROS&thinsp;2</span>&thinsp;powered</div>
+      </div>
+    </div>
+    <!-- RIGHT: robot visual — swap <img> for <video autoplay muted loop playsinline> when demo is ready -->
+    <div class="hero-visual-panel">
+      <div class="robot-frame">
+        <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot" class="robot-img hero-cinema-img"
+             onerror="this.style.cssText='width:280px;height:480px;background:var(--bg3);border-radius:12px;border:1px solid var(--line)'">
+        <div class="chip c1"><div class="chip-dot" style="background:var(--ink)"></div>8 major joints</div>
+        <div class="chip c2"><div class="chip-dot" style="background:var(--muted)"></div>ROS 2 Native</div>
+        <div class="chip c3"><div class="chip-dot" style="background:var(--soft)"></div>D435i Camera</div>
+        <div class="chip c4"><div class="chip-dot" style="background:var(--faint)"></div>Pi 5 On-board</div>
       </div>
     </div>
   </section>
@@ -1371,358 +1374,210 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ──────────────────────────────────── PLATFORM PAGE (stub) -->
 <div id="pg-platform" class="pg">
 
-  <!-- hero strip -->
-  <section style="padding-top:calc(var(--nav-h) + 122px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 80% 50%,rgba(95,183,255,.08) 0%,transparent 70%);pointer-events:none"></div>
+  <!-- HERO -->
+  <section style="padding-top:calc(var(--nav-h) + 42px);padding-bottom:0;background:#040608;border-bottom:none;position:relative;overflow:hidden;min-height:80vh;display:flex;align-items:center">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 72% 50%,rgba(95,183,255,.07) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);pointer-events:none"></div>
+    <div class="section-wide" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;padding-top:80px;padding-bottom:80px">
+      <div style="position:relative;z-index:2">
+        <span class="label" style="display:block;margin-bottom:20px;color:rgba(95,183,255,.7)">The Robot</span>
+        <h1 style="font-size:clamp(36px,5vw,62px);font-weight:900;letter-spacing:-.04em;line-height:1.06;color:#edf5ff;margin-bottom:24px">The robot<br>is the classroom.</h1>
+        <p style="font-size:clamp(16px,1.8vw,19px);color:rgba(200,220,240,.7);max-width:480px;line-height:1.7;margin-bottom:24px">SwayForm arrives as a complete upper-body humanoid robotics system: physical robot, control software, learning materials, demo programs, and classroom-ready workflows built around real hardware.</p>
+        <p style="font-size:15px;color:rgba(200,220,240,.48);max-width:460px;line-height:1.72;margin-bottom:36px">Students are not just watching robotics happen. They are changing code, testing motion, reading sensor feedback, and seeing their decisions move a machine in front of them.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-lg" onclick="showPage('schools')">Request a Demo</button>
+          <button class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.15);color:rgba(237,245,255,.8)" onclick="showPage('labs')">View Learning Path</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;position:relative">
+        <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot"
+             style="height:clamp(380px,48vh,580px);width:auto;object-fit:contain;filter:drop-shadow(0 40px 80px rgba(0,0,0,.5));position:relative;z-index:1"
+             onerror="this.parentElement.style.minHeight='400px'">
+        <div style="position:absolute;top:15%;left:-24px;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(200,220,240,.8)">Upper-body humanoid</div>
+        <div style="position:absolute;top:38%;right:-44px;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(200,220,240,.8)">ROS 2 controlled</div>
+        <div style="position:absolute;bottom:38%;left:-50px;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(200,220,240,.8)">Depth camera ready</div>
+        <div style="position:absolute;bottom:20%;right:-40px;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(200,220,240,.8)">Servo-driven motion</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOT A KIT -->
+  <section style="background:#000;border-top:1px solid rgba(255,255,255,.06);padding:40px 0">
+    <div class="section-wide" style="text-align:center">
+      <p style="font-size:clamp(16px,1.8vw,20px);font-weight:500;color:rgba(200,220,240,.65);letter-spacing:-.01em;max-width:780px;margin:0 auto;line-height:1.6">Not a kit. Not a simulation. A complete humanoid robotics system students can power on, study, code, test, and improve.</p>
+    </div>
+  </section>
+
+  <!-- WHAT SHIPS -->
+  <section style="background:#fff;padding:80px 0;border-top:1px solid rgba(0,0,0,.06)">
     <div class="section-wide">
-      <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Platform</span>
-      <h1 style="font-size:clamp(36px,5vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:720px;margin-bottom:20px;color:#edf5ff">Everything your program needs to run physical robotics education.</h1>
-      <p style="font-size:18px;color:rgba(200,220,240,.7);max-width:600px;line-height:1.7">SwayForm ships as a complete unit: robot, control system, learning content, and classroom tools. No cloud dependency. No licensing fees. No special networking. Power it on and it works.</p>
+      <div style="text-align:center;max-width:560px;margin:0 auto 56px">
+        <span class="label" style="display:block;margin-bottom:12px">What ships with the system</span>
+        <h2 class="d3">Everything in one box.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Every component designed to work together from day one. No assembly required before students touch the hardware.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+        <div class="card glow-blue">
+          <span class="card-accent blue"></span>
+          <div class="card-body">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Physical Robot Unit</h3>
+            <p style="font-size:13px;color:var(--muted);line-height:1.65">An upper-body humanoid platform with arms, hands, neck motion, and rotating torso/base movement. Built so students can connect software decisions to visible physical behavior.</p>
+            <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag">8 major joints</span><span class="tag">Servo-driven</span><span class="tag">Pre-assembled</span>
+            </div>
+          </div>
+        </div>
+        <div class="card glow-cyan">
+          <span class="card-accent cyan"></span>
+          <div class="card-body">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Control System</h3>
+            <p style="font-size:13px;color:var(--muted);line-height:1.65">ROS 2-based control running on onboard compute, with servo drivers, sensor interfaces, and motion logic organized so students can inspect and modify how the robot works.</p>
+            <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag">ROS 2</span><span class="tag">SSH-ready</span><span class="tag">Local network</span>
+            </div>
+          </div>
+        </div>
+        <div class="card glow-green">
+          <span class="card-accent green"></span>
+          <div class="card-body">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Learning System</h3>
+            <p style="font-size:13px;color:var(--muted);line-height:1.65">Structured lessons, starter code, demo walkthroughs, debugging guides, and progression from basic control to perception-driven behavior — all organized for classroom use.</p>
+            <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag">40 labs</span><span class="tag">5 demos</span><span class="tag">Classroom-ready</span>
+            </div>
+          </div>
+        </div>
+        <div class="card glow-yellow">
+          <span class="card-accent orange"></span>
+          <div class="card-body">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Classroom Materials</h3>
+            <p style="font-size:13px;color:var(--muted);line-height:1.65">Built for clubs, labs, and courses: activity flows, project prompts, setup guidance, and material that helps students learn even if the instructor is not a robotics specialist.</p>
+            <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag">Rubrics included</span><span class="tag">Role cards</span><span class="tag">Instructor guides</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- what is included -->
-  <section style="background:#fff;padding:80px 0">
-    <div class="section-wide"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
-
-      <div class="card">
-        <span class="card-accent blue"></span>
-        <div class="card-body">
-          <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Physical Robot Unit</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">21-DOF humanoid frame, Raspberry Pi 5 (8 GB), Intel RealSense D435i depth camera, IMU, distance sensor, speaker, GPIO buttons. Pre-assembled and tested before shipping.</p>
-          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">17 joints</span><span class="tag">Depth camera</span><span class="tag">Pre-assembled</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <span class="card-accent cyan"></span>
-        <div class="card-body">
-          <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Control System</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">ROS 2 pre-installed, hardware driver nodes running at boot, all five demo packages ready to run. Students SSH in and issue their first joint command in under five minutes.</p>
-          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">ROS 2</span><span class="tag">SSH-ready</span><span class="tag">Local network</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <span class="card-accent green"></span>
-        <div class="card-body">
-          <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Learning System</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">The SwayForm Learning Hub covers hardware fundamentals, ROS 2 concepts, motion control, sensor integration, and vision. 10 chapters, 40 labs, 5 complete demos, all offline-capable.</p>
-          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">10 chapters</span><span class="tag">40 labs</span><span class="tag">Offline-capable</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <span class="card-accent orange"></span>
-        <div class="card-body">
-          <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--ink)">Classroom Materials</h3>
-          <p style="font-size:13px;color:var(--muted);line-height:1.65">Printable joint reference card, lab rubrics, instructor setup checklist, team role cards, showcase scoring guide, and a structured curriculum map across four levels.</p>
-          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-            <span class="tag">Rubrics included</span><span class="tag">Curriculum map</span><span class="tag">Printable PDFs</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- use cases -->
-  <section style="background:var(--bg2);padding:80px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <!-- WHAT STUDENTS CONTROL -->
+  <section style="background:var(--bg2);padding:80px 0;border-top:1px solid var(--line)">
     <div class="section-wide">
-      <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Who uses it</span>
-      <h2 style="font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.025em;margin-bottom:48px">Five program types. One platform.</h2>
-
-      <div style="display:flex;flex-direction:column;gap:0">
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start">
-          <div>
-            <span class="tag" style="margin-bottom:16px;display:inline-block">Robotics Club</span>
-            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">After-school programs with limited hours</h3>
-            <p style="color:var(--muted);line-height:1.7">One robot per club works fine. Teams rotate through driver, coder, observer, and documenter roles each session. Labs 01–10 map cleanly to eight 60-minute meetings. By Lab 10 the robot waves, tracks a face, and greets someone by distance.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start">
+        <div>
+          <span class="label" style="display:block;margin-bottom:12px">Student control</span>
+          <h2 class="d3">What students can move.</h2>
+          <p style="margin-top:14px;color:var(--muted);font-size:17px;line-height:1.75;max-width:460px">Every joint is accessible through ROS 2 topics. Students do not control a black box — they control individual joints, read individual sensors, and see exactly how each command maps to physical movement.</p>
+          <div style="margin-top:36px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)">
+              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Upper body</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Left &amp; right arms</div><div style="font-size:12px;color:var(--faint);margin-top:2px">Shoulder · elbow · wrist</div></div>
+              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Head</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Neck motion</div><div style="font-size:12px;color:var(--faint);margin-top:2px">Pan · tilt</div></div>
+              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Base</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Torso rotation</div><div style="font-size:12px;color:var(--faint);margin-top:2px">DC motor · encoder</div></div>
+              <div style="background:var(--bg);padding:18px 20px"><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px">Sensors</div><div style="font-size:15px;font-weight:700;color:var(--ink)">Depth · IMU · Proximity</div><div style="font-size:12px;color:var(--faint);margin-top:2px">D435i · MPU-6050 · HC-SR04</div></div>
+            </div>
+            <div style="background:var(--bg);padding:16px 20px;font-size:12px;color:var(--faint)">8 major upper-body joints, all accessible via ROS 2 topics. Demos and labs include prebuilt control for all systems.</div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">Labs 01–10 in 8 sessions (Level 1 track)</div>
+        </div>
+        <div>
+          <span class="label" style="display:block;margin-bottom:12px">From code to motion</span>
+          <h2 class="d3">How a student's code moves the robot.</h2>
+          <p style="margin-top:14px;color:var(--muted);font-size:17px;line-height:1.75;max-width:460px">Every behavior follows the same path. Understanding this path is the core of what students learn.</p>
+          <div style="margin-top:36px;display:flex;flex-direction:column;gap:0">
+            <div style="display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;margin-top:2px">1</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">Student code publishes a ROS 2 message</div><div style="font-size:13px;color:var(--muted)">A Python node publishes joint targets or behavior commands to a topic.</div></div>
             </div>
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Team size</div>
-              <div style="font-weight:600">3–5 students per robot</div>
+            <div style="display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;margin-top:2px">2</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">Motion logic receives and validates the command</div><div style="font-size:13px;color:var(--muted)">Safe ranges are enforced. Out-of-range values are clamped, not ignored.</div></div>
             </div>
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">End deliverable</div>
-              <div style="font-weight:600">Live interactive demo at club showcase</div>
+            <div style="display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;margin-top:2px">3</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">Servo driver translates angle to hardware signal</div><div style="font-size:13px;color:var(--muted)">The PCA9685 driver converts joint angles to PWM commands.</div></div>
+            </div>
+            <div style="display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;margin-top:2px">4</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">Robot moves</div><div style="font-size:13px;color:var(--muted)">The physical joint responds. The student sees it happen.</div></div>
+            </div>
+            <div style="display:flex;gap:16px;padding:20px 0">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;margin-top:2px">5</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px">Sensors feed back into the next decision</div><div style="font-size:13px;color:var(--muted)">Camera, IMU, and proximity data re-enter the loop. The student's code responds to what just happened.</div></div>
             </div>
           </div>
         </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start">
-          <div style="order:2">
-            <span class="tag" style="margin-bottom:16px;display:inline-block">High School Engineering</span>
-            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">Flexible pacing to fit your program timeline</h3>
-            <p style="color:var(--muted);line-height:1.7">Structured around real engineering concepts. Level 1 covers hardware and control fundamentals, Level 2 adds sensor integration, Level 3 introduces expression and architecture, Level 4 is entirely student-directed project work with a final showcase.</p>
-          </div>
-          <div style="order:1;display:flex;flex-direction:column;gap:12px;padding-top:8px">
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">Full 40-lab curriculum across 4 levels</div>
-            </div>
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Robots needed</div>
-              <div style="font-weight:600">1 per 4-person group; 6–8 for a class of 28</div>
-            </div>
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">End deliverable</div>
-              <div style="font-weight:600">Full project presentation + code portfolio</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start">
-          <div>
-            <span class="tag" style="margin-bottom:16px;display:inline-block">Community College</span>
-            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">Intro robotics or embedded systems course</h3>
-            <p style="color:var(--muted);line-height:1.7">Chapters 3–9 provide enough depth for a college-level introductory course. Students leave with working knowledge of ROS 2 nodes, pub/sub patterns, sensor integration, and real-time control loops — directly applicable to industry work.</p>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended pacing</div>
-              <div style="font-weight:600">At a pace that fits your program, Chapters 1–9</div>
-            </div>
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Prerequisites</div>
-              <div style="font-weight:600">Basic Python, familiarity with Linux terminal</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:40px 0;align-items:start">
-          <div>
-            <span class="tag" style="margin-bottom:16px;display:inline-block">STEM Outreach</span>
-            <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">Single-day workshops and school visits</h3>
-            <p style="color:var(--muted);line-height:1.7">Demo 01 (wave) runs in 30 seconds from boot. Students can be guided through modifying keyframe angles in under 20 minutes with no prior experience. The robot is safe enough for middle schoolers to observe and high schoolers to run commands.</p>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-            <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:var(--r-sm);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Recommended session</div>
-              <div style="font-weight:600">Demos 01–02 + Lab 01 guided walkthrough</div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
 
-  <!-- software stack -->
-  <section class="section-wide" style="padding-top:80px;padding-bottom:80px">
-    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Software stack</span>
-    <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:40px">What runs on the robot</h2>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:48px">
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">OS Layer</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">Ubuntu 22.04 LTS</div>
-        <div style="font-size:13px;color:var(--muted)">64-bit ARM, pre-configured for Pi 5</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Middleware</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">ROS 2</div>
-        <div style="font-size:13px;color:var(--muted)">Node/topic/launch system</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Driver Layer</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">swayform_driver</div>
-        <div style="font-size:13px;color:var(--muted)">Joint driver, safe range validation</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Vision</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">OpenCV 4 + cv_bridge</div>
-        <div style="font-size:13px;color:var(--muted)">Color detection, face tracking, ArUco markers</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Language</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">Python 3.10</div>
-        <div style="font-size:13px;color:var(--muted)">rclpy, adafruit_pca9685, gpiozero, pyttsx3</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--radius);padding:24px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow);margin-bottom:12px">Audio</div>
-        <div style="font-family:var(--mono);font-size:14px;margin-bottom:6px;color:var(--ink)">pyttsx3 + pygame</div>
-        <div style="font-size:13px;color:var(--muted)">TTS, WAV playback, ROS 2 trigger topics</div>
+  <!-- HARDWARE SNAPSHOT -->
+  <div class="specs-band">
+    <div class="wrap">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
+        <div>
+          <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Hardware</span>
+          <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:20px">Designed to be studied, not sealed away.</h2>
+          <p style="font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:400px">Every component is accessible, labeled, and documented. Students can trace the path from a line of Python code to a physical joint movement — and understand why each part is there.</p>
+        </div>
+        <div class="specs-grid" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06)">
+          <div class="spec-item"><div class="spec-val">Pi&thinsp;5</div><div class="spec-key">Onboard compute (8 GB)</div></div>
+          <div class="spec-item"><div class="spec-val">D435i</div><div class="spec-key">Intel RealSense depth camera</div></div>
+          <div class="spec-item"><div class="spec-val">ROS 2</div><div class="spec-key">Full software stack</div></div>
+          <div class="spec-item"><div class="spec-val">PCA9685</div><div class="spec-key">Servo controller</div></div>
+          <div class="spec-item"><div class="spec-val">IMU</div><div class="spec-key">MPU-6050</div></div>
+          <div class="spec-item"><div class="spec-val">HC&#8209;SR04</div><div class="spec-key">Proximity sensor</div></div>
+          <div class="spec-item"><div class="spec-val">Mixed</div><div class="spec-key">Multi-class servo system</div></div>
+          <div class="spec-item"><div class="spec-val">12V</div><div class="spec-key">Separated servo + compute rails</div></div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- architecture diagram -->
-    <div style="background:var(--dark);border:none;border-radius:var(--radius);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.18)">
-      <div style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div style="font-size:13px;font-weight:600;color:rgba(200,220,240,.6)">System Architecture — four layers</div>
-      </div>
-      <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;padding:32px" font-family="Inter, sans-serif">
-        <!-- Student Layer -->
-        <rect x="20" y="10" width="860" height="52" rx="10" fill="rgba(95,183,255,.08)" stroke="rgba(95,183,255,.3)" stroke-width="1.5"/>
-        <text x="40" y="30" font-size="10" fill="rgba(95,183,255,.8)" font-weight="700" letter-spacing="1">STUDENT CODE LAYER</text>
-        <rect x="60" y="36" width="130" height="20" rx="4" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.4)" stroke-width="1"/>
-        <text x="125" y="50" font-size="11" fill="#edf5ff" text-anchor="middle">Python Node</text>
-        <rect x="210" y="36" width="130" height="20" rx="4" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.4)" stroke-width="1"/>
-        <text x="275" y="50" font-size="11" fill="#edf5ff" text-anchor="middle">Vision Node</text>
-        <rect x="360" y="36" width="130" height="20" rx="4" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.4)" stroke-width="1"/>
-        <text x="425" y="50" font-size="11" fill="#edf5ff" text-anchor="middle">Sensor Node</text>
-        <rect x="510" y="36" width="130" height="20" rx="4" fill="rgba(95,183,255,.15)" stroke="rgba(95,183,255,.4)" stroke-width="1"/>
-        <text x="575" y="50" font-size="11" fill="#edf5ff" text-anchor="middle">State Machine</text>
-
-        <!-- arrows down -->
-        <line x1="450" y1="62" x2="450" y2="82" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#arr)"/>
-        <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(255,255,255,.3)"/></marker></defs>
-
-        <!-- ROS 2 Layer -->
-        <rect x="20" y="82" width="860" height="52" rx="10" fill="rgba(122,241,255,.06)" stroke="rgba(122,241,255,.25)" stroke-width="1.5"/>
-        <text x="40" y="102" font-size="10" fill="rgba(122,241,255,.8)" font-weight="700" letter-spacing="1">ROS 2 COMMUNICATION LAYER</text>
-        <rect x="60" y="106" width="180" height="20" rx="4" fill="rgba(122,241,255,.1)" stroke="rgba(122,241,255,.3)" stroke-width="1"/>
-        <text x="150" y="120" font-size="11" fill="#edf5ff" text-anchor="middle">/swayform/joint_targets</text>
-        <rect x="260" y="106" width="170" height="20" rx="4" fill="rgba(122,241,255,.1)" stroke="rgba(122,241,255,.3)" stroke-width="1"/>
-        <text x="345" y="120" font-size="11" fill="#edf5ff" text-anchor="middle">/swayform/joint_states</text>
-        <rect x="450" y="106" width="160" height="20" rx="4" fill="rgba(122,241,255,.1)" stroke="rgba(122,241,255,.3)" stroke-width="1"/>
-        <text x="530" y="120" font-size="11" fill="#edf5ff" text-anchor="middle">/swayform/demo_command</text>
-        <rect x="630" y="106" width="160" height="20" rx="4" fill="rgba(122,241,255,.1)" stroke="rgba(122,241,255,.3)" stroke-width="1"/>
-        <text x="710" y="120" font-size="11" fill="#edf5ff" text-anchor="middle">/camera/color/image_raw</text>
-
-        <!-- arrows down -->
-        <line x1="450" y1="134" x2="450" y2="154" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#arr)"/>
-
-        <!-- Driver Layer -->
-        <rect x="20" y="154" width="860" height="52" rx="10" fill="rgba(125,255,189,.06)" stroke="rgba(125,255,189,.25)" stroke-width="1.5"/>
-        <text x="40" y="174" font-size="10" fill="rgba(125,255,189,.8)" font-weight="700" letter-spacing="1">SAFETY + DRIVER LAYER</text>
-        <rect x="60" y="178" width="170" height="20" rx="4" fill="rgba(125,255,189,.1)" stroke="rgba(125,255,189,.3)" stroke-width="1"/>
-        <text x="145" y="192" font-size="11" fill="#edf5ff" text-anchor="middle">Joint Validation + Clamp</text>
-        <rect x="250" y="178" width="170" height="20" rx="4" fill="rgba(125,255,189,.1)" stroke="rgba(125,255,189,.3)" stroke-width="1"/>
-        <text x="335" y="192" font-size="11" fill="#edf5ff" text-anchor="middle">Angle → PWM Conversion</text>
-        <rect x="440" y="178" width="180" height="20" rx="4" fill="rgba(125,255,189,.1)" stroke="rgba(125,255,189,.3)" stroke-width="1"/>
-        <text x="530" y="192" font-size="11" fill="#edf5ff" text-anchor="middle">I²C Write to PCA9685</text>
-
-        <!-- arrows down -->
-        <line x1="450" y1="206" x2="450" y2="226" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#arr)"/>
-
-        <!-- Hardware Layer -->
-        <rect x="20" y="226" width="860" height="44" rx="10" fill="rgba(255,209,102,.05)" stroke="rgba(255,209,102,.2)" stroke-width="1.5"/>
-        <text x="40" y="246" font-size="10" fill="rgba(255,209,102,.8)" font-weight="700" letter-spacing="1">HARDWARE LAYER</text>
-        <text x="200" y="252" font-size="11" fill="rgba(237,245,255,.6)" text-anchor="middle">PCA9685 ×2</text>
-        <text x="360" y="252" font-size="11" fill="rgba(237,245,255,.6)" text-anchor="middle">PWM Signal</text>
-        <text x="510" y="252" font-size="11" fill="rgba(237,245,255,.6)" text-anchor="middle">Servo Motors</text>
-        <text x="680" y="252" font-size="11" fill="rgba(237,245,255,.6)" text-anchor="middle">Robot Motion</text>
-      </svg>
-    </div>
-  </section>
-
-  <!-- access tiers -->
-  <section style="background:var(--bg2);border-top:1px solid var(--line);padding:80px 0">
-    <div class="section-wide">
-      <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Access model</span>
-      <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">Four tiers. One robot. Controlled chaos.</h2>
-      <p style="color:var(--muted);max-width:600px;margin-bottom:48px;line-height:1.7">Not every student needs full SSH access. SwayForm's tiered model lets instructors grant exactly the right permissions for each group's skill level and responsibility.</p>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
-
-        <div style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
-          <div style="background:rgba(0,128,74,.07);border-bottom:1px solid rgba(0,128,74,.15);padding:16px 20px;display:flex;align-items:center;gap:10px">
-            <span class="safe-green">Tier 1</span>
-            <span style="font-weight:700;font-size:15px">View Only</span>
+  <!-- BUILT TO BE LEARNED FROM -->
+  <section style="background:var(--bg);border-top:1px solid var(--line);padding:80px 0">
+    <div class="wrap">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start">
+        <div>
+          <span class="label" style="display:block;margin-bottom:12px">Philosophy</span>
+          <h2 class="d3">Built to be learned from, not figured out.</h2>
+          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75">SwayForm is not designed to hide the hard parts. It is designed to make them teachable. Students see calibration, timing, power, sensor noise, physical limits, and debugging as part of the learning process — not obstacles before the learning begins.</p>
+          <p style="margin-top:16px;font-size:15px;color:var(--faint);line-height:1.75">A robotics program should not begin with months of troubleshooting before students see anything move. SwayForm gives programs a working foundation, so students can spend their time learning robotics instead of fighting the setup.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:12px;overflow:hidden;border:1px solid var(--line)">
+          <div style="background:var(--bg2);padding:24px 28px">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">Control structure is inspectable</div>
+            <div style="font-size:13px;color:var(--muted)">Students can read, modify, and rebuild every part of the driver, motion system, and behavior pipeline.</div>
           </div>
-          <div style="padding:20px">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Read code in the Learning Hub, copy to clipboard, hand to team lead for execution. Observe robot behavior on shared screen.</p>
-            <div style="font-size:12px;color:var(--faint)">Typical users: most classroom students</div>
+          <div style="background:var(--bg2);padding:24px 28px">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">Demos are editable starter programs</div>
+            <div style="font-size:13px;color:var(--muted)">The five preloaded demos are meant to be opened, read, modified, and rebuilt — not just watched.</div>
+          </div>
+          <div style="background:var(--bg2);padding:24px 28px">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">Hardware is documented and standard</div>
+            <div style="font-size:13px;color:var(--muted)">No proprietary connectors. Every component is a standard part with a replacement procedure.</div>
+          </div>
+          <div style="background:var(--bg2);padding:24px 28px">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px">Failure is part of the curriculum</div>
+            <div style="font-size:13px;color:var(--muted)">Students are expected to break things, diagnose the problem, and fix it. That is how the learning happens.</div>
           </div>
         </div>
-
-        <div style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
-          <div style="background:rgba(0,87,255,.07);border-bottom:1px solid rgba(0,87,255,.15);padding:16px 20px;display:flex;align-items:center;gap:10px">
-            <span class="safe-green">Tier 2</span>
-            <span style="font-weight:700;font-size:15px">Run Only</span>
-          </div>
-          <div style="padding:20px">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">SSH access with read-only permissions to swayform_demos. Can run nodes, cannot save changes. Per-group directory for safe experimentation.</p>
-            <div style="font-size:12px;color:var(--faint)">Typical users: lab participants</div>
-          </div>
-        </div>
-
-        <div style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
-          <div style="background:rgba(179,93,0,.06);border-bottom:1px solid rgba(179,93,0,.15);padding:16px 20px;display:flex;align-items:center;gap:10px">
-            <span class="safe-yellow">Tier 3</span>
-            <span style="font-weight:700;font-size:15px">Edit + Run</span>
-          </div>
-          <div style="padding:20px">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Full SSH to personal swayform_labs directory. One account per group (not per student). Can write, build, and run their own packages.</p>
-            <div style="font-size:12px;color:var(--faint)">Typical users: advanced students, club leads</div>
-          </div>
-        </div>
-
-        <div style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
-          <div style="background:rgba(196,43,0,.06);border-bottom:1px solid rgba(196,43,0,.15);padding:16px 20px;display:flex;align-items:center;gap:10px">
-            <span class="safe-red">Tier 4</span>
-            <span style="font-weight:700;font-size:15px">Admin</span>
-          </div>
-          <div style="padding:20px">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Full system access. Hardware driver management, ROS 2 config, power and launch controls. Instructor only.</p>
-            <div style="font-size:12px;color:var(--faint)">Typical users: instructor only</div>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
 
-  <!-- safety architecture -->
-  <section class="section-wide" style="padding-top:80px;padding-bottom:100px">
-    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Safety</span>
-    <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">The robot does not trust student code.</h2>
-    <p style="color:var(--muted);max-width:600px;margin-bottom:48px;line-height:1.7">Every joint command passes through the hardware driver before anything moves. The driver validates joint names, clamps angles to safe ranges, and converts values — regardless of what the student published.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
-      <div style="background:#f0faf5;border:1px solid rgba(0,128,74,.18);border-left:3px solid #00804a;border-radius:var(--radius);padding:28px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:16px">Green Zone — Student Safe</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)">
-          <li>✓ Publish to /swayform/joint_targets</li>
-          <li>✓ Subscribe to any read topic</li>
-          <li>✓ Run demos and lab packages</li>
-          <li>✓ Use rqt_image_view</li>
-          <li>✓ Modify code in swayform_labs</li>
-        </ul>
+  <!-- CTA -->
+  <section style="background:var(--dark);padding:80px 0">
+    <div class="wrap" style="text-align:center">
+      <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.03em;color:#edf5ff;margin-bottom:20px">Bring real humanoid robotics into your program.</h2>
+      <p style="font-size:17px;color:rgba(200,220,240,.55);max-width:520px;margin:0 auto 40px;line-height:1.7">We are working with pilot programs now. Fall 2026 is the target for broader availability. Get in touch to stay updated.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" style="background:#fff;color:#000;font-weight:700" onclick="showPage('schools')">Request a Demo</button>
+        <button class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.8)" onclick="showPage('labs')">View Learning Path</button>
       </div>
-      <div style="background:#fdf6ee;border:1px solid rgba(179,93,0,.18);border-left:3px solid #b35d00;border-radius:var(--radius);padding:28px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow);margin-bottom:16px">Yellow Zone — Supervised</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)">
-          <li>⚠ Publish to /swayform/neutral</li>
-          <li>⚠ Modify joint range config</li>
-          <li>⚠ Run two nodes publishing simultaneously</li>
-          <li>⚠ Disable driver clamp for testing</li>
-          <li>⚠ Run at max speed sequences</li>
-        </ul>
-      </div>
-      <div style="background:#fdf0ee;border:1px solid rgba(196,43,0,.18);border-left:3px solid #c42b00;border-radius:var(--radius);padding:28px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:16px">Red Zone — Instructor Only</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)">
-          <li>✗ Modify driver source code</li>
-          <li>✗ Change I²C channel assignments</li>
-          <li>✗ Power rail modifications</li>
-          <li>✗ Flash servo firmware</li>
-          <li>✗ Access Pi GPIO beyond approved pins</li>
-        </ul>
-      </div>
-    </div>
-
-    <div style="margin-top:32px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:28px;color:var(--soft)">
-      <div style="font-weight:700;margin-bottom:10px">What happens when a student sends an out-of-range command?</div>
-      <p style="color:var(--muted);line-height:1.7">The driver receives the message, checks each joint's requested angle against its configured safe range (e.g., neck_yaw: ±45°), clamps the value to the boundary, logs a warning with the clamped value, and executes the clamped angle. The robot never ignores the command — it does the safest version of what was asked. The student sees the warning in the driver log and can diagnose the issue.</p>
     </div>
   </section>
 
-</div>
-
+</div><!-- /pg-platform -->
 <!-- ──────────────────────────────────── ROBOT PAGE (stub) -->
 <div id="pg-robot" class="pg">
 
@@ -2854,7 +2709,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <section style="padding-top:calc(var(--nav-h) + 122px);padding-bottom:72px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 60% 50%,rgba(95,183,255,.08) 0%,transparent 70%);pointer-events:none"></div>
     <div class="section-wide">
-      <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">For Schools</span>
+      <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Contact</span>
       <h1 style="font-size:clamp(34px,5vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:20px;color:#edf5ff">Physical robotics education that actually fits a classroom.</h1>
       <p style="font-size:18px;color:rgba(200,220,240,.7);max-width:600px;line-height:1.7;margin-bottom:36px">No cloud subscription. No special IT setup. No 6-month procurement process for replacement parts. One robot ships assembled, tested, and ready to run on day one.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -3058,7 +2913,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </ul>
       </div>
       <div class="footer-col">
-        <h5>For Schools</h5>
+        <h5>Contact</h5>
         <ul>
           <li><a href="#" onclick="showPage('schools');return false">Program Info</a></li>
           <li><a href="#" onclick="showPage('schools');return false">Request Demo</a></li>
@@ -6111,7 +5966,7 @@ ros2 run &lt;package&gt; &lt;node&gt;</div></div>
 
 <script>
 // ── PAGE SYSTEM ──────────────────────────────────────────────
-const pages = ['home','platform','robot','labs','learn','demos','schools'];
+const pages = ['home','platform','labs','demos','schools'];
 
 function showPage(id) {
   try {
@@ -6135,7 +5990,7 @@ function showPage(id) {
     document.querySelectorAll('.nav-links a').forEach(function(a) {
       a.classList.remove('active');
     });
-    var navMap = {home:0,platform:1,robot:2,labs:3,learn:4,demos:5,schools:6,errors:6};
+    var navMap = {home:0,platform:1,robot:1,labs:2,learn:2,demos:3,schools:4,errors:4};
     var idx = navMap[id];
     if (idx !== undefined) {
       var links = document.querySelectorAll('.nav-links a');

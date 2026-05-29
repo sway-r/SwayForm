@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -841,7 +841,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <div class="nav-inner">
     <div class="logo"><span class="s">S</span>wayForm</div>
     <div class="nav-links">
-      <a href="#" class="active" onclick="showPage('home');return false">Home</a>
+      <a href="#" class="active" onclick="showPage('home');return false">Overview</a>
       <a href="#" onclick="showPage('platform');return false">Platform</a>
       <a href="#" onclick="showPage('robot');return false">Robot</a>
       <a href="#" onclick="showPage('labs');return false">Labs</a>
@@ -862,7 +862,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- mobile nav -->
 <div id="mobile-nav">
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
-  <a href="#" onclick="showPage('home');document.getElementById('mobile-nav').classList.remove('open');return false">Home</a>
+  <a href="#" onclick="showPage('home');document.getElementById('mobile-nav').classList.remove('open');return false">Overview</a>
   <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">Platform</a>
   <a href="#" onclick="showPage('robot');document.getElementById('mobile-nav').classList.remove('open');return false">Robot</a>
   <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Labs</a>
@@ -879,107 +879,76 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ──────────────────────────────────── HOME PAGE -->
 <div id="pg-home" class="pg active">
 
-  <!-- HERO -->
+  <!-- ═══ HERO — cinematic dark layout; swap <img> for <video> when demo is ready ═══ -->
   <section id="hero">
-    <div class="hero-bg-grid"></div>
-    <div class="hero-glow"></div>
-
-    <!-- LEFT column -->
+    <div class="hero-cinema-bg">
+      <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot" class="hero-cinema-img"
+           onerror="this.style.display='none'">
+      <div class="hero-cinema-gradient"></div>
+      <div class="hero-bg-grid" style="opacity:.25"></div>
+    </div>
     <div class="hero-text">
       <div class="hero-badge">
         <div class="hero-badge-dot"></div>
-        Hands-on humanoid robotics education
+        Hands-on humanoid robotics for education
       </div>
       <h1 class="d1">The future feels<br>different when<br><em>you build it.</em></h1>
-      <p class="hero-sub">SwayForm gives students a real upper-body humanoid robot for learning code, sensors, motion, ROS 2, and computer vision through physical experimentation.</p>
+      <p class="hero-sub">SwayForm gives schools and student teams access to a real humanoid robotics platform, built for learning AI, robotics, motion, sensors, and code through physical experimentation.</p>
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" onclick="showPage('robot')">Explore the Platform</button>
         <button class="btn btn-ghost btn-lg" onclick="openHubNewTab('hub-welcome')">Open Learning Hub</button>
       </div>
-      <p style="font-size:12px;color:var(--faint);margin-top:16px;letter-spacing:.02em">Designed for schools, robotics clubs, and educational programs.</p>
-      <div class="hero-meta">
-        <div class="hero-meta-item"><span class="hero-meta-num">21</span>&thinsp;motion axes</div>
-        <div class="hero-meta-sep">|</div>
-        <div class="hero-meta-item"><span class="hero-meta-num">17</span>&thinsp;servo joints</div>
+      <div class="hero-meta" style="margin-top:44px">
+        <div class="hero-meta-item"><span class="hero-meta-num">8</span>&thinsp;major joints</div>
         <div class="hero-meta-sep">|</div>
         <div class="hero-meta-item"><span class="hero-meta-num">40</span>&thinsp;structured labs</div>
-      </div>
-    </div>
-
-    <!-- RIGHT column — video-ready container; swap <img> for <video> when robot demo is ready -->
-    <div class="hero-visual">
-      <div class="hero-visual-glow"></div>
-      <div class="robot-frame">
-        <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot" class="robot-img"
-             onerror="this.style.cssText='width:320px;height:520px;background:var(--bg3);border-radius:12px;border:1px solid var(--line)'">
-        <div class="chip c1"><div class="chip-dot" style="background:var(--ink)"></div>21 DoF</div>
-        <div class="chip c2"><div class="chip-dot" style="background:var(--muted)"></div>ROS 2 Native</div>
-        <div class="chip c3"><div class="chip-dot" style="background:var(--soft)"></div>D435i Camera</div>
-        <div class="chip c4"><div class="chip-dot" style="background:var(--faint)"></div>Pi 5 On-board</div>
+        <div class="hero-meta-sep">|</div>
+        <div class="hero-meta-item"><span class="hero-meta-num">5</span>&thinsp;preloaded demos</div>
+        <div class="hero-meta-sep">|</div>
+        <div class="hero-meta-item"><span class="hero-meta-num">ROS&thinsp;2</span>&thinsp;powered</div>
       </div>
     </div>
   </section>
 
-  <!-- STATS STRIP -->
+  <!-- ═══ STATS STRIP ═══ -->
   <section id="stats">
     <div class="stats-inner">
-      <div class="stat">
-        <div class="stat-n">21</div>
-        <div class="stat-l">Controlled motion axes</div>
-        <div class="stat-note">upper body</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n">17</div>
-        <div class="stat-l">Physical servo joints</div>
-        <div class="stat-note">driving those axes</div>
-      </div>
+      <div class="stat"><div class="stat-n">8</div><div class="stat-l">Upper-body joints</div></div>
       <div class="stat"><div class="stat-n">40</div><div class="stat-l">Structured labs</div></div>
+      <div class="stat"><div class="stat-n">5</div><div class="stat-l">Preloaded demos</div></div>
       <div class="stat"><div class="stat-n">ROS&thinsp;2</div><div class="stat-l">Native middleware</div></div>
       <div class="stat" style="border-right:none"><div class="stat-n" style="font-size:28px;font-family:var(--mono)">Pi&thinsp;5</div><div class="stat-l">On-board compute</div></div>
     </div>
-    <div class="stats-dof-note">21 controlled motion axes across the upper body, powered by 17 physical servo joints</div>
   </section>
 
-  <!-- FEYNMAN QUOTE -->
-  <div class="testimonial-band">
-    <div class="testimonial-inner">
-      <div class="testimonial-quote">What I cannot create, I do not understand.</div>
-      <div class="testimonial-attr">
-        <div class="testimonial-line"></div>
-        <div class="testimonial-name">Richard Feynman</div>
-        <div class="testimonial-line"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- WHAT SWAYFORM IS -->
+  <!-- ═══ WHAT SWAYFORM IS ═══ -->
   <section id="platform-sec" class="section">
     <div class="wrap">
       <div class="plat-grid">
         <div class="plat-content">
           <span class="label" style="display:block;margin-bottom:16px">The Platform</span>
-          <h2 class="d3">A real robot for learning real robotics.</h2>
-          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">SwayForm is a waist-up humanoid robotics platform for hands-on learning. It brings together mechanical design, electronics, depth vision, servo control, and ROS 2 software — so students can understand robotics by working on a real physical system, not just reading about it or running simulations.</p>
+          <h2 class="d3">A real robot, built for real learning.</h2>
+          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">SwayForm is a waist-up humanoid robotics platform designed for educational programs, clubs, and student-led teams. It brings together servo-driven motion, depth vision, sensor integration, and ROS 2 software — so students understand robotics by working on physical hardware, not just reading about it.</p>
           <div class="plat-features">
             <div class="plat-feat">
               <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
               <div>
-                <h4>Code has real consequences</h4>
-                <p>A wrong joint angle does not throw a warning — it strains a servo. Students learn calibration, wiring, mechanical limits, and sensor noise because physical hardware makes those lessons unavoidable.</p>
+                <h4>Code that moves something real</h4>
+                <p>Students write Python, publish ROS 2 topics, and watch joints move. A wrong angle does not throw a warning — it strains a servo. That is the lesson.</p>
               </div>
             </div>
             <div class="plat-feat">
               <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
               <div>
-                <h4>Built on ROS 2</h4>
-                <p>Every joint is a topic. Every sensor publishes on a node. Students use the same middleware used in research and industry — not a simplified wrapper. What they learn here transfers directly.</p>
+                <h4>Industry middleware, not a toy API</h4>
+                <p>Every joint is a topic. Every sensor publishes on a node. Students use ROS 2 — the same middleware used across research and industry. What they learn here transfers.</p>
               </div>
             </div>
             <div class="plat-feat">
               <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
               <div>
-                <h4>40 labs, four levels</h4>
-                <p>From SSH and first joint commands to multi-node computer vision systems. Each lab has starter code, step-by-step instructions, and a debug checklist. Nothing is purely theoretical.</p>
+                <h4>Forty labs, four levels, fully structured</h4>
+                <p>From the first SSH connection to fully student-authored multi-node systems. Each lab has starter code, instructions, and a debug checklist. No curriculum to build from scratch.</p>
               </div>
             </div>
           </div>
@@ -989,9 +958,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
                  onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
             <div class="plat-specs">
-              <div class="plat-spec-item"><div class="plat-spec-val">MG996R</div><div class="plat-spec-key">Main servos</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">8 GB</div><div class="plat-spec-key">RPi 5 RAM</div></div>
               <div class="plat-spec-item"><div class="plat-spec-val">D435i</div><div class="plat-spec-key">Depth camera</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">8 GB</div><div class="plat-spec-key">RPi 5 RAM</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">ROS 2</div><div class="plat-spec-key">Middleware</div></div>
             </div>
           </div>
         </div>
@@ -999,413 +968,370 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- HOW THE SYSTEM WORKS -->
-  <section id="pipeline-sec" style="background:var(--bg);padding:96px 0;border-bottom:1px solid var(--line)">
+  <!-- ═══ FEYNMAN QUOTE + HANDS-ON EXPLANATION ═══ -->
+  <section class="quote-section">
+    <div class="quote-wrap">
+      <div class="quote-big">What I cannot create, I do not understand.</div>
+      <div class="quote-row">
+        <div class="quote-bar"></div>
+        <div class="quote-who">Richard Feynman</div>
+      </div>
+      <p class="quote-body">Students understand robotics differently when their code moves real hardware. Not because the lessons are harder — because the stakes are real. When a motion command causes a joint to strain against a physical limit, that moment teaches something no textbook or simulator can replicate. SwayForm puts students in that moment, with hardware they can inspect, modify, break, debug, and improve.</p>
+    </div>
+  </section>
+
+  <!-- ═══ WHY SCHOOLS NEED REAL ROBOTICS ═══ -->
+  <section class="why-section">
     <div class="wrap">
-      <div style="text-align:center;max-width:600px;margin:0 auto 48px">
-        <span class="label" style="display:block;margin-bottom:12px">System Architecture</span>
-        <h2 class="d3">How SwayForm thinks.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Every behavior students write follows this path. Plain English first — ROS 2 topics underneath.</p>
-      </div>
-      <!-- Plain-English flow row -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:24px">
-        <div style="background:var(--bg);padding:20px 12px;text-align:center">
-          <div style="font-size:20px;margin-bottom:6px">👁</div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">Camera sees</div>
-          <div style="font-size:11px;color:var(--faint)">RGB + depth</div>
+      <span class="label" style="display:block;margin-bottom:12px">Why it matters</span>
+      <h2 class="d3">Schools that build, build better students.</h2>
+      <p class="lead-why">AI and robotics are no longer niche fields. Programs that give students hands-on experience with real systems now are giving them a serious advantage.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-num">01</div>
+          <h4>The gap between knowing and doing is real</h4>
+          <p>Students can read about ROS 2, servo control, and computer vision without understanding any of it. The moment their code causes a physical robot to respond — or fail — is when understanding forms. You cannot simulate that gap away.</p>
         </div>
-        <div style="background:var(--bg);padding:20px 12px;text-align:center">
-          <div style="font-size:20px;margin-bottom:6px">🧠</div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">Code decides</div>
-          <div style="font-size:11px;color:var(--faint)">detect · classify</div>
+        <div class="why-card">
+          <div class="why-num">02</div>
+          <h4>Physical debugging teaches differently</h4>
+          <p>When a simulation breaks, students restart it. When a robot breaks, students have to figure out whether the problem is in the code, the wiring, the calibration, or the mechanical limits. That diagnostic process is what engineers actually do.</p>
         </div>
-        <div style="background:var(--bg);padding:20px 12px;text-align:center">
-          <div style="font-size:20px;margin-bottom:6px">⚡</div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">Behavior picks</div>
-          <div style="font-size:11px;color:var(--faint)">state machine</div>
-        </div>
-        <div style="background:var(--bg);padding:20px 12px;text-align:center">
-          <div style="font-size:20px;margin-bottom:6px">📐</div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">Motion converts</div>
-          <div style="font-size:11px;color:var(--faint)">angle · clamp</div>
-        </div>
-        <div style="background:var(--bg);padding:20px 12px;text-align:center">
-          <div style="font-size:20px;margin-bottom:6px">🤖</div>
-          <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px">Robot moves</div>
-          <div style="font-size:11px;color:var(--faint)">servos · base</div>
-        </div>
-      </div>
-      <div class="pipeline-diagram">
-        <svg viewBox="0 0 860 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;overflow:visible" font-family="Inter,system-ui,sans-serif">
-          <defs>
-            <marker id="pl-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="rgba(255,255,255,.3)"/></marker>
-            <marker id="pl-arr-loop" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="rgba(122,241,255,.4)"/></marker>
-          </defs>
-          <rect x="10" y="40" width="130" height="60" rx="10" fill="rgba(200,132,252,.1)" stroke="rgba(200,132,252,.4)" stroke-width="1.5"/>
-          <text x="75" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Camera</text>
-          <text x="75" y="82" fill="rgba(200,132,252,.7)" font-size="9" text-anchor="middle">D435i · RGB + Depth</text>
-          <line x1="140" y1="70" x2="180" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
-          <rect x="180" y="40" width="140" height="60" rx="10" fill="rgba(95,183,255,.1)" stroke="rgba(95,183,255,.35)" stroke-width="1.5"/>
-          <text x="250" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Perception</text>
-          <text x="250" y="82" fill="rgba(95,183,255,.65)" font-size="9" text-anchor="middle">detect · measure · classify</text>
-          <line x1="320" y1="70" x2="360" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
-          <rect x="360" y="40" width="140" height="60" rx="10" fill="rgba(95,183,255,.1)" stroke="rgba(95,183,255,.35)" stroke-width="1.5"/>
-          <text x="430" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Behavior</text>
-          <text x="430" y="82" fill="rgba(95,183,255,.65)" font-size="9" text-anchor="middle">state machine · decide</text>
-          <line x1="500" y1="70" x2="540" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
-          <rect x="540" y="40" width="140" height="60" rx="10" fill="rgba(122,241,255,.08)" stroke="rgba(122,241,255,.3)" stroke-width="1.5"/>
-          <text x="610" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Motion Control</text>
-          <text x="610" y="82" fill="rgba(122,241,255,.65)" font-size="9" text-anchor="middle">clamp · target · publish</text>
-          <line x1="680" y1="70" x2="720" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5" marker-end="url(#pl-arr)"/>
-          <rect x="720" y="40" width="130" height="60" rx="10" fill="rgba(125,255,189,.08)" stroke="rgba(125,255,189,.3)" stroke-width="1.5"/>
-          <text x="785" y="64" fill="rgba(255,255,255,.9)" font-size="13" font-weight="700" text-anchor="middle">Robot</text>
-          <text x="785" y="82" fill="rgba(125,255,189,.6)" font-size="9" text-anchor="middle">servos move · base rotates</text>
-          <path d="M 785,100 C 785,138 75,138 75,100" fill="none" stroke="rgba(122,241,255,.35)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#pl-arr-loop)"/>
-          <text x="430" y="150" fill="rgba(122,241,255,.45)" font-size="9" font-weight="600" text-anchor="middle" letter-spacing=".08em">FEEDBACK LOOP — camera observes result</text>
-        </svg>
-      </div>
-      <div class="pipeline-legend">
-        <div class="pipe-item">
-          <div class="pipe-item-label">Input</div>
-          <h5>Camera</h5>
-          <p>RGB and depth frames at up to 30 fps.</p>
-          <div class="pipe-topic">/camera/color/image_raw</div>
-        </div>
-        <div class="pipe-item">
-          <div class="pipe-item-label">Layer 1</div>
-          <h5>Perception Node</h5>
-          <p>OpenCV, face detection, depth reads. Student-authored or provided.</p>
-          <div class="pipe-topic">/swayform/perception</div>
-        </div>
-        <div class="pipe-item">
-          <div class="pipe-item-label">Layer 2</div>
-          <h5>Behavior Node</h5>
-          <p>State machine logic. Subscribes to perception, decides what to do next.</p>
-          <div class="pipe-topic">/swayform/action</div>
-        </div>
-        <div class="pipe-item">
-          <div class="pipe-item-label">Layer 3</div>
-          <h5>Motion Node</h5>
-          <p>Translates actions into joint angles. Clamps to safe ranges.</p>
-          <div class="pipe-topic">/swayform/joint_targets</div>
-        </div>
-        <div class="pipe-item">
-          <div class="pipe-item-label">Output</div>
-          <h5>Hardware</h5>
-          <p>Servo driver receives targets. Servos move. Camera sees the result. Loop continues.</p>
-          <div class="pipe-topic">hardware layer</div>
+        <div class="why-card">
+          <div class="why-num">03</div>
+          <h4>AI and robotics are becoming workforce skills</h4>
+          <p>These are not electives anymore. Programs that expose students to real hardware, real middleware, and real system integration earlier give them a meaningful head start in fields that are actively hiring — and actively changing.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- BUILT FOR DIFFERENT PROGRAMS -->
-  <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:96px 0">
+  <!-- ═══ WHAT STUDENTS ACTUALLY DO ═══ -->
+  <section class="section" style="background:var(--bg);border-bottom:1px solid var(--line)">
     <div class="wrap">
-      <div style="text-align:center;max-width:600px;margin:0 auto 60px">
-        <span class="label" style="display:block;margin-bottom:12px">Flexible by design</span>
-        <h2 class="d3">Works the way your program works.</h2>
-        <p style="margin-top:14px;color:var(--muted)">SwayForm does not require a specific class structure or instructor background. It can be instructor-led, student-driven, club-run, or lab-based — sometimes all of the above.</p>
+      <div style="max-width:640px;margin:0 auto 0;text-align:center">
+        <span class="label" style="display:block;margin-bottom:12px">The learning process</span>
+        <h2 class="d3">Students don't just learn robotics.<br>They see it respond.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Every lab follows the same cycle. Students run something that already works, then take it apart and rebuild it their own way.</p>
       </div>
-      <div class="programs-grid">
-        <div class="program-card">
-          <div class="program-card-tag">One robot</div>
-          <h4 class="program-card-title">Robotics club</h4>
-          <p class="program-card-desc">Students rotate roles each session: driver, coder, observer, debugger. One robot supports an active after-school team of up to 15 students.</p>
-          <ul class="program-card-features">
-            <li>Rotating team roles per session</li>
-            <li>Weekly lab goals that build on each other</li>
-            <li>Demo showcase at end of term</li>
+      <div class="steps-flow" style="margin-top:56px">
+        <div class="steps-track"></div>
+        <div class="step-item">
+          <div class="step-dot">01</div>
+          <div class="step-label">Run the demo</div>
+          <div class="step-sub">Watch the robot respond to preloaded code</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">02</div>
+          <div class="step-label">Read the code</div>
+          <div class="step-sub">Understand why the robot did what it did</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">03</div>
+          <div class="step-label">Modify it</div>
+          <div class="step-sub">Change a parameter, observe the difference</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">04</div>
+          <div class="step-label">Debug it</div>
+          <div class="step-sub">Diagnose when something goes wrong</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">05</div>
+          <div class="step-label">Build their own</div>
+          <div class="step-sub">Write a new behavior from scratch</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FLEXIBLE SETUPS ═══ -->
+  <section style="background:var(--bg2);border-bottom:1px solid var(--line);padding:88px 0">
+    <div class="wrap">
+      <div style="max-width:600px;margin:0 auto 56px;text-align:center">
+        <span class="label" style="display:block;margin-bottom:12px">Flexible by design</span>
+        <h2 class="d3">One robot is enough to start.</h2>
+        <p style="margin-top:14px;color:var(--muted)">SwayForm adapts to the program. The program does not need to reshape itself around SwayForm. Whether it is a weekly club, a semester course, or an advanced student team, one unit can support meaningful learning from day one.</p>
+      </div>
+      <div class="setups-grid">
+        <div class="setup-card">
+          <div class="setup-tag">One robot</div>
+          <h4 class="setup-title">Robotics club</h4>
+          <p class="setup-desc">Students rotate roles each session — driver, coder, observer, debugger. One robot supports an active after-school team of 10–15 students without anyone sitting idle.</p>
+          <ul class="setup-list">
+            <li>Rotating roles keeps everyone engaged</li>
+            <li>Weekly labs with clear goals</li>
+            <li>End-of-term demo showcase</li>
           </ul>
         </div>
-        <div class="program-card">
-          <div class="program-card-tag">Multiple robots</div>
-          <h4 class="program-card-title">Classroom course</h4>
-          <p class="program-card-desc">Groups work in parallel on the same lab, then compare results. One robot per group of four is typical for a full engineering course.</p>
-          <ul class="program-card-features">
-            <li>Structured 40-lab curriculum included</li>
-            <li>Rubrics and grading guides included</li>
-            <li>Each group gets consistent seat time</li>
+        <div class="setup-card">
+          <div class="setup-tag">One robot in the room</div>
+          <h4 class="setup-title">Classroom station</h4>
+          <p class="setup-desc">Used as a shared lab station, a live demo platform, or a rotating group project. A single unit can support a full class when teams take turns with structured time slots.</p>
+          <ul class="setup-list">
+            <li>Groups work while others plan or review</li>
+            <li>Live demo as a teaching tool</li>
+            <li>Structured rubrics and team roles included</li>
           </ul>
         </div>
-        <div class="program-card">
-          <div class="program-card-tag">Student-led</div>
-          <h4 class="program-card-title">Independent exploration</h4>
-          <p class="program-card-desc">Advanced students skip the structured track and write their own ROS 2 nodes, demos, and experiments. The platform does not restrict what they can build.</p>
-          <ul class="program-card-features">
+        <div class="setup-card">
+          <div class="setup-tag">Student-led</div>
+          <h4 class="setup-title">Independent exploration</h4>
+          <p class="setup-desc">Advanced students do not need to wait for a robotics expert. The platform, Learning Hub, and lab structure guide them. They write their own nodes, demos, and experiments.</p>
+          <ul class="setup-list">
             <li>Full SSH and terminal access</li>
-            <li>Open ROS 2 node authoring</li>
+            <li>Open ROS 2 authoring — no restrictions</li>
             <li>Documented hardware interfaces</li>
           </ul>
         </div>
-        <div class="program-card">
-          <div class="program-card-tag">Instructor-guided</div>
-          <h4 class="program-card-title">Structured labs</h4>
-          <p class="program-card-desc">Instructors run the curriculum without building anything from scratch. Labs come with objectives, starter code, step-by-step guides, and rubrics. No robotics background required.</p>
-          <ul class="program-card-features">
+        <div class="setup-card">
+          <div class="setup-tag">Instructor-guided</div>
+          <h4 class="setup-title">Structured labs</h4>
+          <p class="setup-desc">Teachers run the full curriculum without building anything from scratch. Labs come with learning objectives, starter code, step-by-step guides, rubrics, and debug checklists.</p>
+          <ul class="setup-list">
             <li>40 pre-built lab modules</li>
-            <li>Instructor notes and session timing</li>
-            <li>Adapts to existing course structure</li>
+            <li>Instructor notes and session guides</li>
+            <li>No robotics background required to start</li>
           </ul>
         </div>
       </div>
+      <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--faint)">Programs that grow can add more units later. Starting with one is the right move.</p>
     </div>
   </section>
 
-  <!-- LEARNING PATH -->
-  <section id="learning-sec" class="section">
-    <div class="wrap">
-      <div class="learning-head">
-        <span class="label" style="display:block;margin-bottom:12px">Structured Labs</span>
-        <h2 class="d3">From first connection to fully authored systems.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Four levels. Each builds on the last. Nothing is purely theoretical.</p>
-      </div>
-      <div class="quarters">
-        <div class="qcard q1">
-          <div class="q-num">Level 1 — Control</div>
-          <div class="q-title">Learn to drive the hardware</div>
-          <div class="q-desc">SSH into the Pi, author joint commands, and run deterministic motion sequences in Python.</div>
-          <div class="q-skills">
-            <div class="q-skill">SSH + VS Code remote</div>
-            <div class="q-skill">ROS 2 nodes and topics</div>
-            <div class="q-skill">Joint control and clamping</div>
-            <div class="q-skill">Keyframe animation</div>
-          </div>
-          <div class="q-footer">10 labs &middot; 5 preloaded demos</div>
-        </div>
-        <div class="qcard q2">
-          <div class="q-num">Level 2 — React</div>
-          <div class="q-title">Add sensors and responses</div>
-          <div class="q-desc">Subscribe to sensor topics and build reactive behaviors that respond to the physical environment.</div>
-          <div class="q-skills">
-            <div class="q-skill">Distance and button triggers</div>
-            <div class="q-skill">IMU tilt detection</div>
-            <div class="q-skill">Face detection (Haar)</div>
-            <div class="q-skill">Multi-sensor combiner</div>
-          </div>
-          <div class="q-footer">10 labs &middot; varied difficulty</div>
-        </div>
-        <div class="qcard q3">
-          <div class="q-num">Level 3 — Perceive</div>
-          <div class="q-title">Build vision pipelines</div>
-          <div class="q-desc">OpenCV color tracking, depth localization, ArUco markers, and formal state machine design.</div>
-          <div class="q-skills">
-            <div class="q-skill">OpenCV + cv_bridge</div>
-            <div class="q-skill">HSV color tracking</div>
-            <div class="q-skill">State machine architecture</div>
-            <div class="q-skill">TTS + motion sync</div>
-          </div>
-          <div class="q-footer">10 labs &middot; project track begins</div>
-        </div>
-        <div class="qcard q4">
-          <div class="q-num">Level 4 — Create</div>
-          <div class="q-title">Author full systems</div>
-          <div class="q-desc">Fully student-authored programs, multi-node integration, and a live deployment showcase.</div>
-          <div class="q-skills">
-            <div class="q-skill">Custom ROS 2 packages</div>
-            <div class="q-skill">Multi-node architecture</div>
-            <div class="q-skill">Reliability engineering</div>
-            <div class="q-skill">Live showcase demo</div>
-          </div>
-          <div class="q-footer">10 labs &middot; final showcase</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:40px">
-        <button class="btn btn-ghost" onclick="showPage('labs')">See all 40 labs &#8594;</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEMOS PREVIEW -->
+  <!-- ═══ DEMOS: EDITABLE STARTER PROGRAMS ═══ -->
   <section id="demos-preview" class="section">
     <div class="wrap">
-      <div class="demos-head">
-        <div>
-          <span class="label" style="display:block;margin-bottom:10px">Preloaded Demos</span>
-          <h2 class="d3">Five programs ready on day one</h2>
-        </div>
-        <div style="max-width:380px">
-          <p style="margin-bottom:16px">Every robot comes with five runnable demos. Students run them first — see the robot move, hear it speak, watch it track a face — then open the code and start modifying.</p>
-          <button class="btn btn-ghost" onclick="showPage('demos')">Browse all demos &#8594;</button>
-        </div>
+      <div style="max-width:640px;margin:0 auto 48px;text-align:center">
+        <span class="label" style="display:block;margin-bottom:10px">Preloaded demos</span>
+        <h2 class="d3">Five programs ready on day one</h2>
+        <p style="margin-top:14px;color:var(--muted)">These are not showpiece animations. They are starter programs students can inspect, modify, and rebuild. Every robot ships with all five installed and confirmed working.</p>
+      </div>
+      <div class="demo-flow-row">
+        <span class="demo-flow-badge">Run the demo</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Watch the robot respond</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Open the source code</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Modify the behavior</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Build your own version</span>
       </div>
       <div class="demo-cards">
         <div class="demo-card" onclick="openHub('hub-demo-wave')">
           <div class="demo-num">01</div>
           <h4>Wave</h4>
-          <p>5-keyframe arm wave at 20 Hz. The first thing students run — and the first code they modify.</p>
+          <p>A smooth arm wave sequence. The first demo students run — and the first code they modify.</p>
           <div class="demo-tag">Start here</div>
         </div>
         <div class="demo-card" onclick="openHub('hub-demo-greet')">
           <div class="demo-num">02</div>
           <h4>Greet</h4>
-          <p>Head turns, arm raises, and the robot speaks — all triggered by publishing one ROS 2 message.</p>
+          <p>Head turn, arm raise, and spoken output — all triggered by a single ROS 2 message.</p>
           <div class="demo-tag">Topics + audio</div>
         </div>
         <div class="demo-card" onclick="openHub('hub-demo-face')">
           <div class="demo-num">03</div>
           <h4>Face Track</h4>
-          <p>Haar cascade detection drives neck pan/tilt with a proportional controller and dead zone.</p>
+          <p>The robot finds a face and holds its gaze using a proportional controller and dead zone.</p>
           <div class="demo-tag">Vision pipeline</div>
         </div>
         <div class="demo-card" onclick="openHub('hub-demo-dist')">
           <div class="demo-num">04</div>
           <h4>Proximity</h4>
-          <p>Ultrasonic sensor triggers behavioral zones — idle, alert, close — with hysteresis between states.</p>
+          <p>Ultrasonic sensor triggers three behavioral zones with hysteresis to prevent rapid switching.</p>
           <div class="demo-tag">Sensor + state</div>
         </div>
         <div class="demo-card" onclick="openHub('hub-demo-present')">
           <div class="demo-num">05</div>
           <h4>Present</h4>
-          <p>Slide-advance commands trigger gesture and spoken callouts. Motion, audio, and topics combined.</p>
+          <p>Slide-advance commands trigger gesture and spoken callout. Motion, audio, and topics combined.</p>
           <div class="demo-tag">Full behavior</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <button class="btn btn-ghost" onclick="showPage('demos')">See all demos and source code &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LEARNING PATH SUMMARY ═══ -->
+  <section id="learning-sec" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:88px 0">
+    <div class="wrap">
+      <div style="text-align:center;max-width:560px;margin:0 auto 56px">
+        <span class="label" style="display:block;margin-bottom:12px">Learning path</span>
+        <h2 class="d3">40 labs. Four levels. One coherent path.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Every level builds directly on the last. Students can enter at any level, but most find value in starting at Level 1 even if they already know Python.</p>
+      </div>
+      <div class="quarters">
+        <div class="qcard q1">
+          <div class="q-num">Level 1 — Control</div>
+          <div class="q-title">Drive the hardware</div>
+          <div class="q-desc">SSH in, write joint commands, author motion sequences. First contact with real hardware.</div>
+          <div class="q-footer">10 labs &middot; 5 preloaded demos</div>
+        </div>
+        <div class="qcard q2">
+          <div class="q-num">Level 2 — React</div>
+          <div class="q-title">Add sensors</div>
+          <div class="q-desc">Build reactive behaviors that respond to distance, IMU, and face detection in real time.</div>
+          <div class="q-footer">10 labs &middot; varied difficulty</div>
+        </div>
+        <div class="qcard q3">
+          <div class="q-num">Level 3 — Perceive</div>
+          <div class="q-title">Build vision systems</div>
+          <div class="q-desc">OpenCV pipelines, depth-based tracking, state machine design, and multi-sensor integration.</div>
+          <div class="q-footer">10 labs &middot; project track begins</div>
+        </div>
+        <div class="qcard q4">
+          <div class="q-num">Level 4 — Create</div>
+          <div class="q-title">Author full systems</div>
+          <div class="q-desc">Fully student-written programs, multi-node architecture, and a live demo showcase.</div>
+          <div class="q-footer">10 labs &middot; final showcase</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:40px">
+        <button class="btn btn-ghost" onclick="showPage('labs')">See the full lab library &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMPARISON ═══ -->
+  <section class="section" style="background:var(--bg)">
+    <div class="wrap">
+      <div style="max-width:560px">
+        <span class="label" style="display:block;margin-bottom:12px">Why SwayForm</span>
+        <h2 class="d3">Not every robotics experience teaches the same thing.</h2>
+        <p style="margin-top:14px;color:var(--muted);max-width:480px">Screen-only learning and basic kits both have value. But the type of understanding they build is genuinely different from working with a real system.</p>
+      </div>
+      <div class="compare-3">
+        <div class="c3-col">
+          <div class="c3-tag">Option A</div>
+          <div class="c3-title">Screen-only learning</div>
+          <p class="c3-sub">Simulations, tutorials, coding platforms. Easy to access and scale. No setup required.</p>
+          <div class="c3-items">
+            <div class="c3-item pro">Zero setup, widely accessible</div>
+            <div class="c3-item pro">Safe for unlimited experimentation</div>
+            <div class="c3-item con">No physical limits, wiring, or calibration</div>
+            <div class="c3-item con">Sensor noise and real failure modes absent</div>
+            <div class="c3-item con">Students miss the diagnostic process</div>
+            <div class="c3-item con">No connection between code and physical motion</div>
+          </div>
+        </div>
+        <div class="c3-col">
+          <div class="c3-tag">Option B</div>
+          <div class="c3-title">Basic robotics kits</div>
+          <p class="c3-sub">Assembly-based kits, line followers, arm kits. Good introduction to hardware concepts.</p>
+          <div class="c3-items">
+            <div class="c3-item pro">Hands-on physical experience</div>
+            <div class="c3-item pro">Teaches assembly and basic circuits</div>
+            <div class="c3-item con">Usually limited to specific pre-defined tasks</div>
+            <div class="c3-item con">No real perception or vision pipeline</div>
+            <div class="c3-item con">No professional middleware (ROS 2)</div>
+            <div class="c3-item con">Students outgrow them quickly</div>
+          </div>
+        </div>
+        <div class="c3-col hi">
+          <div class="c3-tag">SwayForm</div>
+          <div class="c3-title">Real humanoid platform</div>
+          <p class="c3-sub">Servo-driven upper body, depth camera, ROS 2, and 40 structured labs in one unit.</p>
+          <div class="c3-items">
+            <div class="c3-item pro">Real physical consequences of code choices</div>
+            <div class="c3-item pro">ROS 2 — same middleware as industry research</div>
+            <div class="c3-item pro">Vision, audio, depth, and IMU in one system</div>
+            <div class="c3-item pro">40-lab structured curriculum included</div>
+            <div class="c3-item pro">Students debug real wiring and sensor noise</div>
+            <div class="c3-item pro">Scales from beginner to advanced system design</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- HARDWARE SNAPSHOT -->
+  <!-- ═══ HARDWARE SNAPSHOT ═══ -->
   <div class="specs-band">
     <div class="wrap">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
         <div>
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Hardware</span>
-          <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:20px">Real components, real interfaces.</h2>
-          <p style="font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:420px">Every component chosen for repairability and educational value. No black boxes, no proprietary connectors. Students who understand the hardware understand the software that runs it.</p>
+          <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:20px">Real components. Real interfaces.</h2>
+          <p style="font-size:16px;color:rgba(255,255,255,.4);line-height:1.75;max-width:400px">Every part chosen for repairability and educational depth. No black boxes, no proprietary connectors. Students can inspect, label, and trace every component.</p>
         </div>
         <div class="specs-grid" style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06)">
-          <div class="spec-item"><div class="spec-val">21</div><div class="spec-key">Motion axes (DoF)</div></div>
-          <div class="spec-item"><div class="spec-val">17</div><div class="spec-key">Servo joints</div></div>
-          <div class="spec-item"><div class="spec-val">Pi&thinsp;5</div><div class="spec-key">On-board compute</div></div>
+          <div class="spec-item"><div class="spec-val">8</div><div class="spec-key">Major upper-body joints</div></div>
           <div class="spec-item"><div class="spec-val">D435i</div><div class="spec-key">Depth camera</div></div>
+          <div class="spec-item"><div class="spec-val">Pi&thinsp;5</div><div class="spec-key">On-board compute</div></div>
           <div class="spec-item"><div class="spec-val">8 GB</div><div class="spec-key">RPi 5 RAM</div></div>
-          <div class="spec-item"><div class="spec-val">MG996R</div><div class="spec-key">Primary servos</div></div>
           <div class="spec-item"><div class="spec-val">IMU</div><div class="spec-key">MPU-6050</div></div>
           <div class="spec-item"><div class="spec-val">HC&#8209;SR04</div><div class="spec-key">Proximity sensor</div></div>
+          <div class="spec-item"><div class="spec-val">Servo</div><div class="spec-key">Multi-class drive system</div></div>
+          <div class="spec-item"><div class="spec-val">ROS 2</div><div class="spec-key">Software stack</div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- DEVELOPMENT STATUS -->
-  <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
-    <div class="wrap">
-      <div style="text-align:center;max-width:600px;margin:0 auto 56px">
-        <span class="label" style="display:block;margin-bottom:12px">Development Status</span>
-        <h2 class="d3">Where we are.</h2>
-        <p style="margin-top:14px;color:var(--muted)">SwayForm is in active development. An honest look at what exists, what is being built, and what is planned after validation.</p>
-      </div>
-      <div class="roadmap-grid">
-        <div class="roadmap-col roadmap-current">
-          <div class="roadmap-col-header">
-            <span class="roadmap-status-dot current"></span>
-            <span class="roadmap-col-label">Current</span>
-          </div>
-          <div class="roadmap-col-title">Working now</div>
-          <ul class="roadmap-items">
-            <li>21-axis upper-body structure — fabricated and tested</li>
-            <li>Rotating base — DC motor + encoder, functional</li>
-            <li>Intel D435i camera — mounted and publishing</li>
-            <li>ROS 2 architecture — nodes, topics, driver running</li>
-            <li>5 demo programs — wave, greet, face track, proximity, present</li>
-            <li>40-lab curriculum — first 10 labs complete, rest in progress</li>
-            <li>Learning Hub — live, content actively expanding</li>
-          </ul>
-        </div>
-        <div class="roadmap-col roadmap-indev">
-          <div class="roadmap-col-header">
-            <span class="roadmap-status-dot indev"></span>
-            <span class="roadmap-col-label">In Development</span>
-          </div>
-          <div class="roadmap-col-title">Active work, no ship date yet</div>
-          <ul class="roadmap-items">
-            <li>Expanded demo library — 8 programs, 3 complete</li>
-            <li>Classroom interface for non-SSH access</li>
-            <li>Repeatable assembly documentation</li>
-            <li>Instructor session guides and onboarding</li>
-            <li>Early program validation — motion, safety, pacing</li>
-            <li>Hardware revision 2 — improved wiring and structure</li>
-          </ul>
-        </div>
-        <div class="roadmap-col roadmap-planned">
-          <div class="roadmap-col-header">
-            <span class="roadmap-status-dot planned"></span>
-            <span class="roadmap-col-label">Planned</span>
-          </div>
-          <div class="roadmap-col-title">Post-validation scope</div>
-          <ul class="roadmap-items">
-            <li>Curriculum PDFs per level</li>
-            <li>Teacher dashboard — session and group progress</li>
-            <li>Expanded demo library — pick/place, spatial awareness</li>
-            <li>Documented spare parts catalog</li>
-            <li>NGSS + CS standards alignment rubrics</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
+  <!-- ═══ FAQ ═══ -->
   <section class="faq-section">
     <div class="wrap">
       <div class="faq-head">
-        <span class="label" style="display:block;margin-bottom:12px">Common Questions</span>
+        <span class="label" style="display:block;margin-bottom:12px">Common questions</span>
         <h2 class="d3">Questions we get asked.</h2>
       </div>
       <div class="faq-grid">
         <div>
           <div class="faq-item">
             <div class="faq-q">Who is SwayForm designed for?</div>
-            <div class="faq-a">High school engineering programs, community college robotics courses, student clubs, STEM labs, and any educational setting where students can work with real hardware regularly. It is not a consumer product — it is a learning platform for structured programs.</div>
+            <div class="faq-a">High school engineering programs, community college robotics courses, student clubs, STEM labs, and any educational setting where students can work with real hardware regularly. It is not a consumer product.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Does one robot support a whole class?</div>
+            <div class="faq-a">Yes. One unit can support a club of up to 15 students with rotating roles, or a classroom where groups take turns. Programs can add more units later when they are ready to scale.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">What background do instructors need?</div>
-            <div class="faq-a">Comfort with a Linux terminal is enough. Prior ROS 2 or robotics experience is not required. The Learning Hub covers every concept students encounter — in the same sequence — so instructors can learn alongside the class if needed.</div>
+            <div class="faq-a">Comfort with a Linux terminal is enough to start. No prior ROS 2 or robotics experience is required. The Learning Hub covers every concept students encounter, in the same order students encounter them.</div>
           </div>
           <div class="faq-item">
-            <div class="faq-q">Does it require internet access?</div>
-            <div class="faq-a">No. The robot, Learning Hub, and all software operate entirely on the local network. No cloud services, no accounts, no subscriptions. Programs with restricted internet access run the full curriculum without changes.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">How many students can use one robot?</div>
-            <div class="faq-a">One robot works well for a club of up to 15 students in rotation. For a classroom course, one robot per group of four is typical. Programs running multiple groups in parallel should contact us for configuration guidance.</div>
+            <div class="faq-q">Does it need internet access?</div>
+            <div class="faq-a">The robot is designed to run locally for classroom use. No cloud connection is needed once the system is set up.</div>
           </div>
         </div>
         <div>
           <div class="faq-item">
-            <div class="faq-q">What comes with a unit?</div>
+            <div class="faq-q">What comes with the unit?</div>
             <div class="faq-a">The robot, pre-assembled and tested. Ubuntu, ROS 2, all drivers, and five demo programs pre-installed. Access to the Learning Hub. Setup documentation and direct support during initial deployment.</div>
           </div>
           <div class="faq-item">
-            <div class="faq-q">Is SwayForm ready to order now?</div>
-            <div class="faq-a">We are currently validating with pilot programs and finishing hardware revision 2. Fall 2026 is the target for broader availability. Submit an interest form and we will follow up with timeline and availability details.</div>
+            <div class="faq-q">Is SwayForm available to order now?</div>
+            <div class="faq-a">We are currently working with pilot programs and finishing hardware revision 2. Fall 2026 is the target for broader availability. Submit an interest form and we will keep you updated on timing.</div>
           </div>
           <div class="faq-item">
-            <div class="faq-q">Can labs be used in an existing course?</div>
-            <div class="faq-a">Yes. The four levels are modular enough to use selectively. Programs can start at any level, pull specific labs into an existing syllabus, or work through all 40 in order. Lab materials are available for instructor adaptation.</div>
+            <div class="faq-q">Can the labs fit into an existing course?</div>
+            <div class="faq-a">Yes. The four levels are modular. Programs can start at any level, use selected labs as part of an existing syllabus, or run all 40 in order. All materials are available for instructor adaptation.</div>
           </div>
           <div class="faq-item">
             <div class="faq-q">What happens if a component breaks?</div>
-            <div class="faq-a">Every component is a standard off-the-shelf part with a documented replacement procedure. No proprietary connectors. SwayForm provides a hardware repair guide, replacement parts, and direct support for any issue.</div>
+            <div class="faq-a">Every component is a standard off-the-shelf part with a documented replacement procedure. No proprietary connectors. SwayForm provides a repair guide, replacement parts, and direct support.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FINAL CTA -->
+  <!-- ═══ FINAL CTA ═══ -->
   <section id="schools-cta" class="section">
     <div class="wrap">
       <div class="cta-split">
         <div class="cta-side left">
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Learning Hub</span>
           <h2>Start learning right now.</h2>
-          <p>The Learning Hub covers hardware, ROS 2, motion control, sensors, and vision — all structured around real labs students run on the robot.</p>
+          <p>The Learning Hub covers hardware, ROS 2, motion control, sensors, and vision — structured around real labs students run on the robot.</p>
           <ul class="cta-list">
-            <li>Structured chapters from hardware through advanced systems</li>
+            <li>Structured chapters from hardware to advanced systems</li>
             <li>Five demo walkthroughs with annotated source code</li>
             <li>40 labs with objectives, starter code, and debug checklists</li>
-            <li>Fully offline — no internet required after initial load</li>
+            <li>Designed for local classroom use</li>
           </ul>
           <button class="btn btn-primary" style="background:#fff;color:#000;font-weight:700" onclick="openHubNewTab('hub-welcome')">Open the Learning Hub</button>
         </div>
@@ -6835,7 +6761,108 @@ document.addEventListener('DOMContentLoaded', function() {
 .roadmap-col.roadmap-planned .roadmap-items li::before{content:'○';position:absolute;left:0;color:var(--faint);font-size:13px;top:0}
 @media(max-width:860px){.roadmap-grid{grid-template-columns:1fr}}
 
-/* ── PROGRAMS GRID ── */
+/* ══════════════════════════════════════════════════════
+   HOMEPAGE v3 — cinematic hero, restructured flow
+   ══════════════════════════════════════════════════════ */
+
+/* ── CINEMATIC HERO ── */
+#hero{display:flex;align-items:center;background:#040608;color:#edf5ff;position:relative;overflow:hidden;padding-top:calc(var(--nav-h) + 42px);min-height:100vh}
+#hero h1{color:#edf5ff}
+#hero .hero-text{position:relative;z-index:2;padding:clamp(48px,6vh,100px) 0 clamp(48px,6vh,100px) clamp(28px,5vw,96px);max-width:580px;display:flex;flex-direction:column}
+#hero .hero-sub{color:rgba(220,235,255,.72);max-width:520px}
+#hero .label{color:rgba(200,220,240,.45)}
+#hero .hero-meta-item{color:rgba(200,220,240,.5)}
+#hero .hero-meta-num{color:#edf5ff}
+#hero .hero-meta-sep{color:rgba(255,255,255,.12)}
+#hero .hero-badge{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(200,220,240,.6)}
+#hero .hero-badge-dot{background:rgba(95,183,255,.85)}
+#hero .hero-actions .btn-ghost{border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.82)}
+#hero .hero-actions .btn-ghost:hover{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.07);color:#fff}
+/* swap .hero-cinema-img <img> for <video autoplay muted loop playsinline> when robot demo is ready */
+.hero-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hero-cinema-img{position:absolute;right:0;top:0;height:100%;width:62%;object-fit:cover;object-position:center top}
+.hero-cinema-gradient{position:absolute;inset:0;background:linear-gradient(to right,#040608 0%,#040608 25%,rgba(4,6,8,.9) 42%,rgba(4,6,8,.52) 58%,rgba(4,6,8,.1) 78%,transparent 100%)}
+@media(max-width:1100px){.hero-cinema-img{width:55%}.hero-cinema-gradient{background:linear-gradient(to right,#040608 0%,#040608 30%,rgba(4,6,8,.92) 50%,rgba(4,6,8,.6) 65%,transparent 100%)}}
+@media(max-width:768px){
+  #hero{align-items:flex-start;padding-bottom:52vw}
+  #hero .hero-text{padding:24px 20px 0;max-width:100%}
+  .hero-cinema-img{width:100%;height:50%;top:auto;bottom:0;object-position:center top}
+  .hero-cinema-gradient{background:linear-gradient(to bottom,#040608 0%,#040608 35%,rgba(4,6,8,.85) 55%,rgba(4,6,8,.2) 82%,transparent 100%)}
+}
+@media(max-width:500px){#hero{padding-bottom:60vw}.hero-cinema-img{height:52%}}
+
+/* ── STAT NOTE (hide DoF clarification on overview) ── */
+.stat-note{display:none}
+.stats-dof-note{display:none}
+
+/* ── QUOTE SECTION ── */
+.quote-section{background:var(--dark);padding:88px 0}
+.quote-wrap{max-width:740px;margin:0 auto;padding:0 48px}
+.quote-big{font-size:clamp(22px,2.8vw,32px);font-weight:500;line-height:1.52;letter-spacing:-.02em;color:#edf5ff;margin-bottom:22px}
+.quote-big::before{content:'\201C';color:rgba(200,220,240,.2);margin-right:2px}
+.quote-big::after{content:'\201D';color:rgba(200,220,240,.2);margin-left:2px}
+.quote-row{display:flex;align-items:center;gap:16px;margin-bottom:36px}
+.quote-bar{width:36px;height:1px;background:rgba(255,255,255,.12)}
+.quote-who{font-size:12px;font-weight:600;color:rgba(200,220,240,.35);letter-spacing:.07em;text-transform:uppercase}
+.quote-body{font-size:clamp(15px,1.5vw,17px);color:rgba(200,220,240,.56);line-height:1.82;max-width:620px}
+@media(max-width:600px){.quote-wrap{padding:0 20px}}
+
+/* ── WHY SCHOOLS ── */
+.why-section{background:#0a0b0e;border-top:1px solid rgba(255,255,255,.05);padding:88px 0}
+.why-section .label{color:rgba(200,220,240,.3)}
+.why-section h2{color:#edf5ff}
+.why-section p.lead-why{font-size:17px;color:rgba(200,220,240,.5);max-width:560px;margin:14px 0 0;line-height:1.7}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin-top:56px}
+.why-card{background:rgba(255,255,255,.025);padding:36px 28px;transition:background .2s}
+.why-card:hover{background:rgba(255,255,255,.05)}
+.why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(200,220,240,.2);margin-bottom:14px}
+.why-card h4{font-size:17px;font-weight:700;color:#edf5ff;margin-bottom:12px;letter-spacing:-.01em;line-height:1.35}
+.why-card p{font-size:14px;color:rgba(200,220,240,.5);line-height:1.75;margin:0}
+@media(max-width:860px){.why-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.why-grid{grid-template-columns:1fr}}
+
+/* ── WHAT STUDENTS DO (steps) ── */
+.steps-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:56px;position:relative}
+.steps-track{position:absolute;top:21px;left:10%;right:10%;height:1px;background:linear-gradient(to right,transparent 0%,var(--line) 12%,var(--line) 88%,transparent 100%)}
+.step-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 6px}
+.step-dot{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);margin-bottom:14px;position:relative;z-index:1;flex-shrink:0;box-shadow:0 0 0 5px var(--bg)}
+.step-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.step-sub{font-size:11px;color:var(--muted);line-height:1.5}
+@media(max-width:860px){.steps-flow{grid-template-columns:1fr 1fr;gap:28px 12px}.steps-track{display:none}}
+@media(max-width:480px){.steps-flow{grid-template-columns:1fr}}
+
+/* ── SETUPS GRID ── */
+.setups-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.setup-card{background:var(--bg);padding:34px 30px;transition:background .2s}
+.setup-card:hover{background:var(--bg2)}
+.setup-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.setup-title{font-size:18px;font-weight:800;letter-spacing:-.015em;color:var(--ink);margin-bottom:10px;line-height:1.25;margin-top:0}
+.setup-desc{font-size:13px;color:var(--muted);line-height:1.72;margin-bottom:14px}
+.setup-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.setup-list li{font-size:12px;color:var(--soft);padding-left:16px;position:relative;line-height:1.45}
+.setup-list li::before{content:'→';position:absolute;left:0;color:var(--ink);font-weight:700;font-size:10px;opacity:.3;top:2px}
+@media(max-width:768px){.setups-grid{grid-template-columns:1fr}}
+
+/* ── DEMO FLOW ROW ── */
+.demo-flow-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:28px}
+.demo-flow-badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;background:var(--bg2);border:1px solid var(--line);font-size:11px;font-weight:600;color:var(--soft);white-space:nowrap}
+.demo-flow-arrow{color:var(--faint);font-size:11px;flex-shrink:0}
+
+/* ── COMPARISON 3-COL ── */
+.compare-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:16px;overflow:hidden;border:1px solid var(--line);margin-top:56px}
+.c3-col{background:var(--bg);padding:36px 28px}
+.c3-col.hi{background:var(--bg2)}
+.c3-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.c3-title{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px;line-height:1.2}
+.c3-sub{font-size:13px;color:var(--muted);line-height:1.65;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.c3-items{display:flex;flex-direction:column;gap:9px;margin-top:20px}
+.c3-item{font-size:13px;line-height:1.5;padding-left:20px;position:relative;color:var(--muted)}
+.c3-item.pro{color:var(--soft)}
+.c3-item.pro::before{content:'✓';position:absolute;left:0;color:#007a44;font-weight:800;font-size:11px;top:1px}
+.c3-item.con::before{content:'·';position:absolute;left:7px;color:var(--faint);font-size:14px;line-height:1;top:0}
+@media(max-width:860px){.compare-3{grid-template-columns:1fr}}
+
+/* ── PROGRAMS GRID (kept for other pages) ── */
 .programs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .program-card{background:#fff;padding:36px 32px;transition:background .2s}
 .program-card:hover{background:var(--bg2)}
@@ -6845,11 +6872,6 @@ document.addEventListener('DOMContentLoaded', function() {
 .program-card-features{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
 .program-card-features li{font-size:13px;color:var(--soft);padding-left:18px;position:relative;line-height:1.5}
 .program-card-features li::before{content:'→';position:absolute;left:0;color:var(--ink);font-weight:700;font-size:11px;opacity:.35;top:1px}
-/* ── STAT NOTE (DoF clarification) ── */
-.stat-note{font-size:10px;color:var(--faint);margin-top:2px;letter-spacing:.01em}
-/* ── STATS DOF CLARIFICATION BAR ── */
-.stats-dof-note{background:var(--bg);border-top:1px solid var(--line2);padding:9px 48px;text-align:center;font-size:11px;color:var(--faint);letter-spacing:.02em}
-@media(max-width:768px){.programs-grid{grid-template-columns:1fr}.stats-dof-note{padding:9px 20px}}
 </style>
 </body>
 </html>

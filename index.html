@@ -1206,15 +1206,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">For Schools</span>
           <h2>Get in touch.</h2>
           <p>SwayForm is designed for educational programs that want students working on real hardware. Fill out the form and we will follow up within five business days.</p>
-          <form class="contact-form" onsubmit="handleForm(event)">
+          <form class="contact-form" id="contact-form" onsubmit="handleForm(event)">
             <div class="form-row">
-              <div class="field"><label>Your name</label><input type="text" placeholder="Ms. Rodriguez"></div>
-              <div class="field"><label>School</label><input type="text" placeholder="Lincoln High School"></div>
+              <div class="field"><label>Your name</label><input type="text" name="name" required placeholder="Ms. Rodriguez"></div>
+              <div class="field"><label>School / Institution</label><input type="text" name="school" required placeholder="Lincoln High School"></div>
             </div>
-            <div class="field"><label>Email</label><input type="email" placeholder="you@school.edu"></div>
+            <div class="field"><label>Email</label><input type="email" name="email" required placeholder="you@school.edu"></div>
             <div class="field">
               <label>Program type</label>
-              <select>
+              <select name="program_type">
                 <option value="">Select one</option>
                 <option>Robotics Club</option>
                 <option>High School Engineering Class</option>
@@ -1223,9 +1223,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
                 <option>Capstone / Senior Project</option>
               </select>
             </div>
-            <div class="field"><label>Tell us about your program</label><textarea placeholder="How many students, what background, when you are looking to start..."></textarea></div>
-            <button type="submit" class="form-submit">Submit Application</button>
-            <p class="form-note">Applications reviewed within 5 business days. Accredited programs only.</p>
+            <div class="field"><label>Tell us about your program</label><textarea name="message" rows="4" placeholder="How many students, what background, when you are looking to start..."></textarea></div>
+            <button type="submit" class="form-submit" id="contact-submit">Submit</button>
+            <p class="form-note" id="contact-status"></p>
           </form>
         </div>
       </div>
@@ -2495,24 +2495,24 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div>
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">First name</label>
-            <input type="text" required placeholder="Jane" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
+            <input type="text" name="first_name" required placeholder="Jane" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
           </div>
           <div>
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">Last name</label>
-            <input type="text" required placeholder="Smith" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
+            <input type="text" name="last_name" required placeholder="Smith" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
           </div>
         </div>
         <div>
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">School / institution</label>
-          <input type="text" required placeholder="Lincoln High School" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
+          <input type="text" name="school" required placeholder="Lincoln High School" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
         </div>
         <div>
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">Your email</label>
-          <input type="email" required placeholder="jsmith@school.edu" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
+          <input type="email" name="email" required placeholder="jsmith@school.edu" style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
         </div>
         <div>
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">Program type</label>
-          <select required style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box;appearance:none" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
+          <select name="program_type" required style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;box-sizing:border-box;appearance:none" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'">
             <option value="" disabled selected>Select your program type</option>
             <option>High school robotics club</option>
             <option>High school engineering course</option>
@@ -2524,7 +2524,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
         <div>
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--soft)">Tell us about your program</label>
-          <textarea required rows="4" placeholder="How many students, current curriculum, what you hope students will build with SwayForm..." style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'"></textarea>
+          <textarea name="message" required rows="4" placeholder="How many students, current curriculum, what you hope students will build with SwayForm..." style="width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box" onfocus="this.style.borderColor='rgba(95,183,255,.5)'" onblur="this.style.borderColor='var(--line)'"></textarea>
         </div>
         <div>
           <button type="submit" class="btn btn-primary" style="width:100%;padding:14px">Request Demo Unit</button>
@@ -5704,19 +5704,64 @@ function filterLabsPage(q) {
   } catch(e) { console.error('filterLabsPage error:', e); }
 }
 
-// ── DEMO REQUEST FORM ─────────────────────────────────────────
-function handleDemoRequest(e) {
+// ── FORM SUBMISSION (Web3Forms) ───────────────────────────────
+// Get your free access key at web3forms.com → enter contact@swayform.net
+var W3F_KEY = 'YOUR_ACCESS_KEY_HERE';
+
+async function submitToWeb3Forms(form, subject) {
+  var data = new FormData(form);
+  data.append('access_key', W3F_KEY);
+  data.append('subject', subject);
+  data.append('from_name', 'SwayForm Website');
+  var res = await fetch('https://api.web3forms.com/submit', { method:'POST', body:data });
+  return await res.json();
+}
+
+async function handleForm(e) {
   e.preventDefault();
+  var form = e.target;
+  var btn = document.getElementById('contact-submit');
+  var status = document.getElementById('contact-status');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    var json = await submitToWeb3Forms(form, 'New SwayForm Inquiry');
+    if (json.success) {
+      form.innerHTML = '<p style="color:var(--ink);font-size:15px;line-height:1.7">Got it — we will follow up within 5 business days.</p>';
+    } else {
+      btn.disabled = false; btn.textContent = 'Submit';
+      status.textContent = 'Something went wrong. Please try again.';
+    }
+  } catch(err) {
+    btn.disabled = false; btn.textContent = 'Submit';
+    status.textContent = 'Network error. Please try again.';
+  }
+}
+
+async function handleDemoRequest(e) {
+  e.preventDefault();
+  var form = e.target;
+  var submitBtn = form.querySelector('[type=submit]');
   var status = document.getElementById('demo-form-status');
-  if (!status) return;
-  status.style.display = 'block';
-  status.style.background = 'rgba(125,255,189,.08)';
-  status.style.border = '1px solid rgba(125,255,189,.25)';
-  status.style.color = 'var(--green)';
-  status.textContent = 'Request received! We\'ll follow up within 2 business days at the email you provided.';
-  document.getElementById('demo-request-form').querySelectorAll('input,select,textarea,button[type=submit]').forEach(function(el) {
-    el.disabled = true; el.style.opacity = '.5';
-  });
+  submitBtn.disabled = true; submitBtn.textContent = 'Sending…';
+  try {
+    var json = await submitToWeb3Forms(form, 'SwayForm Demo Unit Request');
+    if (json.success) {
+      status.style.display = 'block';
+      status.style.background = 'rgba(125,255,189,.08)';
+      status.style.border = '1px solid rgba(125,255,189,.25)';
+      status.style.color = 'var(--green)';
+      status.textContent = 'Request received. We will follow up within 2 business days.';
+      form.querySelectorAll('input,select,textarea').forEach(function(el) { el.disabled = true; el.style.opacity = '.5'; });
+    } else {
+      submitBtn.disabled = false; submitBtn.textContent = 'Request Demo Unit';
+      status.style.display = 'block'; status.style.color = '#f87171';
+      status.textContent = 'Something went wrong. Please try again.';
+    }
+  } catch(err) {
+    submitBtn.disabled = false; submitBtn.textContent = 'Request Demo Unit';
+    status.style.display = 'block'; status.style.color = '#f87171';
+    status.textContent = 'Network error. Please try again.';
+  }
 }
 
 // ── TOPBAR SCROLL ─────────────────────────────────────────────

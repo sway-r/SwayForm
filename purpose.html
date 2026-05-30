@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Our Purpose | SwayForm</title>
-<meta name="description" content="Why SwayForm exists — building a humanoid robotics platform that gives students real hands-on experience with the technology shaping the future.">
+<meta name="description" content="SwayForm exists to help students prepare for a future shaped by robotics, automation, AI, and local-first engineering systems.">
 <link rel="canonical" href="https://swayform.net/purpose">
 <meta property="og:title" content="Our Purpose | SwayForm">
-<meta property="og:description" content="Why SwayForm exists — building a humanoid robotics platform that gives students real hands-on experience with the technology shaping the future.">
+<meta property="og:description" content="SwayForm exists to help students prepare for a future shaped by robotics, automation, AI, and local-first engineering systems.">
 <meta property="og:url" content="https://swayform.net/purpose">
 <meta property="og:type" content="website">
 <link rel="icon" href="/favicon.ico">
@@ -18,15 +18,125 @@
 <link rel="stylesheet" href="/styles.css">
 <style>
 #topbar{top:0!important}
-.purpose-section{padding:96px 0}
-.purpose-block{max-width:680px;margin:0 auto}
-.purpose-block p{font-size:18px;color:var(--soft);line-height:1.85;margin-top:20px}
-.purpose-block p + p{margin-top:16px}
-.coming-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:24px;border:1px solid var(--line);background:var(--bg2);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:48px}
+
+/* ── PAGE BASE ── */
+.pur-body{border-top:1px solid var(--line)}
+
+/* ── EDITORIAL SECTIONS ── */
+.pur-section{padding:96px 0}
+.pur-section + .pur-section{border-top:1px solid var(--line)}
+
+.pur-editorial{
+  display:grid;
+  grid-template-columns:2fr 3fr;
+  gap:88px;
+  align-items:start;
+}
+.pur-eyebrow{
+  display:block;
+  font-size:10px;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--faint);
+  margin-bottom:16px;
+}
+.pur-h2{
+  font-size:clamp(20px,2.4vw,30px);font-weight:800;
+  letter-spacing:-.025em;line-height:1.2;color:var(--ink);
+  margin:0;
+}
+.pur-copy p{
+  font-size:17px;color:var(--muted);line-height:1.9;
+  margin-bottom:20px;
+}
+.pur-copy p:last-child{margin-bottom:0}
+
+/* pull-quote for the lower-impact section */
+.pur-aside{
+  margin-top:28px;
+  padding:20px 24px;
+  border-left:2px solid var(--line);
+  background:var(--bg2);
+  border-radius:0 8px 8px 0;
+}
+.pur-aside p{
+  font-size:15px!important;
+  color:var(--soft)!important;
+  font-style:italic;
+  line-height:1.75!important;
+  margin:0!important;
+}
+
+/* ── CARD SECTION ── */
+.pur-cards-wrap{
+  background:var(--bg2);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:96px 0;
+}
+.pur-card-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.pur-card{
+  background:#fff;
+  padding:36px 32px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.pur-card-n{
+  font-family:var(--mono);
+  font-size:10px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);
+}
+.pur-card h3{
+  font-size:17px;font-weight:800;letter-spacing:-.015em;
+  color:var(--ink);margin:0;line-height:1.25;
+}
+.pur-card p{
+  font-size:14px;color:var(--muted);
+  line-height:1.75;margin:0;
+}
+
+/* ── CLOSING ── */
+.pur-close{background:#000;padding:96px 0}
+.pur-close-inner{max-width:620px;margin:0 auto;padding:0 48px;text-align:center}
+.pur-close h2{
+  font-size:clamp(26px,3.2vw,42px);font-weight:900;
+  letter-spacing:-.035em;line-height:1.1;
+  color:#edf5ff;margin-bottom:20px;
+}
+.pur-close p{
+  font-size:17px;color:rgba(200,220,240,.62);
+  line-height:1.78;margin-bottom:40px;
+}
+.pur-close-btns{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  .pur-card-grid{grid-template-columns:1fr}
+  .pur-editorial{gap:48px}
+}
 @media(max-width:768px){
-  #purpose-hero{padding-top:calc(var(--nav-h) + 48px) !important;padding-bottom:44px !important}
-  .purpose-section{padding:64px 0}
-  .purpose-block p{font-size:17px}
+  #purpose-hero{
+    padding-top:calc(var(--nav-h) + 48px)!important;
+    padding-bottom:52px!important;
+  }
+  .pur-section{padding:60px 0}
+  .pur-editorial{grid-template-columns:1fr;gap:22px}
+  .pur-h2{font-size:clamp(20px,5.5vw,26px)}
+  .pur-copy p{font-size:16px}
+  .pur-cards-wrap{padding:60px 0}
+  .pur-close{padding:72px 0}
+  .pur-close-inner{padding:0 20px}
+  .pur-close-btns a{width:100%;justify-content:center}
 }
 </style>
 </head>
@@ -58,44 +168,130 @@
   <a href="/contact">Contact</a>
 </div>
 
-<!-- hero -->
-<section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:80px;background:var(--dark);position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(95,183,255,.06) 0%,transparent 70%);pointer-events:none"></div>
+<!-- ═══ HERO ═══ -->
+<section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 120px);padding-bottom:96px;background:var(--dark);position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(95,183,255,.06) 0%,transparent 70%);pointer-events:none"></div>
   <div class="wrap">
-    <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.6)">Purpose</span>
-    <h1 style="font-size:clamp(36px,5vw,60px);font-weight:900;letter-spacing:-.04em;line-height:1.06;color:#edf5ff;max-width:700px;margin-bottom:20px">Why we built SwayForm.</h1>
-    <p style="font-size:18px;color:rgba(200,220,240,.65);max-width:580px;line-height:1.7">SwayForm exists because hands-on experience with real systems teaches things that no screen or simulation can replicate.</p>
+    <span class="label" style="display:block;margin-bottom:20px;color:rgba(180,210,255,.55)">Our Purpose</span>
+    <h1 style="font-size:clamp(36px,5.5vw,64px);font-weight:900;letter-spacing:-.04em;line-height:1.05;color:#edf5ff;max-width:740px;margin-bottom:24px">Preparing students<br>to work with the future.</h1>
+    <p style="font-size:18px;color:rgba(200,220,240,.6);max-width:560px;line-height:1.72">Robotics and AI are changing the world students are growing into. SwayForm exists to make that future less intimidating, more understandable, and more buildable.</p>
   </div>
 </section>
 
-<!-- purpose content -->
-<section class="purpose-section">
-  <div class="wrap">
-    <div class="purpose-block">
-      <span class="label" style="display:block;margin-bottom:12px">The problem we're solving</span>
-      <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">The gap between knowing and doing is real.</h2>
-      <p>Students can read about ROS 2, servo control, and computer vision. They can complete online courses and pass written exams. But there is a specific kind of understanding that only forms when code causes a physical robot to respond — or fail — in front of you.</p>
-      <p>That gap is what SwayForm closes. Not by making robotics easier, but by making the hard parts accessible and teachable inside a real classroom environment.</p>
-    </div>
+<!-- ═══ BODY ═══ -->
+<div class="pur-body">
 
-    <div class="purpose-block" style="margin-top:80px">
-      <span class="label" style="display:block;margin-bottom:12px">What we believe</span>
-      <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">Physical stakes change how students learn.</h2>
-      <p>When a motion command causes a joint to strain against a physical limit, that moment teaches something no textbook can replicate. When a sensor reading is noisy and the robot behaves unexpectedly, students learn to diagnose — not just restart.</p>
-      <p>We built SwayForm so that robotics, AI, and motion systems are not abstract concepts students read about. They are systems students operate, break, debug, and improve.</p>
-    </div>
-
-    <div class="purpose-block" style="margin-top:80px">
-      <span class="label" style="display:block;margin-bottom:12px">More coming soon</span>
-      <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">More about our purpose is on the way.</h2>
-      <p>We are working on a fuller account of the thinking behind SwayForm — the problems it is designed to solve, who it is designed for, and where we are taking it.</p>
-      <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap">
-        <a href="/robot" class="btn btn-primary">Explore the robot</a>
-        <a href="/contact" class="btn btn-ghost">Get in touch</a>
+  <!-- Section 1 — Why it matters -->
+  <section class="pur-section">
+    <div class="wrap">
+      <div class="pur-editorial">
+        <div>
+          <span class="pur-eyebrow">Why it matters</span>
+          <h2 class="pur-h2">The future should not feel like something students watch from the outside.</h2>
+        </div>
+        <div class="pur-copy">
+          <p>Every generation meets a tool that changes what work looks like. Calculators changed how people approached math. Computers changed how people created, organized, designed, and communicated. Robotics and AI are another step in that same pattern.</p>
+          <p>The point is not that machines replace human ability. The point is that human ability changes when new tools become normal.</p>
+          <p>SwayForm is built around that idea. Students should not only hear about automation, sensors, artificial intelligence, and robotics from a distance. They should see those systems move. They should write the code, test the behavior, break the logic, fix the motion, and understand what is actually happening inside the machine.</p>
+          <p>This gives students something more useful than fear. It gives them familiarity.</p>
+        </div>
       </div>
     </div>
+  </section>
+
+  <!-- Section 2 — Jobs and skills -->
+  <section class="pur-section">
+    <div class="wrap">
+      <div class="pur-editorial">
+        <div>
+          <span class="pur-eyebrow">Jobs and skills</span>
+          <h2 class="pur-h2">Robots may change jobs. They will also create new ones.</h2>
+        </div>
+        <div class="pur-copy">
+          <p>A future with more automation does not remove the need for people. It changes what people need to know.</p>
+          <p>There will still be a need for designers, engineers, technicians, programmers, operators, researchers, builders, repairers, teachers, and problem-solvers. The students who understand robotics early will have a better chance of becoming the people who guide these systems instead of simply reacting to them.</p>
+          <p>SwayForm is meant to help students build that advantage early. Not through theory alone, and not through a screen-only simulation, but through a physical humanoid robot that makes engineering real.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3 — Local learning -->
+  <section class="pur-section">
+    <div class="wrap">
+      <div class="pur-editorial">
+        <div>
+          <span class="pur-eyebrow">How we teach</span>
+          <h2 class="pur-h2">Learning should be physical, local, and understandable.</h2>
+        </div>
+        <div class="pur-copy">
+          <p>Modern technology often hides its complexity behind cloud systems, subscriptions, dashboards, and remote services. That can be useful, but it can also make learning feel disconnected from the actual machine.</p>
+          <p>SwayForm is designed to keep the learning experience close to the student. The robot, controls, code, sensors, and motion behavior are meant to run locally as much as possible. Students can see the connection between their code and the robot's response. They can understand what is happening without treating the system like a black box.</p>
+          <p>That matters because real engineering is not just using a product. It is understanding how the product works.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4 — Lower-impact -->
+  <section class="pur-section">
+    <div class="wrap">
+      <div class="pur-editorial">
+        <div>
+          <span class="pur-eyebrow">Design choices</span>
+          <h2 class="pur-h2">Lower-impact by design.</h2>
+        </div>
+        <div class="pur-copy">
+          <p>Local-first robotics also has a practical advantage: it reduces unnecessary dependence on always-on cloud infrastructure.</p>
+          <p>When a robot can run its core behavior locally, schools do not need to rely on constant external processing just to teach movement, sensing, control, and experimentation. That means fewer hidden dependencies, fewer recurring service requirements, and a cleaner relationship between the student, the machine, and the learning process.</p>
+          <div class="pur-aside">
+            <p>SwayForm does not pretend that hardware has no environmental cost. Every physical product has a footprint. The goal is to build responsibly: use local computation where it makes sense, avoid unnecessary cloud dependence, and design the platform around long-term educational use instead of disposable tech cycles.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /pur-body -->
+
+<!-- ═══ CARDS ═══ -->
+<div class="pur-cards-wrap">
+  <div class="wrap">
+    <div class="pur-card-grid">
+
+      <div class="pur-card">
+        <span class="pur-card-n">01</span>
+        <h3>Build with the future</h3>
+        <p>Students learn robotics by working directly with the systems shaping modern engineering: motion, sensing, control, AI, and real physical behavior.</p>
+      </div>
+
+      <div class="pur-card">
+        <span class="pur-card-n">02</span>
+        <h3>Understand the machine</h3>
+        <p>SwayForm is built to make the connection between code and movement visible, testable, and understandable — not hidden behind a dashboard.</p>
+      </div>
+
+      <div class="pur-card">
+        <span class="pur-card-n">03</span>
+        <h3>Use less invisible infrastructure</h3>
+        <p>A local-first approach reduces unnecessary cloud dependence and keeps the learning experience closer to the robot itself.</p>
+      </div>
+
+    </div>
   </div>
-</section>
+</div>
+
+<!-- ═══ CLOSING ═══ -->
+<div class="pur-close">
+  <div class="pur-close-inner">
+    <h2>The goal is not to make students fear automation.</h2>
+    <p>The goal is to help them understand it, build with it, and become the kind of people who can shape what comes next.</p>
+    <div class="pur-close-btns">
+      <a href="/robot" class="btn btn-lg" style="background:#fff;color:#000;font-weight:700;border-radius:10px">Explore the Robot</a>
+      <a href="/learning-path" class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.85)">View the Learning Path</a>
+    </div>
+  </div>
+</div>
 
 <footer id="footer">
   <div class="wrap">

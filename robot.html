@@ -18,7 +18,31 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
 <link rel="stylesheet" href="/styles.css">
-<style>#topbar{top:0!important}</style>
+<style>
+#topbar{top:0!important}
+/* ── Mobile fixes ── */
+@media(max-width:768px){
+  #robot-hero{
+    padding-top:calc(var(--nav-h) + 48px) !important;
+    padding-bottom:44px !important;
+  }
+  .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* collapse 2-col inline grids to single column */
+  [style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr !important;
+    gap:32px !important;
+  }
+  /* hide second column visuals in split layouts */
+  [style*="grid-template-columns:1fr 1fr"] > div:last-child img{max-width:100%}
+}
+@media(max-width:480px){
+  .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
+}
+@media(max-width:360px){
+  .stat-strip-inner{grid-template-columns:repeat(2,1fr) !important}
+}
+</style>
 </head>
 <body>
 <nav id="topbar">
@@ -47,7 +71,7 @@
 </div>
 
   <!-- hero -->
-  <section style="padding-top:calc(var(--nav-h) + 122px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
+  <section id="robot-hero" style="padding-top:calc(var(--nav-h) + 122px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 20% 50%,rgba(95,183,255,.09) 0%,transparent 70%);pointer-events:none"></div>
     <div class="section-wide">
       <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">The Robot</span>
@@ -64,7 +88,7 @@
 
   <!-- stat strip -->
   <section style="border-bottom:1px solid rgba(255,255,255,.07);background:var(--dark2)">
-    <div class="section-wide" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:0">
+    <div class="section-wide stat-strip-inner" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:0">
       <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
         <div style="font-size:28px;font-weight:800;color:#5fb7ff;letter-spacing:-.03em">17</div>
         <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Servo Joints</div>
@@ -107,8 +131,8 @@
       <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="filterJoints('torso')" id="jf-torso">Torso</button>
     </div>
 
-    <div style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
-      <table style="width:100%;border-collapse:collapse;font-size:13px" id="joint-table">
+    <div class="table-scroll" style="border:1px solid rgba(0,0,0,.09);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px" id="joint-table">
         <thead>
           <tr style="background:var(--bg2);border-bottom:1px solid var(--line)">
             <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted)">Joint name</th>

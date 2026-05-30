@@ -50,6 +50,10 @@
 .cf-status{display:none;padding:16px;border-radius:10px;font-size:14px;text-align:center;margin-top:4px}
 .cf-intro{font-size:18px;color:var(--muted);line-height:1.7;margin-top:12px;max-width:560px}
 @media(max-width:600px){.cf-row{grid-template-columns:1fr}}
+@media(max-width:768px){
+  #contact-hero{padding-top:calc(var(--nav-h) + 48px) !important;padding-bottom:44px !important}
+  .cf-section{padding:56px 0 80px}
+}
 </style>
 </head>
 <body>
@@ -81,7 +85,7 @@
 </div>
 
 <!-- hero -->
-<section style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:72px;background:var(--dark);position:relative;overflow:hidden">
+<section id="contact-hero" style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:72px;background:var(--dark);position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 60% 50%,rgba(95,183,255,.07) 0%,transparent 70%);pointer-events:none"></div>
   <div class="wrap">
     <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.6)">Contact</span>

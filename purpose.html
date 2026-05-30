@@ -23,6 +23,11 @@
 .purpose-block p{font-size:18px;color:var(--soft);line-height:1.85;margin-top:20px}
 .purpose-block p + p{margin-top:16px}
 .coming-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:24px;border:1px solid var(--line);background:var(--bg2);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:48px}
+@media(max-width:768px){
+  #purpose-hero{padding-top:calc(var(--nav-h) + 48px) !important;padding-bottom:44px !important}
+  .purpose-section{padding:64px 0}
+  .purpose-block p{font-size:17px}
+}
 </style>
 </head>
 <body>
@@ -54,7 +59,7 @@
 </div>
 
 <!-- hero -->
-<section style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:80px;background:var(--dark);position:relative;overflow:hidden">
+<section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:80px;background:var(--dark);position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(95,183,255,.06) 0%,transparent 70%);pointer-events:none"></div>
   <div class="wrap">
     <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.6)">Purpose</span>

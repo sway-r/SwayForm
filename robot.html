@@ -134,6 +134,25 @@
 .anatomy-panel-dark .anatomy-learns li{color:rgba(200,220,240,.68)}
 .anatomy-panel-dark #anatomy-default p{color:rgba(200,220,240,.4) !important}
 
+/* ── anatomy media viewer ── */
+#anat-still{transition:opacity .3s ease}
+#anat-video{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;display:none;z-index:2;
+  border-radius:14px;background:rgba(20,20,24,.9)
+}
+#anat-hotspot-layer{position:absolute;inset:0;z-index:3}
+#anat-back-btn{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  z-index:4;background:rgba(4,8,18,.82);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(95,183,255,.45);color:rgba(200,220,240,.92);
+  font-size:12px;font-weight:600;padding:7px 20px;border-radius:20px;
+  cursor:pointer;letter-spacing:.04em;white-space:nowrap;
+  transition:background .15s,border-color .15s;display:none
+}
+#anat-back-btn:hover{background:rgba(95,183,255,.18);border-color:rgba(95,183,255,.75)}
+
 /* stat strip grid */
 .stat-strip-inner{display:grid;grid-template-columns:repeat(6,1fr)}
 
@@ -255,95 +274,53 @@
   </div>
 </section>
 
-<!-- ═══ INTERACTIVE ANATOMY — real robot photo + hotspot overlay ═══ -->
+<!-- ═══ INTERACTIVE ANATOMY ═══ -->
 <section id="anatomy-section" class="anatomy-section-dark">
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px;color:#5fb7ff">Interactive Anatomy</span>
     <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:10px;color:#edf5ff">The robot, labeled.</h2>
-    <p style="color:rgba(200,220,240,.6);margin-bottom:44px;max-width:520px">Click any hotspot to see what that system does, how it connects to code, and what students learn from it.</p>
+    <p style="color:rgba(200,220,240,.6);margin-bottom:44px;max-width:520px">Click any hotspot. The viewer animates into that part and holds on the labeled image.</p>
 
     <div class="anatomy-photo-wrap">
 
-      <!-- Left: real robot photo with interactive hotspot overlay -->
-      <div class="anatomy-img-container">
-        <!--
-          Real SwayForm robot prototype image (swayform_robot_1.png).
-          TODO: Replace with final Spook production photo when available.
-          Alt text describes the physical prototype as shown.
-        -->
-        <img src="images/RobotOverview.png"
-             alt="SwayForm humanoid robot prototype — labeled overview showing all major systems"
+      <!-- Left: state-based media viewer -->
+      <div class="anatomy-img-container" id="anatomy-viewer">
+
+        <!-- Still image — always present so container keeps its height -->
+        <img id="anat-still"
+             src="images/RobotOverview.png"
+             alt="SwayForm robot overview"
              class="anatomy-robot-photo"
              loading="eager">
 
-        <!-- Hotspot: Camera / Vision (head visor area) -->
-        <div class="anatomy-spot anat-hs" id="spot-camera"
-             style="top:20%;left:47%"
-             onclick="showAnatomyDetail('camera')">
-          <span class="anat-lbl anat-lbl-r">Camera</span>
-        </div>
+        <!-- Transition video
+             TODO: Place these files in images/ when animation assets are ready:
+               images/overview_to_head.mp4      images/head_to_overview.mp4
+               images/overview_to_arm.mp4       images/arm_to_overview.mp4
+               images/overview_to_hand.mp4      images/hand_to_overview.mp4
+               images/overview_to_base.mp4      images/base_to_overview.mp4
+               images/overview_to_electronics.mp4  images/electronics_to_overview.mp4
+             Without these files the viewer falls back to a smooth fade. -->
+        <video id="anat-video" playsinline muted></video>
 
-        <!-- Hotspot: Neck joint -->
-        <div class="anatomy-spot anat-hs" id="spot-neck"
-             style="top:33%;left:48%"
-             onclick="showAnatomyDetail('neck')">
-          <span class="anat-lbl anat-lbl-r">Neck</span>
-        </div>
+        <!-- Hotspots injected by initAnatomy() — shown only in overview state -->
+        <div id="anat-hotspot-layer"></div>
 
-        <!-- Hotspot: Shoulder — left arm (raised, appears right in image) -->
-        <div class="anatomy-spot anat-hs" id="spot-shoulder"
-             style="top:38%;left:64%"
-             onclick="showAnatomyDetail('shoulder')">
-          <span class="anat-lbl anat-lbl-r">Shoulder</span>
-        </div>
+        <!-- Back button — shown when a part is active -->
+        <button id="anat-back-btn" onclick="goToOverview()">← Overview</button>
 
-        <!-- Hotspot: Elbow — left arm raising upward -->
-        <div class="anatomy-spot anat-hs" id="spot-elbow"
-             style="top:26%;left:74%"
-             onclick="showAnatomyDetail('elbow')">
-          <span class="anat-lbl anat-lbl-r">Elbow</span>
-        </div>
-
-        <!-- Hotspot: Wrist — upper left arm -->
-        <div class="anatomy-spot anat-hs" id="spot-wrist"
-             style="top:15%;left:72%"
-             onclick="showAnatomyDetail('wrist')">
-          <span class="anat-lbl anat-lbl-r">Wrist</span>
-        </div>
-
-        <!-- Hotspot: Fingers — open hand at top right -->
-        <div class="anatomy-spot anat-hs" id="spot-fingers"
-             style="top:7%;left:64%"
-             onclick="showAnatomyDetail('fingers')">
-          <span class="anat-lbl anat-lbl-l">Fingers</span>
-        </div>
-
-        <!-- Hotspot: Electronics — chest/torso -->
-        <div class="anatomy-spot anat-hs" id="spot-electronics"
-             style="top:53%;left:48%"
-             onclick="showAnatomyDetail('electronics')">
-          <span class="anat-lbl anat-lbl-r">Electronics</span>
-        </div>
-
-        <!-- Hotspot: Base — rotating base at bottom -->
-        <div class="anatomy-spot anat-hs" id="spot-base"
-             style="top:80%;left:48%"
-             onclick="showAnatomyDetail('base')">
-          <span class="anat-lbl anat-lbl-r">Base</span>
-        </div>
       </div>
 
-      <!-- Right: detail panel — content rendered by ANATOMY_DATA + showAnatomyDetail() -->
+      <!-- Right: text explanation only — no images here -->
       <div class="anatomy-panel anatomy-panel-dark" id="anatomy-panel">
 
         <div id="anatomy-default" style="display:flex;align-items:center;justify-content:center;height:100%;min-height:260px;flex-direction:column;gap:14px;text-align:center">
           <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,220,240,.5)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
-          <p style="color:rgba(200,220,240,.4);font-size:14px;margin:0;max-width:200px;line-height:1.6">Click a hotspot on the robot to see component details.</p>
+          <p style="color:rgba(200,220,240,.4);font-size:14px;margin:0;max-width:200px;line-height:1.6">Click a hotspot on the robot to explore that system.</p>
         </div>
 
-        <!-- anatomy detail slot — replaced by JS on each click -->
         <div id="anatomy-detail-slot" style="display:none"></div>
 
       </div><!-- /anatomy-panel -->
@@ -738,114 +715,277 @@
 </footer>
 
 <script>
-/* ── Hotspot data — one source of truth ── */
-var ANATOMY_DATA = {
-  camera: {
-    label: 'Intel RealSense D435i',
-    category: 'Vision System',
-    description: 'Mounted on the head bracket. Publishes synchronized RGB and depth streams — each pixel in the depth frame is a distance in millimeters from the sensor. Used by every perception-layer demo and lab.',
-    learns: [
-      'How RGB and depth data are published as separate ROS topics',
-      'Why camera minimum range (about 0.3m) matters for close interactions',
-      'How lighting and texture affect detection reliability',
-      'HSV color segmentation vs depth-based proximity'
-    ],
-    image: 'images/head.png',
-    gallery: []
-  },
-  neck: {
-    label: 'Neck — Pan / Tilt',
-    category: '2-DOF Joint',
-    description: 'Two MG90S servos providing neck_yaw (left-right rotation) and neck_pitch (up-down tilt). The joints most commonly used for feedback-driven behaviors like face tracking and object following.',
-    learns: [
-      'Compound 2-DOF control from two independent topics',
-      'Proportional controllers and why dead zones prevent jitter',
-      'The difference between position control and velocity control',
-      'How camera feedback loops drive physical joint movement'
-    ],
-    image: 'images/head.png',
-    gallery: []
-  },
-  shoulder: {
-    label: 'Shoulder Joint',
-    category: 'High-Torque Joint',
-    description: 'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
-    learns: [
-      'Why mechanical load matters — not just angle range',
-      'How joint limits interact with each other in a chain',
-      'The importance of motion sequencing order',
-      'Torque vs. speed tradeoffs in servo selection'
-    ],
-    image: 'images/Arm.png',
-    gallery: []
-  },
-  elbow: {
-    label: 'Elbow Joint',
-    category: 'Mid-Arm Joint',
-    description: 'MG996R elbow_pitch. The joint that determines how extended or compact the arm is. Students learn that moving the shoulder and elbow simultaneously creates very different motion arcs than moving them in sequence.',
-    learns: [
-      'Multi-joint coordination and timing',
-      'Mechanical advantage and why elbow angle affects shoulder load',
-      'Keyframe interpolation across a joint chain',
-      'Safe range design for compound motion'
-    ],
-    image: 'images/Arm.png',
-    gallery: []
-  },
-  wrist: {
-    label: 'Wrist',
-    category: 'Precision Joint',
-    description: 'MG90S wrist_pitch. Smaller servo than shoulder/elbow — lower torque, higher positional precision. Students observe how different servo models behave differently even when given the same PWM timing.',
-    learns: [
-      'Servo model differences — MG996R vs MG90S behavior',
-      'Why PWM timing precision matters at smaller joints',
-      'Wrist-end orientation in a 3-joint arm chain',
-      'Voltage regulation at small-signal servo loads'
-    ],
-    image: 'images/Arm.png',
-    gallery: ['images/hand.png']
-  },
-  fingers: {
-    label: 'Five-Finger Hand',
-    category: 'Fine Motor',
-    description: 'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
-    learns: [
-      'Individual joint addressing within a single message type',
-      'Simultaneous multi-joint commands vs sequential',
-      'Servo driver channel assignment',
-      'Fine PWM precision requirements at low-torque joints'
-    ],
-    image: 'images/hand.png',
-    gallery: ['images/Arm.png']
-  },
-  electronics: {
-    label: 'Raspberry Pi 5 + Electronics',
-    category: 'Compute + Control',
-    description: 'Raspberry Pi 5 (8 GB) running Ubuntu and a ROS 2-based software stack. Servo drivers on the I²C bus. Buck converters for rail separation. Everything is accessible, labeled, and replaceable — no black boxes.',
-    learns: [
-      'Onboard Linux compute and why it runs ROS natively',
-      'I²C bus, device addressing, and how the servo driver is configured',
-      'Two-rail power architecture and why rails are separated',
-      'SSH workflow — how students connect and deploy code'
-    ],
-    image: 'images/swayform_robot_2.png',
-    gallery: ['images/swayform_robot_3.png']
-  },
-  base: {
-    label: 'Rotating Base',
-    category: 'Actuated Base',
-    description: 'DC motor with encoder driving a belt/pulley system for torso yaw rotation. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
-    learns: [
-      'DC motor control vs servo control — different command interfaces',
-      'Encoder feedback and position estimation',
-      'Belt/pulley mechanical advantage and backlash',
-      'Why actuator type selection matters at the design stage'
-    ],
-    image: 'images/Base.png',
-    gallery: []
-  }
+/* ══════════════════════════════════════════════════════════════
+   ANATOMY VIEWER — state machine + part definitions
+   ══════════════════════════════════════════════════════════════
+
+   HOW TO ADD VIDEO ASSETS
+   Place .mp4 files in images/ and the viewer will use them
+   automatically. Until a file exists, the viewer falls back
+   to a smooth opacity fade between still images.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Part definitions ── */
+/* xPercent / yPercent: position of hotspot dot relative to the
+   image container. Adjust these after reviewing a labeled
+   screenshot of RobotOverview.png. */
+var PARTS = [
+  { id:'camera',
+    label:'Camera',       xPercent:47, yPercent:20, labelSide:'r',
+    videoGroup:'head',    finalImage:'images/head.png',
+    title:'Intel RealSense D435i', category:'Vision System',
+    description:'Mounted on the head bracket. Publishes synchronized RGB and depth streams — each pixel in the depth frame is a distance in millimeters from the sensor. Used by every perception-layer demo and lab.',
+    learns:['How RGB and depth data are published as separate ROS topics','Why camera minimum range (about 0.3m) matters for close interactions','How lighting and texture affect detection reliability','HSV color segmentation vs depth-based proximity'] },
+
+  { id:'neck',
+    label:'Neck',         xPercent:48, yPercent:32, labelSide:'r',
+    videoGroup:'head',    finalImage:'images/head.png',
+    title:'Neck — Pan / Tilt', category:'2-DOF Joint',
+    description:'Two MG90S servos providing neck_yaw (left-right rotation) and neck_pitch (up-down tilt). The joints most commonly used for feedback-driven behaviors like face tracking and object following.',
+    learns:['Compound 2-DOF control from two independent topics','Proportional controllers and why dead zones prevent jitter','The difference between position control and velocity control','How camera feedback loops drive physical joint movement'] },
+
+  { id:'shoulder',
+    label:'Shoulder',     xPercent:65, yPercent:38, labelSide:'r',
+    videoGroup:'arm',     finalImage:'images/Arm.png',
+    title:'Shoulder Joint', category:'High-Torque Joint',
+    description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
+    learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
+
+  { id:'elbow',
+    label:'Elbow',        xPercent:75, yPercent:26, labelSide:'r',
+    videoGroup:'arm',     finalImage:'images/Arm.png',
+    title:'Elbow Joint', category:'Mid-Arm Joint',
+    description:'MG996R elbow_pitch. The joint that determines how extended or compact the arm is. Students learn that moving the shoulder and elbow simultaneously creates very different motion arcs than moving them in sequence.',
+    learns:['Multi-joint coordination and timing','Mechanical advantage and why elbow angle affects shoulder load','Keyframe interpolation across a joint chain','Safe range design for compound motion'] },
+
+  { id:'wrist',
+    label:'Wrist',        xPercent:73, yPercent:15, labelSide:'r',
+    videoGroup:'arm',     finalImage:'images/Arm.png',
+    title:'Wrist', category:'Precision Joint',
+    description:'MG90S wrist_pitch. Smaller servo than shoulder/elbow — lower torque, higher positional precision. Students observe how different servo models behave differently even when given the same PWM timing.',
+    learns:['Servo model differences — MG996R vs MG90S behavior','Why PWM timing precision matters at smaller joints','Wrist-end orientation in a 3-joint arm chain','Voltage regulation at small-signal servo loads'] },
+
+  { id:'fingers',
+    label:'Hand / Fingers', xPercent:63, yPercent:7, labelSide:'l',
+    videoGroup:'hand',    finalImage:'images/hand.png',
+    title:'Five-Finger Hand', category:'Fine Motor',
+    description:'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
+    learns:['Individual joint addressing within a single message type','Simultaneous multi-joint commands vs sequential','Servo driver channel assignment','Fine PWM precision requirements at low-torque joints'] },
+
+  { id:'electronics',
+    label:'Electronics',  xPercent:48, yPercent:53, labelSide:'r',
+    videoGroup:'electronics', finalImage:'images/swayform_robot_2.png',
+    title:'Raspberry Pi 5 + Electronics', category:'Compute + Control',
+    description:'Raspberry Pi 5 (8 GB) running Ubuntu and a ROS 2-based software stack. Servo drivers on the I²C bus. Buck converters for rail separation. Everything is accessible, labeled, and replaceable — no black boxes.',
+    learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Two-rail power architecture and why rails are separated','SSH workflow — how students connect and deploy code'] },
+
+  { id:'base',
+    label:'Base',         xPercent:48, yPercent:80, labelSide:'r',
+    videoGroup:'base',    finalImage:'images/Base.png',
+    title:'Rotating Base', category:'Actuated Base',
+    description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
+    learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
+];
+
+/* ── Video paths (TODO: add files to images/ when animation assets arrive) ── */
+var VIDEOS = {
+  overview_to_head:        'images/overview_to_head.mp4',
+  head_to_overview:        'images/head_to_overview.mp4',
+  overview_to_arm:         'images/overview_to_arm.mp4',
+  arm_to_overview:         'images/arm_to_overview.mp4',
+  overview_to_hand:        'images/overview_to_hand.mp4',
+  hand_to_overview:        'images/hand_to_overview.mp4',
+  overview_to_base:        'images/overview_to_base.mp4',
+  base_to_overview:        'images/base_to_overview.mp4',
+  overview_to_electronics: 'images/overview_to_electronics.mp4',
+  electronics_to_overview: 'images/electronics_to_overview.mp4'
 };
 
+/* ── Final still image per video group ── */
+var GROUP_IMAGES = {
+  overview:    'images/RobotOverview.png',
+  head:        'images/head.png',
+  arm:         'images/Arm.png',
+  hand:        'images/hand.png',
+  base:        'images/Base.png',
+  electronics: 'images/swayform_robot_2.png'
+};
+
+/* ── Viewer state ── */
+var viewer = { group:'overview', transitioning:false, partId:null };
+
+/* ── Build hotspot overlay on load ── */
+function initAnatomy(){
+  var layer = document.getElementById('anat-hotspot-layer');
+  if(!layer) return;
+  PARTS.forEach(function(p){
+    var dot = document.createElement('div');
+    dot.className = 'anatomy-spot anat-hs';
+    dot.id = 'spot-'+p.id;
+    dot.style.left = p.xPercent+'%';
+    dot.style.top  = p.yPercent+'%';
+    dot.onclick = function(){ selectPart(p.id); };
+    var lbl = document.createElement('span');
+    lbl.className = 'anat-lbl anat-lbl-'+p.labelSide;
+    lbl.textContent = p.label;
+    dot.appendChild(lbl);
+    layer.appendChild(dot);
+  });
+}
+
+/* ── Fade between still images (fallback when video file is missing) ── */
+function fadeToStill(src, cb){
+  var el = document.getElementById('anat-still');
+  el.style.transition = 'opacity .28s ease';
+  el.style.opacity = '0';
+  setTimeout(function(){
+    el.src = src;
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      el.style.opacity = '1';
+      if(cb) setTimeout(cb, 300);
+    }); });
+  }, 290);
+}
+
+/* ── Play transition video; fall back gracefully if file is missing ── */
+function playTransition(key, finalImage, cb){
+  var vid   = document.getElementById('anat-video');
+  var still = document.getElementById('anat-still');
+  var path  = VIDEOS[key];
+
+  function fallback(){
+    vid.onended = null; vid.onerror = null;
+    vid.style.display = 'none';
+    try{ vid.src = ''; }catch(e){}
+    still.style.display = 'block';
+    fadeToStill(finalImage, cb);
+  }
+
+  if(!path){ fallback(); return; }
+
+  vid.onended = null; vid.onerror = null;
+
+  vid.onended = function(){
+    vid.style.display = 'none';
+    try{ vid.src = ''; }catch(e){}
+    still.src = finalImage;
+    still.style.opacity = '1';
+    still.style.display = 'block';
+    if(cb) cb();
+  };
+  vid.onerror = function(){ fallback(); };
+
+  still.style.display = 'none';
+  vid.src = path;
+  vid.style.display = 'block';
+  vid.load();
+  var prom = vid.play();
+  if(prom && prom.catch) prom.catch(function(){ fallback(); });
+}
+
+/* ── Show/hide hotspot overlay and back button ── */
+function setOverviewUI(isOverview){
+  document.getElementById('anat-hotspot-layer').style.display = isOverview ? 'block' : 'none';
+  document.getElementById('anat-back-btn').style.display      = isOverview ? 'none'  : 'block';
+}
+
+/* ── Ring the active hotspot dot ── */
+function setActive(partId){
+  PARTS.forEach(function(p){
+    var d = document.getElementById('spot-'+p.id);
+    if(d) d.classList.toggle('active', p.id===partId);
+  });
+}
+
+/* ── Update right-side text panel (no images) ── */
+function updatePanel(partId){
+  var slot = document.getElementById('anatomy-detail-slot');
+  var def  = document.getElementById('anatomy-default');
+  if(!partId){
+    slot.style.display = 'none';
+    if(def) def.style.display = 'flex';
+    return;
+  }
+  var p = null;
+  for(var i=0;i<PARTS.length;i++){ if(PARTS[i].id===partId){p=PARTS[i];break;} }
+  if(!p) return;
+  if(def) def.style.display = 'none';
+  slot.innerHTML =
+    '<div class="anatomy-detail-label">'+p.category+'</div>'+
+    '<h3>'+p.title+'</h3>'+
+    '<p>'+p.description+'</p>'+
+    '<div class="anatomy-learns-label">What students learn from this</div>'+
+    '<ul class="anatomy-learns">'+
+      p.learns.map(function(b){ return '<li>'+b+'</li>'; }).join('')+
+    '</ul>';
+  slot.style.display = 'block';
+  if(window.innerWidth < 900) setTimeout(function(){
+    document.getElementById('anatomy-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }, 80);
+}
+
+/* ── Main click handler ── */
+function selectPart(partId){
+  if(viewer.transitioning) return;
+  var part = null;
+  for(var i=0;i<PARTS.length;i++){ if(PARTS[i].id===partId){part=PARTS[i];break;} }
+  if(!part) return;
+
+  var tg = part.videoGroup;
+
+  /* Same video group already visible — only swap text, no animation */
+  if(viewer.group === tg && viewer.group !== 'overview'){
+    viewer.partId = partId;
+    setActive(partId);
+    updatePanel(partId);
+    return;
+  }
+
+  viewer.transitioning = true;
+  setActive(partId);
+  setOverviewUI(false);
+
+  if(viewer.group === 'overview'){
+    /* overview → target */
+    playTransition('overview_to_'+tg, part.finalImage, function(){
+      viewer.group = tg;
+      viewer.partId = partId;
+      viewer.transitioning = false;
+      updatePanel(partId);
+    });
+  } else {
+    /* current → overview → target (never jump directly between parts) */
+    var fromGroup = viewer.group;
+    playTransition(fromGroup+'_to_overview', GROUP_IMAGES.overview, function(){
+      viewer.group = 'overview';
+      setTimeout(function(){
+        playTransition('overview_to_'+tg, part.finalImage, function(){
+          viewer.group = tg;
+          viewer.partId = partId;
+          viewer.transitioning = false;
+          updatePanel(partId);
+        });
+      }, 100);
+    });
+  }
+}
+
+/* ── Back to overview ── */
+function goToOverview(){
+  if(viewer.transitioning || viewer.group === 'overview') return;
+  viewer.transitioning = true;
+  setActive(null);
+  var fromGroup = viewer.group;
+  playTransition(fromGroup+'_to_overview', GROUP_IMAGES.overview, function(){
+    viewer.group = 'overview';
+    viewer.partId = null;
+    viewer.transitioning = false;
+    setOverviewUI(true);
+    updatePanel(null);
+  });
+}
+
+/* ── Nav / misc ── */
 window.addEventListener('scroll',function(){
   var tb=document.getElementById('topbar');
   if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
@@ -854,57 +994,6 @@ var ham=document.querySelector('.hamburger');
 if(ham) ham.addEventListener('click',function(){
   document.getElementById('mobile-nav').classList.add('open');
 });
-
-function showAnatomyDetail(id){
-  try{
-    var d=ANATOMY_DATA[id];
-    if(!d) return;
-
-    /* build gallery row */
-    var galleryHtml='';
-    if(d.gallery && d.gallery.length){
-      var w=d.gallery.length===1?'100%':'calc(50% - 4px)';
-      galleryHtml='<div style="display:flex;gap:8px;margin-top:8px">';
-      for(var i=0;i<d.gallery.length;i++){
-        galleryHtml+='<img src="'+d.gallery[i]+'" alt="" loading="lazy" style="width:'+w+';height:110px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.08)">';
-      }
-      galleryHtml+='</div>';
-    }
-
-    /* build bullets */
-    var bullets='';
-    for(var j=0;j<d.learns.length;j++) bullets+='<li>'+d.learns[j]+'</li>';
-
-    /* render into slot */
-    var slot=document.getElementById('anatomy-detail-slot');
-    slot.innerHTML=
-      '<div class="anatomy-detail-label">'+d.category+'</div>'+
-      '<h3>'+d.label+'</h3>'+
-      '<p>'+d.description+'</p>'+
-      '<div style="margin:16px 0 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);line-height:0;background:#fff">'+
-        '<img src="'+d.image+'" alt="'+d.label+'" loading="lazy" style="width:100%;height:auto;display:block;max-height:220px;object-fit:contain">'+
-      '</div>'+
-      galleryHtml+
-      '<div class="anatomy-learns-label" style="margin-top:16px">What students learn from this</div>'+
-      '<ul class="anatomy-learns">'+bullets+'</ul>';
-    slot.style.display='block';
-
-    /* hide default prompt */
-    var def=document.getElementById('anatomy-default');
-    if(def) def.style.display='none';
-
-    /* active hotspot ring */
-    document.querySelectorAll('.anatomy-spot').forEach(function(s){s.classList.remove('active');});
-    var spot=document.getElementById('spot-'+id);
-    if(spot) spot.classList.add('active');
-
-    /* scroll on mobile */
-    var panel=document.getElementById('anatomy-panel');
-    if(panel && window.innerWidth<900){
-      setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
-    }
-  }catch(e){console.error('anatomy error:',e);}
-}
 
 function filterJoints(cat){
   try{
@@ -918,6 +1007,8 @@ function filterJoints(cat){
     });
   }catch(e){console.error('filterJoints error:',e);}
 }
+
+initAnatomy();
 </script>
 </body>
 </html>

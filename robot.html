@@ -79,6 +79,7 @@
   border:2px solid rgba(95,183,255,.72);
   cursor:pointer;
   z-index:2;
+  pointer-events:auto; /* explicit — must receive clicks even when parent layer has none */
   transition:background .18s, box-shadow .18s;
   display:flex;
   align-items:center;
@@ -90,6 +91,7 @@
   width:8px;height:8px;
   border-radius:50%;
   background:rgba(95,183,255,.95);
+  pointer-events:none;
 }
 .anat-hs:hover{
   background:rgba(95,183,255,.38);
@@ -101,7 +103,7 @@
   opacity:1 !important;
 }
 
-/* hotspot label */
+/* hotspot label — clickable; events bubble up to parent dot */
 .anat-lbl{
   position:absolute;
   white-space:nowrap;
@@ -114,7 +116,8 @@
   -webkit-backdrop-filter:blur(8px);
   padding:3px 9px;
   border-radius:4px;
-  pointer-events:none;
+  pointer-events:auto; /* was none — now bubbles click to parent dot */
+  cursor:pointer;
   top:50%;
   transform:translateY(-50%);
   line-height:1.4;
@@ -135,13 +138,14 @@
 .anatomy-panel-dark #anatomy-default p{color:rgba(200,220,240,.4) !important}
 
 /* ── anatomy media viewer ── */
-#anat-still{transition:opacity .3s ease}
+#anat-still{transition:opacity .3s ease;pointer-events:none}
 #anat-video{
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:contain;display:none;z-index:2;
-  border-radius:14px;background:rgba(20,20,24,.9)
+  border-radius:14px;background:rgba(20,20,24,.9);pointer-events:none
 }
-#anat-hotspot-layer{position:absolute;inset:0;z-index:3}
+/* layer transparent bg passes clicks through; dots get pointer-events:auto */
+#anat-hotspot-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
 #anat-back-btn{
   position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
   z-index:4;background:rgba(4,8,18,.82);
@@ -731,74 +735,77 @@
    screenshot of RobotOverview.png. */
 var PARTS = [
   { id:'camera',
-    label:'Camera',       xPercent:47, yPercent:20, labelSide:'r',
+    label:'Camera',       xPercent:50, yPercent:23, labelSide:'r',
     videoGroup:'head',    finalImage:'images/head.png',
     title:'Intel RealSense D435i', category:'Vision System',
     description:'Mounted on the head bracket. Publishes synchronized RGB and depth streams — each pixel in the depth frame is a distance in millimeters from the sensor. Used by every perception-layer demo and lab.',
     learns:['How RGB and depth data are published as separate ROS topics','Why camera minimum range (about 0.3m) matters for close interactions','How lighting and texture affect detection reliability','HSV color segmentation vs depth-based proximity'] },
 
   { id:'neck',
-    label:'Neck',         xPercent:48, yPercent:32, labelSide:'r',
+    label:'Neck',         xPercent:50, yPercent:34, labelSide:'r',
     videoGroup:'head',    finalImage:'images/head.png',
     title:'Neck — Pan / Tilt', category:'2-DOF Joint',
     description:'Two MG90S servos providing neck_yaw (left-right rotation) and neck_pitch (up-down tilt). The joints most commonly used for feedback-driven behaviors like face tracking and object following.',
     learns:['Compound 2-DOF control from two independent topics','Proportional controllers and why dead zones prevent jitter','The difference between position control and velocity control','How camera feedback loops drive physical joint movement'] },
 
   { id:'shoulder',
-    label:'Shoulder',     xPercent:65, yPercent:38, labelSide:'r',
+    label:'Shoulder',     xPercent:66, yPercent:38, labelSide:'l',
     videoGroup:'arm',     finalImage:'images/Arm.png',
     title:'Shoulder Joint', category:'High-Torque Joint',
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
     learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
 
   { id:'elbow',
-    label:'Elbow',        xPercent:75, yPercent:26, labelSide:'r',
+    label:'Elbow',        xPercent:74, yPercent:40, labelSide:'l',
     videoGroup:'arm',     finalImage:'images/Arm.png',
     title:'Elbow Joint', category:'Mid-Arm Joint',
     description:'MG996R elbow_pitch. The joint that determines how extended or compact the arm is. Students learn that moving the shoulder and elbow simultaneously creates very different motion arcs than moving them in sequence.',
     learns:['Multi-joint coordination and timing','Mechanical advantage and why elbow angle affects shoulder load','Keyframe interpolation across a joint chain','Safe range design for compound motion'] },
 
   { id:'wrist',
-    label:'Wrist',        xPercent:73, yPercent:15, labelSide:'r',
+    label:'Wrist',        xPercent:78, yPercent:49, labelSide:'l',
     videoGroup:'arm',     finalImage:'images/Arm.png',
     title:'Wrist', category:'Precision Joint',
     description:'MG90S wrist_pitch. Smaller servo than shoulder/elbow — lower torque, higher positional precision. Students observe how different servo models behave differently even when given the same PWM timing.',
     learns:['Servo model differences — MG996R vs MG90S behavior','Why PWM timing precision matters at smaller joints','Wrist-end orientation in a 3-joint arm chain','Voltage regulation at small-signal servo loads'] },
 
   { id:'fingers',
-    label:'Hand / Fingers', xPercent:63, yPercent:7, labelSide:'l',
+    label:'Hand / Fingers', xPercent:16, yPercent:16, labelSide:'r',
     videoGroup:'hand',    finalImage:'images/hand.png',
     title:'Five-Finger Hand', category:'Fine Motor',
     description:'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
     learns:['Individual joint addressing within a single message type','Simultaneous multi-joint commands vs sequential','Servo driver channel assignment','Fine PWM precision requirements at low-torque joints'] },
 
   { id:'electronics',
-    label:'Electronics',  xPercent:48, yPercent:53, labelSide:'r',
+    label:'Electronics',  xPercent:50, yPercent:49, labelSide:'r',
     videoGroup:'electronics', finalImage:'images/swayform_robot_2.png',
     title:'Raspberry Pi 5 + Electronics', category:'Compute + Control',
     description:'Raspberry Pi 5 (8 GB) running Ubuntu and a ROS 2-based software stack. Servo drivers on the I²C bus. Buck converters for rail separation. Everything is accessible, labeled, and replaceable — no black boxes.',
     learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Two-rail power architecture and why rails are separated','SSH workflow — how students connect and deploy code'] },
 
   { id:'base',
-    label:'Base',         xPercent:48, yPercent:80, labelSide:'r',
+    label:'Base',         xPercent:50, yPercent:80, labelSide:'r',
     videoGroup:'base',    finalImage:'images/Base.png',
     title:'Rotating Base', category:'Actuated Base',
     description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
     learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
 ];
 
-/* ── Video paths (TODO: add files to images/ when animation assets arrive) ── */
+/* ── Video paths — files live in transition/ (CamelCase) ──────────────
+   Add a .mp4 to transition/ and it activates automatically.
+   Current files: transition/OverviewToHead.mp4
+   ─────────────────────────────────────────────────────────────────── */
 var VIDEOS = {
-  overview_to_head:        'images/overview_to_head.mp4',
-  head_to_overview:        'images/head_to_overview.mp4',
-  overview_to_arm:         'images/overview_to_arm.mp4',
-  arm_to_overview:         'images/arm_to_overview.mp4',
-  overview_to_hand:        'images/overview_to_hand.mp4',
-  hand_to_overview:        'images/hand_to_overview.mp4',
-  overview_to_base:        'images/overview_to_base.mp4',
-  base_to_overview:        'images/base_to_overview.mp4',
-  overview_to_electronics: 'images/overview_to_electronics.mp4',
-  electronics_to_overview: 'images/electronics_to_overview.mp4'
+  overview_to_head:        'transition/OverviewToHead.mp4',
+  head_to_overview:        'transition/HeadToOverview.mp4',
+  overview_to_arm:         'transition/OverviewToArm.mp4',
+  arm_to_overview:         'transition/ArmToOverview.mp4',
+  overview_to_hand:        'transition/OverviewToHand.mp4',
+  hand_to_overview:        'transition/HandToOverview.mp4',
+  overview_to_base:        'transition/OverviewToBase.mp4',
+  base_to_overview:        'transition/BaseToOverview.mp4',
+  overview_to_electronics: 'transition/OverviewToElectronics.mp4',
+  electronics_to_overview: 'transition/ElectronicsToOverview.mp4'
 };
 
 /* ── Final still image per video group ── */
@@ -847,35 +854,38 @@ function fadeToStill(src, cb){
   }, 290);
 }
 
-/* ── Play transition video; fall back gracefully if file is missing ── */
+/* ── Play transition video; fall back gracefully if file is missing ──
+   `done` flag prevents onerror + play().catch from both firing cb.
+   The still image is never hidden — video (z-index:2) covers it. ── */
 function playTransition(key, finalImage, cb){
   var vid   = document.getElementById('anat-video');
   var still = document.getElementById('anat-still');
   var path  = VIDEOS[key];
+  var done  = false;
 
-  function fallback(){
+  function finish(){
+    if(done) return; done = true;
     vid.onended = null; vid.onerror = null;
     vid.style.display = 'none';
-    try{ vid.src = ''; }catch(e){}
-    still.style.display = 'block';
+    try{ vid.src = ''; vid.load(); }catch(e){}
+    still.src = finalImage;
+    still.style.opacity = '1';
+    if(cb) cb();
+  }
+
+  function fallback(){
+    if(done) return; done = true;
+    vid.onended = null; vid.onerror = null;
+    vid.style.display = 'none';
+    try{ vid.src = ''; vid.load(); }catch(e){}
     fadeToStill(finalImage, cb);
   }
 
-  if(!path){ fallback(); return; }
+  if(!path){ fadeToStill(finalImage, cb); return; }
 
-  vid.onended = null; vid.onerror = null;
-
-  vid.onended = function(){
-    vid.style.display = 'none';
-    try{ vid.src = ''; }catch(e){}
-    still.src = finalImage;
-    still.style.opacity = '1';
-    still.style.display = 'block';
-    if(cb) cb();
-  };
+  vid.onended = function(){ finish(); };
   vid.onerror = function(){ fallback(); };
 
-  still.style.display = 'none';
   vid.src = path;
   vid.style.display = 'block';
   vid.load();

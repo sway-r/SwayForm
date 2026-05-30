@@ -653,8 +653,6 @@
     </div>
   </section>
 
-</div>
-
 <footer id="footer">
   <div class="wrap">
     <div class="footer-top">
@@ -699,6 +697,27 @@ var ham=document.querySelector('.hamburger');
 if(ham) ham.addEventListener('click',function(){
   document.getElementById('mobile-nav').classList.add('open');
 });
+function showAnatomyDetail(id){
+  try{
+    document.querySelectorAll('.anatomy-detail').forEach(function(d){d.style.display='none';});
+    var def=document.getElementById('anatomy-default');if(def)def.style.display='none';
+    var detail=document.getElementById('anat-'+id);if(detail)detail.style.display='block';
+    document.querySelectorAll('.anatomy-spot').forEach(function(s){s.classList.remove('active');});
+    var spot=document.getElementById('spot-'+id);if(spot)spot.classList.add('active');
+  }catch(e){console.error('anatomy error:',e);}
+}
+function filterJoints(cat){
+  try{
+    document.querySelectorAll('#joint-tbody .jrow').forEach(function(r){
+      r.style.display=(cat==='all'||r.classList.contains('jcat-'+cat))?'':'none';
+    });
+    ['all','head','right','left','torso'].forEach(function(c){
+      var btn=document.getElementById('jf-'+c);if(!btn)return;
+      if(c===cat){btn.style.background='var(--blue)';btn.style.color='#05070d';btn.style.border='1px solid var(--blue)';}
+      else{btn.style.background='transparent';btn.style.color='var(--muted)';btn.style.border='1px solid var(--line)';}
+    });
+  }catch(e){console.error('filterJoints error:',e);}
+}
 </script>
 </body>
 </html>

@@ -547,6 +547,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .diff.easy{background:rgba(125,255,189,.1);color:var(--green)}
 .diff.med{background:rgba(255,209,102,.1);color:var(--yellow)}
 .diff.hard{background:rgba(255,123,123,.1);color:var(--red)}
+/* access / safety tier badges */
+.safe-green{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(125,255,189,.12);color:var(--green)}
+.safe-yellow{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(255,209,102,.12);color:var(--yellow)}
+.safe-red{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(255,123,123,.12);color:var(--red)}
 /* lab starter code */
 .todo-comment{color:#ffd166 !important}
 /* section divider inside articles */

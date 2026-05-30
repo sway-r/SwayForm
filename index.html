@@ -844,7 +844,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <a href="#" class="active" onclick="showPage('home');return false">Overview</a>
       <a href="#" onclick="showPage('platform');return false">The Robot</a>
       <a href="#" onclick="showPage('labs');return false">Learning Path</a>
-      <a href="#" onclick="showPage('demos');return false">Demo Programs</a>
+      <a href="/demos">Demo Programs</a>
       <a href="#" onclick="showPage('schools');return false">Contact</a>
     </div>
     <div class="nav-right">
@@ -863,7 +863,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <a href="#" onclick="showPage('home');document.getElementById('mobile-nav').classList.remove('open');return false">Overview</a>
   <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">The Robot</a>
   <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Path</a>
-  <a href="#" onclick="showPage('demos');document.getElementById('mobile-nav').classList.remove('open');return false">Demo Programs</a>
+  <a href="/demos">Demo Programs</a>
   <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">Contact</a>
   <a href="#" onclick="openHubNewTab('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
 </div>
@@ -2723,8 +2723,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <h5>Platform</h5>
         <ul>
           <li><a href="#" onclick="showPage('platform');return false">Overview</a></li>
-          <li><a href="#" onclick="showPage('robot');return false">The Robot</a></li>
-          <li><a href="#" onclick="showPage('demos');return false">Demo Programs</a></li>
+          <li><a href="/robot">The Robot</a></li>
+          <li><a href="/demos">Demo Programs</a></li>
           <li><a href="#" onclick="showPage('labs');return false">Lab Library</a></li>
         </ul>
       </div>
@@ -5833,8 +5833,16 @@ function showPage(id) {
     window.scrollTo(0, 0);
     if (tb) tb.style.top = '';
     if (id === 'errors') { setTimeout(initErrorPage, 50); }
+    var pagePaths = {home:'/',platform:'/platform',labs:'/labs',schools:'/schools'};
+    if (pagePaths[id] !== undefined) {
+      history.pushState({page:id}, '', pagePaths[id]);
+    }
   } catch(e) { console.error('showPage error:', e); }
 }
+
+window.addEventListener('popstate', function(e) {
+  if (e.state && e.state.page) showPage(e.state.page);
+});
 
 // ── ANATOMY DIAGRAM ───────────────────────────────────────────
 function showAnatomyDetail(id) {

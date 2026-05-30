@@ -72,7 +72,7 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:20px">Level 1 — Foundation</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
 
-        <div class="card glow-blue" style="cursor:pointer" href="/?hub=hub-lab-01" target="_blank">
+        <div class="card glow-blue" style="cursor:pointer" onclick="window.open('/?hub=hub-lab-01','_blank')">
           <span class="card-accent blue"></span>
           <div class="card-body">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
@@ -86,7 +86,7 @@
           </div>
         </div>
 
-        <div class="card glow-blue" style="cursor:pointer" href="/?hub=hub-lab-02" target="_blank">
+        <div class="card glow-blue" style="cursor:pointer" onclick="window.open('/?hub=hub-lab-02','_blank')">
           <span class="card-accent blue"></span>
           <div class="card-body">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
@@ -156,7 +156,7 @@
     <div class="lpg-q2 lpg-all">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
 
-        <div class="card glow-cyan" style="cursor:pointer" href="/?hub=hub-lab-q2" target="_blank">
+        <div class="card glow-cyan" style="cursor:pointer" onclick="window.open('/?hub=hub-lab-q2','_blank')">
           <span class="card-accent cyan"></span>
           <div class="card-body">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
@@ -206,7 +206,7 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:20px">Level 3 — Expression &amp; Architecture</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
 
-        <div class="card glow-purple" style="cursor:pointer" href="/?hub=hub-lab-q3" target="_blank">
+        <div class="card glow-purple" style="cursor:pointer" onclick="window.open('/?hub=hub-lab-q3','_blank')">
           <span class="card-accent purple"></span>
           <div class="card-body">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
@@ -238,7 +238,7 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:20px">Level 4 — Project Track</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
 
-        <div class="card glow-yellow" style="cursor:pointer" href="/?hub=hub-lab-q4" target="_blank">
+        <div class="card glow-yellow" style="cursor:pointer" onclick="window.open('/?hub=hub-lab-q4','_blank')">
           <span class="card-accent orange"></span>
           <div class="card-body">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
@@ -266,8 +266,6 @@
     </div>
 
   </section>
-
-</div>
 
 <footer id="footer">
   <div class="wrap">
@@ -313,6 +311,19 @@ var ham=document.querySelector('.hamburger');
 if(ham) ham.addEventListener('click',function(){
   document.getElementById('mobile-nav').classList.add('open');
 });
+function filterLabsPage(q){
+  try{
+    document.querySelectorAll('[class*="lpg-"]').forEach(function(g){
+      if(q==='all'){g.style.display='';}
+      else{g.style.display=g.classList.contains('lpg-'+q)?'':'none';}
+    });
+    ['all','q1','q2','q3','q4'].forEach(function(k){
+      var btn=document.getElementById('lpf-'+k);if(!btn)return;
+      if(k===q){btn.style.background='var(--blue)';btn.style.color='#05070d';btn.style.border='none';}
+      else{btn.style.background='var(--panel2)';btn.style.color='var(--muted)';btn.style.border='1px solid var(--line)';}
+    });
+  }catch(e){console.error('filterLabsPage error:',e);}
+}
 </script>
 </body>
 </html>

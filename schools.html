@@ -221,59 +221,6 @@
     </div>
   </section>
 
-</div>
-
-</div><!-- /pages -->
-
-
-<!-- ═══════════════════════════════════════════════════ FOOTER -->
-<footer id="footer">
-  <div class="wrap">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="logo"><span class="s">S</span>wayForm</div>
-        <p>Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Platform</h5>
-        <ul>
-          <li><a href="#" href="/platform">Overview</a></li>
-          <li><a href="#" href="/robot">The Robot</a></li>
-          <li><a href="#" href="/demos">Demo Programs</a></li>
-          <li><a href="#" href="/labs">Lab Library</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Learning</h5>
-        <ul>
-          <li><a href="#" href="/?hub=hub-welcome" target="_blank">Learning Hub</a></li>
-          <li><a href="#" href="/?hub=hub-getting-started" target="_blank">Getting Started</a></li>
-          <li><a href="#" href="/?hub=hub-demo-wave" target="_blank">Demo Code</a></li>
-          <li><a href="#" href="/?hub=hub-lab-01" target="_blank">Lab 01</a></li>
-          <li><a href="#" href="/?hub=hub-hardware" target="_blank">Hardware Guide</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>For Schools</h5>
-        <ul>
-          <li><a href="#" href="/schools">Program Info</a></li>
-          <li><a href="#" href="/schools">Request Demo</a></li>
-          <li><a href="mailto:hello@swayform.com">Contact Us</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">© 2025 SwayForm. All rights reserved.</span>
-      <div class="footer-sub">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="mailto:hello@swayform.com">hello@swayform.com</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- ═══════════════════════════════════════════════════ ERROR ENCYCLOPEDIA -->
 <footer id="footer">
   <div class="wrap">
     <div class="footer-top">
@@ -318,6 +265,29 @@ var ham=document.querySelector('.hamburger');
 if(ham) ham.addEventListener('click',function(){
   document.getElementById('mobile-nav').classList.add('open');
 });
+var W3F_KEY='f9748f2a-288a-4fcb-a163-877afc1d5f96';
+async function handleDemoRequest(e){
+  e.preventDefault();
+  var form=e.target,submitBtn=form.querySelector('[type=submit]'),status=document.getElementById('demo-form-status');
+  submitBtn.disabled=true;submitBtn.textContent='Sending…';
+  try{
+    var data=new FormData(form);
+    data.append('access_key',W3F_KEY);data.append('subject','SwayForm Demo Unit Request');data.append('from_name','SwayForm Website');
+    var res=await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
+    var json=await res.json();
+    if(json.success){
+      status.style.display='block';status.style.background='rgba(125,255,189,.08)';status.style.border='1px solid rgba(125,255,189,.25)';status.style.color='var(--green)';
+      status.textContent='Request received. We will follow up within 2 business days.';
+      form.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=true;el.style.opacity='.5';});
+    }else{
+      submitBtn.disabled=false;submitBtn.textContent='Request Demo Unit';
+      status.style.display='block';status.style.color='#f87171';status.textContent='Something went wrong. Please try again.';
+    }
+  }catch(err){
+    submitBtn.disabled=false;submitBtn.textContent='Request Demo Unit';
+    status.style.display='block';status.style.color='#f87171';status.textContent='Network error. Please try again.';
+  }
+}
 </script>
 </body>
 </html>

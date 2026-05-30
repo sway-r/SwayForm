@@ -84,15 +84,14 @@ p{color:var(--muted);line-height:1.75}
 #topbar{
   position:fixed;top:42px;left:0;right:0;z-index:900;
   height:var(--nav-h);display:flex;align-items:center;
-  transition:background .25s,border-color .25s,backdrop-filter .25s,box-shadow .25s;
-  border-bottom:1px solid transparent;
-  background:transparent;
-}
-#topbar.scrolled{
+  transition:box-shadow .25s;
   background:rgba(255,255,255,.96);
   backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-bottom-color:var(--line);
+  border-bottom:1px solid var(--line);
   box-shadow:0 1px 0 rgba(0,0,0,.05);
+}
+#topbar.scrolled{
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
 }
 .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1440px;margin:0 auto;padding:0 48px}
 .logo{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:var(--ink);display:flex;align-items:center;gap:0;flex-shrink:0;transition:color .25s}
@@ -326,17 +325,9 @@ p{color:var(--muted);line-height:1.75}
 .form-note{font-size:12px;color:var(--faint);text-align:center}
 
 /* ── FOOTER ──────────────────────────────────────────── */
-#footer{background:#000000;border-top:none;padding:72px 0 40px}
-.footer-logo{color:#fff !important}
-.footer-logo .s{color:#fff !important}
-.footer-tagline{color:rgba(200,220,240,.45) !important}
-.footer-col h4{color:rgba(237,245,255,.9) !important}
-.footer-col a{color:rgba(200,220,240,.45) !important}
-.footer-col a:hover{color:#fff !important}
-.footer-copy{color:rgba(200,220,240,.3) !important}
-.footer-sub a{color:rgba(200,220,240,.3) !important}
-.footer-sub a:hover{color:rgba(237,245,255,.7) !important}
-.footer-bottom{border-top-color:rgba(255,255,255,.08) !important}
+#footer{background:#fff;border-top:1px solid var(--line);padding:72px 0 40px}
+.footer-logo{color:var(--ink) !important}
+.footer-logo .s{color:#0057ff !important}
 .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:60px}
 .footer-brand .logo{font-size:20px;margin-bottom:14px;display:inline-flex}
 .footer-brand p{font-size:14px;color:var(--muted);max-width:260px;line-height:1.65}

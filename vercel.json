@@ -1,11 +1,22 @@
 {
+  "redirects": [
+    { "source": "/overview",      "destination": "/",              "permanent": false },
+    { "source": "/learn",         "destination": "/learning-path", "permanent": false },
+    { "source": "/labs",          "destination": "/learning-path", "permanent": false },
+    { "source": "/curriculum",    "destination": "/learning-path", "permanent": false },
+    { "source": "/platform",      "destination": "/robot",         "permanent": false },
+    { "source": "/robots",        "destination": "/robot",         "permanent": false },
+    { "source": "/schools",       "destination": "/contact",       "permanent": false },
+    { "source": "/for-schools",   "destination": "/contact",       "permanent": false },
+    { "source": "/demos",         "destination": "/",              "permanent": false },
+    { "source": "/demo-programs", "destination": "/",              "permanent": false },
+    { "source": "/learning-hub",  "destination": "/",              "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/robot",    "destination": "/robot.html" },
-    { "source": "/learn",    "destination": "/learn.html" },
-    { "source": "/demos",    "destination": "/demos.html" },
-    { "source": "/labs",     "destination": "/labs.html" },
-    { "source": "/platform", "destination": "/platform.html" },
-    { "source": "/schools",  "destination": "/schools.html" }
+    { "source": "/purpose",       "destination": "/purpose.html"       },
+    { "source": "/robot",         "destination": "/robot.html"         },
+    { "source": "/learning-path", "destination": "/learning-path.html" },
+    { "source": "/contact",       "destination": "/contact.html"       }
   ],
   "headers": [
     {

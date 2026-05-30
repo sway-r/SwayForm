@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SwayForm: Hands-On Robotics Learning Platform</title>
-<meta name="description" content="SwayForm puts a 21-DoF humanoid robot in your classroom. Students write real ROS 2 code, work with depth cameras, servo control, and sensor feedback — on actual hardware, not simulators.">
+<title>SwayForm | Hands-On Humanoid Robotics for Education</title>
+<meta name="description" content="SwayForm is a hands-on humanoid robotics platform for students, schools, clubs, and labs to learn robotics, AI, motion, sensors, ROS 2, and real-world engineering through physical experimentation.">
 <link rel="canonical" href="https://swayform.net/">
-<meta property="og:title" content="SwayForm: Hands-On Robotics Learning Platform">
-<meta property="og:description" content="SwayForm puts a 21-DoF humanoid robot in your classroom. Students write real ROS 2 code, work with depth cameras, servo control, and sensor feedback — on actual hardware, not simulators.">
+<meta property="og:title" content="SwayForm | Hands-On Humanoid Robotics for Education">
+<meta property="og:description" content="SwayForm is a hands-on humanoid robotics platform for students, schools, clubs, and labs to learn robotics, AI, motion, sensors, ROS 2, and real-world engineering through physical experimentation.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://swayform.net/">
 <meta name="robots" content="index, follow">
@@ -390,7 +390,7 @@ p{color:var(--muted);line-height:1.75}
 .footer-sub a{color:rgba(200,220,240,.3) !important}
 .footer-sub a:hover{color:rgba(237,245,255,.7) !important}
 .footer-bottom{border-top-color:rgba(255,255,255,.08) !important}
-.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:60px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:60px}
 .footer-brand .logo{font-size:20px;margin-bottom:14px;display:inline-flex}
 .footer-brand p{font-size:14px;color:var(--muted);max-width:260px;line-height:1.65}
 .footer-col h5{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:18px}
@@ -833,7 +833,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ═══════════════════════════════════════════════════ ANNOUNCEMENT BAR -->
 <div id="announce-bar">
   Fall 2026 pilot and program interest now open. &nbsp;
-  <a href="#" onclick="requestDemo();return false">Express interest &rarr;</a>
+  <a href="/contact">Express interest &rarr;</a>
 </div>
 
 <!-- ═══════════════════════════════════════════════════ TOPBAR -->
@@ -841,15 +841,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <div class="nav-inner">
     <div class="logo"><span class="s">S</span>wayForm</div>
     <div class="nav-links">
-      <a href="#" class="active" onclick="showPage('home');return false">Overview</a>
-      <a href="#" onclick="showPage('platform');return false">The Robot</a>
-      <a href="#" onclick="showPage('labs');return false">Learning Path</a>
-      <a href="/demos">Demo Programs</a>
-      <a href="#" onclick="showPage('schools');return false">Contact</a>
+      <a href="/" class="active">Overview</a>
+      <a href="/purpose">Our Purpose</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-path">Learning Path</a>
+      <a href="/contact">Contact</a>
     </div>
     <div class="nav-right">
-      <button class="btn btn-ghost btn-sm" onclick="requestDemo()">Request Demo</button>
-      <button class="hub-cta" onclick="openHubNewTab('hub-welcome')">Learning Hub</button>
+      <a href="/contact" class="btn btn-ghost" style="font-size:13px;padding:8px 18px">Request Demo</a>
       <div class="hamburger" onclick="document.getElementById('mobile-nav').classList.add('open')" aria-label="Menu">
         <span></span><span></span><span></span>
       </div>
@@ -860,12 +859,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- mobile nav -->
 <div id="mobile-nav">
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
-  <a href="#" onclick="showPage('home');document.getElementById('mobile-nav').classList.remove('open');return false">Overview</a>
-  <a href="#" onclick="showPage('platform');document.getElementById('mobile-nav').classList.remove('open');return false">The Robot</a>
-  <a href="#" onclick="showPage('labs');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Path</a>
-  <a href="/demos">Demo Programs</a>
-  <a href="#" onclick="showPage('schools');document.getElementById('mobile-nav').classList.remove('open');return false">Contact</a>
-  <a href="#" onclick="openHubNewTab('hub-welcome');document.getElementById('mobile-nav').classList.remove('open');return false">Learning Hub</a>
+  <a href="/">Overview</a>
+  <a href="/purpose">Our Purpose</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-path">Learning Path</a>
+  <a href="/contact">Contact</a>
 </div>
 
 
@@ -887,8 +885,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <h1 class="d1">The future feels<br>different when<br><em>you build it.</em></h1>
       <p class="hero-sub">SwayForm gives schools and student teams access to a real humanoid robotics platform, built for learning AI, robotics, motion, sensors, and code through physical experimentation.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" onclick="showPage('platform')">The Robot</button>
-        <button class="btn btn-ghost btn-lg" onclick="openHubNewTab('hub-welcome')">Learning Hub</button>
+        <a href="/robot" class="btn btn-primary btn-lg">The Robot</a>
+        <a href="/learning-path" class="btn btn-ghost btn-lg">Learning Path</a>
       </div>
       <div class="hero-meta" style="margin-top:44px">
         <div class="hero-meta-item"><span class="hero-meta-num">8</span>&thinsp;major joints</div>
@@ -1154,7 +1152,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
       </div>
       <div style="text-align:center;margin-top:36px">
-        <button class="btn btn-ghost" onclick="showPage('demos')">See all demos and source code &#8594;</button>
+        <button class="btn btn-ghost" onclick="openHubNewTab('hub-demo-wave')">Explore demos in Learning Hub &#8594;</button>
       </div>
     </div>
   </section>
@@ -1194,7 +1192,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
       </div>
       <div style="text-align:center;margin-top:40px">
-        <button class="btn btn-ghost" onclick="showPage('labs')">See the full lab library &#8594;</button>
+        <a href="/learning-path" class="btn btn-ghost">See the full lab library &#8594;</a>
       </div>
     </div>
   </section>
@@ -1371,8 +1369,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
 </div><!-- /pg-home -->
 
-<!-- ──────────────────────────────────── PLATFORM PAGE (stub) -->
-<div id="pg-platform" class="pg">
+<!-- SPA sub-pages removed — each is now a separate URL -->
+<div id="pg-platform-placeholder" style="display:none">
 
   <!-- HERO -->
   <section style="padding-top:calc(var(--nav-h) + 42px);padding-bottom:0;background:#040608;border-bottom:none;position:relative;overflow:hidden;min-height:80vh;display:flex;align-items:center">
@@ -1572,7 +1570,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <p style="font-size:17px;color:rgba(200,220,240,.55);max-width:520px;margin:0 auto 40px;line-height:1.7">We are working with pilot programs now. Fall 2026 is the target for broader availability. Get in touch to stay updated.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <button class="btn btn-primary btn-lg" style="background:#fff;color:#000;font-weight:700" onclick="requestDemo()">Request a Demo</button>
-        <button class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.8)" onclick="showPage('labs')">View Learning Path</button>
+        <a href="/learning-path" class="btn btn-ghost btn-lg" style="border-color:rgba(255,255,255,.18);color:rgba(237,245,255,.8)">View Learning Path</a>
       </div>
     </div>
   </section>
@@ -2417,7 +2415,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 </div>
 
 <!-- ─────────────────────────────────────── LEARN PAGE -->
-<div id="pg-learn" class="page">
+<div id="pg-learn" class="page" style="display:none">
 
   <!-- hero -->
   <section style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
@@ -2720,39 +2718,27 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <p>Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col">
-        <h5>Platform</h5>
+        <h5>Navigation</h5>
         <ul>
-          <li><a href="#" onclick="showPage('platform');return false">Overview</a></li>
+          <li><a href="/">Overview</a></li>
+          <li><a href="/purpose">Our Purpose</a></li>
           <li><a href="/robot">The Robot</a></li>
-          <li><a href="/demos">Demo Programs</a></li>
-          <li><a href="#" onclick="showPage('labs');return false">Lab Library</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Learning</h5>
-        <ul>
-          <li><a href="#" onclick="openHub('hub-welcome');return false">Learning Hub</a></li>
-          <li><a href="#" onclick="openHub('hub-getting-started');return false">Getting Started</a></li>
-          <li><a href="#" onclick="openHub('hub-demo-wave');return false">Demo Code</a></li>
-          <li><a href="#" onclick="openHub('hub-lab-01');return false">Lab 01</a></li>
-          <li><a href="#" onclick="openHub('hub-hardware');return false">Hardware Guide</a></li>
+          <li><a href="/learning-path">Learning Path</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h5>Contact</h5>
         <ul>
-          <li><a href="#" onclick="showPage('schools');return false">Program Info</a></li>
-          <li><a href="#" onclick="showPage('schools');return false">Request Demo</a></li>
-          <li><a href="mailto:hello@swayform.com">Contact Us</a></li>
+          <li><a href="/contact">Request Demo</a></li>
+          <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <span class="footer-copy">© 2025 SwayForm. All rights reserved.</span>
       <div class="footer-sub">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="mailto:hello@swayform.com">hello@swayform.com</a>
+        <a href="mailto:contact@swayform.net">contact@swayform.net</a>
       </div>
     </div>
   </div>
@@ -5792,57 +5778,12 @@ ros2 run &lt;package&gt; &lt;node&gt;</div></div>
 
 <script>
 // ── PAGE SYSTEM ──────────────────────────────────────────────
-const pages = ['home','platform','labs','schools'];
-
-function requestDemo() {
-  showPage('schools');
-  setTimeout(function() {
-    var el = document.getElementById('contact-form');
-    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
-  }, 120);
-}
+function requestDemo() { window.location.href = '/contact'; }
 
 function showPage(id) {
-  try {
-    // Force scrolled style on non-home pages (white bg needs dark nav)
-    var tb = document.getElementById('topbar');
-    if (tb) {
-      if (id === 'home') {
-        tb.classList.remove('force-scrolled');
-        if (window.scrollY <= 20) tb.classList.remove('scrolled');
-      } else {
-        tb.classList.add('scrolled');
-        tb.classList.add('force-scrolled');
-      }
-    }
-    pages.forEach(function(p) {
-      var el = document.getElementById('pg-' + p);
-      if (el) {
-        el.style.display = (p === id) ? 'block' : 'none';
-      }
-    });
-    document.querySelectorAll('.nav-links a').forEach(function(a) {
-      a.classList.remove('active');
-    });
-    var navMap = {home:0,platform:1,robot:1,labs:2,learn:2,demos:2,schools:3,errors:3};
-    var idx = navMap[id];
-    if (idx !== undefined) {
-      var links = document.querySelectorAll('.nav-links a');
-      if (links[idx]) links[idx].classList.add('active');
-    }
-    window.scrollTo(0, 0);
-    if (tb) tb.style.top = '';
-    if (id === 'errors') { setTimeout(initErrorPage, 50); }
-    var pagePaths = {home:'/',platform:'/platform',labs:'/labs',schools:'/schools'};
-    if (pagePaths[id] !== undefined) {
-      history.pushState({page:id}, '', pagePaths[id]);
-    }
-  } catch(e) { console.error('showPage error:', e); }
+  // Retained only for Learning Hub error page compatibility
+  if (id === 'errors') { setTimeout(initErrorPage, 50); }
 }
-
-window.addEventListener('popstate', function(e) {
-  if (e.state && e.state.page) showPage(e.state.page);
-});
 
 // ── ANATOMY DIAGRAM ───────────────────────────────────────────
 function showAnatomyDetail(id) {
@@ -6479,7 +6420,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* swap .hero-cinema-img <img> for <video autoplay muted loop playsinline> when robot demo is ready */
 .hero-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
 /* hero panel image — swap <img> for <video> when demo ready */
-.hero-visual-panel .robot-img{height:clamp(480px,58vh,700px);width:auto;object-fit:contain;filter:drop-shadow(0 32px 80px rgba(0,0,0,.10));-webkit-mask-image:radial-gradient(ellipse 78% 88% at 52% 46%,black 25%,transparent 78%);mask-image:radial-gradient(ellipse 78% 88% at 52% 46%,black 25%,transparent 78%);position:relative;z-index:1}
+.hero-visual-panel .robot-img{height:clamp(480px,58vh,700px);width:auto;object-fit:contain;filter:drop-shadow(0 20px 40px rgba(0,0,0,.06));-webkit-mask-image:radial-gradient(ellipse 84% 92% at 52% 50%,black 55%,transparent 92%);mask-image:radial-gradient(ellipse 84% 92% at 52% 50%,black 55%,transparent 92%);position:relative;z-index:1}
 .hero-cinema-gradient{position:absolute;inset:0;background:linear-gradient(to right,#040608 0%,#040608 25%,rgba(4,6,8,.9) 42%,rgba(4,6,8,.52) 58%,rgba(4,6,8,.1) 78%,transparent 100%)}
 
 @media(max-width:768px){

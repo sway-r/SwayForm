@@ -337,7 +337,7 @@ p{color:var(--muted);line-height:1.75}
 .footer-sub a{color:rgba(200,220,240,.3) !important}
 .footer-sub a:hover{color:rgba(237,245,255,.7) !important}
 .footer-bottom{border-top-color:rgba(255,255,255,.08) !important}
-.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:60px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:60px}
 .footer-brand .logo{font-size:20px;margin-bottom:14px;display:inline-flex}
 .footer-brand p{font-size:14px;color:var(--muted);max-width:260px;line-height:1.65}
 .footer-col h5{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:18px}

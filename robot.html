@@ -142,10 +142,11 @@
 /* Fixed-ratio clip frame — defines the viewer size for every state.
    Both still and video fill this frame identically so there is never
    a layout jump when switching between parts or returning to overview. */
+/* aspect-ratio matches RobotOverview.png natural size: 624x479 ≈ 4/3 landscape */
 #anat-frame{
   position:relative;
   width:100%;
-  aspect-ratio:3/4;
+  aspect-ratio:624/479;
   overflow:hidden;
   border-radius:14px;
   background:rgba(20,20,24,.9);

@@ -913,6 +913,83 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
+  <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
+  <style>
+  .demo-preview-grid{
+    display:grid;
+    grid-template-columns:1fr 1.35fr;
+    gap:64px;
+    align-items:center;
+  }
+  .demo-preview-video-outer{
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 12px 48px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.03);
+    line-height:0;
+    position:relative;
+  }
+  .demo-preview-video-outer video{
+    width:100%;display:block;border-radius:0;
+  }
+  .demo-video-fallback{
+    display:none;
+    align-items:center;justify-content:center;
+    min-height:240px;
+    padding:40px 24px;
+    text-align:center;
+  }
+  @media(max-width:960px){
+    .demo-preview-grid{grid-template-columns:1fr;gap:36px}
+    .demo-preview-text{max-width:600px}
+  }
+  @media(max-width:520px){
+    .demo-preview-grid{gap:24px}
+  }
+  </style>
+  <section id="demo-preview" style="background:var(--dark);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:80px 0">
+    <div class="wrap">
+      <div class="demo-preview-grid">
+
+        <!-- Left: text -->
+        <div class="demo-preview-text">
+          <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.55)">Learning Experience Preview</span>
+          <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:#edf5ff;margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
+          <p style="font-size:16px;color:rgba(200,220,240,.65);line-height:1.75;max-width:420px;margin-bottom:24px">SwayForm is built around the moment students stop watching technology from the outside and start controlling it themselves. This preview shows the kind of classroom interaction the platform is being designed for: students testing, observing, discussing, and learning from a real robot system.</p>
+          <p style="font-size:12px;color:rgba(200,220,240,.32);line-height:1.65;font-style:italic;max-width:380px">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
+        </div>
+
+        <!-- Right: video -->
+        <div>
+          <div class="demo-preview-video-outer">
+            <!-- Fallback card — visible until video confirms it can play -->
+            <div id="demo-video-fallback" class="demo-video-fallback">
+              <p style="color:rgba(200,220,240,.3);font-size:14px;margin:0">Learning preview video coming soon.</p>
+            </div>
+            <video id="demo-video"
+                   src="videos/demo-video.mp4"
+                   autoplay loop muted playsinline
+                   preload="auto"
+                   style="display:none"></video>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var vid = document.getElementById('demo-video');
+    var fb  = document.getElementById('demo-video-fallback');
+    if(!vid) return;
+    vid.addEventListener('canplay', function(){
+      vid.style.display = 'block';
+      if(fb) fb.style.display = 'none';
+    }, {once:true});
+  })();
+  </script>
+
   <!-- ═══ WHAT SWAYFORM IS ═══ -->
   <section id="platform-sec" class="section">
     <div class="wrap">

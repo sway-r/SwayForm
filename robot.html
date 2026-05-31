@@ -783,19 +783,12 @@ var PARTS = [
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
     learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
 
-  { id:'elbow',
-    label:'Elbow',        xPercent:74, yPercent:45, labelSide:'l',
+  { id:'arm',
+    label:'Arm',          xPercent:74, yPercent:45, labelSide:'l',
     videoGroup:'arm',     finalImage:'images/Arm.png',
-    title:'Elbow Joint', category:'Mid-Arm Joint',
-    description:'MG996R elbow_pitch. The joint that determines how extended or compact the arm is. Students learn that moving the shoulder and elbow simultaneously creates very different motion arcs than moving them in sequence.',
+    title:'Arm System', category:'Multi-Joint Arm',
+    description:'The arm chain spans shoulder, elbow, and wrist — three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',
     learns:['Multi-joint coordination and timing','Mechanical advantage and why elbow angle affects shoulder load','Keyframe interpolation across a joint chain','Safe range design for compound motion'] },
-
-  { id:'wrist',
-    label:'Wrist',        xPercent:78, yPercent:49, labelSide:'l',
-    videoGroup:'arm',     finalImage:'images/Arm.png',
-    title:'Wrist', category:'Precision Joint',
-    description:'MG90S wrist_pitch. Smaller servo than shoulder/elbow — lower torque, higher positional precision. Students observe how different servo models behave differently even when given the same PWM timing.',
-    learns:['Servo model differences — MG996R vs MG90S behavior','Why PWM timing precision matters at smaller joints','Wrist-end orientation in a 3-joint arm chain','Voltage regulation at small-signal servo loads'] },
 
   { id:'fingers',
     label:'Hand / Fingers', xPercent:16, yPercent:16, labelSide:'r',

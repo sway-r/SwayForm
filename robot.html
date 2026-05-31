@@ -735,31 +735,23 @@
 /* ══════════════════════════════════════════════════════════════
    ANATOMY VIEWER — state machine + part definitions
    ══════════════════════════════════════════════════════════════
-
    HOW TO ADD VIDEO ASSETS
-   Place .mp4 files in images/ and the viewer will use them
-   automatically. Until a file exists, the viewer falls back
-   to a smooth opacity fade between still images.
+   Place .mp4 files in transition/ using CamelCase names, e.g.:
+     transition/OverviewToHead.mp4  (already present)
+     transition/HeadToOverview.mp4
+   Until a file exists the viewer fades between still images.
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Part definitions ── */
-/* xPercent / yPercent: position of hotspot dot relative to the
-   image container. Adjust these after reviewing a labeled
-   screenshot of RobotOverview.png. */
+/* xPercent / yPercent: position relative to the image container.
+   Each id IS the state name — videoGroup must match the VIDEOS key prefix. */
 var PARTS = [
-  { id:'camera',
-    label:'Camera',       xPercent:50, yPercent:23, labelSide:'r',
+  { id:'head',
+    label:'Head',         xPercent:50, yPercent:27, labelSide:'r',
     videoGroup:'head',    finalImage:'images/head.png',
-    title:'Intel RealSense D435i', category:'Vision System',
-    description:'Mounted on the head bracket. Publishes synchronized RGB and depth streams — each pixel in the depth frame is a distance in millimeters from the sensor. Used by every perception-layer demo and lab.',
-    learns:['How RGB and depth data are published as separate ROS topics','Why camera minimum range (about 0.3m) matters for close interactions','How lighting and texture affect detection reliability','HSV color segmentation vs depth-based proximity'] },
-
-  { id:'neck',
-    label:'Neck',         xPercent:50, yPercent:34, labelSide:'r',
-    videoGroup:'head',    finalImage:'images/head.png',
-    title:'Neck — Pan / Tilt', category:'2-DOF Joint',
-    description:'Two MG90S servos providing neck_yaw (left-right rotation) and neck_pitch (up-down tilt). The joints most commonly used for feedback-driven behaviors like face tracking and object following.',
-    learns:['Compound 2-DOF control from two independent topics','Proportional controllers and why dead zones prevent jitter','The difference between position control and velocity control','How camera feedback loops drive physical joint movement'] },
+    title:'Head System', category:'Vision + Head System',
+    description:'The head unit integrates the Intel RealSense D435i depth camera with a 2-DOF pan/tilt neck (neck_yaw and neck_pitch). Together they enable object tracking, proximity sensing, and feedback-driven behaviors — all from code students write themselves.',
+    learns:['How RGB and depth image streams are published as separate ROS topics','Proportional controllers and why dead zones prevent jitter in pan/tilt systems','HSV color segmentation vs depth-based proximity detection','How camera feedback loops drive physical joint movement in real time'] },
 
   { id:'shoulder',
     label:'Shoulder',     xPercent:39, yPercent:46, labelSide:'r',
@@ -890,10 +882,12 @@ function fadeToStill(src, cb){
 }
 
 /* ── Play transition video; graceful fallback if file is missing ──────────
-   Sequence: set src → load() → wait for canplay → reset to t=0 → play()
-             → wait for ended → show finalImage still → call cb()
+   Sequence: clear old src → load() → set new src → load()
+             → wait for canplay → currentTime=0 → play()
+             → wait for ended → show finalImage → call cb()
    `done` flag: prevents double-callback from onerror + play().catch.
-   Safety timeout (5 s): handles browsers that never fire canplay on 404.  */
+   `vid._ph`   : named canplay handler stored on element so cleanup is exact.
+   Safety timeout (5 s): handles browsers that stall on 404 without onerror. */
 function playTransition(key, finalImage, cb){
   var vid   = document.getElementById('anat-video');
   var still = document.getElementById('anat-still');
@@ -901,59 +895,71 @@ function playTransition(key, finalImage, cb){
   var done  = false;
   var timer = null;
 
+  console.log('[anatomy] playTransition key='+key+' → '+path);
   showLoading(true);
 
   function cleanup(){
     clearTimeout(timer);
     vid.onended = null;
     vid.onerror = null;
-    vid.removeEventListener('canplay', onCanPlay);
+    if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
     showLoading(false);
   }
 
   function finish(){
     if(done) return; done = true;
+    console.log('[anatomy] video ended → showing '+finalImage);
     cleanup();
     vid.style.display = 'none';
-    try{ vid.src = ''; vid.load(); }catch(e){}
+    vid.removeAttribute('src'); vid.load();
     still.src = finalImage;
     still.style.opacity = '1';
     if(cb) cb();
   }
 
-  function fallback(){
+  function fallback(reason){
     if(done) return; done = true;
+    console.warn('[anatomy] fallback ('+reason+') → fading to '+finalImage);
     cleanup();
     vid.style.display = 'none';
-    try{ vid.src = ''; vid.load(); }catch(e){}
+    vid.removeAttribute('src'); vid.load();
     fadeToStill(finalImage, cb);
   }
 
-  /* no path in VIDEOS map → fade immediately */
-  if(!path){ showLoading(false); fadeToStill(finalImage, cb); return; }
+  if(!path){ console.log('[anatomy] no video for key='+key); showLoading(false); fadeToStill(finalImage, cb); return; }
 
-  function onCanPlay(){
-    vid.removeEventListener('canplay', onCanPlay);
+  /* clear previous state before loading new source */
+  if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
+  vid.onended = null; vid.onerror = null;
+  vid.removeAttribute('src'); vid.load();
+
+  vid.onended = function(){ finish(); };
+  vid.onerror = function(){
+    var c = vid.error ? vid.error.code : '?';
+    fallback('onerror code='+c+' src='+path);
+  };
+
+  function tryPlay(){
+    vid.removeEventListener('canplay', tryPlay);
+    vid._ph = null;
     if(done) return;
     clearTimeout(timer);
-    vid.currentTime = 0; /* ensure 1-second video always plays from the start */
+    vid.currentTime = 0;
+    console.log('[anatomy] canplay fired → play()');
     var prom = vid.play();
     if(prom && prom.catch) prom.catch(function(e){
-      console.warn('[anatomy] video play() failed:', e);
-      fallback();
+      fallback('play() rejected: '+e.name+' '+e.message);
     });
   }
 
-  vid.onended = function(){ finish(); };
-  vid.onerror = function(){ fallback(); };
-  vid.addEventListener('canplay', onCanPlay);
+  vid._ph = tryPlay;
+  vid.addEventListener('canplay', tryPlay);
 
   vid.src = path;
   vid.style.display = 'block';
   vid.load();
 
-  /* safety net: if canplay/onerror both never fire (some browsers on 404) */
-  timer = setTimeout(function(){ fallback(); }, 5000);
+  timer = setTimeout(function(){ fallback('5s timeout — canplay never fired for '+path); }, 5000);
 }
 
 /* ── Show/hide hotspot overlay (overview button is always visible) ── */

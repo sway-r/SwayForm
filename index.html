@@ -963,15 +963,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <!-- Right: video -->
         <div>
           <div class="demo-preview-video-outer">
-            <!-- Fallback card — visible until video confirms it can play -->
-            <div id="demo-video-fallback" class="demo-video-fallback">
-              <p style="color:rgba(200,220,240,.3);font-size:14px;margin:0">Learning preview video coming soon.</p>
-            </div>
+            <!-- Video — visible immediately; fallback shown only on error -->
             <video id="demo-video"
                    src="videos/demo-video.mp4"
                    autoplay loop muted playsinline
                    preload="auto"
-                   style="display:none"></video>
+                   style="width:100%;display:block;background:#111;border-radius:0"></video>
+            <!-- Fallback — hidden unless video errors -->
+            <div id="demo-video-fallback" class="demo-video-fallback" style="display:none">
+              <p style="color:rgba(200,220,240,.3);font-size:14px;margin:0">Learning preview video coming soon.</p>
+            </div>
           </div>
         </div>
 
@@ -983,10 +984,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     var vid = document.getElementById('demo-video');
     var fb  = document.getElementById('demo-video-fallback');
     if(!vid) return;
-    vid.addEventListener('canplay', function(){
-      vid.style.display = 'block';
-      if(fb) fb.style.display = 'none';
-    }, {once:true});
+    console.log('[demo-video] src =', vid.currentSrc || vid.src);
+    vid.addEventListener('loadedmetadata', function(){ console.log('[demo-video] loadedmetadata'); });
+    vid.addEventListener('canplay',        function(){ console.log('[demo-video] canplay'); });
+    vid.addEventListener('play',           function(){ console.log('[demo-video] play'); });
+    vid.addEventListener('error', function(){
+      var code = vid.error ? vid.error.code : '?';
+      console.error('[demo-video] error code=' + code, vid.error);
+      vid.style.display = 'none';
+      if(fb){ fb.style.display = 'flex'; }
+    });
   })();
   </script>
 

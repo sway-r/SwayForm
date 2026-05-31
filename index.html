@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SwayForm | Hands-On Humanoid Robotics for Education</title>
-<meta name="description" content="SwayForm is a hands-on humanoid robotics platform for students, schools, clubs, and labs to learn robotics, AI, motion, sensors, ROS 2, and real-world engineering through physical experimentation.">
+<title>SwayForm Robotics | Humanoid Robot Learning Platform</title>
+<meta name="description" content="SwayForm Robotics is a humanoid robot learning platform — physical hardware with 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, ROS 2 control, and 40 structured robotics labs for high school and college programs.">
 <link rel="canonical" href="https://swayform.net/">
-<meta property="og:title" content="SwayForm | Hands-On Humanoid Robotics for Education">
-<meta property="og:description" content="SwayForm is a hands-on humanoid robotics platform for students, schools, clubs, and labs to learn robotics, AI, motion, sensors, ROS 2, and real-world engineering through physical experimentation.">
+<meta property="og:title" content="SwayForm Robotics | Humanoid Robot Learning Platform">
+<meta property="og:description" content="SwayForm Robotics is a humanoid robot learning platform — physical hardware with 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, ROS 2 control, and 40 structured robotics labs for high school and college programs.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://swayform.net/">
 <meta name="robots" content="index, follow">
@@ -21,24 +21,21 @@
       "@type": "Organization",
       "@id": "https://swayform.net/#organization",
       "name": "SwayForm",
+      "alternateName": "SwayForm Robotics",
       "url": "https://swayform.net/",
-      "description": "SwayForm builds humanoid robotics platforms for educational institutions. Real hardware with 21 degrees of freedom running ROS 2 for high schools and community colleges.",
+      "description": "SwayForm Robotics builds humanoid robot platforms for educational institutions. Physical hardware with 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, and ROS 2 — designed for high school and college programs learning real robotics.",
       "email": "contact@swayform.net",
       "foundingDate": "2024",
-      "knowsAbout": ["humanoid robotics", "ROS 2", "educational technology", "servo control", "computer vision", "depth cameras"]
+      "knowsAbout": ["humanoid robotics", "ROS 2", "educational robotics", "servo control", "computer vision", "depth cameras", "robot degrees of freedom", "Raspberry Pi robotics"]
     },
     {
       "@type": "WebSite",
       "@id": "https://swayform.net/#website",
       "url": "https://swayform.net/",
       "name": "SwayForm",
-      "description": "Hands-on humanoid robotics learning platform for educational institutions",
-      "publisher": {"@id": "https://swayform.net/#organization"},
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://swayform.net/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "alternateName": "SwayForm Robotics",
+      "description": "SwayForm Robotics — humanoid robot learning platform with structured curriculum, ROS 2, and physical hardware for educational programs.",
+      "publisher": {"@id": "https://swayform.net/#organization"}
     }
   ]
 }
@@ -1448,6 +1445,68 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <div class="faq-a">Every component is a standard off-the-shelf part with a documented replacement procedure. No proprietary connectors. SwayForm provides a repair guide, replacement parts, and direct support.</div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ EXPLORE SWAYFORM ═══ -->
+  <style>
+  .explore-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    margin-top:40px;
+  }
+  .explore-card{
+    background:#fff;
+    padding:32px 28px;
+    display:flex;
+    flex-direction:column;
+    text-decoration:none;
+    transition:background .18s;
+  }
+  .explore-card:hover{background:var(--bg2)}
+  .explore-card-tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .explore-card h3{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin:0 0 10px}
+  .explore-card p{font-size:13px;color:var(--muted);line-height:1.65;margin:0;flex:1}
+  .explore-card-link{font-size:13px;font-weight:600;color:var(--blue);margin-top:18px;display:inline-block}
+  @media(max-width:900px){.explore-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.explore-grid{grid-template-columns:1fr}}
+  </style>
+  <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
+    <div class="wrap">
+      <span class="label" style="display:block;margin-bottom:12px">Explore SwayForm</span>
+      <h2 style="font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.025em;color:var(--ink);margin-bottom:8px">Everything the platform offers.</h2>
+      <p style="color:var(--muted);max-width:520px">From hardware reference to structured curriculum to program information — each section is built to be technically useful.</p>
+      <div class="explore-grid">
+        <a href="/robot" class="explore-card">
+          <span class="explore-card-tag">Hardware</span>
+          <h3>The Robot</h3>
+          <p>21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, ROS 2. Interactive anatomy, joint reference table, servo specs, and wiring architecture.</p>
+          <span class="explore-card-link">Explore the robot →</span>
+        </a>
+        <a href="/learning-path" class="explore-card">
+          <span class="explore-card-tag">Curriculum</span>
+          <h3>Learning Path</h3>
+          <p>40 structured labs across four skill levels — from first SSH connection to multi-node ROS 2 systems with sensor feedback loops and autonomous behaviors.</p>
+          <span class="explore-card-link">View the curriculum →</span>
+        </a>
+        <a href="/purpose" class="explore-card">
+          <span class="explore-card-tag">Mission</span>
+          <h3>Our Purpose</h3>
+          <p>Why SwayForm Robotics exists, what kind of engineering education it is designed to support, and who the platform is built for.</p>
+          <span class="explore-card-link">Read our purpose →</span>
+        </a>
+        <a href="/contact" class="explore-card">
+          <span class="explore-card-tag">Programs</span>
+          <h3>Contact &amp; Demos</h3>
+          <p>Request a demo unit or express pilot interest for your school, college program, robotics club, or STEM lab. Follow-up within five business days.</p>
+          <span class="explore-card-link">Get in touch →</span>
+        </a>
       </div>
     </div>
   </section>

@@ -146,16 +146,26 @@
 }
 /* layer transparent bg passes clicks through; dots get pointer-events:auto */
 #anat-hotspot-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
-#anat-back-btn{
-  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  z-index:4;background:rgba(4,8,18,.82);
+/* always-visible overview button — top-left of viewer */
+#anat-overview-btn{
+  position:absolute;top:12px;left:12px;
+  z-index:4;background:rgba(4,8,18,.78);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border:1px solid rgba(95,183,255,.45);color:rgba(200,220,240,.92);
-  font-size:12px;font-weight:600;padding:7px 20px;border-radius:20px;
-  cursor:pointer;letter-spacing:.04em;white-space:nowrap;
-  transition:background .15s,border-color .15s;display:none
+  border:1px solid rgba(255,255,255,.16);color:rgba(200,220,240,.88);
+  font-size:11px;font-weight:600;padding:5px 14px;border-radius:16px;
+  cursor:pointer;letter-spacing:.05em;white-space:nowrap;
+  transition:background .15s,border-color .15s;pointer-events:auto
 }
-#anat-back-btn:hover{background:rgba(95,183,255,.18);border-color:rgba(95,183,255,.75)}
+#anat-overview-btn:hover{background:rgba(95,183,255,.18);border-color:rgba(95,183,255,.55)}
+/* subtle loading label */
+#anat-loader{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  z-index:5;display:none;
+  background:rgba(4,8,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);color:rgba(200,220,240,.65);
+  font-size:11px;font-weight:500;padding:5px 14px;border-radius:12px;
+  white-space:nowrap;letter-spacing:.04em;pointer-events:none
+}
 
 /* stat strip grid */
 .stat-strip-inner{display:grid;grid-template-columns:repeat(6,1fr)}
@@ -298,20 +308,23 @@
              loading="eager">
 
         <!-- Transition video
-             TODO: Place these files in images/ when animation assets are ready:
-               images/overview_to_head.mp4      images/head_to_overview.mp4
-               images/overview_to_arm.mp4       images/arm_to_overview.mp4
-               images/overview_to_hand.mp4      images/hand_to_overview.mp4
-               images/overview_to_base.mp4      images/base_to_overview.mp4
-               images/overview_to_electronics.mp4  images/electronics_to_overview.mp4
-             Without these files the viewer falls back to a smooth fade. -->
-        <video id="anat-video" playsinline muted></video>
+             TODO: Place files in transition/ as they become available:
+               transition/OverviewToHead.mp4     transition/HeadToOverview.mp4
+               transition/OverviewToArm.mp4      transition/ArmToOverview.mp4
+               transition/OverviewToHand.mp4     transition/HandToOverview.mp4
+               transition/OverviewToBase.mp4     transition/BaseToOverview.mp4
+               transition/OverviewToElectronics.mp4  transition/ElectronicsToOverview.mp4
+             Without these files the viewer fades between still images. -->
+        <video id="anat-video" playsinline muted preload="auto"></video>
 
         <!-- Hotspots injected by initAnatomy() — shown only in overview state -->
         <div id="anat-hotspot-layer"></div>
 
-        <!-- Back button — shown when a part is active -->
-        <button id="anat-back-btn" onclick="goToOverview()">← Overview</button>
+        <!-- Overview button — always visible, top-left -->
+        <button id="anat-overview-btn" onclick="goToOverview()">Overview</button>
+
+        <!-- Loading label — shown during transitions -->
+        <div id="anat-loader">Loading system view…</div>
 
       </div>
 
@@ -749,7 +762,7 @@ var PARTS = [
     learns:['Compound 2-DOF control from two independent topics','Proportional controllers and why dead zones prevent jitter','The difference between position control and velocity control','How camera feedback loops drive physical joint movement'] },
 
   { id:'shoulder',
-    label:'Shoulder',     xPercent:66, yPercent:38, labelSide:'l',
+    label:'Shoulder',     xPercent:39, yPercent:46, labelSide:'r',
     videoGroup:'arm',     finalImage:'images/Arm.png',
     title:'Shoulder Joint', category:'High-Torque Joint',
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
@@ -821,7 +834,7 @@ var GROUP_IMAGES = {
 /* ── Viewer state ── */
 var viewer = { group:'overview', transitioning:false, partId:null };
 
-/* ── Build hotspot overlay on load ── */
+/* ── Build hotspot overlay on load + kick off asset preloading ── */
 function initAnatomy(){
   var layer = document.getElementById('anat-hotspot-layer');
   if(!layer) return;
@@ -831,6 +844,7 @@ function initAnatomy(){
     dot.id = 'spot-'+p.id;
     dot.style.left = p.xPercent+'%';
     dot.style.top  = p.yPercent+'%';
+    dot.setAttribute('aria-label', p.label);
     dot.onclick = function(){ selectPart(p.id); };
     var lbl = document.createElement('span');
     lbl.className = 'anat-lbl anat-lbl-'+p.labelSide;
@@ -838,6 +852,27 @@ function initAnatomy(){
     dot.appendChild(lbl);
     layer.appendChild(dot);
   });
+  preloadAssets();
+}
+
+/* ── Loading indicator ── */
+function showLoading(on){
+  var el = document.getElementById('anat-loader');
+  if(el) el.style.display = on ? 'block' : 'none';
+}
+
+/* ── Preload all still images + the one confirmed video ── */
+function preloadAssets(){
+  Object.values(GROUP_IMAGES).forEach(function(src){
+    var img = new Image(); img.src = src;
+  });
+  /* Preload confirmed video — silent if file missing */
+  var kv = VIDEOS.overview_to_head;
+  if(kv){
+    var pv = document.createElement('video');
+    pv.muted = true; pv.preload = 'auto'; pv.src = kv;
+    pv.load();
+  }
 }
 
 /* ── Fade between still images (fallback when video file is missing) ── */
@@ -854,18 +889,31 @@ function fadeToStill(src, cb){
   }, 290);
 }
 
-/* ── Play transition video; fall back gracefully if file is missing ──
-   `done` flag prevents onerror + play().catch from both firing cb.
-   The still image is never hidden — video (z-index:2) covers it. ── */
+/* ── Play transition video; graceful fallback if file is missing ──────────
+   Sequence: set src → load() → wait for canplay → reset to t=0 → play()
+             → wait for ended → show finalImage still → call cb()
+   `done` flag: prevents double-callback from onerror + play().catch.
+   Safety timeout (5 s): handles browsers that never fire canplay on 404.  */
 function playTransition(key, finalImage, cb){
   var vid   = document.getElementById('anat-video');
   var still = document.getElementById('anat-still');
   var path  = VIDEOS[key];
   var done  = false;
+  var timer = null;
+
+  showLoading(true);
+
+  function cleanup(){
+    clearTimeout(timer);
+    vid.onended = null;
+    vid.onerror = null;
+    vid.removeEventListener('canplay', onCanPlay);
+    showLoading(false);
+  }
 
   function finish(){
     if(done) return; done = true;
-    vid.onended = null; vid.onerror = null;
+    cleanup();
     vid.style.display = 'none';
     try{ vid.src = ''; vid.load(); }catch(e){}
     still.src = finalImage;
@@ -875,28 +923,42 @@ function playTransition(key, finalImage, cb){
 
   function fallback(){
     if(done) return; done = true;
-    vid.onended = null; vid.onerror = null;
+    cleanup();
     vid.style.display = 'none';
     try{ vid.src = ''; vid.load(); }catch(e){}
     fadeToStill(finalImage, cb);
   }
 
-  if(!path){ fadeToStill(finalImage, cb); return; }
+  /* no path in VIDEOS map → fade immediately */
+  if(!path){ showLoading(false); fadeToStill(finalImage, cb); return; }
+
+  function onCanPlay(){
+    vid.removeEventListener('canplay', onCanPlay);
+    if(done) return;
+    clearTimeout(timer);
+    vid.currentTime = 0; /* ensure 1-second video always plays from the start */
+    var prom = vid.play();
+    if(prom && prom.catch) prom.catch(function(e){
+      console.warn('[anatomy] video play() failed:', e);
+      fallback();
+    });
+  }
 
   vid.onended = function(){ finish(); };
   vid.onerror = function(){ fallback(); };
+  vid.addEventListener('canplay', onCanPlay);
 
   vid.src = path;
   vid.style.display = 'block';
   vid.load();
-  var prom = vid.play();
-  if(prom && prom.catch) prom.catch(function(){ fallback(); });
+
+  /* safety net: if canplay/onerror both never fire (some browsers on 404) */
+  timer = setTimeout(function(){ fallback(); }, 5000);
 }
 
-/* ── Show/hide hotspot overlay and back button ── */
+/* ── Show/hide hotspot overlay (overview button is always visible) ── */
 function setOverviewUI(isOverview){
   document.getElementById('anat-hotspot-layer').style.display = isOverview ? 'block' : 'none';
-  document.getElementById('anat-back-btn').style.display      = isOverview ? 'none'  : 'block';
 }
 
 /* ── Ring the active hotspot dot ── */

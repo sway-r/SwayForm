@@ -791,14 +791,14 @@ var PARTS = [
     learns:['How RGB and depth image streams are published as separate ROS topics','Proportional controllers and why dead zones prevent jitter in pan/tilt systems','HSV color segmentation vs depth-based proximity detection','How camera feedback loops drive physical joint movement in real time'] },
 
   { id:'shoulder',
-    label:'Shoulder',     xPercent:70, yPercent:40, labelSide:'l',
+    label:'Shoulder',     xPercent:70, yPercent:43, labelSide:'l',
     videoGroup:'shoulder', finalImage:'images/Arm.png',
     title:'Shoulder Joint', category:'High-Torque Joint',
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
     learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
 
   { id:'arm',
-    label:'Arm',          xPercent:78, yPercent:47, labelSide:'l',
+    label:'Arm',          xPercent:78, yPercent:50, labelSide:'l',
     videoGroup:'arm',     finalImage:'images/Arm.png',
     title:'Arm System', category:'Multi-Joint Arm',
     description:'The arm chain spans shoulder, elbow, and wrist — three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',

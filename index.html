@@ -915,84 +915,141 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
   <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
   <style>
-  .demo-preview-grid{
-    display:grid;
-    grid-template-columns:1fr 1.35fr;
-    gap:64px;
-    align-items:center;
-  }
-  .demo-preview-video-outer{
-    border-radius:14px;
-    overflow:hidden;
-    box-shadow:0 12px 48px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.3);
-    border:1px solid rgba(255,255,255,.08);
-    background:rgba(255,255,255,.03);
-    line-height:0;
+  /* ── cinematic preview section ── */
+  #demo-preview{
     position:relative;
+    overflow:hidden;
+    background:#000;
+    min-height:560px;
+    display:flex;
+    align-items:center;
+    border-top:1px solid rgba(255,255,255,.06);
+    border-bottom:1px solid rgba(255,255,255,.06);
   }
-  .demo-preview-video-outer video{
-    width:100%;display:block;border-radius:0;
+  /* video fills the right 72% of the section */
+  .dp-video-bg{
+    position:absolute;
+    top:0;right:0;
+    height:100%;
+    width:72%;
+    z-index:1;
   }
-  .demo-video-fallback{
+  .dp-video-bg video{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    pointer-events:none; /* prevent tap-to-pause */
+  }
+  /* left→right gradient: text stays on black, fades into video */
+  .dp-gradient{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    background:linear-gradient(
+      90deg,
+      #000 0%,
+      #000 26%,
+      rgba(0,0,0,.82) 40%,
+      rgba(0,0,0,.35) 60%,
+      rgba(0,0,0,0) 100%
+    );
+    pointer-events:none;
+  }
+  /* text content sits above gradient */
+  .dp-content{
+    position:relative;
+    z-index:3;
+    width:100%;
+    max-width:1440px;
+    margin:0 auto;
+    padding:80px 48px;
+  }
+  .dp-text{
+    max-width:480px;
+  }
+  /* fallback card when video errors */
+  .dp-fallback{
     display:none;
-    align-items:center;justify-content:center;
-    min-height:240px;
-    padding:40px 24px;
-    text-align:center;
+    position:absolute;
+    top:50%;right:48px;
+    transform:translateY(-50%);
+    z-index:3;
+    color:rgba(200,220,240,.3);
+    font-size:14px;
   }
-  @media(max-width:960px){
-    .demo-preview-grid{grid-template-columns:1fr;gap:36px}
-    .demo-preview-text{max-width:600px}
+  /* ── mobile ── */
+  @media(max-width:768px){
+    #demo-preview{
+      flex-direction:column;
+      align-items:stretch;
+      min-height:auto;
+    }
+    .dp-video-bg{
+      position:relative;
+      width:100%;
+      height:260px;
+      order:2; /* video below text on mobile */
+    }
+    .dp-gradient{
+      background:linear-gradient(
+        180deg,
+        #000 0%,
+        rgba(0,0,0,.6) 40%,
+        rgba(0,0,0,0) 100%
+      );
+    }
+    .dp-content{
+      position:relative;
+      padding:48px 20px 32px;
+      order:1;
+    }
+    .dp-text{max-width:100%}
+    .dp-fallback{position:static;transform:none;padding:24px;text-align:center}
   }
   @media(max-width:520px){
-    .demo-preview-grid{gap:24px}
+    .dp-video-bg{height:200px}
+    .dp-content{padding:40px 20px 24px}
   }
   </style>
-  <section id="demo-preview" style="background:var(--dark);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:80px 0">
-    <div class="wrap">
-      <div class="demo-preview-grid">
 
-        <!-- Left: text -->
-        <div class="demo-preview-text">
-          <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.55)">Learning Experience Preview</span>
-          <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:#edf5ff;margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
-          <p style="font-size:16px;color:rgba(200,220,240,.65);line-height:1.75;max-width:420px;margin-bottom:24px">SwayForm is built around the moment students stop watching technology from the outside and start controlling it themselves. This preview shows the kind of classroom interaction the platform is being designed for: students testing, observing, discussing, and learning from a real robot system.</p>
-          <p style="font-size:12px;color:rgba(200,220,240,.32);line-height:1.65;font-style:italic;max-width:380px">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
-        </div>
+  <section id="demo-preview">
 
-        <!-- Right: video -->
-        <div>
-          <div class="demo-preview-video-outer">
-            <!-- Video — visible immediately; fallback shown only on error -->
-            <video id="demo-video"
-                   src="videos/demo-video.mp4"
-                   autoplay loop muted playsinline
-                   preload="auto"
-                   style="width:100%;display:block;background:#111;border-radius:0"></video>
-            <!-- Fallback — hidden unless video errors -->
-            <div id="demo-video-fallback" class="demo-video-fallback" style="display:none">
-              <p style="color:rgba(200,220,240,.3);font-size:14px;margin:0">Learning preview video coming soon.</p>
-            </div>
-          </div>
-        </div>
-
+    <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
+    <div class="dp-video-bg">
+      <video id="demo-video"
+             src="videos/demo-video.mp4"
+             autoplay loop muted playsinline
+             preload="auto"
+             disablepictureinpicture
+             controlslist="nodownload nofullscreen noremoteplayback"></video>
+      <!-- fallback placeholder when video errors -->
+      <div id="demo-video-fallback" class="dp-fallback">
+        Learning preview video coming soon.
       </div>
     </div>
+
+    <!-- Gradient layer — fades video into black on the text side -->
+    <div class="dp-gradient"></div>
+
+    <!-- Text content — sits above gradient on z-index 3 -->
+    <div class="dp-content">
+      <div class="dp-text">
+        <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.55)">Learning Experience Preview</span>
+        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:#edf5ff;margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
+        <p style="font-size:16px;color:rgba(200,220,240,.65);line-height:1.75;margin-bottom:24px">SwayForm is built around the moment students stop watching technology from the outside and start controlling it themselves. This preview shows the kind of classroom interaction the platform is being designed for: students testing, observing, discussing, and learning from a real robot system.</p>
+        <p style="font-size:12px;color:rgba(200,220,240,.32);line-height:1.65;font-style:italic">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
+      </div>
+    </div>
+
   </section>
   <script>
   (function(){
     var vid = document.getElementById('demo-video');
     var fb  = document.getElementById('demo-video-fallback');
     if(!vid) return;
-    console.log('[demo-video] src =', vid.currentSrc || vid.src);
-    vid.addEventListener('loadedmetadata', function(){ console.log('[demo-video] loadedmetadata'); });
-    vid.addEventListener('canplay',        function(){ console.log('[demo-video] canplay'); });
-    vid.addEventListener('play',           function(){ console.log('[demo-video] play'); });
     vid.addEventListener('error', function(){
-      var code = vid.error ? vid.error.code : '?';
-      console.error('[demo-video] error code=' + code, vid.error);
       vid.style.display = 'none';
-      if(fb){ fb.style.display = 'flex'; }
+      if(fb) fb.style.display = 'block';
     });
   })();
   </script>

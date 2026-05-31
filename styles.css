@@ -573,6 +573,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .wrap,.wrap-lg,.section-wide{padding:0 20px}
   .nav-inner{padding:0 20px}
   .nav-links{display:none}.hamburger{display:flex}
+  /* ensure hamburger tap target is large enough */
+  .hamburger{padding:10px;margin:-4px}
   .nav-right .btn-ghost{display:none}
   .section{padding:80px 0}.section-sm{padding:60px 0}
   .stats-inner{grid-template-columns:1fr 1fr}
@@ -582,6 +584,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .quarters{grid-template-columns:1fr}
   .demo-cards{grid-template-columns:1fr 1fr}
   .footer-top{grid-template-columns:1fr}
+  /* footer column gaps on single-column layout */
+  .footer-col{padding-top:4px}
   .form-row{grid-template-columns:1fr}
   .cta-side{padding:48px 24px}
   .hub-sidebar{width:240px}
@@ -596,6 +600,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   /* hero visual panel on single-column layout */
   .hero-visual-panel{padding:8px 20px 40px !important}
   .hero-visual-panel .robot-img{height:auto !important;width:100% !important;max-height:280px;object-fit:contain}
+  /* prevent any table/grid from causing horizontal scroll */
+  .compare-table,.ct-head,.ct-row{overflow-x:auto}
+  /* mobile-nav link tap target */
+  #mobile-nav a{padding:14px 32px;font-size:24px}
 }
 @media(max-width:520px){
   .demo-cards{grid-template-columns:1fr}
@@ -608,7 +616,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .hero-meta-sep{display:none}
   .hero-meta{flex-direction:column;gap:8px;align-items:flex-start}
   .hero-visual-panel .robot-img{max-height:220px}
-  #announce-bar{font-size:11px;padding:8px 0}
+  /* shrink announce bar text so it stays on one line */
+  #announce-bar{font-size:10px;padding:7px 16px}
+  /* tighter section headings on tiny screens */
+  .section-wide h2,.wrap h2{font-size:clamp(22px,6vw,34px)}
+  /* stats strip: 3 per row on very narrow screens */
+  .stats-inner{grid-template-columns:repeat(3,1fr)!important}
+  .stat{padding:20px 12px}
+  .stat-n{font-size:26px}
+  .stat-l{font-size:11px}
 }
 
 /* ══════════════════════════════════════════════════════

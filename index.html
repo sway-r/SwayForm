@@ -1435,20 +1435,25 @@ async function handleForm(e) {
   }
 }
 
-// ── TOPBAR SCROLL ─────────────────────────────────────────────
-window.addEventListener('scroll', function() {
+// ── TOPBAR / ANNOUNCE BAR ─────────────────────────────────────
+function positionTopbar() {
   var tb = document.getElementById('topbar');
   var ab = document.getElementById('announce-bar');
+  if (!tb || !ab || ab.style.display === 'none') return;
+  var abH = ab.offsetHeight || 42;
+  var sy = window.scrollY;
+  ab.style.top = Math.max(-abH, -sy) + 'px';
+  tb.style.top = Math.max(0, abH - sy) + 'px';
+}
+/* set correct position on load (handles announce bar wrapping on mobile) */
+document.addEventListener('DOMContentLoaded', positionTopbar);
+window.addEventListener('scroll', function() {
+  var tb = document.getElementById('topbar');
   if (!tb) return;
   if (!tb.classList.contains('force-scrolled')) {
     tb.classList.toggle('scrolled', window.scrollY > 20);
   }
-  if (ab && ab.style.display !== 'none') {
-    var abH = ab.offsetHeight || 42;
-    var sy = window.scrollY;
-    ab.style.top = Math.max(-abH, -sy) + 'px';
-    tb.style.top = Math.max(0, abH - sy) + 'px';
-  }
+  positionTopbar();
 }, { passive: true });
 </script>
 <style>

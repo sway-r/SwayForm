@@ -215,7 +215,21 @@
   .robot-hero-photo{max-height:260px;object-fit:contain}
   .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
   .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .anat-lbl{display:none} /* too cramped on phone; rely on tap */
+  /* compact labels on mobile — smaller text, no blur (perf), solid bg */
+  .anat-lbl{
+    font-size:8px;
+    padding:2px 6px;
+    letter-spacing:.03em;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(4,8,18,.88);
+  }
+  /* active hotspot label gets a subtle tint so it stands out */
+  .anat-hs.active .anat-lbl{
+    background:rgba(10,28,56,.92);
+    border-color:rgba(95,183,255,.5);
+    color:rgba(215,240,255,.98);
+  }
   [style*="grid-template-columns:1fr 1fr"]{
     grid-template-columns:1fr !important;
     gap:32px !important;
@@ -777,7 +791,7 @@ var PARTS = [
     learns:['How RGB and depth image streams are published as separate ROS topics','Proportional controllers and why dead zones prevent jitter in pan/tilt systems','HSV color segmentation vs depth-based proximity detection','How camera feedback loops drive physical joint movement in real time'] },
 
   { id:'shoulder',
-    label:'Shoulder',     xPercent:58, yPercent:40, labelSide:'l',
+    label:'Shoulder',     xPercent:50, yPercent:40, labelSide:'l',
     videoGroup:'shoulder', finalImage:'images/Arm.png',
     title:'Shoulder Joint', category:'High-Torque Joint',
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',

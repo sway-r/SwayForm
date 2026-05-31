@@ -42,9 +42,13 @@
 
 /* ── ANATOMY SECTION ── */
 .anatomy-section-dark{
-  background:var(--bg);
+  background:#ffffff;
   border-top:1px solid var(--line);
   padding:72px 0 88px;
+}
+/* belt-and-suspenders: ID wins over any class rule */
+#anatomy-section{
+  background:#ffffff !important;
 }
 
 /* override anatomy-wrap to equal columns */
@@ -61,8 +65,9 @@
   line-height:0;
   border-radius:14px;
   overflow:visible; /* hotspot labels can extend outside */
-  background:rgba(20,20,24,.85);
-  box-shadow:0 4px 32px rgba(0,0,0,.4);
+  background:#f0f2f5;
+  box-shadow:0 2px 16px rgba(0,0,0,.1);
+  border:1px solid rgba(0,0,0,.07);
 }
 .anatomy-robot-photo{
   width:100%;
@@ -152,7 +157,7 @@
   aspect-ratio:624/479;
   overflow:hidden;
   border-radius:14px;
-  background:rgba(20,20,24,.9);
+  background:#f0f2f5;
   flex-shrink:0;
 }
 
@@ -163,7 +168,7 @@
   object-fit:cover;object-position:center center;
   display:block;border-radius:0;
   pointer-events:none;
-  background:rgba(20,20,24,.9);
+  background:#f0f2f5;
   /* transition driven by JS (opacity set inline for crossfade control) */
 }
 
@@ -172,7 +177,7 @@
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:cover;object-position:center center;
   display:none;z-index:2;
-  border-radius:0;background:rgba(20,20,24,.9);
+  border-radius:0;background:#f0f2f5;
   pointer-events:none;
 }
 
@@ -335,7 +340,7 @@
 </section>
 
 <!-- ═══ INTERACTIVE ANATOMY ═══ -->
-<section id="anatomy-section" class="anatomy-section-dark">
+<section id="anatomy-section" class="anatomy-section-dark" style="background:#ffffff">
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px">Interactive Anatomy</span>
     <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:10px;color:var(--ink)">The robot, labeled.</h2>

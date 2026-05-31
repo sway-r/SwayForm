@@ -138,7 +138,8 @@
 .anatomy-panel-dark #anatomy-default p{color:rgba(200,220,240,.4) !important}
 
 /* ── anatomy media viewer ── */
-#anat-still{transition:opacity .3s ease;pointer-events:none}
+/* background matches #anat-video so letterboxed still images have no flash */
+#anat-still{transition:opacity .3s ease;pointer-events:none;background:rgba(20,20,24,.9)}
 #anat-video{
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:contain;display:none;z-index:2;
@@ -755,7 +756,7 @@ var PARTS = [
 
   { id:'shoulder',
     label:'Shoulder',     xPercent:39, yPercent:46, labelSide:'r',
-    videoGroup:'arm',     finalImage:'images/Arm.png',
+    videoGroup:'shoulder', finalImage:'images/Arm.png',
     title:'Shoulder Joint', category:'High-Torque Joint',
     description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
     learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
@@ -796,28 +797,32 @@ var PARTS = [
     learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
 ];
 
-/* ── Video paths — files live in transition/ (CamelCase) ──────────────
-   Add a .mp4 to transition/ and it activates automatically.
-   Current files: transition/OverviewToHead.mp4
+/* ── Video paths — all files live in transition/ (CamelCase) ─────────
+   Each key maps to the exact filename on disk.
+   If a file is missing the viewer falls back to a smooth fade and
+   logs a console warning with the missing path.
    ─────────────────────────────────────────────────────────────────── */
 var VIDEOS = {
   overview_to_head:        'transition/OverviewToHead.mp4',
   head_to_overview:        'transition/HeadToOverview.mp4',
+  overview_to_shoulder:    'transition/OverviewToShoulder.mp4',
+  shoulder_to_overview:    'transition/ShoulderToOverview.mp4',
   overview_to_arm:         'transition/OverviewToArm.mp4',
   arm_to_overview:         'transition/ArmToOverview.mp4',
   overview_to_hand:        'transition/OverviewToHand.mp4',
   hand_to_overview:        'transition/HandToOverview.mp4',
   overview_to_base:        'transition/OverviewToBase.mp4',
   base_to_overview:        'transition/BaseToOverview.mp4',
-  overview_to_electronics: 'transition/OverviewToElectronics.mp4',
-  electronics_to_overview: 'transition/ElectronicsToOverview.mp4'
+  overview_to_electronics: 'transition/OverviewToElectronics.mp4', /* fade fallback until file added */
+  electronics_to_overview: 'transition/ElectronicsToOverview.mp4'  /* fade fallback until file added */
 };
 
 /* ── Final still image per video group ── */
 var GROUP_IMAGES = {
   overview:    'images/RobotOverview.png',
   head:        'images/head.png',
-  arm:         'images/Arm.png',
+  shoulder:    'images/Arm.png',   /* shoulder uses Arm.png as final still */
+  arm:         'images/Arm.png',   /* elbow + wrist share arm group/still */
   hand:        'images/hand.png',
   base:        'images/Base.png',
   electronics: 'images/swayform_robot_2.png'
@@ -853,18 +858,20 @@ function showLoading(on){
   if(el) el.style.display = on ? 'block' : 'none';
 }
 
-/* ── Preload all still images + the one confirmed video ── */
+/* ── Preload all still images + all available transition videos ── */
 function preloadAssets(){
+  /* Deduplicate still images (shoulder and arm share Arm.png) */
+  var seen = {};
   Object.values(GROUP_IMAGES).forEach(function(src){
-    var img = new Image(); img.src = src;
+    if(!seen[src]){ seen[src] = true; var img = new Image(); img.src = src; }
   });
-  /* Preload confirmed video — silent if file missing */
-  var kv = VIDEOS.overview_to_head;
-  if(kv){
+  /* Preload every video listed in VIDEOS via hidden <video> elements.
+     Browsers ignore 404s silently; the viewer's onerror handles failures. */
+  Object.values(VIDEOS).forEach(function(path){
     var pv = document.createElement('video');
-    pv.muted = true; pv.preload = 'auto'; pv.src = kv;
+    pv.muted = true; pv.preload = 'auto'; pv.src = path;
     pv.load();
-  }
+  });
 }
 
 /* ── Fade between still images (fallback when video file is missing) ── */

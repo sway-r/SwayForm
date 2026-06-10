@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwayForm Learning Hub | Robotics Labs, ROS 2 Demos, and Student Code</title>
+<meta name="description" content="Explore SwayForm's learning hub for student robotics labs, demo code, ROS 2 concepts, VS Code setup, RealSense examples, and hands-on humanoid robot education.">
+<link rel="canonical" href="https://swayform.net/learning-hub">
+<meta property="og:title" content="SwayForm Learning Hub | Robotics Labs, ROS 2 Demos, and Student Code">
+<meta property="og:description" content="Explore SwayForm's learning hub for student robotics labs, demo code, ROS 2 concepts, VS Code setup, RealSense examples, and hands-on humanoid robot education.">
+<meta property="og:url" content="https://swayform.net/learning-hub">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+<link rel="stylesheet" href="/styles.css">
+<style>
+/* ─── LH PAGE TOKENS ────────────────────────────────── */
+:root { --blue:#0057ff; --blue-lt:#2268ff; }
+#topbar { top:0 !important; }
+body { overflow-x:hidden; }
+
+/* ─── TOPBAR BACK LINK ──────────────────────────────── */
+.lh-back-link {
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;color:#6e6e73;
+  padding:5px 10px;border-radius:6px;transition:color .15s;
+}
+.lh-back-link:hover { color:#0057ff; }
+
+/* ─── HERO ───────────────────────────────────────────── */
+#lh-hero {
+  background:#000;color:#f5f5f7;
+  padding:calc(var(--nav-h) + 80px) 0 80px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.lh-hero-inner { max-width:1200px;margin:0 auto;padding:0 48px; }
+.lh-hero-badge {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 14px;border-radius:20px;
+  background:rgba(0,87,255,.15);border:1px solid rgba(0,87,255,.3);
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#5fb7ff;margin-bottom:28px;
+}
+.lh-hero-badge-dot { width:6px;height:6px;border-radius:50%;background:#0057ff;animation:pulse 2s ease infinite; }
+#lh-hero h1 {
+  font-size:clamp(30px,5vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.07;
+  max-width:800px;color:#edf5ff;margin-bottom:20px;
+}
+#lh-hero p {
+  font-size:clamp(15px,1.8vw,18px);color:rgba(200,220,240,.75);
+  max-width:660px;line-height:1.7;margin-bottom:36px;
+}
+.lh-hero-tags { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px; }
+.lh-hero-tag {
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 16px;border-radius:8px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  font-size:13px;font-weight:600;color:rgba(200,220,240,.85);
+}
+.lh-hero-tag-dot { width:7px;height:7px;border-radius:50%;background:#0057ff;flex-shrink:0; }
+.lh-hero-actions { display:flex;gap:12px;flex-wrap:wrap; }
+.lh-btn-primary {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 26px;border-radius:9px;
+  background:#0057ff;color:#fff;
+  font-size:15px;font-weight:700;letter-spacing:.01em;
+  transition:all .18s;text-decoration:none;border:none;cursor:pointer;
+}
+.lh-btn-primary:hover { background:#2268ff;transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,87,255,.4); }
+.lh-btn-ghost {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 26px;border-radius:9px;
+  background:transparent;color:rgba(200,220,240,.8);
+  border:1px solid rgba(255,255,255,.18);
+  font-size:15px;font-weight:600;letter-spacing:.01em;
+  transition:all .18s;text-decoration:none;cursor:pointer;
+}
+.lh-btn-ghost:hover { border-color:rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05); }
+
+/* ─── OVERVIEW CARDS ─────────────────────────────────── */
+#lh-overview { background:#f4f7ff;padding:80px 0;border-bottom:1px solid rgba(0,0,0,.07); }
+.lh-ov-inner { max-width:1200px;margin:0 auto;padding:0 48px; }
+.lh-ov-head { text-align:center;margin-bottom:52px; }
+.lh-ov-head h2 { font-size:clamp(22px,3vw,34px);font-weight:800;letter-spacing:-.025em;color:#1d1d1f;margin-bottom:10px; }
+.lh-ov-head p { font-size:16px;color:#6e6e73;max-width:520px;margin:0 auto; }
+.lh-ov-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:14px; }
+.lh-ov-card {
+  background:#fff;border:1px solid rgba(0,0,0,.08);
+  border-radius:14px;padding:22px 20px;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;
+}
+.lh-ov-card:hover { border-color:rgba(0,87,255,.3);box-shadow:0 8px 28px rgba(0,87,255,.1);transform:translateY(-2px); }
+.lh-ov-icon { font-size:20px;margin-bottom:11px; }
+.lh-ov-title { font-size:15px;font-weight:700;letter-spacing:-.01em;color:#1d1d1f;margin-bottom:5px; }
+.lh-ov-desc { font-size:13px;color:#6e6e73;line-height:1.55;flex:1; }
+.lh-ov-footer { margin-top:14px;display:flex;align-items:center;justify-content:space-between; }
+.lh-ov-pill {
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;
+  font-size:11px;font-weight:700;
+}
+.lh-ov-pill.ready { background:rgba(0,128,74,.1);color:#1a5c38; }
+.lh-ov-pill.preview { background:rgba(179,93,0,.08);color:#7a5200; }
+.lh-ov-pill.soon { background:rgba(0,0,0,.06);color:#6e6e73; }
+.lh-ov-arrow { color:#0057ff;font-size:14px;font-weight:700; }
+
+/* ─── DOCS SHELL ─────────────────────────────────────── */
+#lh-docs {
+  display:flex;
+  min-height:calc(100vh - 62px);
+  background:#fff;
+  position:relative;
+}
+
+/* Sidebar */
+#lh-sidebar {
+  width:268px;flex-shrink:0;
+  background:#f0f2f8;border-right:1px solid #e4e8f0;
+  position:sticky;top:62px;
+  height:calc(100vh - 62px);
+  overflow-y:auto;z-index:10;
+}
+#lh-sidebar::-webkit-scrollbar { width:3px; }
+#lh-sidebar::-webkit-scrollbar-thumb { background:#c5cdd8;border-radius:2px; }
+.lh-sb-section { padding:20px 0 4px; }
+.lh-sb-label {
+  padding:0 18px 8px;
+  font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#9aadc0;
+}
+.lh-sb-mod { border-bottom:1px solid #e4e8f0; }
+.lh-sb-mod-btn {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 18px;width:100%;text-align:left;
+  font-size:13px;font-weight:700;color:#2a3650;
+  background:none;border:none;cursor:pointer;
+  transition:background .15s;
+}
+.lh-sb-mod-btn:hover { background:rgba(0,87,255,.04); }
+.lh-sb-chevron {
+  width:14px;height:14px;border:none;
+  border-right:2px solid #9aadc0;border-bottom:2px solid #9aadc0;
+  transform:rotate(45deg);transition:transform .2s;flex-shrink:0;
+}
+.lh-sb-mod-btn.open .lh-sb-chevron { transform:rotate(-135deg); }
+.lh-sb-items { display:none;padding:2px 0 6px; }
+.lh-sb-items.open { display:block; }
+.lh-sb-item {
+  display:flex;align-items:center;gap:0;
+  padding:7px 18px 7px 28px;
+  font-size:12px;color:#556080;
+  cursor:pointer;border-left:2px solid transparent;
+  transition:all .15s;line-height:1.35;
+  background:none;border-top:none;border-right:none;border-bottom:none;
+  width:100%;text-align:left;
+}
+.lh-sb-item:hover { color:#1a1f2e;background:rgba(0,87,255,.04);border-left-color:#9aadc0; }
+.lh-sb-item.active { color:#0057ff;border-left-color:#0057ff;background:rgba(0,87,255,.07);font-weight:600; }
+.lh-sb-dot {
+  display:inline-block;margin-left:auto;flex-shrink:0;
+  width:5px;height:5px;border-radius:50%;
+}
+.lh-sb-dot.ready { background:#00804a; }
+.lh-sb-dot.soon { background:#c5cdd8; }
+
+/* Mobile sidebar toggle */
+#lh-mob-toggle {
+  display:none;align-items:center;justify-content:space-between;
+  padding:12px 20px;
+  background:#f0f2f8;border-bottom:1px solid #e4e8f0;
+  cursor:pointer;font-size:13px;font-weight:700;color:#2a3650;
+  position:sticky;top:62px;z-index:9;width:100%;text-align:left;border:none;
+}
+.lh-mob-chevron {
+  width:14px;height:14px;
+  border-right:2px solid #9aadc0;border-bottom:2px solid #9aadc0;
+  transform:rotate(45deg);transition:transform .2s;
+}
+#lh-mob-toggle.open .lh-mob-chevron { transform:rotate(-135deg); }
+#lh-sidebar.mob-open {
+  display:block !important;width:100%;
+  position:relative;top:0;height:auto;max-height:60vh;
+  border-right:none;border-bottom:1px solid #e4e8f0;
+}
+
+/* Main content */
+#lh-main { flex:1;overflow-y:auto;background:#fff;min-width:0; }
+.lh-section { display:none;max-width:820px;margin:0 auto;padding:52px 52px 80px; }
+.lh-section.active { display:block; }
+
+/* Breadcrumb */
+.lh-bc { display:flex;align-items:center;gap:8px;font-size:12px;color:#9aadc0;margin-bottom:30px;flex-wrap:wrap; }
+.lh-bc a { color:#9aadc0;transition:color .15s;cursor:pointer; }
+.lh-bc a:hover { color:#0057ff; }
+.lh-bc-sep { color:#c5cdd8; }
+.lh-bc-cur { color:#556080; }
+
+/* Section typography */
+.lh-section h1 { font-size:clamp(26px,3.5vw,40px);font-weight:900;letter-spacing:-.03em;line-height:1.08;margin-bottom:18px;color:#1a1f2e; }
+.lh-section h2 { font-size:21px;font-weight:800;letter-spacing:-.02em;margin:44px 0 12px;color:#1a1f2e;padding-top:4px; }
+.lh-section h3 { font-size:16px;font-weight:700;letter-spacing:-.01em;margin:26px 0 10px;color:#374060; }
+.lh-section p { font-size:15px;color:#374060;line-height:1.8;margin-bottom:14px; }
+.lh-section ul,.lh-section ol { margin-bottom:18px;display:flex;flex-direction:column;gap:6px; }
+.lh-section li { font-size:15px;color:#374060;padding-left:20px;position:relative;line-height:1.7; }
+.lh-section ul li::before { content:'→';position:absolute;left:0;color:#0057ff;font-weight:800;font-size:11px;top:4px; }
+.lh-section ol { counter-reset:li; }
+.lh-section ol li { counter-increment:li; }
+.lh-section ol li::before { content:counter(li)'.';position:absolute;left:0;color:#0057ff;font-weight:700;font-size:12px; }
+.lh-section code { background:#f0f3f8;color:#0057ff;border:1px solid #dde2ee;border-radius:5px;padding:2px 6px;font-family:var(--mono);font-size:12px; }
+
+/* Lead paragraph */
+.lh-lead {
+  font-size:16px;color:#3d5070;line-height:1.75;
+  padding:18px 22px;border-left:3px solid #0057ff;
+  background:rgba(0,87,255,.04);border-radius:0 10px 10px 0;
+  margin-bottom:30px;
+}
+
+/* Meta row */
+.lh-meta {
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  margin-bottom:32px;padding-bottom:18px;
+  border-bottom:1px solid #eaeef5;
+}
+.lh-meta-item { font-size:12px;color:#9aadc0;display:flex;align-items:center;gap:5px; }
+.lh-meta-item strong { color:#556080;font-weight:600; }
+
+/* Divider */
+.lh-divider { height:1px;background:#eaeef5;margin:32px 0; }
+
+/* Callout boxes */
+.lh-callout { border-radius:10px;padding:15px 20px;margin:18px 0;border-left:3px solid; }
+.lh-callout.tip { border-color:#1a5c38;background:rgba(0,128,74,.05); }
+.lh-callout.note { border-color:#0057ff;background:rgba(0,87,255,.04); }
+.lh-callout.warn { border-color:#7a5200;background:rgba(255,209,102,.05); }
+.lh-callout.safety { border-color:#b91c1c;background:rgba(255,100,100,.04); }
+.lh-callout-lbl { font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:7px; }
+.lh-callout.tip .lh-callout-lbl { color:#1a5c38; }
+.lh-callout.note .lh-callout-lbl { color:#0057ff; }
+.lh-callout.warn .lh-callout-lbl { color:#7a5200; }
+.lh-callout.safety .lh-callout-lbl { color:#b91c1c; }
+.lh-callout p { font-size:14px;margin:0;line-height:1.65;color:#374060; }
+
+/* Code blocks */
+.lh-code { border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.1);margin:16px 0; }
+.lh-code-hdr {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 15px;background:#0d1117;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.lh-code-lang { font-size:11px;font-weight:700;color:#6e6e73;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono); }
+.lh-copy { font-size:11px;font-weight:600;color:#6e6e73;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:none;cursor:pointer;transition:all .15s;font-family:var(--font); }
+.lh-copy:hover { color:#aaa;border-color:rgba(255,255,255,.25); }
+.lh-copy.ok { color:#00804a;border-color:rgba(0,128,74,.3); }
+pre[class*="language-"] { margin:0!important;border-radius:0!important;background:#0d1117!important;font-size:12.5px!important;line-height:1.75!important; }
+
+/* Terminal */
+.lh-term { border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.1);margin:16px 0; }
+.lh-term-bar { display:flex;align-items:center;gap:7px;padding:9px 15px;background:#0d1117;border-bottom:1px solid rgba(255,255,255,.06); }
+.t-dot { width:10px;height:10px;border-radius:50%; }
+.td-r { background:#ff5f57; } .td-y { background:#febc2e; } .td-g { background:#28c840; }
+.lh-term-lbl { font-size:12px;color:#6e6e73;margin-left:4px;font-family:var(--mono); }
+.lh-term-body { background:#040810;padding:16px 22px;font-family:var(--mono);font-size:12.5px;color:#7dffbd;line-height:1.85;overflow-x:auto; }
+.lh-tc { color:#5fb7ff; } .lh-ty { color:#ffd166; } .lh-tm { color:#6e6e73; }
+
+/* Status / difficulty pills */
+.lh-pill { display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700; }
+.lh-pill.ready { background:rgba(0,128,74,.1);color:#1a5c38; }
+.lh-pill.soon { background:rgba(0,0,0,.06);color:#6e6e73; }
+.lh-pill.preview { background:rgba(179,93,0,.08);color:#7a5200; }
+.lh-diff.beg { background:rgba(0,128,74,.08);color:#1a5c38; }
+.lh-diff.beg-plus { background:rgba(0,87,255,.08);color:#0057ff; }
+.lh-diff.inter { background:rgba(179,93,0,.08);color:#7a5200; }
+.lh-diff { display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700; }
+
+/* File path badge */
+.lh-fp { display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:#0c1524;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-family:var(--mono);font-size:12px;color:#7af1ff;margin:6px 0 16px; }
+
+/* Nav row (prev/next) */
+.lh-nav-row { display:flex;align-items:center;justify-content:space-between;margin-top:52px;padding-top:24px;border-top:1px solid #eaeef5;gap:12px;flex-wrap:wrap; }
+.lh-nav-btn { display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;border:1px solid #dde2ee;background:#f0f3f8;color:#374060;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;background-color:#f0f3f8; }
+.lh-nav-btn:hover { border-color:rgba(0,87,255,.35);color:#0057ff;background:rgba(0,87,255,.05); }
+.lh-nav-btn.primary { background:rgba(0,87,255,.07);border-color:rgba(0,87,255,.2);color:#0057ff; }
+
+/* Demo / Lab cards */
+.lh-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:24px 0; }
+.lh-card {
+  background:#fff;border:1px solid rgba(0,0,0,.08);
+  border-radius:14px;overflow:hidden;
+  transition:all .2s;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+}
+.lh-card:hover { border-color:rgba(0,87,255,.25);box-shadow:0 8px 24px rgba(0,87,255,.09);transform:translateY(-2px); }
+.lh-card.locked { opacity:.6;cursor:default; }
+.lh-card.locked:hover { transform:none;box-shadow:0 2px 6px rgba(0,0,0,.04);border-color:rgba(0,0,0,.08); }
+.lh-card-top { height:3px; }
+.lh-card-top.blue { background:linear-gradient(90deg,#0057ff,#5fb7ff); }
+.lh-card-top.gray { background:#e4e8f0; }
+.lh-card-body { padding:18px 18px 16px; }
+.lh-card-num { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;font-family:var(--mono);font-size:12px;font-weight:800;margin-bottom:10px; }
+.lh-card-num.blue { background:rgba(0,87,255,.08);color:#0057ff; }
+.lh-card-num.gray { background:rgba(0,0,0,.05);color:#9aadc0; }
+.lh-card-title { font-size:14px;font-weight:700;letter-spacing:-.01em;color:#1a1f2e;margin-bottom:5px; }
+.lh-card-desc { font-size:12px;color:#6e6e73;line-height:1.55;margin-bottom:10px; }
+.lh-card-footer { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.lh-card-link { font-size:12px;color:#0057ff;font-weight:700; }
+
+/* Home shortcuts grid */
+.lh-home-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:24px 0; }
+.lh-home-item {
+  background:#f7f8fc;border:1px solid #e4e8f0;
+  border-radius:11px;padding:18px;
+  cursor:pointer;transition:all .2s;
+}
+.lh-home-item:hover { border-color:rgba(0,87,255,.25);background:rgba(0,87,255,.03); }
+.lh-home-item-title { font-size:14px;font-weight:700;color:#1a1f2e;margin-bottom:4px; }
+.lh-home-item-desc { font-size:12px;color:#6e6e73;line-height:1.5; }
+.lh-home-item-arrow { color:#0057ff;font-size:12px;font-weight:700;margin-top:8px; }
+
+/* Glossary */
+.lh-gloss-item { padding:13px 0;border-bottom:1px solid #eaeef5; }
+.lh-gloss-item:last-child { border-bottom:none; }
+.lh-gloss-term { font-size:14px;font-weight:700;color:#1a1f2e;margin-bottom:3px;font-family:var(--mono); }
+.lh-gloss-def { font-size:13px;color:#556080;line-height:1.65; }
+
+/* Troubleshooting accordion */
+.lh-tr-item { background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:11px;margin-bottom:10px;overflow:hidden; }
+.lh-tr-hdr { display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;background:#fafafa;transition:background .15s; }
+.lh-tr-hdr:hover { background:#f4f7ff; }
+.lh-tr-symp { font-size:13px;font-weight:600;color:#1a1f2e;flex:1; }
+.lh-tr-plus { font-size:18px;color:#9aadc0;transition:transform .2s;flex-shrink:0; }
+.lh-tr-item.open .lh-tr-plus { transform:rotate(45deg); }
+.lh-tr-body { display:none;padding:4px 16px 14px; }
+.lh-tr-item.open .lh-tr-body { display:block; }
+.lh-tr-row { margin-bottom:8px; }
+.lh-tr-lbl { font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#9aadc0;margin-bottom:2px; }
+.lh-tr-val { font-size:13px;color:#374060;line-height:1.6; }
+.lh-tr-fix { font-size:13px;color:#1a5c38;font-weight:600;line-height:1.6; }
+
+/* Footer */
+#lh-footer { background:#fafafa;border-top:1px solid #e4e8f0;padding:40px 0; }
+.lh-footer-inner { max-width:1200px;margin:0 auto;padding:0 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px; }
+.lh-footer-brand { font-size:18px;font-weight:800;letter-spacing:-.02em;color:#1d1d1f; }
+.lh-footer-brand span { color:#0057ff; }
+.lh-footer-links { display:flex;gap:24px;flex-wrap:wrap; }
+.lh-footer-links a { font-size:13px;color:#6e6e73;transition:color .15s; }
+.lh-footer-links a:hover { color:#1d1d1f; }
+.lh-footer-copy { font-size:12px;color:#9aadc0; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:1100px) { .lh-ov-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:900px) {
+  #lh-sidebar { display:none; }
+  #lh-mob-toggle { display:flex; }
+  #lh-docs { display:block; }
+  #lh-main { overflow-y:visible; }
+  .lh-section { padding:36px 24px 60px; }
+}
+@media(max-width:768px) {
+  .lh-hero-inner { padding:0 20px; }
+  .lh-ov-inner { padding:0 20px; }
+  .lh-ov-grid { grid-template-columns:repeat(2,1fr); }
+  .lh-hero-actions { flex-direction:column;align-items:flex-start; }
+  .lh-home-grid { grid-template-columns:1fr; }
+  .lh-footer-inner { padding:0 20px; }
+}
+@media(max-width:520px) {
+  .lh-ov-grid { grid-template-columns:1fr; }
+  .lh-grid { grid-template-columns:1fr; }
+  .lh-section { padding:24px 16px 48px; }
+  #lh-hero { padding:calc(var(--nav-h) + 48px) 0 52px; }
+  .lh-hero-inner { padding:0 16px; }
+  .lh-nav-row { flex-direction:column;align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ TOPBAR -->
+<nav id="topbar" class="scrolled">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/purpose">Mission Statement</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-path">Learning Path</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <div class="nav-right">
+      <a href="/" class="lh-back-link" style="font-size:12px;font-weight:600;color:#6e6e73;padding:5px 10px;border-radius:6px;transition:color .15s">← Main site</a>
+      <a href="/contact" class="btn btn-ghost" style="font-size:13px;padding:8px 18px">Request Demo</a>
+      <div class="hamburger" onclick="document.getElementById('mobile-nav').classList.add('open')" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/purpose">Mission Statement</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-path">Learning Path</a>
+  <a href="/contact">Contact</a>
+</div>
+
+<!-- ══════════════════════════════════════ HERO -->
+<section id="lh-hero">
+  <div class="lh-hero-inner">
+    <div class="lh-hero-badge"><div class="lh-hero-badge-dot"></div>SwayForm Learning Hub</div>
+    <h1>Learn robotics by running a real humanoid system.</h1>
+    <p>SwayForm Learning Hub gives students structured labs, robot demos, code walkthroughs, and setup guides for learning Python, ROS&nbsp;2, computer vision, servo control, and physical robot behavior.</p>
+    <div class="lh-hero-tags">
+      <div class="lh-hero-tag"><div class="lh-hero-tag-dot"></div>Robot demos</div>
+      <div class="lh-hero-tag"><div class="lh-hero-tag-dot"></div>Guided labs</div>
+      <div class="lh-hero-tag"><div class="lh-hero-tag-dot"></div>VS Code + SSH workflow</div>
+    </div>
+    <div class="lh-hero-actions">
+      <button class="lh-btn-primary" onclick="showSection('sec-getting-started')">Start with Getting Started</button>
+      <button class="lh-btn-ghost" onclick="showSection('sec-demo-library')">Browse Demo Code</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ OVERVIEW CARDS -->
+<section id="lh-overview">
+  <div class="lh-ov-inner">
+    <div class="lh-ov-head">
+      <h2>Everything in the Learning Hub</h2>
+      <p>Start anywhere. The hub is designed so students can jump in at the section that matches where they are.</p>
+    </div>
+    <div class="lh-ov-grid">
+      <div class="lh-ov-card" onclick="showSection('sec-getting-started')">
+        <div class="lh-ov-icon">⚡</div>
+        <div class="lh-ov-title">Getting Started</div>
+        <div class="lh-ov-desc">Power on the robot, SSH in with VS Code, and run your first demo in under 10 minutes.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-demo-library')">
+        <div class="lh-ov-icon">🤖</div>
+        <div class="lh-ov-title">Demo Code Library</div>
+        <div class="lh-ov-desc">5 fully documented demo programs. Run them, read the code, then change something small.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">5 ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-lab-overview')">
+        <div class="lh-ov-icon">🔬</div>
+        <div class="lh-ov-title">Student Labs</div>
+        <div class="lh-ov-desc">10 guided labs with starter code, steps, and reflection questions. 10 more coming.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">10 ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-vscode-ssh')">
+        <div class="lh-ov-icon">💻</div>
+        <div class="lh-ov-title">VS Code + SSH Setup</div>
+        <div class="lh-ov-desc">Connect to the robot from your laptop. Where to find files. Read-only vs editable folders.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-ros2')">
+        <div class="lh-ov-icon">📡</div>
+        <div class="lh-ov-title">ROS 2 Basics</div>
+        <div class="lh-ov-desc">Nodes, topics, publishers, subscribers — explained in terms of what SwayForm actually does.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-hardware')">
+        <div class="lh-ov-icon">⚙️</div>
+        <div class="lh-ov-title">Hardware &amp; Motion</div>
+        <div class="lh-ov-desc">Raspberry Pi, servo controllers, RealSense camera. How code becomes physical movement.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-troubleshoot')">
+        <div class="lh-ov-icon">🔧</div>
+        <div class="lh-ov-title">Troubleshooting</div>
+        <div class="lh-ov-desc">SSH fails, demos not found, robot not moving. Common problems with practical fixes.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+      <div class="lh-ov-card" onclick="showSection('sec-glossary')">
+        <div class="lh-ov-icon">📖</div>
+        <div class="lh-ov-title">Glossary</div>
+        <div class="lh-ov-desc">Quick definitions for ROS 2, servo, joint, pose, motion lock, SSH, and more.</div>
+        <div class="lh-ov-footer"><span class="lh-ov-pill ready">Ready</span><span class="lh-ov-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ DOCS LAYOUT -->
+<div id="lh-docs">
+
+  <!-- Mobile sidebar toggle -->
+  <button id="lh-mob-toggle" onclick="toggleMobSidebar()">
+    <span>Sections</span>
+    <span class="lh-mob-chevron"></span>
+  </button>
+
+  <!-- Sidebar -->
+  <aside id="lh-sidebar">
+
+    <div class="lh-sb-section">
+      <div class="lh-sb-label">A — Start Here</div>
+      <div class="lh-sb-mod">
+        <button class="lh-sb-mod-btn open" data-mod="start" onclick="toggleMod(this)">
+          Start Here <span class="lh-sb-chevron"></span>
+        </button>
+        <div class="lh-sb-items open">
+          <button class="lh-sb-item active" data-sec="sec-home" onclick="showSection('sec-home')">Learning Hub Home</button>
+          <button class="lh-sb-item" data-sec="sec-what-teaches" onclick="showSection('sec-what-teaches')">What SwayForm Teaches</button>
+          <button class="lh-sb-item" data-sec="sec-how-students" onclick="showSection('sec-how-students')">How Students Use This Hub</button>
+          <button class="lh-sb-item" data-sec="sec-file-structure" onclick="showSection('sec-file-structure')">File Structure</button>
+          <button class="lh-sb-item" data-sec="sec-safety" onclick="showSection('sec-safety')">Safety Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lh-sb-section">
+      <div class="lh-sb-label">B — Setup</div>
+      <div class="lh-sb-mod">
+        <button class="lh-sb-mod-btn open" data-mod="setup" onclick="toggleMod(this)">
+          Setup <span class="lh-sb-chevron"></span>
+        </button>
+        <div class="lh-sb-items open">
+          <button class="lh-sb-item" data-sec="sec-getting-started" onclick="showSection('sec-getting-started')">Getting Started</button>
+          <button class="lh-sb-item" data-sec="sec-vscode-ssh" onclick="showSection('sec-vscode-ssh')">VS Code + SSH</button>
+          <button class="lh-sb-item" data-sec="sec-connecting" onclick="showSection('sec-connecting')">Connecting to the Robot</button>
+          <button class="lh-sb-item" data-sec="sec-running-demo" onclick="showSection('sec-running-demo')">Running a Demo</button>
+          <button class="lh-sb-item" data-sec="sec-stopping" onclick="showSection('sec-stopping')">Stopping a Motion Safely</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lh-sb-section">
+      <div class="lh-sb-label">C — Demo Code Library</div>
+      <div class="lh-sb-mod">
+        <button class="lh-sb-mod-btn" data-mod="demos" onclick="toggleMod(this)">
+          Demo Code Library <span class="lh-sb-chevron"></span>
+        </button>
+        <div class="lh-sb-items">
+          <button class="lh-sb-item" data-sec="sec-demo-library" onclick="showSection('sec-demo-library')">Overview</button>
+          <button class="lh-sb-item" data-sec="sec-demo-01" onclick="showSection('sec-demo-01')">Demo 01: Wave <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-02" onclick="showSection('sec-demo-02')">Demo 02: Vision Handshake <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-03" onclick="showSection('sec-demo-03')">Demo 03: Look and Point <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-04" onclick="showSection('sec-demo-04')">Demo 04: Rock Paper Scissors <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-05" onclick="showSection('sec-demo-05')">Demo 05: Dollar Bill Snack Exchange <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-06" onclick="showSection('sec-demo-06')">Demo 06: Follow the Face <span class="lh-sb-dot soon"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-07" onclick="showSection('sec-demo-07')">Demo 07: Classroom Attendance <span class="lh-sb-dot soon"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-08" onclick="showSection('sec-demo-08')">Demo 08: Object Sorting Starter <span class="lh-sb-dot soon"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-09" onclick="showSection('sec-demo-09')">Demo 09: Voice Prompt Motion <span class="lh-sb-dot soon"></span></button>
+          <button class="lh-sb-item" data-sec="sec-demo-10" onclick="showSection('sec-demo-10')">Demo 10: Custom Student Demo <span class="lh-sb-dot soon"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lh-sb-section">
+      <div class="lh-sb-label">D — Student Labs</div>
+      <div class="lh-sb-mod">
+        <button class="lh-sb-mod-btn" data-mod="labs" onclick="toggleMod(this)">
+          Student Labs <span class="lh-sb-chevron"></span>
+        </button>
+        <div class="lh-sb-items">
+          <button class="lh-sb-item" data-sec="sec-lab-overview" onclick="showSection('sec-lab-overview')">Overview</button>
+          <button class="lh-sb-item" data-sec="sec-lab-01" onclick="showSection('sec-lab-01')">Lab 01: Hello Robot Motion <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-02" onclick="showSection('sec-lab-02')">Lab 02: Servo Angles &amp; Safe Limits <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-03" onclick="showSection('sec-lab-03')">Lab 03: Build a Gesture Sequence <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-04" onclick="showSection('sec-lab-04')">Lab 04: Head Tracking Basics <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-05" onclick="showSection('sec-lab-05')">Lab 05: Button-to-Motion Control <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-06" onclick="showSection('sec-lab-06')">Lab 06: RealSense Detection Basics <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-07" onclick="showSection('sec-lab-07')">Lab 07: Hand Pose Timing <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-08" onclick="showSection('sec-lab-08')">Lab 08: Base Rotation Basics <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-09" onclick="showSection('sec-lab-09')">Lab 09: Behavior Priority &amp; Motion Locking <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-10" onclick="showSection('sec-lab-10')">Lab 10: Mini Demo Challenge <span class="lh-sb-dot ready"></span></button>
+          <button class="lh-sb-item" data-sec="sec-lab-11-20" onclick="showSection('sec-lab-11-20')">Labs 11–20 <span class="lh-sb-dot soon"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lh-sb-section">
+      <div class="lh-sb-label">E — Reference</div>
+      <div class="lh-sb-mod">
+        <button class="lh-sb-mod-btn" data-mod="ref" onclick="toggleMod(this)">
+          Reference <span class="lh-sb-chevron"></span>
+        </button>
+        <div class="lh-sb-items">
+          <button class="lh-sb-item" data-sec="sec-ros2" onclick="showSection('sec-ros2')">ROS 2 Concepts</button>
+          <button class="lh-sb-item" data-sec="sec-motion-node" onclick="showSection('sec-motion-node')">Motion Node</button>
+          <button class="lh-sb-item" data-sec="sec-servo-mapping" onclick="showSection('sec-servo-mapping')">Servo Mapping</button>
+          <button class="lh-sb-item" data-sec="sec-hardware" onclick="showSection('sec-hardware')">Hardware &amp; RealSense</button>
+          <button class="lh-sb-item" data-sec="sec-troubleshoot" onclick="showSection('sec-troubleshoot')">Troubleshooting</button>
+          <button class="lh-sb-item" data-sec="sec-glossary" onclick="showSection('sec-glossary')">Glossary</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════ MAIN CONTENT ══════════ -->
+  <main id="lh-main">
+
+    <!-- ──────────── HOME ──────────── -->
+    <div class="lh-section active" id="sec-home">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Home</span>
+      </div>
+      <h1>SwayForm Learning Hub</h1>
+      <p class="lh-lead">The Learning Hub is where students go to run demos, complete labs, and understand how the SwayForm robot system works from code to motion.</p>
+      <p>This hub is organized into five areas. You can enter anywhere, but if this is your first time, the Getting Started flow takes about 10 minutes and ends with a running demo.</p>
+
+      <h2>Where to start</h2>
+      <div class="lh-home-grid">
+        <div class="lh-home-item" onclick="showSection('sec-getting-started')">
+          <div class="lh-home-item-title">⚡ Getting Started</div>
+          <div class="lh-home-item-desc">First time with the robot? Start here. SSH in and run the wave demo.</div>
+          <div class="lh-home-item-arrow">Open →</div>
+        </div>
+        <div class="lh-home-item" onclick="showSection('sec-demo-library')">
+          <div class="lh-home-item-title">🤖 Demo Code Library</div>
+          <div class="lh-home-item-desc">5 ready demos. Run them, read how they work, then modify something.</div>
+          <div class="lh-home-item-arrow">Browse demos →</div>
+        </div>
+        <div class="lh-home-item" onclick="showSection('sec-lab-overview')">
+          <div class="lh-home-item-title">🔬 Student Labs</div>
+          <div class="lh-home-item-desc">10 guided labs with starter code and reflection questions.</div>
+          <div class="lh-home-item-arrow">Open labs →</div>
+        </div>
+        <div class="lh-home-item" onclick="showSection('sec-ros2')">
+          <div class="lh-home-item-title">📡 ROS 2 Basics</div>
+          <div class="lh-home-item-desc">Nodes, topics, publishers — explained using SwayForm as the example.</div>
+          <div class="lh-home-item-arrow">Read concepts →</div>
+        </div>
+        <div class="lh-home-item" onclick="showSection('sec-troubleshoot')">
+          <div class="lh-home-item-title">🔧 Troubleshooting</div>
+          <div class="lh-home-item-desc">SSH failed, demo not found, robot not moving — practical fixes.</div>
+          <div class="lh-home-item-arrow">Open troubleshooting →</div>
+        </div>
+        <div class="lh-home-item" onclick="showSection('sec-glossary')">
+          <div class="lh-home-item-title">📖 Glossary</div>
+          <div class="lh-home-item-desc">Quick definitions for every robotics term used in the hub.</div>
+          <div class="lh-home-item-arrow">Open glossary →</div>
+        </div>
+      </div>
+
+      <h2>Who the hub is for</h2>
+      <ul>
+        <li><strong>Students</strong> — run demos, complete labs, build your own behaviors at your own pace.</li>
+        <li><strong>Robotics clubs</strong> — bookmark this page. You do not need to go through the marketing site to access your learning materials.</li>
+        <li><strong>Teachers and professors</strong> — use the lab structure as a curriculum outline. Labs are self-contained and can be assigned individually.</li>
+        <li><strong>Program directors</strong> — the hub shows what students will build and learn at each stage.</li>
+      </ul>
+
+      <div class="lh-callout note">
+        <div class="lh-callout-lbl">Note</div>
+        <p>The Learning Hub is actively being built. Labs 1–10 and Demos 1–5 have full content now. Labs 11–20 and Demos 6–10 are placeholders and will be published as the platform grows.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <span></span>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-what-teaches')">What SwayForm Teaches →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── WHAT SWAYFORM TEACHES ──────────── -->
+    <div class="lh-section" id="sec-what-teaches">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">What SwayForm Teaches</span>
+      </div>
+      <h1>What SwayForm Teaches</h1>
+      <p class="lh-lead">SwayForm is built to make robotics concrete. Every concept students encounter connects to something the robot physically does. You are not learning robotics on a simulator or through slides — you are writing code that moves hardware.</p>
+
+      <h2>Python through physical behavior</h2>
+      <p>Students write real Python. Not toy exercises — actual scripts that send motor commands, read camera data, respond to sensors, and chain behaviors. The feedback loop is physical: if your code is wrong, the robot does the wrong thing, and you can see it immediately.</p>
+
+      <h2>ROS 2 thinking</h2>
+      <p>SwayForm is built around ROS 2-style architecture. Students learn what a node is by writing one. They learn what a topic is by publishing to one. They learn what a subscriber is by building a behavior that reacts to camera data. The goal is not to memorize definitions — it is to understand why a system like ROS exists and what problem it solves.</p>
+      <p>Concepts covered through the demo and lab programs:</p>
+      <ul>
+        <li>Nodes — programs that run independently and communicate with others</li>
+        <li>Topics — named channels where nodes send and receive data</li>
+        <li>Publishers — code that sends data on a topic</li>
+        <li>Subscribers — code that receives data from a topic</li>
+        <li>Services — request-response communication between nodes</li>
+        <li>Launch files — scripts that start multiple nodes together</li>
+      </ul>
+
+      <h2>Servo control and joint motion</h2>
+      <p>Students learn that robot motion is joint angles, not simple high-level commands. You specify where a joint should go in radians, and the servo controller moves it there. Students develop an intuition for what values are safe, why limits exist, and how timing affects how smooth a motion feels.</p>
+
+      <h2>Computer vision with RealSense</h2>
+      <p>The Intel RealSense camera gives SwayForm both color and depth data. Labs and demos teach students how camera data can be used as a trigger for robot behavior — detecting when someone is present, finding a target zone, or mapping a visual position to a head angle. The hub is honest about what works as a classroom demo and what would require more advanced computer vision.</p>
+
+      <h2>Timing, sequencing, and motion locking</h2>
+      <p>Many behaviors require careful timing. Students learn why a wave looks unnatural at the wrong speed, why two behaviors cannot safely command the same joint simultaneously, and why returning to a safe idle pose matters. These are practical lessons about real robotics constraints.</p>
+
+      <h2>Debugging through the terminal</h2>
+      <p>Students read terminal output, understand error messages, and fix problems themselves. There is no visual debugger with a "fix" button. The terminal is the interface, and reading it is part of learning.</p>
+
+      <div class="lh-callout note">
+        <div class="lh-callout-lbl">Honest expectation</div>
+        <p>SwayForm does not promise that students will become professional robotics engineers in a semester. The goal is to give students a real, hands-on experience with a physical robot system so that further study in robotics, Python, or embedded systems feels grounded in something they already understand.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-home')">← Home</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-how-students')">How Students Use This Hub →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── HOW STUDENTS USE ──────────── -->
+    <div class="lh-section" id="sec-how-students">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">How Students Use This Hub</span>
+      </div>
+      <h1>How Students Use This Hub</h1>
+      <p class="lh-lead">The typical student flow starts with a provided demo, moves into reading the code, then into making small edits, and finally into completing guided labs.</p>
+
+      <h2>The standard flow</h2>
+      <ol>
+        <li>Open the Learning Hub (you are here).</li>
+        <li>Connect to the robot through VS Code and SSH (see Setup).</li>
+        <li>Run a provided demo to see the robot do something.</li>
+        <li>Open the demo's code walkthrough in the hub and read it.</li>
+        <li>Make one small modification from the "Try changing this" list.</li>
+        <li>Open the corresponding lab for that topic.</li>
+        <li>Complete the lab using the starter code and step-by-step guide.</li>
+        <li>Answer the reflection question and attempt the extension challenge.</li>
+      </ol>
+
+      <h2>Self-paced vs class-led</h2>
+      <p>The hub is designed so students can move through it independently. Labs are self-contained — you do not need to have completed the previous lab to start a new one, although they do build on each other conceptually.</p>
+      <p>In a class setting, a teacher might assign one lab per session. In a club setting, students can move faster and use the extension challenges to go further.</p>
+
+      <h2>What to do when something breaks</h2>
+      <p>Check the Troubleshooting section first. Most first-time problems (SSH not connecting, command not found, robot not moving) have clear causes and documented fixes. Reading terminal output carefully usually reveals the problem before you need to ask anyone.</p>
+
+      <div class="lh-callout tip">
+        <div class="lh-callout-lbl">Tip</div>
+        <p>Bookmark this page directly. You do not need to navigate through the main SwayForm website every time you want to access a lab or demo.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-what-teaches')">← What SwayForm Teaches</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-file-structure')">File Structure →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── FILE STRUCTURE ──────────── -->
+    <div class="lh-section" id="sec-file-structure">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">File Structure</span>
+      </div>
+      <h1>File Structure</h1>
+      <p class="lh-lead">SwayForm organizes demo code and lab code into separate workspaces on the robot. Demo files are provided examples. Lab files are where students work.</p>
+
+      <h2>Demo Code (provided, read-only)</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">bash</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">~/ros2_ws/src/swayform_demos/
+├── wave_demo.py
+├── vision_handshake.py
+├── look_and_point.py
+├── rock_paper_scissors.py
+└── dollar_snack_exchange.py</code></pre>
+      </div>
+
+      <h2>Student Labs (editable)</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_labs/</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">bash</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">~/ros2_ws/src/swayform_labs/
+├── lab_01_hello_motion.py
+├── lab_02_servo_limits.py
+├── lab_03_gesture_sequence.py
+├── lab_04_head_tracking.py
+├── lab_05_button_motion.py
+├── lab_06_realsense_detection.py
+├── lab_07_hand_pose_timing.py
+├── lab_08_base_rotation.py
+├── lab_09_motion_locking.py
+└── lab_10_mini_demo_challenge.py</code></pre>
+      </div>
+
+      <h2>Important notes on editing</h2>
+      <ul>
+        <li>The <code>swayform_demos</code> folder contains the official provided demos. Students should not modify these directly.</li>
+        <li>If you want to experiment with demo code, copy the file into the labs folder first: <code>cp ~/ros2_ws/src/swayform_demos/wave_demo.py ~/ros2_ws/src/swayform_labs/wave_experiment.py</code></li>
+        <li>The <code>swayform_labs</code> folder is where all student work lives. Edits here are safe.</li>
+        <li>Always source the workspace before running any script.</li>
+      </ul>
+
+      <div class="lh-callout warn">
+        <div class="lh-callout-lbl">Before editing</div>
+        <p>Always make a backup copy of a lab file before you start making changes. That way you can restore the original if something goes wrong.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-how-students')">← How Students Use This Hub</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-safety')">Safety Notes →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── SAFETY NOTES ──────────── -->
+    <div class="lh-section" id="sec-safety">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Safety Notes</span>
+      </div>
+      <h1>Safety Notes</h1>
+      <p class="lh-lead">SwayForm is designed for classroom use and is built with safe joint limits in the motion software. These notes help you get the most out of the robot without damaging it or surprising someone in the room.</p>
+
+      <div class="lh-callout safety">
+        <div class="lh-callout-lbl">Safety</div>
+        <p>Keep hands and objects clear of the robot's arms and hands while a demo or script is running. The robot does not know you are there unless a camera behavior is specifically active.</p>
+      </div>
+
+      <h2>General rules</h2>
+      <ul>
+        <li>Do not manually force the robot's arms into a position while a script is running. If a joint is resisting, stop the script first.</li>
+        <li>Keep objects for tabletop demos light. The robot is not designed to lift heavy items.</li>
+        <li>Stop the running script before repositioning objects near the robot.</li>
+        <li>Always return the robot to a neutral or idle pose before powering off.</li>
+        <li>When working with base rotation, make sure the cable slack allows the turn direction you are commanding. Do not spin the base continuously in one direction.</li>
+      </ul>
+
+      <h2>Joint limits</h2>
+      <p>Every servo joint on SwayForm has a software-enforced safe range. The motion software will clamp commanded angles to these limits before sending them to the hardware. You cannot easily damage the robot by sending bad angle values — the system catches this. However, rapidly switching between extreme positions can put stress on the motors, so smooth, gradual motions are always preferred.</p>
+
+      <h2>Dollar bill demo note</h2>
+      <p>The Dollar Bill Snack Exchange demo is a classroom interaction demo only. It does not process real payments and does not validate currency. It is designed to demonstrate sequenced manipulation and human-robot interaction in an educational context.</p>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-file-structure')">← File Structure</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-getting-started')">Getting Started →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── GETTING STARTED ──────────── -->
+    <div class="lh-section" id="sec-getting-started">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-sep">Setup</span>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Getting Started</span>
+      </div>
+      <h1>Getting Started</h1>
+      <p class="lh-lead">From power-on to running your first demo in about 10 minutes. Follow these steps in order your first time.</p>
+
+      <h2>Step 1 — Power on SwayForm</h2>
+      <p>Flip the main power switch on the robot base. Wait about 30 seconds for the Raspberry Pi to finish booting. The system is ready when the status indicator shows steady (not blinking).</p>
+
+      <h2>Step 2 — Connect to the same network</h2>
+      <p>Make sure your laptop is connected to the same Wi-Fi network as the robot, or connected via a direct Ethernet link. SwayForm uses a local hostname — you do not need internet access.</p>
+
+      <h2>Step 3 — Open VS Code</h2>
+      <p>Open Visual Studio Code on your laptop. Install the <strong>Remote - SSH</strong> extension if you do not have it already.</p>
+
+      <h2>Step 4 — Connect via SSH</h2>
+      <p>Open the VS Code command palette (Ctrl+Shift+P / Cmd+Shift+P) → "Remote-SSH: Connect to Host" → enter:</p>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body"><span class="lh-tc">ssh</span> swayform@swayform.local</div>
+      </div>
+      <p>Enter the password when prompted. You should see a terminal prompt like <code>swayform@swayform:~$</code>.</p>
+
+      <h2>Step 5 — Navigate to the workspace</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body"><span class="lh-tc">cd</span> ~/ros2_ws</div>
+      </div>
+
+      <h2>Step 6 — Source the workspace</h2>
+      <p>This step makes all SwayForm ROS 2 commands available in your terminal. You must do this every time you open a new terminal session.</p>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body"><span class="lh-tc">source</span> install/setup.bash</div>
+      </div>
+
+      <h2>Step 7 — Run the wave demo</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos wave_demo</div>
+      </div>
+      <p>The robot should raise its right arm and wave three times, then return to idle. If nothing happens, check the Troubleshooting section.</p>
+
+      <h2>Step 8 — Stop the demo safely</h2>
+      <p>Press <strong>Ctrl+C</strong> in the terminal to stop the script. The robot will finish its current motion and return to idle if the script includes a cleanup function.</p>
+
+      <h2>Step 9 — Open the first lab</h2>
+      <p>You are ready. Open Lab 01 in the sidebar to start your first guided exercise.</p>
+
+      <div class="lh-callout tip">
+        <div class="lh-callout-lbl">Pro tip</div>
+        <p>Add <code>source ~/ros2_ws/install/setup.bash</code> to your <code>~/.bashrc</code> so you do not have to source manually every session.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-safety')">← Safety Notes</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-vscode-ssh')">VS Code + SSH →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── VS CODE + SSH ──────────── -->
+    <div class="lh-section" id="sec-vscode-ssh">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-sep">Setup</span>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">VS Code + SSH</span>
+      </div>
+      <h1>VS Code + SSH Setup</h1>
+      <p class="lh-lead">SSH lets your laptop talk to the robot over the network. VS Code's Remote-SSH extension makes the robot's filesystem feel like a local project — you can browse files, edit code, and run a terminal all in one window.</p>
+
+      <h2>What SSH means</h2>
+      <p>SSH (Secure Shell) is a way to open a terminal on a remote computer — in this case, the Raspberry Pi inside SwayForm — from your own laptop. Once connected, commands you type run on the robot, not on your laptop. Your code editor can also open and save files on the robot directly.</p>
+
+      <h2>Why students use VS Code</h2>
+      <ul>
+        <li>Full code editor with syntax highlighting and autocomplete</li>
+        <li>Integrated terminal for running commands on the robot</li>
+        <li>File browser to navigate the robot's filesystem</li>
+        <li>Works on Windows, Mac, and Linux</li>
+        <li>No need to copy files back and forth — you edit directly on the robot</li>
+      </ul>
+
+      <h2>Required VS Code extension</h2>
+      <p>Install the <strong>Remote - SSH</strong> extension from the VS Code Extensions panel (Ctrl+Shift+X). Search for "Remote SSH" and install the one published by Microsoft.</p>
+
+      <h2>Connecting for the first time</h2>
+      <ol>
+        <li>Press Ctrl+Shift+P to open the command palette</li>
+        <li>Type "Remote-SSH: Connect to Host" and press Enter</li>
+        <li>Enter <code>swayform@swayform.local</code></li>
+        <li>Enter the password when prompted</li>
+        <li>VS Code will open a new window connected to the robot</li>
+        <li>Click "Open Folder" and navigate to <code>/home/swayform/ros2_ws</code></li>
+      </ol>
+
+      <h2>Where files live</h2>
+      <p><strong>swayform_demos</strong> — official demo examples provided by SwayForm. These are your reference code. Read them, study them, but avoid editing them directly. If you want to experiment, copy the file to the labs folder first.</p>
+      <p><strong>swayform_labs</strong> — your working folder. All lab starter code lives here. Edits you make in this folder are safe and persistent.</p>
+
+      <div class="lh-callout note">
+        <div class="lh-callout-lbl">Note</div>
+        <p>Changes saved in VS Code Remote-SSH are saved directly on the robot. There is no separate "upload" step. If you disconnect VS Code, your changes are already there.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-getting-started')">← Getting Started</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-connecting')">Connecting to the Robot →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── CONNECTING ──────────── -->
+    <div class="lh-section" id="sec-connecting">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-sep">Setup</span>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Connecting to the Robot</span>
+      </div>
+      <h1>Connecting to the Robot</h1>
+      <h2>Network requirements</h2>
+      <p>Your laptop and the robot must be on the same network. Either connect both to the same Wi-Fi router, or use a direct Ethernet cable between your laptop and the robot.</p>
+
+      <h2>SSH connection commands</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ssh swayform@swayform.local<br><br><span class="lh-tm"># After connecting:</span><br>cd ~/ros2_ws<br>source install/setup.bash</div>
+      </div>
+
+      <h2>If swayform.local does not resolve</h2>
+      <p>Try connecting with the robot's IP address instead. You can find the robot's IP in the network settings or ask your instructor. Replace <code>swayform.local</code> with the IP, for example: <code>ssh swayform@192.168.1.42</code></p>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-vscode-ssh')">← VS Code + SSH</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-running-demo')">Running a Demo →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── RUNNING A DEMO ──────────── -->
+    <div class="lh-section" id="sec-running-demo">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-sep">Setup</span>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Running a Demo</span>
+      </div>
+      <h1>Running a Demo</h1>
+      <p>Once connected and sourced, running a demo is a single command.</p>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body"><span class="lh-tm"># General pattern</span><br>ros2 run swayform_demos &lt;demo_name&gt;<br><br><span class="lh-tm"># Example</span><br>ros2 run swayform_demos wave_demo</div>
+      </div>
+
+      <h2>Available demo names</h2>
+      <ul>
+        <li><code>wave_demo</code></li>
+        <li><code>vision_handshake</code></li>
+        <li><code>look_and_point</code></li>
+        <li><code>rock_paper_scissors</code></li>
+        <li><code>dollar_snack_exchange</code></li>
+      </ul>
+
+      <div class="lh-callout warn">
+        <div class="lh-callout-lbl">Before running</div>
+        <p>Make sure no other script is already running on the robot. If a previous session is still active, the motion node may be locked and your demo will not move anything.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-connecting')">← Connecting</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-stopping')">Stopping a Motion Safely →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── STOPPING SAFELY ──────────── -->
+    <div class="lh-section" id="sec-stopping">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-sep">Setup</span>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Stopping a Motion Safely</span>
+      </div>
+      <h1>Stopping a Motion Safely</h1>
+      <p>Press <strong>Ctrl+C</strong> in the terminal to stop any running script. If the script includes a <code>safe_pose('idle')</code> call at the end, the robot will finish its current motion and return to a safe position before stopping.</p>
+      <p>If the robot stops mid-motion and stays in an awkward pose, you can manually run:</p>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos reset_pose</div>
+      </div>
+      <p>This moves all joints back to the neutral idle position.</p>
+
+      <div class="lh-callout safety">
+        <div class="lh-callout-lbl">Safety</div>
+        <p>Never pull the robot's arms into a different position while a script is running. Always stop the script first, then reposition if needed.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-running-demo')">← Running a Demo</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-demo-library')">Demo Code Library →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO LIBRARY OVERVIEW ──────────── -->
+    <div class="lh-section" id="sec-demo-library">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo Code Library</span>
+      </div>
+      <h1>Demo Code Library</h1>
+      <p class="lh-lead">Five ready-to-run demos with full code walkthroughs. Run the demo first, then read the walkthrough, then try a modification from the "Try changing this" section.</p>
+
+      <div class="lh-grid">
+        <div class="lh-card" onclick="showSection('sec-demo-01')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">01</div>
+            <div class="lh-card-title">Wave</div>
+            <div class="lh-card-desc">Raise an arm and wave using a timed servo sequence. The simplest motion demo.</div>
+            <div class="lh-card-footer">
+              <span class="lh-diff beg">Beginner</span>
+              <span class="lh-pill ready">Ready</span>
+              <span style="font-size:11px;color:#9aadc0">~10 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-demo-02')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">02</div>
+            <div class="lh-card-title">Vision Handshake</div>
+            <div class="lh-card-desc">Camera detects a user, robot extends arm for a handshake, returns to idle.</div>
+            <div class="lh-card-footer">
+              <span class="lh-diff beg-plus">Beginner+</span>
+              <span class="lh-pill ready">Ready</span>
+              <span style="font-size:11px;color:#9aadc0">~15 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-demo-03')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">03</div>
+            <div class="lh-card-title">Look and Point</div>
+            <div class="lh-card-desc">Robot turns its head toward a detected target, then points one arm toward it.</div>
+            <div class="lh-card-footer">
+              <span class="lh-diff beg-plus">Beginner+</span>
+              <span class="lh-pill ready">Ready</span>
+              <span style="font-size:11px;color:#9aadc0">~15 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-demo-04')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">04</div>
+            <div class="lh-card-title">Rock Paper Scissors</div>
+            <div class="lh-card-desc">Robot plays rock-paper-scissors with a student using hand pose presets and a game loop.</div>
+            <div class="lh-card-footer">
+              <span class="lh-diff inter">Intermediate</span>
+              <span class="lh-pill ready">Ready</span>
+              <span style="font-size:11px;color:#9aadc0">~20 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-demo-05')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">05</div>
+            <div class="lh-card-title">Dollar Bill Snack Exchange</div>
+            <div class="lh-card-desc">State-machine classroom demo. Robot receives a bill, sets it aside, and presents a snack.</div>
+            <div class="lh-card-footer">
+              <span class="lh-diff inter">Intermediate</span>
+              <span class="lh-pill ready">Ready</span>
+              <span style="font-size:11px;color:#9aadc0">~20 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="lh-card locked" onclick="showSection('sec-demo-06')">
+          <div class="lh-card-top gray"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num gray">06</div>
+            <div class="lh-card-title">Follow the Face</div>
+            <div class="lh-card-desc">Coming soon.</div>
+            <div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div>
+          </div>
+        </div>
+        <div class="lh-card locked" onclick="showSection('sec-demo-07')">
+          <div class="lh-card-top gray"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num gray">07</div>
+            <div class="lh-card-title">Classroom Attendance Greeting</div>
+            <div class="lh-card-desc">Coming soon.</div>
+            <div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div>
+          </div>
+        </div>
+        <div class="lh-card locked" onclick="showSection('sec-demo-08')">
+          <div class="lh-card-top gray"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num gray">08</div>
+            <div class="lh-card-title">Object Sorting Starter</div>
+            <div class="lh-card-desc">Coming soon.</div>
+            <div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div>
+          </div>
+        </div>
+        <div class="lh-card locked" onclick="showSection('sec-demo-09')">
+          <div class="lh-card-top gray"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num gray">09</div>
+            <div class="lh-card-title">Voice Prompt Motion</div>
+            <div class="lh-card-desc">Coming soon.</div>
+            <div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div>
+          </div>
+        </div>
+        <div class="lh-card locked" onclick="showSection('sec-demo-10')">
+          <div class="lh-card-top gray"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num gray">10</div>
+            <div class="lh-card-title">Custom Student Demo</div>
+            <div class="lh-card-desc">Coming soon.</div>
+            <div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 01: WAVE ──────────── -->
+    <div class="lh-section" id="sec-demo-01">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <a onclick="showSection('sec-demo-library')">Demo Code Library</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo 01: Wave</span>
+      </div>
+      <h1>Demo 01: Wave</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Difficulty</strong> Beginner</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~10 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+      <p class="lh-lead">The robot raises its right arm and waves three times using a timed sequence of servo commands. This is the simplest motion demo — no camera, no sensors, just clean joint control.</p>
+
+      <h2>What it does</h2>
+      <p>The script moves to a neutral starting pose, raises the right arm to wave height, then alternates between a higher and lower position three times before returning to idle. Each movement uses a timed duration to control how fast the joint moves.</p>
+
+      <h2>What students learn</h2>
+      <ul>
+        <li>How to define joint target angles</li>
+        <li>How motion duration affects speed and smoothness</li>
+        <li>The importance of starting and ending in a safe pose</li>
+        <li>How to run a repeated motion loop</li>
+        <li>What a "safe limit" means in practice</li>
+      </ul>
+
+      <h2>Hardware used</h2>
+      <ul>
+        <li>Right shoulder servo (pitch and yaw)</li>
+        <li>Right elbow servo (flex)</li>
+        <li>Motion controller node</li>
+      </ul>
+
+      <h2>Run command</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos wave_demo</div>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/wave_demo.py</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python"># wave_demo.py — SwayForm Demo 01
+import time
+from swayform.client import MotionClient
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+
+    # Always move to a safe neutral pose before starting
+    robot.safe_pose('neutral')
+    time.sleep(1.0)
+
+    # Define the two wave positions (angles in radians)
+    WAVE_UP   = {'right_shoulder_pitch': -1.2, 'right_elbow_flex': 0.5}
+    WAVE_DOWN = {'right_shoulder_pitch': -0.7, 'right_elbow_flex': 0.2}
+
+    # Wave three times
+    for _ in range(3):
+        robot.move_joint_group(WAVE_UP, duration=0.6)
+        robot.wait(0.5)
+        robot.move_joint_group(WAVE_DOWN, duration=0.5)
+        robot.wait(0.4)
+
+    # Return to idle — always do this before ending a script
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre>
+      </div>
+
+      <h3>Line-by-line explanation</h3>
+      <ul>
+        <li><code>MotionClient()</code> — creates a connection to the SwayForm motion node running on the robot.</li>
+        <li><code>safe_pose('neutral')</code> — moves all joints to a known safe starting position. Always do this at the start of a script.</li>
+        <li><code>WAVE_UP / WAVE_DOWN</code> — dictionaries mapping joint names to target angles. Negative values for <code>shoulder_pitch</code> raise the arm upward.</li>
+        <li><code>move_joint_group(target, duration)</code> — sends the target angles. The <code>duration</code> parameter controls how long the movement takes. Shorter duration = faster, less smooth.</li>
+        <li><code>wait()</code> — pauses before the next command so motions do not overlap.</li>
+        <li><code>safe_pose('idle')</code> — returns robot to relaxed idle before disconnecting.</li>
+      </ul>
+
+      <h3>Why delays matter</h3>
+      <p>If you remove the <code>wait()</code> calls, the next motion command starts before the first one finishes. This can cause jerky motion or the robot trying to go to two places at once. Small delays give each motion time to complete before the next begins.</p>
+
+      <h3>Why safe limits matter</h3>
+      <p>The motion software clamps any angle you send to the safe range for that joint. If you accidentally set <code>right_shoulder_pitch</code> to -3.0 when the limit is -1.5, the system sends -1.5 instead. You cannot easily damage the robot by sending a bad value, but you might not get the motion you expected if you are outside the valid range.</p>
+
+      <h2>Try changing this</h2>
+      <ul>
+        <li>Change <code>range(3)</code> to <code>range(5)</code> for 5 wave cycles</li>
+        <li>Change the <code>duration</code> values — try 0.3 for a fast wave and 1.2 for a slow one</li>
+        <li>Change <code>right_shoulder_pitch</code> to <code>left_shoulder_pitch</code> to wave with the left arm</li>
+        <li>Add <code>'neck_yaw': 0.3</code> to <code>WAVE_UP</code> so the robot also turns its head while waving</li>
+      </ul>
+
+      <div class="lh-callout safety">
+        <div class="lh-callout-lbl">Safety</div>
+        <p>Keep hands clear of the arm while the script runs. The arm moves without sensing obstacles.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-demo-02')">Demo 02: Vision Handshake →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 02: VISION HANDSHAKE ──────────── -->
+    <div class="lh-section" id="sec-demo-02">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <a onclick="showSection('sec-demo-library')">Demo Code Library</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo 02: Vision Handshake</span>
+      </div>
+      <h1>Demo 02: Vision Handshake</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Difficulty</strong> Beginner+</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~15 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+      <p class="lh-lead">The robot uses the RealSense camera to detect that a person is nearby. When presence is detected, it extends one arm into a handshake position, holds briefly, then returns to neutral. This demo teaches how perception can trigger physical behavior.</p>
+
+      <div class="lh-callout note">
+        <div class="lh-callout-lbl">Honest note</div>
+        <p>This is a vision-assisted demo using presence detection, not precise hand pose tracking. It detects that someone is in the camera's front zone — not the exact position of their hand. This is appropriate and realistic for a classroom demo.</p>
+      </div>
+
+      <h2>What it does</h2>
+      <p>The script starts the RealSense camera stream, moves to neutral, then waits. When a person is detected within a set zone in front of the robot, it sends the arm into a handshake pose and holds it there for a few seconds before returning to neutral.</p>
+
+      <h2>What students learn</h2>
+      <ul>
+        <li>Starting and using the RealSense camera stream</li>
+        <li>Checking a detection condition in a loop</li>
+        <li>Triggering robot motion from a perception event</li>
+        <li>Motion locking — one behavior runs, others wait</li>
+        <li>Why robots should move conservatively near people</li>
+      </ul>
+
+      <h2>Hardware used</h2>
+      <ul>
+        <li>Intel RealSense camera</li>
+        <li>Right shoulder and elbow servos</li>
+        <li>Motion controller node</li>
+      </ul>
+
+      <h2>Run command</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos vision_handshake</div>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/vision_handshake.py</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python"># vision_handshake.py — SwayForm Demo 02
+import time
+from swayform.client import MotionClient
+from swayform.perception import RealSenseStream
+
+HANDSHAKE_POSE = {
+    'right_shoulder_pitch': -0.6,
+    'right_shoulder_yaw':    0.3,
+    'right_elbow_flex':      0.8,
+}
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+
+    camera = RealSenseStream()
+    camera.start()
+
+    robot.safe_pose('neutral')
+    print("Waiting for user presence in front zone...")
+
+    while True:
+        frame = camera.get_frame()
+        # Detect a person in the front zone with moderate confidence
+        if frame.person_detected(zone='front', min_confidence=0.6):
+            print("User detected — initiating handshake pose")
+
+            # Extend arm into handshake position
+            robot.move_joint_group(HANDSHAKE_POSE, duration=1.2)
+            robot.wait(2.5)    # Hold position for 2.5 seconds
+
+            # Return to neutral before detecting again
+            robot.safe_pose('neutral')
+            robot.wait(1.0)
+            break              # End demo after one handshake
+
+    camera.stop()
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre>
+      </div>
+
+      <h3>Key points</h3>
+      <ul>
+        <li><code>RealSenseStream</code> — starts the camera and provides frame objects you can query.</li>
+        <li><code>person_detected(zone='front')</code> — returns True when a person is detected in the camera's front detection zone. The exact detection method depends on the SwayForm perception layer.</li>
+        <li><code>min_confidence=0.6</code> — only trigger if detection confidence is above 60%. Prevents false triggers from brief noise.</li>
+        <li>The <code>while True</code> loop keeps checking for presence. In a real classroom scenario you might add a timeout so it does not wait forever.</li>
+        <li>The <code>break</code> ends the demo after one handshake. You could remove it for a continuous interactive loop.</li>
+      </ul>
+
+      <h2>Try changing this</h2>
+      <ul>
+        <li>Change <code>robot.wait(2.5)</code> to a longer value to hold the handshake position longer</li>
+        <li>Add a head nod: <code>robot.move_joint_group({'neck_pitch': 0.2}, duration=0.5)</code> during the hold</li>
+        <li>Remove the <code>break</code> to make the robot do a handshake with every person who walks by</li>
+        <li>Add a timeout: if no one is detected in 30 seconds, exit the loop</li>
+      </ul>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-demo-01')">← Demo 01: Wave</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-demo-03')">Demo 03: Look and Point →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 03: LOOK AND POINT ──────────── -->
+    <div class="lh-section" id="sec-demo-03">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <a onclick="showSection('sec-demo-library')">Demo Code Library</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo 03: Look and Point</span>
+      </div>
+      <h1>Demo 03: Look and Point</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Difficulty</strong> Beginner+</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~15 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+      <p class="lh-lead">The robot detects a target in its camera frame, turns its head toward it, then raises and points one arm in the target's direction. This demo shows how a position in camera space can drive two separate robot behaviors in sequence.</p>
+
+      <h2>What it does</h2>
+      <p>The script captures a camera frame and finds a primary target (a person, colored object, or center-frame reference depending on setup). It maps the target's horizontal position to a head yaw angle, turns the head, then moves the arm into a pointing gesture. After holding briefly, it returns to idle. The robot looks before it points.</p>
+
+      <h2>What students learn</h2>
+      <ul>
+        <li>Reading camera frame coordinates</li>
+        <li>Mapping a pixel position to a joint angle</li>
+        <li>Head yaw and pitch control</li>
+        <li>Sequencing two behaviors (look, then point)</li>
+        <li>Why robots should look before pointing (behavior ordering)</li>
+      </ul>
+
+      <h2>Hardware used</h2>
+      <ul>
+        <li>Intel RealSense camera</li>
+        <li>Neck yaw and pitch servos</li>
+        <li>Right shoulder and elbow servos</li>
+      </ul>
+
+      <h2>Run command</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos look_and_point</div>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/look_and_point.py</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python"># look_and_point.py — SwayForm Demo 03
+import time
+from swayform.client import MotionClient
+from swayform.perception import RealSenseStream
+
+def map_x_to_yaw(target_x, frame_width):
+    """Convert horizontal pixel position to a head yaw angle."""
+    center = frame_width / 2
+    # Normalized offset: -1.0 (left) to +1.0 (right)
+    offset = (target_x - center) / center
+    # Scale to yaw range. Negative = turn right (camera convention)
+    return {'neck_yaw': offset * -0.55}
+
+POINT_POSE = {
+    'right_shoulder_pitch': -0.5,
+    'right_shoulder_yaw':    0.1,
+    'right_elbow_flex':      0.1,
+}
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    camera = RealSenseStream()
+    camera.start()
+
+    robot.safe_pose('neutral')
+
+    frame = camera.get_frame()
+    target = frame.get_primary_target()   # Returns None if nothing detected
+
+    if target:
+        # Step 1 — look toward target
+        head_angles = map_x_to_yaw(target.x, frame.width)
+        robot.move_joint_group(head_angles, duration=0.8)
+        robot.wait(0.6)
+
+        # Step 2 — point arm toward target
+        robot.move_joint_group(POINT_POSE, duration=0.7)
+        robot.wait(1.5)
+
+        # Step 3 — return to idle
+        robot.safe_pose('idle')
+    else:
+        print("No target found in frame.")
+        robot.safe_pose('idle')
+
+    camera.stop()
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre>
+      </div>
+
+      <h3>Key concepts</h3>
+      <ul>
+        <li><code>map_x_to_yaw()</code> — converts a horizontal pixel position (0 to frame_width) into a yaw angle. The normalized offset centers the range and scales it to the safe neck yaw range.</li>
+        <li><code>get_primary_target()</code> — returns the most prominent detected object in the frame. What counts as "primary" depends on the perception configuration.</li>
+        <li>Sequence ordering matters: looking before pointing feels natural and gives the robot a moment to orient before committing to the gesture.</li>
+      </ul>
+
+      <h2>Try changing this</h2>
+      <ul>
+        <li>Change the scale factor <code>0.55</code> in <code>map_x_to_yaw</code> to change how far the head turns for a given target offset</li>
+        <li>Use <code>left_shoulder_pitch</code> and <code>left_elbow_flex</code> to point with the left arm</li>
+        <li>Add a short pause after looking before pointing: <code>robot.wait(1.0)</code></li>
+        <li>After pointing, have the robot turn its head back to center before returning to idle</li>
+      </ul>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-demo-02')">← Demo 02</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-demo-04')">Demo 04: Rock Paper Scissors →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 04: ROCK PAPER SCISSORS ──────────── -->
+    <div class="lh-section" id="sec-demo-04">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <a onclick="showSection('sec-demo-library')">Demo Code Library</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo 04: Rock Paper Scissors</span>
+      </div>
+      <h1>Demo 04: Rock Paper Scissors</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Difficulty</strong> Intermediate</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~20 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+      <p class="lh-lead">The robot plays rock-paper-scissors with a student. It randomly selects a choice, moves its hand into the matching pose, reads the student's input, and announces the result. This demo introduces pose presets, branching logic, and a game loop.</p>
+
+      <div class="lh-callout note">
+        <div class="lh-callout-lbl">Two modes</div>
+        <p>The current demo uses <strong>keyboard mode</strong>: the student types their choice. A future version can use gesture recognition from the RealSense camera. The code structure already supports extending to vision-based input.</p>
+      </div>
+
+      <h2>Run command</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos rock_paper_scissors</div>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/rock_paper_scissors.py</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python"># rock_paper_scissors.py — SwayForm Demo 04
+import random, time
+from swayform.client import MotionClient
+
+# Hand pose presets for each choice
+POSES = {
+    'rock':     {'right_hand_grip': 0.9, 'right_index_ext': 0.1, 'right_middle_ext': 0.1},
+    'paper':    {'right_hand_grip': 0.0, 'right_index_ext': 1.0, 'right_middle_ext': 1.0},
+    'scissors': {'right_hand_grip': 0.5, 'right_index_ext': 1.0, 'right_middle_ext': 0.0},
+}
+
+def decide_winner(robot_choice, user_choice):
+    """Return 'robot', 'user', or 'tie'."""
+    beats = {'rock': 'scissors', 'scissors': 'paper', 'paper': 'rock'}
+    if robot_choice == user_choice:
+        return 'tie'
+    return 'robot' if beats[robot_choice] == user_choice else 'user'
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+
+    # Robot picks secretly
+    robot_pick = random.choice(['rock', 'paper', 'scissors'])
+
+    # Student inputs their choice
+    user_pick = input("Your choice (rock / paper / scissors): ").strip().lower()
+
+    print("3... 2... 1... Shoot!")
+    time.sleep(1.0)
+
+    # Robot reveals its choice
+    robot.move_joint_group(POSES[robot_pick], duration=0.4)
+    robot.wait(0.4)
+
+    # Announce result
+    result = decide_winner(robot_pick, user_pick)
+    print(f"Robot: {robot_pick}   |   You: {user_pick}")
+    print(f"Result: {result.upper()}")
+
+    robot.wait(2.5)
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre>
+      </div>
+
+      <h3>Key concepts</h3>
+      <ul>
+        <li><code>POSES</code> dictionary — maps each game choice to a set of hand joint angles. Each value is between 0.0 (fully open) and 1.0 (fully closed/extended).</li>
+        <li><code>random.choice()</code> — picks one item from a list randomly. This is how the robot makes its decision.</li>
+        <li><code>decide_winner()</code> — pure Python logic. No robot hardware involved. This is just a function that returns who won based on the standard rules.</li>
+        <li><code>input()</code> — pauses the script and waits for keyboard input from the student. In a vision version, this would be replaced by a camera-based gesture read.</li>
+      </ul>
+
+      <h2>Try changing this</h2>
+      <ul>
+        <li>Wrap the game in a loop for best-of-3 rounds</li>
+        <li>Keep a score variable and print it after each round</li>
+        <li>Add a head movement when the robot wins: <code>robot.move_joint_group({'neck_pitch': -0.15}, duration=0.3)</code></li>
+        <li>Add a short countdown motion before revealing</li>
+      </ul>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-demo-03')">← Demo 03</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-demo-05')">Demo 05: Dollar Bill Snack Exchange →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 05: DOLLAR BILL SNACK EXCHANGE ──────────── -->
+    <div class="lh-section" id="sec-demo-05">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <a onclick="showSection('sec-demo-library')">Demo Code Library</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Demo 05: Dollar Bill Snack Exchange</span>
+      </div>
+      <h1>Demo 05: Dollar Bill Snack Exchange</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Difficulty</strong> Intermediate</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~20 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+
+      <div class="lh-callout safety">
+        <div class="lh-callout-lbl">Classroom demo only</div>
+        <p>This demo assumes any object placed in front of the robot is a $1 bill. It does not process real payments, validate currency, or make any financial transaction. For classroom interaction and state machine education only.</p>
+      </div>
+
+      <p class="lh-lead">A classroom demo where a student places a bill in front of the robot. The robot detects it (or takes a keyboard trigger), moves the bill aside, then picks up or pushes forward a snack packet. The full behavior is controlled by a state machine — the most complex concept in this demo set.</p>
+
+      <h2>What it does</h2>
+      <p>The robot waits for a bill-detection trigger (camera zone or keyboard input), accepts the bill, moves it to the side, reaches for a snack item placed on the table nearby, and presents it to the student. Each step is a named state in a state machine.</p>
+
+      <h2>State machine</h2>
+      <p>The full behavior runs through these states in order:</p>
+      <ul>
+        <li><strong>IDLE</strong> — robot is at neutral, waiting to begin</li>
+        <li><strong>WAIT_FOR_BILL</strong> — camera watching the bill zone, or waiting for keyboard trigger</li>
+        <li><strong>ACCEPT_BILL</strong> — arm moves to bill position and hand closes around it</li>
+        <li><strong>PLACE_BILL_ASIDE</strong> — arm sweeps bill to the side zone, hand opens</li>
+        <li><strong>PICK_SNACK</strong> — arm moves to snack position, hand grips lightly</li>
+        <li><strong>HAND_SNACK</strong> — arm presents snack to student, hand opens</li>
+        <li><strong>RETURN_HOME</strong> — arm returns to idle, session ends</li>
+      </ul>
+
+      <h2>Run command</h2>
+      <div class="lh-term">
+        <div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+        <div class="lh-term-body">ros2 run swayform_demos dollar_snack_exchange</div>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_demos/dollar_snack_exchange.py</div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python"># dollar_snack_exchange.py — SwayForm Demo 05
+# Classroom demo only. Not real payment processing.
+import time
+from swayform.client import MotionClient
+from swayform.perception import RealSenseStream
+
+# Arm pose for each state
+ACCEPT_POSE  = {'right_shoulder_pitch': -0.4, 'right_elbow_flex': 0.9, 'right_hand_grip': 0.0}
+GRASP_POSE   = {'right_hand_grip': 0.7}
+ASIDE_POSE   = {'right_shoulder_pitch': -0.2, 'right_shoulder_yaw': -0.8, 'right_elbow_flex': 0.4}
+SNACK_REACH  = {'right_shoulder_pitch': -0.3, 'right_shoulder_yaw': 0.2, 'right_elbow_flex': 0.6}
+PRESENT_POSE = {'right_shoulder_pitch': -0.5, 'right_elbow_flex': 0.85, 'right_hand_grip': 0.0}
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    camera = RealSenseStream()
+    camera.start()
+
+    state = 'IDLE'
+    robot.safe_pose('neutral')
+
+    while state != 'DONE':
+
+        if state == 'IDLE':
+            print("Ready. Place a bill in the detection zone.")
+            state = 'WAIT_FOR_BILL'
+
+        elif state == 'WAIT_FOR_BILL':
+            frame = camera.get_frame()
+            if frame.object_in_zone('bill_zone'):
+                print("Bill detected.")
+                state = 'ACCEPT_BILL'
+            else:
+                time.sleep(0.2)   # Check again shortly
+
+        elif state == 'ACCEPT_BILL':
+            robot.move_joint_group(ACCEPT_POSE, duration=1.0)
+            robot.wait(0.5)
+            robot.move_joint_group(GRASP_POSE, duration=0.5)
+            robot.wait(0.4)
+            state = 'PLACE_BILL_ASIDE'
+
+        elif state == 'PLACE_BILL_ASIDE':
+            robot.move_joint_group(ASIDE_POSE, duration=1.0)
+            robot.wait(0.4)
+            robot.set_hand_pose('open')
+            robot.wait(0.3)
+            state = 'PICK_SNACK'
+
+        elif state == 'PICK_SNACK':
+            robot.move_joint_group(SNACK_REACH, duration=1.0)
+            robot.wait(0.3)
+            robot.set_hand_pose('pinch')
+            robot.wait(0.5)
+            state = 'HAND_SNACK'
+
+        elif state == 'HAND_SNACK':
+            robot.move_joint_group(PRESENT_POSE, duration=1.0)
+            robot.wait(2.0)
+            robot.set_hand_pose('open')
+            state = 'RETURN_HOME'
+
+        elif state == 'RETURN_HOME':
+            robot.safe_pose('idle')
+            state = 'DONE'
+
+    camera.stop()
+    robot.disconnect()
+    print("Exchange complete.")
+
+if __name__ == '__main__':
+    main()</code></pre>
+      </div>
+
+      <h3>Why state machines</h3>
+      <p>A state machine makes the behavior readable and debuggable. Instead of one long sequence of commands, each named state does exactly one thing before deciding what comes next. If the demo breaks at the snack pickup step, you know exactly which state to look at.</p>
+      <p>State machines also make it easy to add new behavior. Want to add a timeout on WAIT_FOR_BILL? Add a timer check in that one state. The rest of the code does not change.</p>
+
+      <h2>Try changing this</h2>
+      <ul>
+        <li>Change the snack pose to match a different table layout</li>
+        <li>Add a timeout in WAIT_FOR_BILL: if no bill after 30 seconds, return to idle</li>
+        <li>Add a second snack option with an if/else branch in PICK_SNACK</li>
+        <li>Add a wave at the end after the exchange completes</li>
+      </ul>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-demo-04')">← Demo 04</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-lab-overview')">Student Labs →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── DEMO 06-10 PLACEHOLDERS ──────────── -->
+    <div class="lh-section" id="sec-demo-06">
+      <div class="lh-bc"><a onclick="showSection('sec-demo-library')">Demo Code Library</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Demo 06</span></div>
+      <h1>Demo 06: Follow the Face</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">This demo slot is reserved for future SwayForm classroom examples. Full code and walkthrough will be added as the platform grows.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button></div>
+    </div>
+    <div class="lh-section" id="sec-demo-07">
+      <div class="lh-bc"><a onclick="showSection('sec-demo-library')">Demo Code Library</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Demo 07</span></div>
+      <h1>Demo 07: Classroom Attendance Greeting</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">This demo slot is reserved for future SwayForm classroom examples.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button></div>
+    </div>
+    <div class="lh-section" id="sec-demo-08">
+      <div class="lh-bc"><a onclick="showSection('sec-demo-library')">Demo Code Library</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Demo 08</span></div>
+      <h1>Demo 08: Object Sorting Starter</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">This demo slot is reserved for future SwayForm classroom examples.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button></div>
+    </div>
+    <div class="lh-section" id="sec-demo-09">
+      <div class="lh-bc"><a onclick="showSection('sec-demo-library')">Demo Code Library</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Demo 09</span></div>
+      <h1>Demo 09: Voice Prompt Motion</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">This demo slot is reserved for future SwayForm classroom examples.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button></div>
+    </div>
+    <div class="lh-section" id="sec-demo-10">
+      <div class="lh-bc"><a onclick="showSection('sec-demo-library')">Demo Code Library</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Demo 10</span></div>
+      <h1>Demo 10: Custom Student Demo</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">This demo slot is reserved for student-built demos and future SwayForm classroom examples.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-demo-library')">← Demo Library</button></div>
+    </div>
+
+    <!-- ──────────── LAB OVERVIEW ──────────── -->
+    <div class="lh-section" id="sec-lab-overview">
+      <div class="lh-bc">
+        <a onclick="showSection('sec-home')">Learning Hub</a>
+        <span class="lh-bc-sep">/</span>
+        <span class="lh-bc-cur">Student Labs</span>
+      </div>
+      <h1>Student Labs</h1>
+      <p class="lh-lead">20 guided labs across two tiers. Labs 1–10 have full starter code, step-by-step instructions, and reflection questions. Labs 11–20 are coming soon. Each lab connects a programming concept to something the robot physically does.</p>
+
+      <h2>Labs 01–10 (Ready)</h2>
+      <div class="lh-grid">
+        <div class="lh-card" onclick="showSection('sec-lab-01')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">01</div>
+            <div class="lh-card-title">Hello Robot Motion</div>
+            <div class="lh-card-desc">Run your first safe motion and confirm the robot is responding to your code.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg">Beginner</span><span style="font-size:11px;color:#9aadc0">~25 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-02')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">02</div>
+            <div class="lh-card-title">Servo Angles &amp; Safe Limits</div>
+            <div class="lh-card-desc">Learn why joints have angle limits and what happens when you exceed them.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg">Beginner</span><span style="font-size:11px;color:#9aadc0">~30 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-03')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">03</div>
+            <div class="lh-card-title">Build a Gesture Sequence</div>
+            <div class="lh-card-desc">Combine multiple poses and timing to create your own custom gesture.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg-plus">Beginner+</span><span style="font-size:11px;color:#9aadc0">~35 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-04')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">04</div>
+            <div class="lh-card-title">Head Tracking Basics</div>
+            <div class="lh-card-desc">Move the robot head based on a target position from the camera.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg-plus">Beginner+</span><span style="font-size:11px;color:#9aadc0">~35 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-05')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">05</div>
+            <div class="lh-card-title">Button-to-Motion Control</div>
+            <div class="lh-card-desc">Connect a keyboard input to a robot motion command.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg-plus">Beginner+</span><span style="font-size:11px;color:#9aadc0">~30 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-06')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">06</div>
+            <div class="lh-card-title">RealSense Detection Basics</div>
+            <div class="lh-card-desc">Use camera zone data as a trigger for a robot behavior.</div>
+            <div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span style="font-size:11px;color:#9aadc0">~40 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-07')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">07</div>
+            <div class="lh-card-title">Hand Pose Timing</div>
+            <div class="lh-card-desc">Adjust finger timing to see how small delays affect gesture realism.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg-plus">Beginner+</span><span style="font-size:11px;color:#9aadc0">~30 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-08')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">08</div>
+            <div class="lh-card-title">Base Rotation Basics</div>
+            <div class="lh-card-desc">Command the robot's rotating base to turn left and right safely.</div>
+            <div class="lh-card-footer"><span class="lh-diff beg-plus">Beginner+</span><span style="font-size:11px;color:#9aadc0">~30 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-09')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">09</div>
+            <div class="lh-card-title">Behavior Priority &amp; Motion Locking</div>
+            <div class="lh-card-desc">Learn why one behavior should not interrupt another unsafe movement.</div>
+            <div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span style="font-size:11px;color:#9aadc0">~40 min</span></div>
+          </div>
+        </div>
+        <div class="lh-card" onclick="showSection('sec-lab-10')">
+          <div class="lh-card-top blue"></div>
+          <div class="lh-card-body">
+            <div class="lh-card-num blue">10</div>
+            <div class="lh-card-title">Mini Demo Challenge</div>
+            <div class="lh-card-desc">Build a small custom demo combining motion, timing, and optional perception.</div>
+            <div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span style="font-size:11px;color:#9aadc0">~45 min</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:48px">Labs 11–20 (Coming soon)</h2>
+      <div class="lh-grid">
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">11</div><div class="lh-card-title">Simple State Machines</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">12</div><div class="lh-card-title">Custom Motion Presets</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">13</div><div class="lh-card-title">Camera-Based User Greeting</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">14</div><div class="lh-card-title">Object Position Mapping</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">15</div><div class="lh-card-title">Two-Arm Coordination</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">16</div><div class="lh-card-title">Speaker Prompts and Timing</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">17</div><div class="lh-card-title">Classroom Challenge: Helpful Robot</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">18</div><div class="lh-card-title">Intro to Robot Debug Logs</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">19</div><div class="lh-card-title">Build Your Own Interaction</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-top gray"></div><div class="lh-card-body"><div class="lh-card-num gray">20</div><div class="lh-card-title">Final Showcase Demo</div><div class="lh-card-footer"><span class="lh-pill soon">Coming soon</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ──────────── LAB 01 ──────────── -->
+    <div class="lh-section" id="sec-lab-01">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 01</span></div>
+      <h1>Lab 01: Hello Robot Motion</h1>
+      <div class="lh-meta">
+        <span class="lh-meta-item"><strong>Level</strong> Beginner</span>
+        <span class="lh-meta-item"><strong>Time</strong> ~25 min</span>
+        <span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span>
+      </div>
+      <p class="lh-lead">Your goal is to send the robot its first motion command. You will run starter code that moves the robot to a neutral pose, then add one more pose of your own. The lab ends when you can make the robot move on your command.</p>
+
+      <h2>Concepts</h2>
+      <ul><li>Motion commands</li><li>Neutral vs idle pose</li><li>Safe movement</li><li>Terminal command basics</li></ul>
+
+      <h2>Run the starter code</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+      <div class="lh-term-body">ros2 run swayform_labs lab_01_hello_motion</div></div>
+
+      <h2>Starter code</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_labs/lab_01_hello_motion.py</div>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 01: Hello Robot Motion
+# Goal: make the robot move on your command
+import time
+from swayform.client import MotionClient
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    print("Connected to SwayForm.")
+
+    # Step 1: Move the robot to neutral pose
+    robot.safe_pose('neutral')
+    robot.wait(2.0)
+
+    # TODO: Step 2 — move the robot to a second pose
+    # Try: robot.safe_pose('wave_ready')
+    # Or define your own: robot.move_joint_group({'right_shoulder_pitch': -0.8}, duration=1.0)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+    print("Done.")
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+
+      <h2>Steps</h2>
+      <ol>
+        <li>SSH into the robot and source the workspace.</li>
+        <li>Run the starter code. The robot should move to neutral and back to idle.</li>
+        <li>Open the file in VS Code and find the TODO comment.</li>
+        <li>Add one more motion between Step 1 and the return to idle.</li>
+        <li>Run the script again and observe the new behavior.</li>
+      </ol>
+
+      <h2>Expected result</h2>
+      <p>The robot moves to neutral, pauses, then performs your added motion before returning to idle. You can see the motion happen and the script completes without errors.</p>
+
+      <h2>Reflection question</h2>
+      <p>What would happen if you removed the <code>robot.wait(2.0)</code> call? Would the robot still move to neutral before moving to your next pose?</p>
+
+      <h2>Extension challenge</h2>
+      <p>Add a third pose and make the robot move through three different positions in sequence before returning to idle.</p>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-lab-overview')">← Lab Overview</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-lab-02')">Lab 02 →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── LAB 02 ──────────── -->
+    <div class="lh-section" id="sec-lab-02">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 02</span></div>
+      <h1>Lab 02: Servo Angles &amp; Safe Limits</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner</span><span class="lh-meta-item"><strong>Time</strong> ~30 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Every joint on SwayForm has a safe range. This lab teaches you to read those limits, experiment with angle values, and understand why the robot clamps out-of-range commands.</p>
+
+      <h2>Concepts</h2>
+      <ul><li>Servo angle ranges</li><li>Joint limits</li><li>Mechanical safety</li><li>What clamping means in practice</li></ul>
+
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div>
+      <div class="lh-term-body">ros2 run swayform_labs lab_02_servo_limits</div></div>
+
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 02: Servo Angles and Safe Limits
+import time
+from swayform.client import MotionClient
+from swayform.config import JOINT_LIMITS
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+
+    # Print the safe range for each joint
+    print("=== SwayForm Joint Limits ===")
+    for joint, limits in JOINT_LIMITS.items():
+        print(f"  {joint}: {limits['min']:.2f} to {limits['max']:.2f} rad")
+
+    robot.safe_pose('neutral')
+    robot.wait(1.0)
+
+    # TODO: Pick one joint and try different angle values
+    # Try a value inside the range, then outside the range
+    # What does the robot do when you exceed the limit?
+    test_angle = -0.8   # Change this value and re-run
+    robot.move_joint_group({'right_shoulder_pitch': test_angle}, duration=1.0)
+    robot.wait(1.5)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the script and read the printed joint limits.</li>
+        <li>Change <code>test_angle</code> to a value within the safe range and observe the motion.</li>
+        <li>Try a value outside the range (e.g., -3.0 when the limit is -1.5). What happens?</li>
+        <li>Try several joints from the printed list.</li>
+      </ol>
+
+      <h2>Reflection question</h2>
+      <p>Why would a robot need software limits in addition to physical mechanical stops? What could go wrong if there were no limits at all?</p>
+
+      <h2>Extension challenge</h2>
+      <p>Write a loop that moves a joint from its minimum safe angle to its maximum safe angle in 5 equal steps. Print each step before sending it.</p>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-lab-01')">← Lab 01</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-lab-03')">Lab 03 →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── LAB 03 ──────────── -->
+    <div class="lh-section" id="sec-lab-03">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 03</span></div>
+      <h1>Lab 03: Build a Gesture Sequence</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner+</span><span class="lh-meta-item"><strong>Time</strong> ~35 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Define at least three pose keyframes and play them in order to create a short gesture. This lab teaches sequencing, timing, and reusable pose dictionaries.</p>
+      <h2>Concepts</h2>
+      <ul><li>Keyframe poses</li><li>Sequence timing</li><li>Reusable pose dictionaries</li><li>Making motion feel natural</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_03_gesture_sequence</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 03: Build a Gesture Sequence
+import time
+from swayform.client import MotionClient
+
+# TODO: Define at least three poses for your gesture
+POSE_A = {'right_shoulder_pitch': -0.5, 'right_elbow_flex': 0.3}
+POSE_B = {'right_shoulder_pitch': -1.0, 'right_elbow_flex': 0.6}
+POSE_C = {'right_shoulder_pitch': -0.3, 'right_elbow_flex': 0.1}
+
+SEQUENCE = [
+    (POSE_A, 0.8),   # (pose, duration in seconds)
+    (POSE_B, 0.6),
+    (POSE_C, 0.7),
+]
+
+def run_gesture(robot, sequence):
+    for pose, duration in sequence:
+        robot.move_joint_group(pose, duration=duration)
+        robot.wait(duration + 0.1)
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+    robot.wait(1.0)
+
+    run_gesture(robot, SEQUENCE)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the starter code. Observe the three-pose sequence.</li>
+        <li>Modify POSE_A, POSE_B, and POSE_C to create a gesture that looks intentional.</li>
+        <li>Add a fourth pose to SEQUENCE.</li>
+        <li>Adjust the duration values to make the gesture feel more natural.</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>What is the difference between <code>duration=0.3</code> and <code>duration=1.2</code> for the same pose? When would you use each?</p>
+      <h2>Extension challenge</h2>
+      <p>Create a function that plays your gesture twice with a pause in between. Call it from main.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-02')">← Lab 02</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-04')">Lab 04 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 04 ──────────── -->
+    <div class="lh-section" id="sec-lab-04">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 04</span></div>
+      <h1>Lab 04: Head Tracking Basics</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner+</span><span class="lh-meta-item"><strong>Time</strong> ~35 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Read a camera frame, find a target position, and move the robot's head to look toward it. This lab introduces the connection between camera coordinates and neck joint angles.</p>
+      <h2>Concepts</h2>
+      <ul><li>Neck yaw and pitch</li><li>Camera coordinate system</li><li>Mapping input to joint angle</li><li>Perception-driven motion</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_04_head_tracking</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 04: Head Tracking Basics
+import time
+from swayform.client import MotionClient
+from swayform.perception import RealSenseStream
+
+def target_to_yaw(target_x, frame_width):
+    """Convert pixel x position to neck yaw angle."""
+    offset = (target_x - frame_width / 2) / (frame_width / 2)
+    # TODO: Tune the scale factor (currently 0.5)
+    return offset * -0.5   # Negative = turn right
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    camera = RealSenseStream()
+    camera.start()
+
+    robot.safe_pose('neutral')
+
+    frame = camera.get_frame()
+    target = frame.get_primary_target()
+
+    if target:
+        yaw = target_to_yaw(target.x, frame.width)
+        print(f"Target at x={target.x}, computed yaw={yaw:.3f} rad")
+        robot.move_joint_group({'neck_yaw': yaw}, duration=0.8)
+        robot.wait(2.0)
+    else:
+        print("No target detected in frame.")
+
+    robot.safe_pose('idle')
+    camera.stop()
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the starter code with something in front of the camera.</li>
+        <li>Observe how far the head turns. Print the computed yaw value.</li>
+        <li>Adjust the scale factor from 0.5 and re-run. What changes?</li>
+        <li>Try adding a neck pitch component for vertical tracking.</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>Why does the yaw formula use a negative sign? What would change if you removed it?</p>
+      <h2>Extension challenge</h2>
+      <p>Add a check: if the target is very close to center (offset &lt; 0.1), do not move the head. This is called a dead zone and prevents jitter.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-03')">← Lab 03</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-05')">Lab 05 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 05 ──────────── -->
+    <div class="lh-section" id="sec-lab-05">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 05</span></div>
+      <h1>Lab 05: Button-to-Motion Control</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner+</span><span class="lh-meta-item"><strong>Time</strong> ~30 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Connect a keyboard input event to a robot motion. This lab teaches event-driven programming: the robot waits for your input before moving, and responds differently to different keys.</p>
+      <h2>Concepts</h2>
+      <ul><li>Event handling</li><li>Input-driven behavior</li><li>Branching motion commands</li><li>Safety stop pattern</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_05_button_motion</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 05: Button-to-Motion Control
+import time
+from swayform.client import MotionClient
+
+ACTIONS = {
+    'w': {'right_shoulder_pitch': -1.0, 'right_elbow_flex': 0.5},  # Wave up
+    's': {'right_shoulder_pitch': -0.2, 'right_elbow_flex': 0.1},  # Wave down
+    'n': 'neutral',   # Return to neutral
+    'q': 'quit',
+}
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+    print("Controls: w=wave up  s=wave down  n=neutral  q=quit")
+
+    while True:
+        key = input("> ").strip().lower()
+        if key not in ACTIONS:
+            print(f"Unknown key: {key}")
+            continue
+
+        action = ACTIONS[key]
+        if action == 'quit':
+            break
+        elif action == 'neutral':
+            robot.safe_pose('neutral')
+        else:
+            # TODO: Add more keys and actions
+            robot.move_joint_group(action, duration=0.8)
+            robot.wait(0.7)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the starter code. Try pressing w, s, n in sequence.</li>
+        <li>Add at least two more key bindings to the ACTIONS dictionary.</li>
+        <li>Map one key to a head movement.</li>
+        <li>Add a key that runs a short two-step sequence.</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>What would happen if the student presses a key before the previous motion finishes? How would you prevent overlap?</p>
+      <h2>Extension challenge</h2>
+      <p>Add a key that plays the three-pose sequence from Lab 03 as a single action.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-04')">← Lab 04</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-06')">Lab 06 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 06 ──────────── -->
+    <div class="lh-section" id="sec-lab-06">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 06</span></div>
+      <h1>Lab 06: RealSense Detection Basics</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Intermediate</span><span class="lh-meta-item"><strong>Time</strong> ~40 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Use the RealSense camera to detect when someone enters a zone, then trigger a robot motion in response. This lab introduces the perception-to-motion pipeline.</p>
+      <h2>Concepts</h2>
+      <ul><li>Camera frames and zones</li><li>Detection confidence</li><li>Perception-triggered motion</li><li>Debouncing a detection signal</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_06_realsense_detection</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 06: RealSense Detection Basics
+import time
+from swayform.client import MotionClient
+from swayform.perception import RealSenseStream
+
+GREET_POSE = {'neck_yaw': 0.0, 'neck_pitch': -0.1, 'right_shoulder_pitch': -0.6}
+CONSECUTIVE_REQUIRED = 3  # Detect this many frames in a row before triggering
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    camera = RealSenseStream()
+    camera.start()
+
+    robot.safe_pose('neutral')
+    print("Watching for presence... (Ctrl+C to stop)")
+
+    consecutive = 0
+
+    while True:
+        frame = camera.get_frame()
+        # TODO: Try changing zone='front' to zone='left' or zone='right'
+        detected = frame.person_detected(zone='front', min_confidence=0.65)
+
+        if detected:
+            consecutive += 1
+        else:
+            consecutive = 0
+
+        if consecutive >= CONSECUTIVE_REQUIRED:
+            print("Presence confirmed — greeting")
+            robot.move_joint_group(GREET_POSE, duration=1.0)
+            robot.wait(2.0)
+            robot.safe_pose('neutral')
+            consecutive = 0   # Reset
+
+        time.sleep(0.1)
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the script and walk in front of the robot. Observe when it triggers.</li>
+        <li>Change <code>CONSECUTIVE_REQUIRED</code> from 3 to 1. What happens to false triggers?</li>
+        <li>Change the detection zone and observe how the trigger behavior changes.</li>
+        <li>Change the greeting pose to something different.</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>Why do we require 3 consecutive detections instead of triggering on the first one? What problem does this solve?</p>
+      <h2>Extension challenge</h2>
+      <p>After the greeting, have the robot wait 10 seconds before it will greet again. Add a cooldown variable.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-05')">← Lab 05</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-07')">Lab 07 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 07 ──────────── -->
+    <div class="lh-section" id="sec-lab-07">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 07</span></div>
+      <h1>Lab 07: Hand Pose Timing</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner+</span><span class="lh-meta-item"><strong>Time</strong> ~30 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Adjust the timing of finger and hand movements to see how small delays change whether a gesture looks mechanical or natural. This lab is about feel, not just function.</p>
+      <h2>Concepts</h2>
+      <ul><li>Hand and finger servo control</li><li>Open/close timing</li><li>Grip and release patterns</li><li>Why timing affects perceived quality</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_07_hand_pose_timing</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 07: Hand Pose Timing
+import time
+from swayform.client import MotionClient
+
+# TODO: Adjust these timing values and observe the difference
+OPEN_DURATION  = 0.5   # seconds to fully open hand
+CLOSE_DURATION = 0.4   # seconds to fully close hand
+HOLD_TIME      = 0.8   # seconds to hold each position
+
+def open_hand(robot):
+    robot.set_hand_pose('open', duration=OPEN_DURATION)
+    robot.wait(OPEN_DURATION + HOLD_TIME)
+
+def close_hand(robot):
+    robot.set_hand_pose('grip', duration=CLOSE_DURATION)
+    robot.wait(CLOSE_DURATION + HOLD_TIME)
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+    robot.wait(1.0)
+
+    print("Running open/close cycle three times...")
+    for i in range(3):
+        print(f"  Cycle {i+1}: opening")
+        open_hand(robot)
+        print(f"  Cycle {i+1}: closing")
+        close_hand(robot)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run with default timing values. Observe how the hand opens and closes.</li>
+        <li>Set <code>OPEN_DURATION</code> to 0.1 (very fast). Run again. What changes?</li>
+        <li>Set both durations to 1.5 (very slow). How does this feel?</li>
+        <li>Find a timing combination that looks most natural to you.</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>In human hands, fingers do not all move at exactly the same speed. How could you simulate staggered finger timing in a robot hand?</p>
+      <h2>Extension challenge</h2>
+      <p>Create a "snap" gesture: close the hand quickly, hold briefly, then open slowly. What timing values make this feel most like a real snap?</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-06')">← Lab 06</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-08')">Lab 08 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 08 ──────────── -->
+    <div class="lh-section" id="sec-lab-08">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 08</span></div>
+      <h1>Lab 08: Base Rotation Basics</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Beginner+</span><span class="lh-meta-item"><strong>Time</strong> ~30 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Command the robot's rotating base to turn left and right within safe ranges. This lab introduces base motor control, direction, speed, and stop commands.</p>
+      <h2>Concepts</h2>
+      <ul><li>Base yaw control</li><li>Motor direction and speed</li><li>Safe angle limits for base rotation</li><li>Stop command</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_08_base_rotation</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 08: Base Rotation Basics
+import time
+from swayform.client import MotionClient
+
+# Safe rotation range is roughly -0.6 to +0.6 radians from center
+BASE_LEFT  =  0.45   # positive = turn left
+BASE_RIGHT = -0.45   # negative = turn right
+BASE_CENTER = 0.0
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+    robot.wait(1.0)
+
+    print("Rotating base left...")
+    robot.rotate_base(BASE_LEFT, duration=1.2)
+    robot.wait(1.5)
+
+    print("Rotating base right...")
+    robot.rotate_base(BASE_RIGHT, duration=1.2)
+    robot.wait(1.5)
+
+    print("Returning to center...")
+    robot.rotate_base(BASE_CENTER, duration=1.0)
+    robot.wait(1.2)
+
+    # TODO: Try adding a head turn that follows the base rotation
+    # Hint: use move_joint_group({'neck_yaw': BASE_LEFT * 0.5}, ...)
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the script. Watch the base rotate left, right, and back to center.</li>
+        <li>Change the angle values. Try 0.3 (smaller rotation) and 0.6 (larger).</li>
+        <li>Add a head turn that moves in the same direction as the base.</li>
+        <li>Try adding a second left-right cycle after the first.</li>
+      </ol>
+
+      <div class="lh-callout safety">
+        <div class="lh-callout-lbl">Safety</div>
+        <p>Check that the robot's power cable has enough slack to allow the rotation direction you are testing. Do not command continuous rotation in one direction without watching the cable.</p>
+      </div>
+
+      <h2>Reflection question</h2>
+      <p>Why does the base return to center at the end of the script? What would happen if it stopped at +0.45 every time?</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-07')">← Lab 07</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-09')">Lab 09 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 09 ──────────── -->
+    <div class="lh-section" id="sec-lab-09">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 09</span></div>
+      <h1>Lab 09: Behavior Priority &amp; Motion Locking</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Intermediate</span><span class="lh-meta-item"><strong>Time</strong> ~40 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">In a real robot system, multiple behaviors might try to control the same joint at the same time. This lab teaches why motion locking matters and how to implement a simple priority system.</p>
+      <h2>Concepts</h2>
+      <ul><li>Motion lock pattern</li><li>Behavior priority levels</li><li>Safe cancellation of a running behavior</li><li>Why two commands to the same joint simultaneously is dangerous</li></ul>
+      <h2>Run command</h2>
+      <div class="lh-term"><div class="lh-term-bar"><div class="t-dot td-r"></div><div class="t-dot td-y"></div><div class="t-dot td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_09_motion_locking</div></div>
+      <h2>Starter code</h2>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 09: Behavior Priority and Motion Locking
+import time, threading
+from swayform.client import MotionClient
+
+motion_lock = threading.Lock()
+
+def run_behavior(robot, name, pose, duration, priority):
+    if motion_lock.locked():
+        print(f"[{name}] blocked — motion lock held")
+        return
+    with motion_lock:
+        print(f"[{name}] starting (priority {priority})")
+        robot.move_joint_group(pose, duration=duration)
+        robot.wait(duration + 0.2)
+        print(f"[{name}] done")
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+    robot.safe_pose('neutral')
+
+    # TODO: Try running two behaviors and watch how the lock prevents overlap
+    WAVE  = {'right_shoulder_pitch': -1.0, 'right_elbow_flex': 0.5}
+    POINT = {'right_shoulder_pitch': -0.4, 'right_elbow_flex': 0.1}
+
+    t1 = threading.Thread(target=run_behavior, args=(robot, 'Wave',  WAVE,  1.2, 1))
+    t2 = threading.Thread(target=run_behavior, args=(robot, 'Point', POINT, 0.8, 2))
+
+    t1.start()
+    time.sleep(0.1)   # Small delay so Wave starts first
+    t2.start()
+
+    t1.join()
+    t2.join()
+
+    robot.safe_pose('idle')
+    robot.disconnect()
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Run the script. Observe which behavior runs and which is blocked.</li>
+        <li>Remove the <code>time.sleep(0.1)</code>. Does Point sometimes run instead of Wave?</li>
+        <li>Change the delay to 2.0 seconds so Wave finishes before Point starts. What happens now?</li>
+        <li>Read the terminal output carefully — can you trace exactly which behavior ran at each moment?</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>What would happen to the robot if both behaviors could command the same joint at the same time without a lock? Would you be able to predict the result?</p>
+      <h2>Extension challenge</h2>
+      <p>Add a third behavior with higher priority. Make it so it can cancel the running behavior and take over. How would you implement this?</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-08')">← Lab 08</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-10')">Lab 10 →</button></div>
+    </div>
+
+    <!-- ──────────── LAB 10 ──────────── -->
+    <div class="lh-section" id="sec-lab-10">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Lab 10</span></div>
+      <h1>Lab 10: Mini Demo Challenge</h1>
+      <div class="lh-meta"><span class="lh-meta-item"><strong>Level</strong> Intermediate</span><span class="lh-meta-item"><strong>Time</strong> ~45 min</span><span class="lh-meta-item"><strong>Status</strong> <span class="lh-pill ready">Ready</span></span></div>
+      <p class="lh-lead">Build a short custom demo using what you have learned in Labs 01–09. There is no fixed answer. The goal is to produce something that runs reliably, looks intentional, and you can explain to someone else.</p>
+      <h2>Requirements for your mini demo</h2>
+      <ul>
+        <li>At least three distinct motion commands (arm, head, hand, or base)</li>
+        <li>At least one timed delay that makes the sequence feel natural</li>
+        <li>A safe start (neutral pose) and safe end (idle pose)</li>
+        <li>Optional: one perception-triggered event from the camera</li>
+      </ul>
+      <h2>Starter template</h2>
+      <div class="lh-fp">~/ros2_ws/src/swayform_labs/lab_10_mini_demo_challenge.py</div>
+      <div class="lh-code"><div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre><code class="language-python"># Lab 10: Mini Demo Challenge
+# Build your own short demo using what you know
+import time
+from swayform.client import MotionClient
+
+def my_demo(robot):
+    """
+    Write your demo behavior here.
+    Requirements: 3+ motions, at least one wait(), safe start and end.
+    """
+    # TODO: Build your demo below
+    pass
+
+def main():
+    robot = MotionClient()
+    robot.connect()
+
+    robot.safe_pose('neutral')   # Always start safe
+    robot.wait(1.0)
+
+    my_demo(robot)
+
+    robot.safe_pose('idle')      # Always end safe
+    robot.disconnect()
+    print("Demo complete.")
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+      <h2>Steps</h2>
+      <ol>
+        <li>Decide what your demo will show. Sketch the sequence on paper first.</li>
+        <li>Implement each step in <code>my_demo()</code>.</li>
+        <li>Run and test. Adjust timing and angles until it looks right.</li>
+        <li>Show it to someone else. Can they understand what the robot is doing without explanation?</li>
+      </ol>
+      <h2>Reflection question</h2>
+      <p>What was the hardest part of building a demo from scratch? What would you need to add to turn it into a full classroom demo like Demo 01–05?</p>
+      <h2>Extension challenge</h2>
+      <p>Write a one-paragraph description of your demo that could be added to the Demo Code Library. What does it do, what does it teach, and what hardware does it use?</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-09')">← Lab 09</button><button class="lh-nav-btn primary" onclick="showSection('sec-lab-11-20')">Labs 11–20 →</button></div>
+    </div>
+
+    <!-- ──────────── LABS 11-20 PLACEHOLDER ──────────── -->
+    <div class="lh-section" id="sec-lab-11-20">
+      <div class="lh-bc"><a onclick="showSection('sec-lab-overview')">Student Labs</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Labs 11–20</span></div>
+      <h1>Labs 11–20</h1>
+      <span class="lh-pill soon">Coming soon</span>
+      <p style="margin-top:20px;">Full lab instructions for Labs 11–20 will be added as the SwayForm platform grows. Check back or watch for updates.</p>
+      <h2>Planned titles</h2>
+      <ul>
+        <li>Lab 11: Simple State Machines</li>
+        <li>Lab 12: Custom Motion Presets</li>
+        <li>Lab 13: Camera-Based User Greeting</li>
+        <li>Lab 14: Object Position Mapping</li>
+        <li>Lab 15: Two-Arm Coordination</li>
+        <li>Lab 16: Speaker Prompts and Timing</li>
+        <li>Lab 17: Classroom Challenge: Helpful Robot</li>
+        <li>Lab 18: Intro to Robot Debug Logs</li>
+        <li>Lab 19: Build Your Own Interaction</li>
+        <li>Lab 20: Final Showcase Demo</li>
+      </ul>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-lab-overview')">← Lab Overview</button><button class="lh-nav-btn primary" onclick="showSection('sec-ros2')">ROS 2 Concepts →</button></div>
+    </div>
+
+    <!-- ──────────── ROS 2 BASICS ──────────── -->
+    <div class="lh-section" id="sec-ros2">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">ROS 2 Concepts</span></div>
+      <h1>ROS 2 Concepts</h1>
+      <p class="lh-lead">ROS 2 (Robot Operating System 2) is the software layer that connects all parts of the SwayForm system. Understanding a few key concepts helps you understand why the code is structured the way it is.</p>
+
+      <h2>Node</h2>
+      <p>A node is a single program that does one job. On SwayForm, the motion node manages all joint commands. The camera node publishes image data. A behavior script you write is also a node — it runs independently and communicates with the others.</p>
+      <p>Think of nodes like workers in a factory. Each one has a specific task and communicates through a shared system.</p>
+
+      <h2>Topic</h2>
+      <p>A topic is a named channel where nodes send and receive data. For example, the motion node listens on the topic <code>/swayform/joint_targets</code>. Any node that publishes to that topic can command a joint to move. SwayForm's camera node might publish on <code>/swayform/camera/color/image_raw</code>.</p>
+
+      <h2>Publisher</h2>
+      <p>A publisher sends data on a topic. When your behavior script sends a joint command, it uses a publisher to put that command on the <code>/joint_targets</code> topic. The motion node is listening, receives the command, and moves the joint.</p>
+
+      <h2>Subscriber</h2>
+      <p>A subscriber receives data from a topic. The motion node subscribes to <code>/joint_targets</code>. A behavior that reacts to camera data subscribes to the camera topic and receives new frames as they arrive.</p>
+
+      <h2>How a wave script fits in</h2>
+      <p>A wave script connects to the motion node and publishes joint angle targets on the <code>/joint_targets</code> topic. The motion node (which is always running when SwayForm is on) subscribes to that topic, reads the angles, and sends them to the servo controllers. The servo controllers move the physical joints.</p>
+      <p>So the chain is: your script → topic → motion node → servo controller → joint movement.</p>
+
+      <h2>Motion lock</h2>
+      <p>If two behavior scripts publish to the same joint topic at the same time, the result is unpredictable. The motion node uses a locking mechanism to ensure only one behavior can control a joint group at a time. If your script tries to command a joint that is already locked by another script, it is either rejected or queued.</p>
+
+      <h2>Launch file</h2>
+      <p>A launch file is a script that starts multiple nodes at once. When SwayForm boots, a launch file starts the motion node, camera node, and other background services automatically. You do not typically need to write launch files in the labs, but you will see them referenced in the workspace.</p>
+
+      <div class="lh-nav-row">
+        <button class="lh-nav-btn" onclick="showSection('sec-lab-11-20')">← Labs</button>
+        <button class="lh-nav-btn primary" onclick="showSection('sec-motion-node')">Motion Node →</button>
+      </div>
+    </div>
+
+    <!-- ──────────── MOTION NODE ──────────── -->
+    <div class="lh-section" id="sec-motion-node">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Motion Node</span></div>
+      <h1>Motion Node</h1>
+      <p class="lh-lead">The motion node is the core of SwayForm's movement system. It runs continuously on the robot, receives joint targets from behavior scripts, enforces safe limits, and controls the servo hardware.</p>
+      <h2>What it does</h2>
+      <ul>
+        <li>Subscribes to joint target commands from behavior scripts</li>
+        <li>Clamps all commanded angles to the safe limits for each joint</li>
+        <li>Interpolates smoothly from the current position to the target</li>
+        <li>Publishes actual joint positions so scripts can read feedback</li>
+        <li>Manages motion locking to prevent conflicting commands</li>
+      </ul>
+      <h2>Topics</h2>
+      <ul>
+        <li><code>/swayform/joint_targets</code> — input: behavior scripts publish here</li>
+        <li><code>/swayform/joint_states</code> — output: actual joint positions published here</li>
+        <li><code>/swayform/motion_lock</code> — status: which behavior (if any) holds the lock</li>
+      </ul>
+      <h2>MotionClient</h2>
+      <p>The <code>MotionClient</code> class in the SwayForm Python library wraps all of this communication. When you call <code>robot.move_joint_group()</code>, the client publishes to <code>/joint_targets</code> and manages the locking handshake for you.</p>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-ros2')">← ROS 2 Concepts</button><button class="lh-nav-btn primary" onclick="showSection('sec-servo-mapping')">Servo Mapping →</button></div>
+    </div>
+
+    <!-- ──────────── SERVO MAPPING ──────────── -->
+    <div class="lh-section" id="sec-servo-mapping">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Servo Mapping</span></div>
+      <h1>Servo Mapping</h1>
+      <p class="lh-lead">SwayForm uses named joint identifiers in its motion API. This page explains how joint names correspond to physical parts of the robot.</p>
+      <h2>Naming convention</h2>
+      <p>Joint names follow the pattern: <code>[side]_[body_part]_[axis]</code></p>
+      <ul>
+        <li><code>right_shoulder_pitch</code> — raises/lowers the right arm</li>
+        <li><code>right_shoulder_yaw</code> — rotates the right arm forward/back</li>
+        <li><code>right_elbow_flex</code> — bends the right elbow</li>
+        <li><code>right_wrist_roll</code> — rotates the right wrist</li>
+        <li><code>right_hand_grip</code> — overall hand close (0=open, 1=closed)</li>
+        <li><code>right_index_ext</code> — index finger extension</li>
+        <li><code>right_middle_ext</code> — middle finger extension</li>
+        <li><code>neck_yaw</code> — head left/right rotation</li>
+        <li><code>neck_pitch</code> — head up/down tilt</li>
+        <li><code>base_yaw</code> — rotating base left/right</li>
+      </ul>
+      <p>Left-side joints follow the same naming pattern with <code>left_</code> prefix.</p>
+      <h2>Angle conventions</h2>
+      <ul>
+        <li>All angles are in radians</li>
+        <li>Positive values generally correspond to one direction, negative to the other</li>
+        <li>Zero (0.0) is typically the neutral/center position for that joint</li>
+        <li>For <code>hand_grip</code> and finger extension values: 0.0 = fully open, 1.0 = fully closed/extended</li>
+      </ul>
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-motion-node')">← Motion Node</button><button class="lh-nav-btn primary" onclick="showSection('sec-hardware')">Hardware &amp; RealSense →</button></div>
+    </div>
+
+    <!-- ──────────── HARDWARE & REALSENSE ──────────── -->
+    <div class="lh-section" id="sec-hardware">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Hardware &amp; RealSense</span></div>
+      <h1>Hardware &amp; Motion</h1>
+      <p class="lh-lead">SwayForm's physical system is controlled by software running on an onboard Raspberry Pi. Understanding how code connects to hardware helps you debug problems and design better behaviors.</p>
+
+      <h2>Raspberry Pi</h2>
+      <p>The Raspberry Pi is the brain of SwayForm. It runs the ROS 2 nodes, the motion node, the camera driver, and all student scripts. When you SSH into the robot, you are connecting to the Raspberry Pi. Your code runs there, not on your laptop.</p>
+
+      <h2>Servo controllers</h2>
+      <p>Multiple servo motors control SwayForm's joints. A servo controller board sits between the Raspberry Pi and the physical servos — it receives position commands from the motion node and drives the motors to the target angle. The controller handles the low-level PWM signals. You do not interact with it directly in the labs.</p>
+
+      <h2>Intel RealSense camera</h2>
+      <p>The RealSense camera provides both an RGB color image and a depth map at the same time. The color image lets you detect people, objects, and features. The depth map gives you actual distance measurements — so you can know not just that something is in the frame, but how far away it is.</p>
+      <p>In the SwayForm demos and labs, the RealSense is used through the <code>RealSenseStream</code> helper class. It abstracts the camera driver and gives you clean frame objects to query.</p>
+
+      <h2>Arms, hands, head, base</h2>
+      <p>SwayForm's body is divided into controllable subsystems. Each subsystem has its own set of joints. All of them are accessible through the same <code>MotionClient</code> interface — you just specify which joints you want to move by name.</p>
+
+      <h2>Why behaviors should use smooth transitions</h2>
+      <p>Jumping instantly from one joint angle to another can create mechanical shock that stresses the servos. The motion node's interpolation smooths commands over the requested duration, reducing stress and making the robot's movements look intentional. Always use a reasonable duration — avoid 0.0.</p>
+
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-servo-mapping')">← Servo Mapping</button><button class="lh-nav-btn primary" onclick="showSection('sec-troubleshoot')">Troubleshooting →</button></div>
+    </div>
+
+    <!-- ──────────── TROUBLESHOOTING ──────────── -->
+    <div class="lh-section" id="sec-troubleshoot">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Troubleshooting</span></div>
+      <h1>Troubleshooting</h1>
+      <p class="lh-lead">Most first-time problems have straightforward causes. Click any symptom to see the likely cause and fix.</p>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Cannot SSH into the robot</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">Laptop and robot are not on the same network, or the robot has not finished booting.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Check that both devices are on the same Wi-Fi. Wait 45 seconds after power-on before connecting. Try <code>ssh swayform@&lt;IP address&gt;</code> instead of the hostname if <code>swayform.local</code> does not resolve.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">VS Code cannot connect</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">Remote-SSH extension is not installed, or the hostname is wrong.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Install the "Remote - SSH" extension from Microsoft in VS Code Extensions. Make sure you are using <code>swayform@swayform.local</code> as the host string.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Demo command not found</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">You forgot to source the workspace in this terminal session.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Run: <code>source ~/ros2_ws/install/setup.bash</code> — then try the command again. Do this every time you open a new terminal.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Robot does not move when demo runs</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">The motion node is not running, or another script holds the motion lock.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Check if any other scripts are running in other terminal tabs. Kill them with Ctrl+C. If the motion node crashed, it should restart automatically; wait 10 seconds and try again.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Camera not detected</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">RealSense camera node is not running, or the USB connection to the Raspberry Pi is loose.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Check the physical USB connection between the camera and the Raspberry Pi. Check if the camera node is listed when you run <code>ros2 node list</code>. If not, it may need to be restarted.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Script ends but robot stays in a raised-arm position</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">The script was interrupted before the <code>safe_pose('idle')</code> call at the end.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Run <code>ros2 run swayform_demos reset_pose</code> to return all joints to neutral. In your own scripts, use try/finally to ensure the reset always runs even if an error occurs.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">Permission denied when running a script</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">The file does not have execute permission, or you are trying to run a file in a read-only location.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Use <code>ros2 run</code> rather than running the file directly with python3. If you need to run directly: <code>chmod +x filename.py</code> and make sure you are in the labs folder.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-tr-item" onclick="this.classList.toggle('open')">
+        <div class="lh-tr-hdr"><span class="lh-tr-symp">I edited the wrong file (modified a demo instead of a lab)</span><span class="lh-tr-plus">+</span></div>
+        <div class="lh-tr-body">
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Likely cause</div><div class="lh-tr-val">You opened and edited a file in <code>swayform_demos/</code> instead of <code>swayform_labs/</code>.</div></div>
+          <div class="lh-tr-row"><div class="lh-tr-lbl">Fix</div><div class="lh-tr-fix">Run <code>git checkout HEAD -- src/swayform_demos/filename.py</code> inside <code>~/ros2_ws</code> to restore the original. From now on, copy demo files to the labs folder before editing them.</div></div>
+        </div>
+      </div>
+
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-hardware')">← Hardware</button><button class="lh-nav-btn primary" onclick="showSection('sec-glossary')">Glossary →</button></div>
+    </div>
+
+    <!-- ──────────── GLOSSARY ──────────── -->
+    <div class="lh-section" id="sec-glossary">
+      <div class="lh-bc"><a onclick="showSection('sec-home')">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-sep">Reference</span><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Glossary</span></div>
+      <h1>Glossary</h1>
+      <p>Quick definitions for terms used throughout the Learning Hub.</p>
+
+      <div class="lh-divider"></div>
+
+      <div class="lh-gloss-item"><div class="lh-gloss-term">ROS 2</div><div class="lh-gloss-def">Robot Operating System 2. A framework for building robot software. It provides the tools for nodes, topics, messaging, and launch files that SwayForm uses to connect all its parts.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Node</div><div class="lh-gloss-def">A single program in ROS 2 that does one job. The motion node manages joints. The camera node publishes image data. Your behavior script is also a node.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Topic</div><div class="lh-gloss-def">A named channel in ROS 2 where nodes send and receive data. For example: /swayform/joint_targets. Any node can publish to or subscribe from a topic.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Publisher</div><div class="lh-gloss-def">A piece of code that sends data on a topic. When your script sends a motion command, it uses a publisher.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Subscriber</div><div class="lh-gloss-def">A piece of code that receives data from a topic. The motion node subscribes to joint target commands. A behavior that reacts to camera data subscribes to the camera topic.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Servo</div><div class="lh-gloss-def">A small motor that can be commanded to a specific angle and hold it. SwayForm's joints are each controlled by one or more servos.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Joint</div><div class="lh-gloss-def">A moveable connection between two parts of the robot. The shoulder, elbow, wrist, neck, and fingers are all joints. Each joint is controlled by one or more servos.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Pose</div><div class="lh-gloss-def">A named or defined configuration of joint angles. "Neutral pose" means all joints are in a safe resting position. A custom pose is just a dictionary of joint names and target angles.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">RealSense</div><div class="lh-gloss-def">The Intel RealSense camera used on SwayForm. It provides both color (RGB) and depth images simultaneously. Used for presence detection, zone tracking, and basic vision behaviors.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">SSH</div><div class="lh-gloss-def">Secure Shell. A way to open a terminal on a remote computer (the robot's Raspberry Pi) from your laptop over a network connection. When you SSH in, commands you type run on the robot.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Workspace</div><div class="lh-gloss-def">In ROS 2, a workspace is a folder containing all your packages and built code. SwayForm's workspace is at ~/ros2_ws. You must source it (source install/setup.bash) before running any ROS 2 commands.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Launch file</div><div class="lh-gloss-def">A ROS 2 script that starts multiple nodes at once. SwayForm uses a launch file on boot to start the motion node, camera node, and other background services automatically.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Motion lock</div><div class="lh-gloss-def">A mechanism that prevents two behavior scripts from commanding the same joint at the same time. When a lock is held by one behavior, others wait or are blocked. Prevents unsafe overlapping commands.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Behavior</div><div class="lh-gloss-def">A self-contained program or function that makes the robot do something — wave, greet, point, play a game. A behavior starts, runs its sequence of commands, and ends.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Safe limit</div><div class="lh-gloss-def">The maximum and minimum angle a joint can be safely commanded to. The motion node enforces these limits automatically, clamping any value that exceeds them to the boundary.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">State machine</div><div class="lh-gloss-def">A way of organizing behavior into named states. The program is always in exactly one state, does the work for that state, then transitions to the next. Used in Demo 05 and Lab 10.</div></div>
+
+      <div class="lh-nav-row"><button class="lh-nav-btn" onclick="showSection('sec-troubleshoot')">← Troubleshooting</button><button class="lh-nav-btn primary" onclick="showSection('sec-home')">← Hub Home</button></div>
+    </div>
+
+  </main><!-- end lh-main -->
+</div><!-- end lh-docs -->
+
+<!-- ══════════════════════════════════════ FOOTER -->
+<footer id="lh-footer">
+  <div class="lh-footer-inner">
+    <div>
+      <div class="lh-footer-brand"><span>S</span>wayForm Learning Hub</div>
+      <div class="lh-footer-copy" style="margin-top:4px">Designed for classroom robotics education.</div>
+    </div>
+    <div class="lh-footer-links">
+      <a href="/">Main site</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-path">Learning Path</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── NAVIGATION ──────────────────────────────── */
+function showSection(id) {
+  document.querySelectorAll('.lh-section').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+  } else {
+    document.getElementById('sec-home').classList.add('active');
+    id = 'sec-home';
+  }
+
+  // Update sidebar active state
+  document.querySelectorAll('.lh-sb-item').forEach(function(item) {
+    item.classList.toggle('active', item.dataset.sec === id);
+  });
+
+  // Auto-open the parent module containing this item
+  document.querySelectorAll('.lh-sb-item').forEach(function(item) {
+    if (item.dataset.sec === id) {
+      var items = item.closest('.lh-sb-items');
+      if (items && !items.classList.contains('open')) {
+        items.classList.add('open');
+        var btn = items.previousElementSibling;
+        if (btn) btn.classList.add('open');
+      }
+    }
+  });
+
+  history.replaceState(null, '', '#' + id);
+  var main = document.getElementById('lh-main');
+  if (main) main.scrollTop = 0;
+  window.scrollTo(0, 0);
+
+  // Close mobile sidebar
+  var sidebar = document.getElementById('lh-sidebar');
+  var toggle = document.getElementById('lh-mob-toggle');
+  if (sidebar && toggle) {
+    sidebar.classList.remove('mob-open');
+    toggle.classList.remove('open');
+  }
+}
+
+/* ─── SIDEBAR MODULE TOGGLE ───────────────────── */
+function toggleMod(btn) {
+  btn.classList.toggle('open');
+  var items = btn.nextElementSibling;
+  if (items) items.classList.toggle('open');
+}
+
+/* ─── MOBILE SIDEBAR ──────────────────────────── */
+function toggleMobSidebar() {
+  var sidebar = document.getElementById('lh-sidebar');
+  var toggle = document.getElementById('lh-mob-toggle');
+  if (sidebar && toggle) {
+    sidebar.classList.toggle('mob-open');
+    toggle.classList.toggle('open');
+  }
+}
+
+/* ─── COPY BUTTON ─────────────────────────────── */
+function copyCode(btn) {
+  var pre = btn.closest('.lh-code').querySelector('pre code');
+  if (!pre) return;
+  var text = pre.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('ok');
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.classList.remove('ok');
+    }, 1800);
+  }).catch(function() {
+    btn.textContent = 'Error';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+  });
+}
+
+/* ─── TOPBAR SCROLL ───────────────────────────── */
+window.addEventListener('scroll', function() {
+  var tb = document.getElementById('topbar');
+  if (tb) {
+    tb.classList.toggle('scrolled', window.scrollY > 10);
+  }
+});
+
+/* ─── INIT ON LOAD ────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  var hash = window.location.hash.slice(1);
+  showSection(hash && document.getElementById(hash) ? hash : 'sec-home');
+
+  // Hamburger menu
+  var hamburger = document.querySelector('.hamburger');
+  if (hamburger) {
+    hamburger.addEventListener('click', function() {
+      document.getElementById('mobile-nav').classList.add('open');
+    });
+  }
+  document.querySelectorAll('.mob-close').forEach(function(el) {
+    el.addEventListener('click', function() {
+      document.getElementById('mobile-nav').classList.remove('open');
+    });
+  });
+});
+</script>
+
+</body>
+</html>

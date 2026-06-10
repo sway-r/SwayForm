@@ -9,14 +9,14 @@
     { "source": "/schools",       "destination": "/contact",       "permanent": false },
     { "source": "/for-schools",   "destination": "/contact",       "permanent": false },
     { "source": "/demos",         "destination": "/",              "permanent": false },
-    { "source": "/demo-programs", "destination": "/",              "permanent": false },
-    { "source": "/learning-hub",  "destination": "/",              "permanent": false }
+    { "source": "/demo-programs", "destination": "/",              "permanent": false }
   ],
   "rewrites": [
     { "source": "/purpose",       "destination": "/purpose.html"       },
     { "source": "/robot",         "destination": "/robot.html"         },
     { "source": "/learning-path", "destination": "/learning-path.html" },
-    { "source": "/contact",       "destination": "/contact.html"       }
+    { "source": "/contact",       "destination": "/contact.html"       },
+    { "source": "/learning-hub",  "destination": "/learning-hub.html"  }
   ],
   "headers": [
     {

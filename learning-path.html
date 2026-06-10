@@ -48,6 +48,8 @@
   /* lab filter tabs: allow horizontal scroll on tiny screens */
   #lab-filter-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
   #lab-filter-tabs::-webkit-scrollbar{display:none}
+  /* hub button stacks below hero text on mobile */
+  #lp-hero .section-wide>div{flex-direction:column;gap:20px}
 }
 </style>
 </head>
@@ -82,9 +84,16 @@
 <!-- hero -->
 <section id="lp-hero" style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:56px;background:var(--dark);border-bottom:none">
   <div class="section-wide">
-    <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Learning Path</span>
-    <h1 style="font-size:clamp(32px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:16px;color:#edf5ff">40 labs. Each one builds on the last.</h1>
-    <p style="font-size:17px;color:rgba(200,220,240,.7);max-width:580px;line-height:1.7">Four levels of structured practice. Every lab ships with starter code, step-by-step instructions, hints, a collapsible solution, and a debug checklist. Open any lab in the Learning Hub.</p>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <div>
+        <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">Learning Path</span>
+        <h1 style="font-size:clamp(32px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:16px;color:#edf5ff">40 labs. Each one builds on the last.</h1>
+        <p style="font-size:17px;color:rgba(200,220,240,.7);max-width:580px;line-height:1.7">Four levels of structured practice. Every lab ships with starter code, step-by-step instructions, hints, a collapsible solution, and a debug checklist. Open any lab in the Learning Hub.</p>
+      </div>
+      <div style="flex-shrink:0;padding-top:6px">
+        <a href="/learning-hub" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:9px;background:#0057ff;color:#fff;font-size:14px;font-weight:700;letter-spacing:.01em;text-decoration:none;white-space:nowrap;transition:all .18s;border:1px solid rgba(0,87,255,.6)" onmouseover="this.style.background='#2268ff';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#0057ff';this.style.transform='none'">Open Learning Hub &rarr;</a>
+      </div>
+    </div>
   </div>
 </section>
 

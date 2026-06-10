@@ -345,16 +345,115 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .lh-footer-links a:hover{color:#374060}
 .lh-footer-note{font-size:11px;color:#c5cdd8}
 
+/* ── SEARCH ───────────────────────────────────────────── */
+.lh-sb-search-wrap{position:relative;margin-top:10px}
+.lh-search-icon-pos{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#3d5a7a;pointer-events:none;z-index:1}
+#lh-search-input{
+  width:100%;padding:7px 11px 7px 28px;
+  border-radius:7px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  color:#a0bcd4;font-size:12px;font-family:var(--font);
+  outline:none;transition:border-color .15s,background .15s;
+}
+#lh-search-input:focus{border-color:rgba(0,87,255,.45);background:rgba(255,255,255,.08);color:#d0e8ff}
+#lh-search-input::placeholder{color:#3d5a7a}
+#lh-search-results{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200;
+  background:#0e1e36;border:1px solid #1d3055;border-radius:8px;
+  max-height:260px;overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.lh-sr-item{display:block;padding:9px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s}
+.lh-sr-item:hover{background:rgba(0,87,255,.18)}
+.lh-sr-item:last-child{border-bottom:none}
+.lh-sr-title{font-size:12.5px;color:#d0e8ff;font-weight:600;margin-bottom:2px}
+.lh-sr-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lh-sr-group{font-size:10.5px;color:#4a6888}
+.lh-sr-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;background:rgba(0,128,74,.15);color:#00a85e}
+.lh-sr-empty{padding:14px 12px;font-size:12px;color:#4a6888;text-align:center}
+
+/* ── MOBILE SECTION SWITCHER ─────────────────────────── */
+#lh-mob-switcher{
+  display:none;
+  position:sticky;top:0;z-index:50;
+  background:#fff;
+  border-bottom:1px solid #eaeef5;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+}
+.lh-msw-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:13px 16px;
+  background:#fff;border:none;cursor:pointer;text-align:left;
+  gap:12px;min-height:56px;
+}
+.lh-msw-text{flex:1;min-width:0}
+.lh-msw-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#0057ff;display:block;margin-bottom:2px}
+.lh-msw-current{font-size:13.5px;font-weight:700;color:#1a1f2e;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lh-msw-hint{font-size:11px;color:#9aadc0;display:block;margin-top:1px}
+.lh-msw-chevron{color:#9aadc0;font-size:20px;transition:transform .2s;flex-shrink:0;line-height:1}
+.lh-msw-chevron.open,.lh-msw-chevron.rotated{transform:rotate(180deg)}
+#lh-mob-nav-list{
+  display:none;
+  background:#0c1524;
+  border-top:1px solid #182840;
+  max-height:60vh;overflow-y:auto;
+}
+#lh-mob-nav-list.open{display:block}
+.lh-mob-search-wrap{padding:12px 14px;border-bottom:1px solid #182840;position:relative}
+.lh-mob-search-icon{position:absolute;left:22px;top:50%;transform:translateY(-50%);font-size:12px;color:#3d5a7a;pointer-events:none}
+#lh-mob-search-input{
+  width:100%;padding:9px 12px 9px 28px;
+  border-radius:7px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  color:#a0bcd4;font-size:13px;font-family:var(--font);
+  outline:none;
+}
+#lh-mob-search-input::placeholder{color:#3d5a7a}
+.lh-mob-group-hdr{
+  padding:10px 16px 6px;
+  font-size:9.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+  color:#3d5a7a;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;background:none;border:none;width:100%;
+}
+.lh-mob-group-hdr:hover{color:#5a7a9a}
+.lh-mob-group-items{display:block}
+.lh-mob-nav-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px 11px 22px;min-height:44px;
+  font-size:13px;color:#6a8aaa;
+  background:none;border:none;border-left:2px solid transparent;
+  width:100%;text-align:left;cursor:pointer;
+  transition:all .13s;line-height:1.35;
+}
+.lh-mob-nav-item:hover{color:#b8d4f0;background:rgba(255,255,255,.04);border-left-color:#2a4a70}
+.lh-mob-nav-item.active{color:#fff;border-left-color:#0057ff;background:rgba(0,87,255,.12);font-weight:600}
+.lh-mob-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-left:6px}
+.lh-mob-dot.ready{background:#00804a}
+.lh-mob-dot.soon{background:#2a4a70}
+#lh-mob-search-results{background:#0a1424;border-bottom:1px solid #1d3055;padding:0 12px 8px}
+#lh-mob-search-results .lh-sr-item{color:#d0e8ff;text-align:left;width:100%;border-bottom:1px solid rgba(255,255,255,.05)}
+#lh-mob-search-results .lh-sr-item:hover{background:rgba(0,87,255,.18)}
+#lh-mob-search-results .lh-sr-empty{color:#4a6888;font-size:12px;padding:10px 0;text-align:center}
+
+/* ── WALKTHROUGH CARDS ────────────────────────────────── */
+.lh-wt-intro{font-size:13.5px;color:#374060;line-height:1.75;margin-bottom:14px}
+.lh-starter-note{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#f0f4ff;border:1px solid rgba(0,87,255,.14);border-radius:8px;margin:14px 0;font-size:12.5px;color:#374060;line-height:1.6}
+.lh-starter-note strong{color:#0057ff;font-weight:700}
+.lh-wt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:16px 0}
+.lh-wt-card{background:#f8faff;border:1px solid rgba(0,87,255,.1);border-radius:10px;padding:14px 16px}
+.lh-wt-card-hdr{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0057ff;margin-bottom:7px}
+.lh-wt-card-body{font-size:13px;color:#374060;line-height:1.65}
+
 /* ── RESPONSIVE ──────────────────────────────────────── */
 @media(max-width:900px){
   #lh-shell{flex-direction:column;height:auto;overflow:visible}
   #lh-sidebar{display:none;width:100%}
   #lh-main{overflow-y:visible}
-  #lh-mob-toggle{display:flex}
+  #lh-mob-switcher{display:block}
   .lh-panel{padding:32px 24px 60px}
   .lh-dash-cards{grid-template-columns:1fr 1fr}
   #lh-top-nav-wrap{display:none}
-  #lh-ham{display:flex}
+  #lh-ham{display:none}
 }
 @media(max-width:600px){
   .lh-dash-cards{grid-template-columns:1fr}
@@ -366,6 +465,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .lh-nav-row{flex-direction:column;align-items:flex-start}
   pre[class*="language-"]{font-size:11px!important}
   #lh-footer{padding:20px 16px}
+  .lh-wt-cards{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -386,9 +486,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <button onclick="showPanel('panel-vscode-ssh')" data-topnav="panel-vscode-ssh">Setup</button>
     </div>
     <div class="lh-top-right">
-      <a href="/" class="lh-top-back">← Back to Main Site</a>
-      <a href="/contact" class="lh-top-demo">Request Demo</a>
-      <div id="lh-ham" onclick="openMobSidebar()" aria-label="Open sections menu"><span></span><span></span><span></span></div>
     </div>
   </div>
 </nav>
@@ -407,9 +504,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <aside id="lh-sidebar">
     <div class="lh-sb-top">
       <div class="lh-sb-hub-label">Learning Hub</div>
-      <div class="lh-sb-search">
-        <span class="lh-sb-search-icon">⌕</span>
-        <span class="lh-sb-search-text">Search lessons…</span>
+      <div class="lh-sb-search-wrap">
+        <span class="lh-search-icon-pos">⌕</span>
+        <input type="text" id="lh-search-input" placeholder="Search demos, labs, setup, or ROS 2 concepts…" autocomplete="off" spellcheck="false">
+        <div id="lh-search-results" style="display:none"></div>
       </div>
     </div>
 
@@ -513,10 +611,25 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <!-- ════════ MAIN CONTENT ════════ -->
   <main id="lh-main">
 
-    <!-- Mobile sidebar toggle button -->
-    <button id="lh-mob-toggle" onclick="openMobSidebar()">
-      ☰&nbsp; Sections
-    </button>
+    <!-- ════════ MOBILE SECTION SWITCHER ════════ -->
+    <div id="lh-mob-switcher">
+      <button class="lh-msw-btn" onclick="toggleMobNav()" aria-expanded="false" id="lh-msw-btn">
+        <div class="lh-msw-text">
+          <span class="lh-msw-label">Learning Hub Sections</span>
+          <span class="lh-msw-current" id="lh-msw-current">Hub Home</span>
+          <span class="lh-msw-hint">Choose a demo, lab, setup guide, or reference page.</span>
+        </div>
+        <span class="lh-msw-chevron" id="lh-msw-chevron">⌄</span>
+      </button>
+      <div id="lh-mob-nav-list">
+        <div class="lh-mob-search-wrap">
+          <span class="lh-mob-search-icon">⌕</span>
+          <input type="text" id="lh-mob-search-input" placeholder="Search sections…" autocomplete="off" spellcheck="false">
+        </div>
+        <div id="lh-mob-search-results" style="display:none"></div>
+        <div id="lh-mob-nav-groups"></div>
+      </div>
+    </div>
 
     <!-- ══════ PANEL: HUB HOME ══════ -->
     <div class="lh-panel active" id="panel-home">
@@ -884,29 +997,100 @@ ros2 run swayform_demos wave_demo</div>
       <h2>Run command</h2>
       <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_demos wave_demo</div></div>
 
-      <h2>Code walkthrough</h2>
-      <p>The wave demo starts by connecting to the robot's motion interface. It defines a safe starting pose, moves the arm into a raised position, repeats a small side-to-side wave, and then returns the arm to idle. The pauses between commands matter because physical joints need time to move. The safe limits matter because the robot should never be asked to move past its mechanical range.</p>
+      <h2>Starter code</h2>
+      <p class="lh-wt-intro">The complete starter file below is structured the same way a real robotics script is structured. Read through it before running it so you understand what each section does.</p>
+      <div class="lh-starter-note"><strong>Note:</strong>&nbsp;These examples are written as classroom starter code. Final hardware APIs can be adjusted to match the installed SwayForm software image.</div>
       <div class="lh-code">
-        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
-        <pre><code class="language-python">from swayform.motion import MotionClient
+        <div class="lh-code-hdr"><span class="lh-code-lang">python — wave_demo.py</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python">"""
+Demo 01: Wave
+
+Purpose:
+Run a simple waving behavior using safe arm poses.
+
+What this teaches:
+- How a behavior script connects to the motion layer
+- How joint targets create physical motion
+- Why safe poses and delays matter
+- How to return the robot to idle after a demo
+"""
+
 from time import sleep
+from swayform.motion import MotionClient
 
-motion = MotionClient()
 
-motion.safe_pose("idle")
-motion.move_joint_group("right_arm", {
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+WAVE_CYCLES = 3
+WAVE_DELAY_SECONDS = 0.35
+
+RIGHT_ARM_RAISED = {
     "shoulder_pitch": 42,
     "shoulder_roll": 18,
-    "elbow_pitch": 70
-})
+    "elbow_pitch": 70,
+}
 
-for _ in range(3):
-    motion.move_joint("right_wrist_yaw", 25)
-    sleep(0.35)
-    motion.move_joint("right_wrist_yaw", -25)
-    sleep(0.35)
+WRIST_LEFT = -25
+WRIST_RIGHT = 25
 
-motion.safe_pose("idle")</code></pre>
+
+def move_to_wave_start(motion: MotionClient) -> None:
+    """
+    Move the robot from idle into a safe raised-arm position.
+    This should happen before the wrist starts waving.
+    """
+    motion.safe_pose("idle")
+    sleep(0.5)
+
+    motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)
+    sleep(0.8)
+
+
+def perform_wave(motion: MotionClient, cycles: int) -> None:
+    """
+    Move the wrist left and right several times.
+    The arm stays raised while the wrist creates the wave motion.
+    """
+    for _ in range(cycles):
+        motion.move_joint("right_wrist_yaw", WRIST_LEFT)
+        sleep(WAVE_DELAY_SECONDS)
+
+        motion.move_joint("right_wrist_yaw", WRIST_RIGHT)
+        sleep(WAVE_DELAY_SECONDS)
+
+
+def return_to_idle(motion: MotionClient) -> None:
+    """
+    Always return the robot to a known safe pose after the demo.
+    """
+    motion.safe_pose("idle")
+
+
+def main() -> None:
+    motion = MotionClient()
+
+    try:
+        motion.lock_behavior("wave_demo")
+        move_to_wave_start(motion)
+        perform_wave(motion, WAVE_CYCLES)
+    finally:
+        return_to_idle(motion)
+        motion.unlock_behavior("wave_demo")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-wt-cards">
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Student-adjustable settings</div><div class="lh-wt-card-body">The values at the top are the safest place for beginners to start experimenting. Students can change the number of wave cycles or the delay without rewriting the entire behavior.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Wave start pose</div><div class="lh-wt-card-body">The robot moves to idle first, then raises the arm. This prevents the wave from starting from an unknown or awkward position.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Wave loop</div><div class="lh-wt-card-body">The loop repeats the same wrist movement several times. This shows how a small repeated motion can become a recognizable gesture.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Return to idle</div><div class="lh-wt-card-body">Every demo should end by returning to a known safe pose. This makes the next test easier and safer.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Motion lock</div><div class="lh-wt-card-body">The motion lock prevents another behavior from trying to control the same robot parts while the wave is running.</div></div>
       </div>
 
       <h2>Try changing this</h2>
@@ -947,23 +1131,97 @@ motion.safe_pose("idle")</code></pre>
       <h2>Run command</h2>
       <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_demos vision_handshake</div></div>
 
-      <h2>Code walkthrough</h2>
-      <p>The script starts the camera input, checks whether a user is within the interaction area, requests a motion lock, moves the arm into a handshake pose, waits for the interaction, and returns the arm to idle. The motion lock matters because another behavior should not interrupt the arm while the robot is interacting with a person.</p>
+      <h2>Starter code</h2>
+      <p class="lh-wt-intro">This version uses a timeout so the demo does not wait forever. Read the function names before running to understand the flow: wait, detect, execute, return home.</p>
+      <div class="lh-starter-note"><strong>Note:</strong>&nbsp;These examples are written as classroom starter code. Final hardware APIs can be adjusted to match the installed SwayForm software image.</div>
       <div class="lh-code">
-        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
-        <pre><code class="language-python">from swayform.motion import MotionClient
+        <div class="lh-code-hdr"><span class="lh-code-lang">python — vision_handshake.py</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python">"""
+Demo 02: Vision Handshake
+
+Purpose:
+Use a simple RealSense-based presence check to trigger a handshake pose.
+
+Important:
+This is a vision-assisted classroom demo. It does not claim perfect hand
+detection or human-level understanding.
+"""
+
+from time import sleep, time
+from swayform.motion import MotionClient
 from swayform.vision import RealSenseInput
-from time import sleep
 
-motion = MotionClient()
-camera = RealSenseInput()
 
-if camera.user_in_interaction_zone():
-    motion.lock_behavior("vision_handshake")
-    motion.safe_pose("handshake_ready")
-    sleep(2.0)
+DETECTION_TIMEOUT_SECONDS = 10
+HANDSHAKE_HOLD_SECONDS = 2.0
+
+HANDSHAKE_POSE = {
+    "shoulder_pitch": 38,
+    "shoulder_roll": 10,
+    "elbow_pitch": 82,
+    "wrist_yaw": 0,
+}
+
+
+def wait_for_user(camera: RealSenseInput, timeout: float) -> bool:
+    """
+    Wait until the camera reports a user inside the interaction zone.
+    Returns True if a user is found, otherwise False.
+    """
+    start_time = time()
+
+    while time() - start_time < timeout:
+        if camera.user_in_interaction_zone():
+            return True
+
+        sleep(0.1)
+
+    return False
+
+
+def run_handshake(motion: MotionClient) -> None:
+    """
+    Move into a conservative handshake pose, wait briefly,
+    then return to idle.
+    """
+    motion.move_joint_group("right_arm", HANDSHAKE_POSE)
+    sleep(HANDSHAKE_HOLD_SECONDS)
     motion.safe_pose("idle")
-    motion.unlock_behavior("vision_handshake")</code></pre>
+
+
+def main() -> None:
+    motion = MotionClient()
+    camera = RealSenseInput()
+
+    motion.safe_pose("idle")
+    print("Waiting for user...")
+
+    user_detected = wait_for_user(camera, DETECTION_TIMEOUT_SECONDS)
+
+    if not user_detected:
+        print("No user detected. Returning to idle.")
+        motion.safe_pose("idle")
+        return
+
+    try:
+        motion.lock_behavior("vision_handshake")
+        run_handshake(motion)
+    finally:
+        motion.unlock_behavior("vision_handshake")
+        motion.safe_pose("idle")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-wt-cards">
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Detection timeout</div><div class="lh-wt-card-body">The robot should not wait forever. A timeout keeps the demo predictable and helps students understand that robot behaviors need exit conditions.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">wait_for_user</div><div class="lh-wt-card-body">This function checks the camera repeatedly until a user is detected or the timeout ends. Students can adjust the detection distance later.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Handshake pose</div><div class="lh-wt-card-body">The handshake pose is a controlled arm position, not a fast reach. Human-facing demos should move slowly and conservatively.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Failure path</div><div class="lh-wt-card-body">If no user is detected, the robot does nothing dramatic. It prints a message and stays safe.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">finally block</div><div class="lh-wt-card-body">The <code>finally</code> block makes sure the robot unlocks the behavior and returns to idle even if something interrupts the script.</div></div>
       </div>
 
       <h2>Try changing this</h2>
@@ -1004,31 +1262,89 @@ if camera.user_in_interaction_zone():
       <h2>Run command</h2>
       <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_demos look_and_point</div></div>
 
-      <h2>Code walkthrough</h2>
-      <p>The script reads a target position from the camera helper, classifies it as left, center, or right, turns the robot's head toward that area, and then moves the arm into a pointing pose. The robot looks first because the head movement makes the behavior easier for humans to understand.</p>
+      <h2>Starter code</h2>
+      <p class="lh-wt-intro">This version separates look and point into two functions so students can test each step individually. The robot always looks before it points.</p>
+      <div class="lh-starter-note"><strong>Note:</strong>&nbsp;These examples are written as classroom starter code. Final hardware APIs can be adjusted to match the installed SwayForm software image.</div>
       <div class="lh-code">
-        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
-        <pre><code class="language-python">from swayform.motion import MotionClient
-from swayform.vision import RealSenseInput
+        <div class="lh-code-hdr"><span class="lh-code-lang">python — look_and_point.py</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python">"""
+Demo 03: Look and Point
+
+Purpose:
+Detect a rough target zone (left / center / right) from the camera,
+turn the head toward it, then point one arm in that direction.
+
+Important:
+The target zone is a simplified classroom abstraction.
+This demo teaches vision-to-motion mapping, not production-level
+object detection.
+"""
+
 from time import sleep
+from swayform.motion import MotionClient
+from swayform.vision import RealSenseInput
 
-motion = MotionClient()
-camera = RealSenseInput()
 
-target_zone = camera.get_target_zone()
+HEAD_TURN_DEGREES = 25
+HEAD_PITCH = 5
+POINT_HOLD_SECONDS = 1.5
 
-if target_zone == "left":
-    motion.move_joint_group("head", {"neck_yaw": -25, "neck_pitch": 5})
-    motion.safe_pose("point_left")
-elif target_zone == "right":
-    motion.move_joint_group("head", {"neck_yaw": 25, "neck_pitch": 5})
-    motion.safe_pose("point_right")
-else:
-    motion.move_joint_group("head", {"neck_yaw": 0, "neck_pitch": 5})
-    motion.safe_pose("point_center")
+ZONE_HEAD_ANGLES = {
+    "left":   {"neck_yaw": -HEAD_TURN_DEGREES, "neck_pitch": HEAD_PITCH},
+    "center": {"neck_yaw":  0,                 "neck_pitch": HEAD_PITCH},
+    "right":  {"neck_yaw":  HEAD_TURN_DEGREES, "neck_pitch": HEAD_PITCH},
+}
 
-sleep(1.5)
-motion.safe_pose("idle")</code></pre>
+ZONE_ARM_POSES = {
+    "left":   "point_left",
+    "center": "point_center",
+    "right":  "point_right",
+}
+
+
+def look_at_zone(motion: MotionClient, zone: str) -> None:
+    """Turn the head toward the detected zone."""
+    head_angles = ZONE_HEAD_ANGLES.get(zone, ZONE_HEAD_ANGLES["center"])
+    motion.move_joint_group("head", head_angles)
+    sleep(0.4)
+
+
+def point_at_zone(motion: MotionClient, zone: str) -> None:
+    """Move the arm into the pointing pose for the detected zone."""
+    arm_pose = ZONE_ARM_POSES.get(zone, "point_center")
+    motion.safe_pose(arm_pose)
+    sleep(POINT_HOLD_SECONDS)
+
+
+def main() -> None:
+    motion = MotionClient()
+    camera = RealSenseInput()
+
+    motion.safe_pose("idle")
+
+    target_zone = camera.get_target_zone()
+    print(f"Detected zone: {target_zone}")
+
+    try:
+        motion.lock_behavior("look_and_point")
+        look_at_zone(motion, target_zone)
+        point_at_zone(motion, target_zone)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("look_and_point")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-wt-cards">
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Zone constants</div><div class="lh-wt-card-body">The head angles and arm poses are stored in dictionaries. Students can change numbers in one place without hunting through the rest of the code.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">look_at_zone first</div><div class="lh-wt-card-body">The robot looks before it points. This is intentional — it makes the behavior easier for a person to follow and understand.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">point_at_zone second</div><div class="lh-wt-card-body">After the head settles, the arm moves into the matching pointing pose. The hold pause gives observers time to see the result.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">get_target_zone</div><div class="lh-wt-card-body">This returns a rough left/center/right classification. Students can later replace it with more specific detection — colored object, AprilTag, or depth threshold.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">finally block</div><div class="lh-wt-card-body">Returns the robot to idle and unlocks the behavior even if something goes wrong mid-sequence.</div></div>
       </div>
 
       <h2>Try changing this</h2>
@@ -1069,32 +1385,111 @@ motion.safe_pose("idle")</code></pre>
       <h2>Run command</h2>
       <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_demos rock_paper_scissors</div></div>
 
-      <h2>Code walkthrough</h2>
-      <p>The script defines three hand poses, asks for the user's choice, randomly selects the robot's move, moves the hand into that pose, compares the choices, prints the result, and returns the hand to a relaxed position.</p>
+      <h2>Starter code</h2>
+      <p class="lh-wt-intro">This version uses a game loop so students can run multiple rounds without restarting. Each round is a clean sequence: countdown, choose, move, judge.</p>
+      <div class="lh-starter-note"><strong>Note:</strong>&nbsp;These examples are written as classroom starter code. Final hardware APIs can be adjusted to match the installed SwayForm software image.</div>
       <div class="lh-code">
-        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
-        <pre><code class="language-python">from swayform.motion import MotionClient
-from random import choice
+        <div class="lh-code-hdr"><span class="lh-code-lang">python — rock_paper_scissors.py</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python">"""
+Demo 04: Rock Paper Scissors
+
+Purpose:
+Play a round of rock-paper-scissors with the user. The robot picks randomly.
+
+Important:
+This version uses keyboard input for the user's choice.
+A camera-assisted version can be added later using gesture detection.
+Do not describe this as perfect hand-recognition unless that is implemented.
+"""
+
+import random
 from time import sleep
+from swayform.motion import MotionClient
+from swayform.audio import AudioPrompt
 
-motion = MotionClient()
 
-poses = ["rock", "paper", "scissors"]
-robot_choice = choice(poses)
+VALID_CHOICES = ["rock", "paper", "scissors"]
+COUNTDOWN_SECONDS = 1.0
+POSE_HOLD_SECONDS = 1.5
+ROUNDS_TO_PLAY = 3
 
-user_choice = input("Choose rock, paper, or scissors: ").strip().lower()
+WINS_AGAINST = {
+    "rock": "scissors",
+    "scissors": "paper",
+    "paper": "rock",
+}
 
-motion.set_hand_pose("right_hand", robot_choice)
-sleep(1.0)
 
-if robot_choice == user_choice:
-    print("Tie")
-elif (robot_choice, user_choice) in [("rock","scissors"),("paper","rock"),("scissors","paper")]:
-    print("Robot wins")
-else:
-    print("User wins")
+def countdown(audio: AudioPrompt) -> None:
+    """Say rock, paper, scissors aloud before the reveal."""
+    for word in ["Rock", "Paper", "Scissors", "Shoot!"]:
+        audio.say(word)
+        sleep(COUNTDOWN_SECONDS)
 
-motion.set_hand_pose("right_hand", "relaxed")</code></pre>
+
+def get_user_choice() -> str:
+    """Prompt the user and validate their choice."""
+    while True:
+        raw = input("Your move (rock / paper / scissors): ").strip().lower()
+        if raw in VALID_CHOICES:
+            return raw
+        print(f"Please enter one of: {', '.join(VALID_CHOICES)}")
+
+
+def judge(robot: str, user: str) -> str:
+    """Return 'robot', 'user', or 'tie'."""
+    if robot == user:
+        return "tie"
+    if WINS_AGAINST[robot] == user:
+        return "robot"
+    return "user"
+
+
+def play_round(motion: MotionClient, audio: AudioPrompt) -> str:
+    """Run one complete round. Returns winner: 'robot', 'user', or 'tie'."""
+    robot_choice = random.choice(VALID_CHOICES)
+    user_choice = get_user_choice()
+
+    countdown(audio)
+
+    motion.set_hand_pose("right_hand", robot_choice)
+    sleep(POSE_HOLD_SECONDS)
+
+    result = judge(robot_choice, user_choice)
+    print(f"Robot: {robot_choice}  |  You: {user_choice}  |  Result: {result}")
+
+    motion.set_hand_pose("right_hand", "relaxed")
+    return result
+
+
+def main() -> None:
+    motion = MotionClient()
+    audio = AudioPrompt()
+
+    scores = {"robot": 0, "user": 0, "tie": 0}
+
+    motion.safe_pose("idle")
+
+    for round_num in range(1, ROUNDS_TO_PLAY + 1):
+        print(f"\n--- Round {round_num} ---")
+        winner = play_round(motion, audio)
+        scores[winner] += 1
+
+    print(f"\nFinal score — Robot: {scores['robot']}  You: {scores['user']}  Ties: {scores['tie']}")
+    motion.safe_pose("idle")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-wt-cards">
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">WINS_AGAINST dictionary</div><div class="lh-wt-card-body">The win rule is stored as a lookup table instead of nested if-statements. This makes the logic easier to read and change.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">Input validation loop</div><div class="lh-wt-card-body"><code>get_user_choice</code> loops until the user enters a valid move. This prevents the demo from crashing on a typo.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">countdown function</div><div class="lh-wt-card-body">The countdown says each word aloud before the reveal. Students can replace this with a visual LED countdown or a different audio cue.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">play_round returns the winner</div><div class="lh-wt-card-body">Each round returns who won. The main loop collects these and prints a final score, making it easy to extend into best-of-five.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">judge function</div><div class="lh-wt-card-body">Separating the win logic into its own function makes it easy to test. Students can call <code>judge("rock","scissors")</code> in the Python shell and verify the result without running the full demo.</div></div>
       </div>
 
       <h2>Try changing this</h2>
@@ -1142,41 +1537,121 @@ motion.set_hand_pose("right_hand", "relaxed")</code></pre>
       <h2>State machine</h2>
       <ul><li>IDLE</li><li>WAIT_FOR_BILL</li><li>ACCEPT_BILL</li><li>PLACE_BILL_ASIDE</li><li>PICK_SNACK</li><li>HAND_SNACK_TO_USER</li><li>RETURN_HOME</li></ul>
 
-      <h2>Code walkthrough</h2>
-      <p>The script waits for a trigger, moves the arm to the bill area, closes or positions the hand, moves the bill to a side zone, moves toward the snack item, presents the snack, and returns to idle. The important idea is that a complex demo becomes easier when it is split into clear states.</p>
+      <h2>Starter code</h2>
+      <p class="lh-wt-intro">This version uses an <code>enum.Enum</code> state machine so every stage of the interaction is named. Students can add print statements to each state transition to see the sequence in the terminal.</p>
+      <div class="lh-starter-note"><strong>Note:</strong>&nbsp;These examples are written as classroom starter code. Final hardware APIs can be adjusted to match the installed SwayForm software image.</div>
       <div class="lh-code">
-        <div class="lh-code-hdr"><span class="lh-code-lang">python</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
-        <pre><code class="language-python">from swayform.motion import MotionClient
+        <div class="lh-code-hdr"><span class="lh-code-lang">python — dollar_snack_exchange.py</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-python">"""
+Demo 05: Dollar Bill Snack Exchange
+
+Purpose:
+A classroom interaction demo where the user places a bill near the robot,
+the robot accepts it, sets it aside, then presents a snack item.
+
+Important:
+This is not real payment processing or currency validation.
+The robot assumes every bill is a $1 bill.
+This demo is for supervised classroom interaction only.
+"""
+
+import enum
+from time import sleep, time
+from swayform.motion import MotionClient
 from swayform.vision import RealSenseInput
-from time import sleep
+from swayform.audio import AudioPrompt
 
-motion = MotionClient()
-camera = RealSenseInput()
 
-state = "WAIT_FOR_BILL"
+BILL_WAIT_TIMEOUT = 15.0
+BILL_HOLD_SECONDS = 0.6
+SNACK_HANDOFF_HOLD = 1.5
 
-if camera.object_in_zone("bill_area"):
-    state = "ACCEPT_BILL"
 
-if state == "ACCEPT_BILL":
-    motion.safe_pose("bill_pickup")
-    motion.set_hand_pose("right_hand", "gentle_close")
-    sleep(0.5)
-    state = "PLACE_BILL_ASIDE"
+class ExchangeState(enum.Enum):
+    WAIT_FOR_BILL      = "wait_for_bill"
+    ACCEPT_BILL        = "accept_bill"
+    PLACE_BILL_ASIDE   = "place_bill_aside"
+    PICK_SNACK         = "pick_snack"
+    HAND_SNACK_TO_USER = "hand_snack_to_user"
+    RETURN_HOME        = "return_home"
 
-if state == "PLACE_BILL_ASIDE":
-    motion.safe_pose("bill_side_drop")
-    motion.set_hand_pose("right_hand", "open")
-    state = "PICK_SNACK"
 
-if state == "PICK_SNACK":
-    motion.safe_pose("snack_pickup")
-    state = "HAND_SNACK_TO_USER"
+def wait_for_bill(camera: RealSenseInput, timeout: float) -> bool:
+    """Poll until a bill is detected in the bill area, or timeout."""
+    start = time()
+    while time() - start < timeout:
+        if camera.object_in_zone("bill_area"):
+            return True
+        sleep(0.1)
+    return False
 
-if state == "HAND_SNACK_TO_USER":
-    motion.safe_pose("snack_handoff")
-    sleep(1.0)
-    motion.safe_pose("idle")</code></pre>
+
+def run_exchange(motion: MotionClient, audio: AudioPrompt) -> None:
+    state = ExchangeState.ACCEPT_BILL
+
+    while state != ExchangeState.RETURN_HOME:
+        print(f"State: {state.value}")
+
+        if state == ExchangeState.ACCEPT_BILL:
+            motion.safe_pose("bill_pickup")
+            motion.set_hand_pose("right_hand", "gentle_close")
+            sleep(BILL_HOLD_SECONDS)
+            state = ExchangeState.PLACE_BILL_ASIDE
+
+        elif state == ExchangeState.PLACE_BILL_ASIDE:
+            motion.safe_pose("bill_side_drop")
+            motion.set_hand_pose("right_hand", "open")
+            sleep(0.3)
+            state = ExchangeState.PICK_SNACK
+
+        elif state == ExchangeState.PICK_SNACK:
+            motion.safe_pose("snack_pickup")
+            sleep(0.4)
+            state = ExchangeState.HAND_SNACK_TO_USER
+
+        elif state == ExchangeState.HAND_SNACK_TO_USER:
+            motion.safe_pose("snack_handoff")
+            audio.say("Here you go.")
+            sleep(SNACK_HANDOFF_HOLD)
+            state = ExchangeState.RETURN_HOME
+
+    motion.safe_pose("idle")
+
+
+def main() -> None:
+    motion = MotionClient()
+    camera = RealSenseInput()
+    audio  = AudioPrompt()
+
+    motion.safe_pose("idle")
+    audio.say("Ready. Place your bill on the table.")
+
+    bill_detected = wait_for_bill(camera, BILL_WAIT_TIMEOUT)
+
+    if not bill_detected:
+        audio.say("No bill detected. Returning to idle.")
+        motion.safe_pose("idle")
+        return
+
+    try:
+        motion.lock_behavior("dollar_snack_exchange")
+        run_exchange(motion, audio)
+    finally:
+        motion.unlock_behavior("dollar_snack_exchange")
+        motion.safe_pose("idle")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      <div class="lh-wt-cards">
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">ExchangeState enum</div><div class="lh-wt-card-body">Each stage of the interaction is a named state. Using an enum prevents typos and lets students see the full sequence before the code runs.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">wait_for_bill</div><div class="lh-wt-card-body">Same timeout pattern as Demo 02. The robot waits a fixed window, then gives up cleanly if nothing is detected.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">while loop drives the sequence</div><div class="lh-wt-card-body">Each iteration handles one state, then advances to the next. Adding <code>print(f"State: {state.value}")</code> (already there) shows students the state machine running live.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">audio.say checkpoints</div><div class="lh-wt-card-body">Spoken words mark each major step. This makes the demo easier for observers to follow and helps students identify which state is executing.</div></div>
+        <div class="lh-wt-card"><div class="lh-wt-card-hdr">finally block</div><div class="lh-wt-card-body">The motion lock releases and the robot returns to idle even if an error interrupts mid-sequence. Never leave a behavior lock open.</div></div>
       </div>
 
       <h2>Try changing this</h2>
@@ -1604,6 +2079,55 @@ if ('scrollRestoration' in history) {
 }
 window.scrollTo({top: 0, left: 0, behavior: 'instant'});
 
+/* ── PANEL INDEX (search + mobile nav source of truth) ── */
+var PANEL_INDEX = [
+  {id:'panel-home',             title:'Learning Hub Home',              group:'Start Here',       status:'ready',  keywords:['home','overview','start','welcome','dashboard']},
+  {id:'panel-orientation',      title:'Orientation',                    group:'Start Here',       status:'ready',  keywords:['orientation','goals','what is swayform','intro']},
+  {id:'panel-quick-start',      title:'Quick Start',                    group:'Start Here',       status:'ready',  keywords:['quick start','first run','begin','get started']},
+  {id:'panel-connecting',       title:'Connecting via SSH',             group:'Setup',            status:'ready',  keywords:['ssh','connect','wifi','network','terminal','vscode']},
+  {id:'panel-vscode-ssh',       title:'VSCode Remote Setup',            group:'Setup',            status:'ready',  keywords:['vscode','remote','ide','editor','setup','extension']},
+  {id:'panel-running-demo',     title:'Running a Demo',                 group:'Setup',            status:'ready',  keywords:['run','ros2','command','terminal','launch']},
+  {id:'panel-stopping',         title:'Stopping a Demo',                group:'Setup',            status:'ready',  keywords:['stop','kill','ctrl c','interrupt','shutdown']},
+  {id:'panel-demo-library',     title:'Demo Code Library',              group:'Demo Code Library',status:'ready',  keywords:['demo','library','overview','all demos']},
+  {id:'panel-demo-01',          title:'Demo 01: Wave',                  group:'Demo Code Library',status:'ready',  keywords:['wave','arm','motion','hello','gesture','beginner']},
+  {id:'panel-demo-02',          title:'Demo 02: Vision Handshake',      group:'Demo Code Library',status:'ready',  keywords:['handshake','vision','realsense','camera','detection','handshake']},
+  {id:'panel-demo-03',          title:'Demo 03: Look and Point',        group:'Demo Code Library',status:'ready',  keywords:['look','point','head','neck','yaw','zone','target','vision']},
+  {id:'panel-demo-04',          title:'Demo 04: Rock Paper Scissors',   group:'Demo Code Library',status:'ready',  keywords:['rock paper scissors','game','random','hand pose','loop']},
+  {id:'panel-demo-05',          title:'Demo 05: Dollar Bill Snack Exchange', group:'Demo Code Library',status:'ready',  keywords:['snack','dollar','bill','exchange','state machine','enum']},
+  {id:'panel-demo-06',          title:'Demo 06: Follow the Face',       group:'Demo Code Library',status:'soon',   keywords:['face tracking','follow','head','camera']},
+  {id:'panel-demo-07',          title:'Demo 07: Speak and Listen',      group:'Demo Code Library',status:'soon',   keywords:['speech','audio','listen','voice','microphone']},
+  {id:'panel-demo-08',          title:'Demo 08: Dance Routine',         group:'Demo Code Library',status:'soon',   keywords:['dance','music','choreography','sequence']},
+  {id:'panel-demo-09',          title:'Demo 09: Object Sort',           group:'Demo Code Library',status:'soon',   keywords:['sort','object','detect','pick','place','manipulation']},
+  {id:'panel-demo-10',          title:'Demo 10: Multi-Robot Sync',      group:'Demo Code Library',status:'soon',   keywords:['multi robot','sync','coordination','team']},
+  {id:'panel-lab-overview',     title:'Student Labs Overview',          group:'Student Labs',     status:'ready',  keywords:['labs','overview','student','list','all labs']},
+  {id:'panel-lab-01',           title:'Lab 01: Safe Poses',             group:'Student Labs',     status:'ready',  keywords:['safe pose','idle','preset','posture','lab 1']},
+  {id:'panel-lab-02',           title:'Lab 02: Joint Control Basics',   group:'Student Labs',     status:'ready',  keywords:['joint','servo','angle','move','control','lab 2']},
+  {id:'panel-lab-03',           title:'Lab 03: Behavior Sequencing',    group:'Student Labs',     status:'ready',  keywords:['sequence','behavior','order','steps','lab 3']},
+  {id:'panel-lab-04',           title:'Lab 04: Head Tracking Basics',   group:'Student Labs',     status:'ready',  keywords:['head','tracking','neck','camera','vision','lab 4']},
+  {id:'panel-lab-05',           title:'Lab 05: Reading Sensor Data',    group:'Student Labs',     status:'ready',  keywords:['sensor','read','data','realsense','depth','lab 5']},
+  {id:'panel-lab-06',           title:'Lab 06: Audio Output',           group:'Student Labs',     status:'ready',  keywords:['audio','speaker','sound','output','lab 6']},
+  {id:'panel-lab-07',           title:'Lab 07: Hand Pose Timing',       group:'Student Labs',     status:'ready',  keywords:['hand','pose','timing','finger','lab 7']},
+  {id:'panel-lab-08',           title:'Lab 08: Camera Zones',           group:'Student Labs',     status:'ready',  keywords:['camera','zone','detection','region','left right','lab 8']},
+  {id:'panel-lab-09',           title:'Lab 09: Motion Locking',         group:'Student Labs',     status:'ready',  keywords:['lock','motion','behavior lock','safety','lab 9']},
+  {id:'panel-lab-10',           title:'Lab 10: Simple State Machine',   group:'Student Labs',     status:'ready',  keywords:['state machine','enum','states','logic','lab 10']},
+  {id:'panel-lab-11',           title:'Lab 11',                         group:'Student Labs',     status:'soon',   keywords:['lab 11']},
+  {id:'panel-lab-12',           title:'Lab 12',                         group:'Student Labs',     status:'soon',   keywords:['lab 12']},
+  {id:'panel-lab-13',           title:'Lab 13',                         group:'Student Labs',     status:'soon',   keywords:['lab 13']},
+  {id:'panel-lab-14',           title:'Lab 14',                         group:'Student Labs',     status:'soon',   keywords:['lab 14']},
+  {id:'panel-lab-15',           title:'Lab 15',                         group:'Student Labs',     status:'soon',   keywords:['lab 15']},
+  {id:'panel-lab-16',           title:'Lab 16',                         group:'Student Labs',     status:'soon',   keywords:['lab 16']},
+  {id:'panel-lab-17',           title:'Lab 17',                         group:'Student Labs',     status:'soon',   keywords:['lab 17']},
+  {id:'panel-lab-18',           title:'Lab 18',                         group:'Student Labs',     status:'soon',   keywords:['lab 18']},
+  {id:'panel-lab-19',           title:'Lab 19',                         group:'Student Labs',     status:'soon',   keywords:['lab 19']},
+  {id:'panel-lab-20',           title:'Lab 20',                         group:'Student Labs',     status:'soon',   keywords:['lab 20']},
+  {id:'panel-ref-ros',          title:'ROS 2 Basics',                   group:'Reference',        status:'ready',  keywords:['ros2','ros','node','topic','publisher','subscriber','reference']},
+  {id:'panel-ref-motion',       title:'Motion API Reference',           group:'Reference',        status:'ready',  keywords:['motion api','motionclient','joint','safe_pose','reference']},
+  {id:'panel-ref-vision',       title:'Vision API Reference',           group:'Reference',        status:'ready',  keywords:['vision','realsense','camera','api','zone','depth','reference']},
+  {id:'panel-ref-audio',        title:'Audio API Reference',            group:'Reference',        status:'ready',  keywords:['audio','speaker','say','sound','api','reference']},
+  {id:'panel-ref-glossary',     title:'Glossary',                       group:'Reference',        status:'ready',  keywords:['glossary','terms','definitions','vocabulary','what is']},
+  {id:'panel-ref-troubleshoot', title:'Troubleshooting',                group:'Reference',        status:'ready',  keywords:['troubleshoot','error','fix','problem','help','debug','not working']}
+];
+
 /* ── CORE NAVIGATION ─────────────────────────────── */
 function showPanel(id) {
   document.querySelectorAll('.lh-panel').forEach(function(p) {
@@ -1646,7 +2170,21 @@ function showPanel(id) {
   if (main) main.scrollTop = 0;
   window.scrollTo({top: 0, behavior: 'instant'});
 
-  closeMobSidebar();
+  /* update mobile switcher label */
+  var entry = PANEL_INDEX.find(function(p) { return p.id === id; });
+  var cur = document.getElementById('lh-msw-current');
+  if (cur) cur.textContent = entry ? entry.title : 'Learning Hub Home';
+
+  /* sync mobile nav active state */
+  document.querySelectorAll('.lh-mob-nav-item').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.panel === id);
+  });
+
+  /* close mobile nav list if open */
+  var navList = document.getElementById('lh-mob-nav-list');
+  if (navList) navList.classList.remove('open');
+  var chevron = document.querySelector('.lh-msw-chevron');
+  if (chevron) chevron.classList.remove('rotated');
 }
 
 /* ── SIDEBAR GROUP TOGGLE ────────────────────────── */
@@ -1656,43 +2194,107 @@ function toggleSbGroup(btn) {
   if (items) items.classList.toggle('open');
 }
 
-/* ── MOBILE SIDEBAR ──────────────────────────────── */
-function openMobSidebar() {
-  var overlay = document.getElementById('lh-mob-sidebar');
-  if (!overlay) return;
-
-  var inner = document.getElementById('lh-mob-sb-inner');
-  if (inner && inner.children.length <= 1) {
-    var sb = document.getElementById('lh-sidebar');
-    if (sb) {
-      var clone = sb.cloneNode(true);
-      clone.querySelectorAll('.lh-sb-item').forEach(function(item) {
-        var panel = item.dataset.panel;
-        if (panel) {
-          item.onclick = function() { showPanel(panel); };
-        }
-      });
-      clone.querySelectorAll('.lh-sb-group-hdr').forEach(function(hdr) {
-        hdr.onclick = function() { toggleSbGroup(hdr); };
-      });
-      while (inner.firstChild) inner.removeChild(inner.firstChild);
-      var closeBtn = document.createElement('button');
-      closeBtn.className = 'lh-mob-sb-close';
-      closeBtn.innerHTML = '&times;';
-      closeBtn.onclick = closeMobSidebar;
-      inner.appendChild(closeBtn);
-      inner.appendChild(clone);
-    }
-  }
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+/* ── MOBILE NAV SWITCHER ─────────────────────────── */
+function toggleMobNav() {
+  var list = document.getElementById('lh-mob-nav-list');
+  var chevron = document.querySelector('.lh-msw-chevron');
+  if (!list) return;
+  var isOpen = list.classList.toggle('open');
+  if (chevron) chevron.classList.toggle('rotated', isOpen);
 }
 
-function closeMobSidebar(e) {
-  if (e && e.target !== document.getElementById('lh-mob-sidebar')) return;
-  var overlay = document.getElementById('lh-mob-sidebar');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
+function buildMobNav() {
+  var container = document.getElementById('lh-mob-nav-groups');
+  if (!container) return;
+
+  var groups = {};
+  PANEL_INDEX.forEach(function(p) {
+    if (!groups[p.group]) groups[p.group] = [];
+    groups[p.group].push(p);
+  });
+
+  var html = '';
+  Object.keys(groups).forEach(function(groupName) {
+    html += '<div class="lh-mob-group-hdr">' + groupName + '</div>';
+    groups[groupName].forEach(function(p) {
+      var dot = p.status === 'soon'
+        ? '<span class="lh-mob-dot soon"></span>'
+        : '<span class="lh-mob-dot ready"></span>';
+      html += '<button class="lh-mob-nav-item" data-panel="' + p.id + '" onclick="showPanel(\'' + p.id + '\')">'
+            + p.title + dot + '</button>';
+    });
+  });
+  container.innerHTML = html;
+}
+
+/* ── SEARCH ──────────────────────────────────────── */
+function initSearch() {
+  var desktopInput  = document.getElementById('lh-search-input');
+  var desktopResult = document.getElementById('lh-search-results');
+  var mobileInput   = document.getElementById('lh-mob-search-input');
+
+  function doSearch(query, resultEl) {
+    if (!resultEl) return;
+    var q = query.trim().toLowerCase();
+    if (!q) { resultEl.style.display = 'none'; return; }
+
+    var matches = PANEL_INDEX.filter(function(p) {
+      return p.title.toLowerCase().indexOf(q) >= 0
+          || p.group.toLowerCase().indexOf(q) >= 0
+          || p.status.indexOf(q) >= 0
+          || p.keywords.some(function(k) { return k.indexOf(q) >= 0; });
+    });
+
+    if (!matches.length) {
+      resultEl.innerHTML = '<div class="lh-sr-empty">No matching Learning Hub sections found.</div>';
+      resultEl.style.display = 'block';
+      return;
+    }
+
+    resultEl.innerHTML = matches.slice(0, 10).map(function(p) {
+      var badge = p.status === 'soon'
+        ? '<span class="lh-sr-badge soon">Coming soon</span>'
+        : '<span class="lh-sr-badge ready">Ready</span>';
+      return '<button class="lh-sr-item" onclick="selectSearchResult(\'' + p.id + '\')">'
+           + '<span class="lh-sr-title">' + p.title + '</span>'
+           + '<span class="lh-sr-meta"><span class="lh-sr-group">' + p.group + '</span>' + badge + '</span>'
+           + '</button>';
+    }).join('');
+    resultEl.style.display = 'block';
+  }
+
+  if (desktopInput) {
+    desktopInput.addEventListener('input', function() {
+      doSearch(desktopInput.value, desktopResult);
+    });
+    desktopInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { desktopResult.style.display = 'none'; desktopInput.value = ''; }
+    });
+    document.addEventListener('click', function(e) {
+      if (!desktopInput.contains(e.target) && !desktopResult.contains(e.target)) {
+        desktopResult.style.display = 'none';
+      }
+    });
+  }
+
+  if (mobileInput) {
+    var mobResult = document.getElementById('lh-mob-search-results');
+    mobileInput.addEventListener('input', function() {
+      doSearch(mobileInput.value, mobResult);
+    });
+  }
+}
+
+function selectSearchResult(id) {
+  var desktopInput  = document.getElementById('lh-search-input');
+  var desktopResult = document.getElementById('lh-search-results');
+  var mobileInput   = document.getElementById('lh-mob-search-input');
+  var mobResult     = document.getElementById('lh-mob-search-results');
+  if (desktopInput)  desktopInput.value  = '';
+  if (mobileInput)   mobileInput.value   = '';
+  if (desktopResult) desktopResult.style.display = 'none';
+  if (mobResult)     mobResult.style.display     = 'none';
+  showPanel(id);
 }
 
 /* ── COPY BUTTON ─────────────────────────────────── */
@@ -1713,10 +2315,12 @@ function copyCode(btn) {
 document.addEventListener('DOMContentLoaded', function() {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+  buildMobNav();
+  initSearch();
   showPanel('panel-home');
 
-  var ham = document.getElementById('lh-ham');
-  if (ham) ham.onclick = openMobSidebar;
+  var msw = document.querySelector('.lh-msw-btn');
+  if (msw) msw.onclick = toggleMobNav;
 });
 </script>
 </body>

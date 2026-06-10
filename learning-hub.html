@@ -227,13 +227,29 @@ code,pre{font-family:"JetBrains Mono",monospace}
 .lh-divider{height:1px;background:#eaeef5;margin:28px 0}
 
 /* Code blocks */
-.lh-code{border-radius:10px;overflow:hidden;border:1px solid rgba(0,0,0,.1);margin:14px 0}
-.lh-code-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#0d1117;border-bottom:1px solid rgba(255,255,255,.06)}
+.lh-code{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.07);margin:14px 0}
+.lh-code-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#0b0f14;border-bottom:1px solid rgba(255,255,255,.06)}
 .lh-code-lang{font-size:10px;font-weight:700;color:#6e7a8a;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono)}
 .lh-copy{font-size:11px;font-weight:600;color:#6e7a8a;padding:3px 9px;border-radius:5px;border:1px solid rgba(255,255,255,.1);background:none;cursor:pointer;transition:all .15s;font-family:var(--font)}
 .lh-copy:hover{color:#aaa;border-color:rgba(255,255,255,.22)}
 .lh-copy.ok{color:#00804a;border-color:rgba(0,128,74,.3)}
-pre[class*="language-"]{margin:0!important;border-radius:0!important;background:#0d1117!important;font-size:12px!important;line-height:1.75!important}
+
+/* Prism override — strip all token backgrounds/boxes */
+pre[class*="language-"]{margin:0!important;border-radius:0!important;background:#0b0f14!important;font-size:12.5px!important;line-height:1.7!important;padding:1.2rem 1.4rem!important;overflow-x:auto!important}
+code[class*="language-"]{background:transparent!important;color:#d6deeb!important;font-size:inherit!important;line-height:inherit!important;white-space:pre!important}
+.lh-code .token,
+.lh-code code span,
+pre[class*="language-"] .token{background:transparent!important;background-color:transparent!important;box-shadow:none!important;border:none!important;padding:0!important;margin:0!important}
+
+/* Token colors — no backgrounds, just text color */
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#546e7a!important}
+.token.keyword,.token.tag,.token.boolean,.token.constant,.token.deleted{color:#c792ea!important}
+.token.string,.token.attr-value,.token.char,.token.builtin,.token.inserted{color:#addb67!important}
+.token.number,.token.unit,.token.hexcode{color:#f78c6c!important}
+.token.operator,.token.entity,.token.url,.token.variable,.token.symbol,.token.regex{color:#89ddff!important}
+.token.atrule,.token.attr-name,.token.function,.token.class-name,.token.selector{color:#82aaff!important}
+.token.punctuation{color:#89ddff!important}
+.token.parameter,.token.property{color:#d6deeb!important}
 
 /* Terminal blocks */
 .lh-term{border-radius:10px;overflow:hidden;border:1px solid rgba(0,0,0,.1);margin:14px 0}

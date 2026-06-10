@@ -102,6 +102,8 @@ p{color:var(--muted);line-height:1.75}
 .nav-right{display:flex;align-items:center;gap:10px}
 .hub-cta{padding:8px 18px;border-radius:7px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;transition:all .18s;letter-spacing:.01em}
 .hub-cta:hover{background:var(--soft);transform:translateY(-1px)}
+.lh-nav-hub{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border-radius:7px;background:#0057ff;color:#fff!important;font-size:13px;font-weight:700;letter-spacing:.01em;transition:all .18s;white-space:nowrap;text-decoration:none}
+.lh-nav-hub:hover{background:#2268ff;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,87,255,.3)}
 .hamburger{display:none;flex-direction:column;gap:5px;padding:8px;cursor:pointer}
 .hamburger span{display:block;width:22px;height:2px;background:var(--soft);border-radius:2px;transition:.2s}
 #mobile-nav{display:none;position:fixed;inset:0;z-index:950;background:rgba(5,7,13,.98);backdrop-filter:blur(24px);flex-direction:column;align-items:center;justify-content:center;gap:6px}
@@ -576,6 +578,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   /* ensure hamburger tap target is large enough */
   .hamburger{padding:10px;margin:-4px}
   .nav-right .btn-ghost{display:none}
+  .lh-nav-hub{display:none!important}
   .section{padding:80px 0}.section-sm{padding:60px 0}
   .stats-inner{grid-template-columns:1fr 1fr}
   .stat:nth-child(5){grid-column:1/-1}

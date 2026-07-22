@@ -27,16 +27,20 @@
 /* ── HERO: 2-column with real robot photo ── */
 .robot-hero-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:56px;
+  grid-template-columns:0.85fr 1.15fr;
+  gap:32px;
   align-items:center;
 }
+.robot-hero-img-col{
+  justify-content:flex-start !important;
+  overflow:visible;
+}
 .robot-hero-photo{
-  width:100%;
-  max-width:520px;
+  width:108%;
+  max-width:640px;
   height:auto;
   display:block;
-  margin:0 auto;
+  margin:0;
   filter:drop-shadow(0 32px 64px rgba(0,0,0,.55));
 }
 
@@ -209,7 +213,7 @@
 
 /* mobile */
 @media(max-width:900px){
-  .robot-hero-grid{gap:32px}
+  .robot-hero-grid{gap:24px}
   .anatomy-photo-wrap{grid-template-columns:1fr;gap:32px}
   .anatomy-panel{position:static !important;min-height:auto !important}
 }
@@ -219,8 +223,8 @@
     padding-bottom:44px !important;
   }
   .robot-hero-grid{grid-template-columns:1fr}
-  .robot-hero-img-col{order:2}
-  .robot-hero-photo{max-height:260px;object-fit:contain}
+  .robot-hero-img-col{order:2;justify-content:center !important}
+  .robot-hero-photo{width:100%;max-width:340px;margin:0 auto;max-height:260px;object-fit:contain}
   .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
   .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   /* compact labels on mobile — smaller text, no blur (perf), solid bg */

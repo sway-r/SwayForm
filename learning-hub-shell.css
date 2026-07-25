@@ -84,7 +84,7 @@
 .lh-panel h1{font-size:clamp(24px,3.5vw,36px);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:20px;color:#0e1624}
 .lh-panel h2{font-size:18px;font-weight:800;letter-spacing:-.015em;margin:36px 0 10px;color:#1a1f2e;line-height:1.3}
 .lh-panel h3{font-size:14px;font-weight:700;letter-spacing:-.01em;margin:20px 0 8px;color:#2a3650}
-.lh-panel p{font-size:14.5px;color:#374060;line-height:1.8;margin-bottom:12px}
+.lh-panel p{font-size:15px;color:#374060;line-height:1.7;margin-bottom:12px}
 .lh-panel ul,.lh-panel ol{margin-bottom:16px;display:flex;flex-direction:column;gap:5px}
 .lh-panel ul li{font-size:14px;color:#374060;padding-left:18px;position:relative;line-height:1.7}
 .lh-panel ul li::before{content:"→";position:absolute;left:0;color:#0057ff;font-size:10px;font-weight:900;top:5px}
@@ -263,7 +263,7 @@ code[class*="language-"]{background:transparent!important;color:#d6deeb!importan
 @media(max-width:600px){
   .lh-dash-cards{grid-template-columns:1fr}
   .lh-grid{grid-template-columns:1fr}
-  .lh-panel{padding:24px 16px 48px}
+  .lh-panel{padding:24px 20px 48px}
   .lh-home-hero{padding:28px 20px}
   .lh-status-grid{grid-template-columns:1fr}
   .lh-nav-row{flex-direction:column;align-items:flex-start}

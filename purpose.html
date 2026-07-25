@@ -48,10 +48,10 @@
 .pur-sage{background:var(--g-sage)}
 .pur-sage + .pur-sage{border-top:1px solid rgba(45,122,80,.1)}
 
-/* dark green section (climactic section 5) */
+/* climactic section 5 — kept light, same treatment as a plain section */
 .pur-dark{
-  background:var(--g-grove);
-  border-top:1px solid rgba(45,122,80,.08) !important;
+  background:#fff;
+  border-top:1px solid var(--g-line) !important;
 }
 .pur-dark + .pur-section{border-top:1px solid var(--g-line)}
 
@@ -79,10 +79,10 @@
 }
 .pur-copy p:last-child{margin-bottom:0}
 
-/* dark-section overrides */
-.pur-dark .pur-eyebrow{color:rgba(140,210,155,.7)}
-.pur-dark .pur-h2{color:var(--g-cream)}
-.pur-dark .pur-copy p{color:var(--g-mist)}
+/* section 5 uses the same light typography as sections 1–2, just restated for clarity */
+.pur-dark .pur-eyebrow{color:var(--g-emerald)}
+.pur-dark .pur-h2{color:var(--ink)}
+.pur-dark .pur-copy p{color:var(--muted)}
 
 /* callout aside (used in section 4) */
 .pur-aside{
@@ -138,10 +138,10 @@
 }
 
 /* ── CLOSING ── */
-.pur-close{background:var(--g-forest);padding:96px 0;position:relative;overflow:hidden}
+.pur-close{background:var(--g-sage);padding:96px 0;position:relative;overflow:hidden;border-top:1px solid var(--g-line)}
 .pur-close::before{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 70% at 50% 60%,rgba(45,122,80,.16) 0%,transparent 70%);
+  background:radial-gradient(ellipse 70% 70% at 50% 60%,rgba(45,122,80,.08) 0%,transparent 70%);
   pointer-events:none;
 }
 .pur-close-inner{
@@ -151,10 +151,10 @@
 .pur-close h2{
   font-size:clamp(26px,3.2vw,42px);font-weight:900;
   letter-spacing:-.035em;line-height:1.1;
-  color:var(--g-cream);margin-bottom:20px;
+  color:var(--ink);margin-bottom:20px;
 }
 .pur-close p{
-  font-size:17px;color:var(--g-mist);
+  font-size:17px;color:var(--muted);
   line-height:1.78;margin-bottom:40px;
 }
 .pur-close-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
@@ -192,12 +192,12 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/robot">The Robot</a>
-      <a href="/learning-hub">Learning Hub</a>
-      <a href="/learning-path">Curriculum</a>
+  <a href="/learning-path">Curriculum</a>
       <a href="/safety">Safety</a>
       <a href="/for-schools">For Schools</a>
     </div>
     <div class="nav-right">
+      <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:13px;padding:8px 18px">Open Learning Hub <span aria-hidden="true">&#8599;</span></a>
       <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
       <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
     </div>
@@ -208,24 +208,22 @@
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="/">Overview</a>
   <a href="/robot">The Robot</a>
-  <a href="/learning-hub">Learning Hub</a>
   <a href="/learning-path">Curriculum</a>
   <a href="/safety">Safety</a>
   <a href="/for-schools">For Schools</a>
-  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+  <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Hub &#8599;</a>
+  <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
 </div>
 
-<!-- ═══ HERO — deep forest green ═══ -->
-<section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 120px);padding-bottom:96px;background:#0a2318;position:relative;overflow:hidden">
-  <!-- green radial glow -->
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(45,122,80,.16) 0%,transparent 70%);pointer-events:none"></div>
+<!-- ═══ HERO — light sage ═══ -->
+<section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 120px);padding-bottom:96px;background:var(--g-sage);position:relative;overflow:hidden;border-bottom:1px solid var(--g-line)">
   <!-- subtle green grid -->
-  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(140,200,150,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(140,200,150,.04) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);-webkit-mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);pointer-events:none"></div>
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(45,122,80,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(45,122,80,.05) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);-webkit-mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);pointer-events:none"></div>
   <div class="wrap" style="position:relative;z-index:1">
-    <span style="display:block;margin-bottom:20px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(140,210,150,.65)">Our Mission</span>
-    <h1 style="font-size:clamp(36px,5.5vw,62px);font-weight:900;letter-spacing:-.04em;line-height:1.06;color:#c8e2cc;max-width:740px;margin-bottom:24px">Bring real robotics into every classroom.</h1>
-    <p style="font-size:18px;color:rgba(172,212,178,.6);max-width:580px;line-height:1.72">SwayForm gives students a robot they can interact with directly — guided by a manual of ready-to-run programs, or writing their own code from scratch. Type it in, watch it respond, learn by doing.</p>
-    <p style="font-size:18px;color:rgba(172,212,178,.6);max-width:580px;line-height:1.72;margin-top:20px">Structured labs, zero robotics background required. Built for professors and program directors who believe the best learning happens when students are the ones in control.</p>
+    <span style="display:block;margin-bottom:20px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--g-emerald)">Our Mission</span>
+    <h1 style="font-size:clamp(36px,5.5vw,62px);font-weight:900;letter-spacing:-.04em;line-height:1.06;color:var(--ink);max-width:740px;margin-bottom:24px">Bring real robotics into every classroom.</h1>
+    <p style="font-size:18px;color:var(--muted);max-width:580px;line-height:1.72">SwayForm gives students a robot they can interact with directly — guided by a manual of ready-to-run programs, or writing their own code from scratch. Type it in, watch it respond, learn by doing.</p>
+    <p style="font-size:18px;color:var(--muted);max-width:580px;line-height:1.72;margin-top:20px">Structured labs, zero robotics background required. Built for professors and program directors who believe the best learning happens when students are the ones in control.</p>
   </div>
 </section>
 
@@ -351,14 +349,14 @@
   </div>
 </div>
 
-<!-- ═══ CLOSING — deep forest green ═══ -->
+<!-- ═══ CLOSING — light sage ═══ -->
 <div class="pur-close">
   <div class="pur-close-inner">
     <h2>We do not want students to fear automation.</h2>
     <p>We want them to understand it, build with it, and help shape what comes next.</p>
     <div class="pur-close-btns">
-      <a href="/robot" class="btn btn-lg" style="background:#fff;color:#0a2318;font-weight:700;border-radius:10px">Explore the Robot</a>
-      <a href="/learning-path" class="btn btn-ghost btn-lg" style="border-color:rgba(140,200,150,.28);color:#c8e2cc">View the Learning Path</a>
+      <a href="/robot" class="btn btn-primary btn-lg" style="font-weight:700">Explore the Robot</a>
+      <a href="/learning-path" class="btn btn-ghost btn-lg" style="border-color:rgba(45,122,80,.3);color:var(--g-emerald)">View the Curriculum</a>
     </div>
   </div>
 </div>
@@ -375,7 +373,7 @@
         <ul>
           <li><a href="/">Overview</a></li>
           <li><a href="/robot">The Robot</a></li>
-          <li><a href="/learning-hub">Learning Hub</a></li>
+          <li><a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Learning Hub</a></li>
           <li><a href="/learning-path">Curriculum</a></li>
           <li><a href="/safety">Safety</a></li>
           <li><a href="/for-schools">For Schools</a></li>

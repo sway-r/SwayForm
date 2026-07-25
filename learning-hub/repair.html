@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Repair | SwayForm Learning Hub</title>
 <meta name="description" content="Component identification, diagnostics, disassembly, calibration, and replacement-part guidance for repairing a SwayForm robot.">
-<link rel="canonical" href="https://swayform.net/learning-hub/repair">
+<link rel="canonical" href="https://learning.swayform.net/repair">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,42 +13,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/learning-hub-shell.css">
-<style>#topbar{top:0!important}</style>
 </head>
 <body>
 
-<nav id="topbar">
-  <div class="nav-inner">
-    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
-    <div class="nav-links">
-      <a href="/">Overview</a>
-      <a href="/robot">The Robot</a>
-      <a href="/learning-hub" class="active">Learning Hub</a>
-      <a href="/learning-path">Curriculum</a>
-      <a href="/safety">Safety</a>
-      <a href="/for-schools">For Schools</a>
-    </div>
-    <div class="nav-right">
-      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
-      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+<header id="lh-topbar">
+  <div class="lh-topbar-inner">
+    <a href="https://swayform.net/" class="lh-brand"><span class="lh-brand-s">S</span>wayForm<span class="lh-brand-sep">/</span><span class="lh-brand-label">Learning Hub</span></a>
+    <div class="lh-topbar-actions">
+      <a href="https://swayform.net/contact" class="lh-topbar-contact">Contact Sales</a>
+      <a href="https://swayform.net/" class="lh-topbar-back">Back to SwayForm &#8599;</a>
     </div>
   </div>
-</nav>
-<div id="mobile-nav">
-  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
-  <a href="/">Overview</a>
-  <a href="/robot">The Robot</a>
-  <a href="/learning-hub">Learning Hub</a>
-  <a href="/learning-path">Curriculum</a>
-  <a href="/safety">Safety</a>
-  <a href="/for-schools">For Schools</a>
-  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
-</div>
+</header>
 
-<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile()">☰ Learning Hub Sections</button>
+<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile(this)" aria-expanded="false" aria-controls="lh-sidebar">&#9776; Lessons</button>
+<div id="lh-sidebar-backdrop" onclick="closeLhSidebarMobile()"></div>
 
 <div id="lh-shell">
   <aside id="lh-sidebar">
+    <button class="lh-sb-close" onclick="closeLhSidebarMobile()" aria-label="Close lessons menu">&times;</button>
     <div class="lh-sb-top">
       <div class="lh-sb-hub-label">Learning Hub</div>
       <div class="lh-sb-search-wrap">
@@ -61,45 +44,45 @@
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Start Here <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub">Hub Home</a>
-          <a class="lh-sb-item" href="/learning-hub/getting-started">Getting Started</a>
-          <a class="lh-sb-item" href="/learning-hub/classroom-workflow">Classroom Workflow</a>
-          <a class="lh-sb-item" href="/learning-hub/safety">Safety Notes</a>
+          <a class="lh-sb-item" href="/">Hub Home</a>
+          <a class="lh-sb-item" href="/getting-started">Getting Started</a>
+          <a class="lh-sb-item" href="/classroom-workflow">Classroom Workflow</a>
+          <a class="lh-sb-item" href="/safety">Safety Notes</a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Setup <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/setup">VS Code, Run &amp; Stop</a>
-          <a class="lh-sb-item" href="/learning-hub/ssh">SSH &amp; Student Accounts</a>
-          <a class="lh-sb-item" href="/learning-hub/projects">Student Projects</a>
-          <a class="lh-sb-item" href="/learning-hub/queue">Validation &amp; Queue</a>
+          <a class="lh-sb-item" href="/setup">VS Code, Run &amp; Stop</a>
+          <a class="lh-sb-item" href="/ssh">SSH &amp; Student Accounts</a>
+          <a class="lh-sb-item" href="/projects">Student Projects</a>
+          <a class="lh-sb-item" href="/queue">Validation &amp; Queue</a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Demo Code Library <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/demos">Overview</a>
-          <a class="lh-sb-item" href="/learning-hub/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos">Overview</a>
+          <a class="lh-sb-item" href="/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Student Labs <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/labs">All Labs <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/labs">All Labs <span class="lh-sb-dot ready"></span></a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr open" onclick="toggleSbGroup(this)">Reference <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items open">
-          <a class="lh-sb-item active" href="/learning-hub/repair">Repair</a>
-          <a class="lh-sb-item" href="/learning-hub/technical-reference">Technical Reference</a>
-          <a class="lh-sb-item" href="/learning-hub/troubleshooting">Troubleshooting</a>
-          <a class="lh-sb-item" href="/learning-hub/glossary">Glossary</a>
+          <a class="lh-sb-item active" href="/repair">Repair</a>
+          <a class="lh-sb-item" href="/technical-reference">Technical Reference</a>
+          <a class="lh-sb-item" href="/troubleshooting">Troubleshooting</a>
+          <a class="lh-sb-item" href="/glossary">Glossary</a>
         </div>
       </div>
     </div>
@@ -107,7 +90,7 @@
 
   <main id="lh-main">
     <div class="lh-panel">
-      <div class="lh-bc"><a href="/learning-hub">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Repair</span></div>
+      <div class="lh-bc"><a href="/">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Repair</span></div>
       <h1>Repair</h1>
       <p class="lh-lead">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. When something breaks, schools replace the affected part rather than the whole robot — and many repairs are a supervised student learning opportunity, not a service ticket.</p>
 
@@ -115,15 +98,15 @@
       <p>Before repairing anything, identify what actually failed:</p>
       <ul>
         <li><strong>Structural / printed part</strong> — a cracked bracket, broken mount, or worn joint housing. Usually a 3D-printed part.</li>
-        <li><strong>Servo</strong> — MG996R (large joints) or MG90S (small joints, fingers). See the joint table on the <a href="/robot">Robot</a> page for which servo drives which joint.</li>
-        <li><strong>Electronics</strong> — Raspberry Pi, PCA9685 controller, power converter, camera, or wiring. See <a href="/learning-hub/technical-reference">Technical Reference</a>.</li>
+        <li><strong>Servo</strong> — MG996R (large joints) or MG90S (small joints, fingers). See the joint table on the <a href="https://swayform.net/robot">Robot</a> page for which servo drives which joint.</li>
+        <li><strong>Electronics</strong> — Raspberry Pi, PCA9685 controller, power converter, camera, or wiring. See <a href="/technical-reference">Technical Reference</a>.</li>
       </ul>
 
       <h2>Diagnostic procedure</h2>
       <ol>
         <li>Power off and disconnect before touching any wiring.</li>
         <li>Check for visible damage: cracked plastic, loose screws, disconnected cables, burnt smell.</li>
-        <li>If a joint won't move, check <a href="/learning-hub/troubleshooting">Troubleshooting</a> first — many "broken" joints are a software or power issue, not a physical one.</li>
+        <li>If a joint won't move, check <a href="/troubleshooting">Troubleshooting</a> first — many "broken" joints are a software or power issue, not a physical one.</li>
         <li>If a joint moves but grinds or catches, suspect a mechanical/structural issue.</li>
         <li>If a joint doesn't respond to any command but others on the same controller do, suspect the individual servo.</li>
         <li>If an entire side or group of joints doesn't respond, suspect that PCA9685 controller or its power rail — see Technical Reference for which controller and rail serve which joints.</li>
@@ -134,21 +117,21 @@
       <div class="lh-callout warn"><div class="lh-callout-lbl">Note</div><p>Step-by-step disassembly instructions with photos for each subsystem (head, arm, hand, base) are being finalized and will be added here before commercial release.</p></div>
 
       <h2>Calibration after a repair</h2>
-      <p>After replacing a servo or reassembling a joint, re-check its neutral position and range against the values in the <a href="/learning-hub/technical-reference">Technical Reference</a> joint table before running any demo or lab. A servo installed a spline tooth off from neutral will hit its safe-limit clamp in the wrong place.</p>
+      <p>After replacing a servo or reassembling a joint, re-check its neutral position and range against the values in the <a href="/technical-reference">Technical Reference</a> joint table before running any demo or lab. A servo installed a spline tooth off from neutral will hit its safe-limit clamp in the wrong place.</p>
 
       <h2>Required tools</h2>
       <ul><li>Small Phillips screwdriver (M3 hardware)</li><li>Hex key set, if included with your unit</li><li>Multimeter (for electrical diagnosis)</li><li>i2cdetect / terminal access (for I²C controller diagnosis)</li></ul>
 
       <h2>Replacement parts</h2>
       <p>Every individual 3D-printed replacement part is priced below $20. Schools may download the available print files and produce replacement structural parts themselves. Electronic and mechanical replacement costs vary by component — when a larger assembly is damaged, schools replace only the affected printed or electronic components rather than purchasing a new robot.</p>
-      <div class="lh-callout note"><div class="lh-callout-lbl">Where to get parts</div><p>Contact <a href="/contact">SwayForm Sales</a> for current replacement part ordering and print-file availability.</p></div>
+      <div class="lh-callout note"><div class="lh-callout-lbl">Where to get parts</div><p>Contact <a href="https://swayform.net/contact">SwayForm Sales</a> for current replacement part ordering and print-file availability.</p></div>
 
       <h2>Post-repair test</h2>
-      <p>After any repair, before returning the robot to classroom use: power on, verify the repaired joint reaches its neutral pose correctly, run <a href="/learning-hub/demos/wave">Demo: Wave</a> as a general motion check, and confirm no unusual noise, heat, or resistance.</p>
+      <p>After any repair, before returning the robot to classroom use: power on, verify the repaired joint reaches its neutral pose correctly, run <a href="/demos/wave">Demo: Wave</a> as a general motion check, and confirm no unusual noise, heat, or resistance.</p>
 
       <div class="lh-nav-row">
-        <a class="lh-nav-btn" href="/learning-hub/labs">← Student Labs</a>
-        <a class="lh-nav-btn primary" href="/learning-hub/technical-reference">Technical Reference →</a>
+        <a class="lh-nav-btn" href="/labs">← Student Labs</a>
+        <a class="lh-nav-btn primary" href="/technical-reference">Technical Reference →</a>
       </div>
     </div>
   </main>
@@ -158,44 +141,34 @@
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <a href="https://swayform.net/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
         <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col"><h5>Navigation</h5><ul>
-        <li><a href="/">Overview</a></li>
-        <li><a href="/robot">The Robot</a></li>
-        <li><a href="/learning-hub" class="active">Learning Hub</a></li>
-        <li><a href="/learning-path">Curriculum</a></li>
-        <li><a href="/safety">Safety</a></li>
-        <li><a href="/for-schools">For Schools</a></li>
-        <li><a href="/purpose">Our Mission</a></li>
+        <li><a href="https://swayform.net/">Overview</a></li>
+        <li><a href="https://swayform.net/robot">The Robot</a></li>
+        <li><a href="/" class="active">Learning Hub</a></li>
+        <li><a href="https://swayform.net/learning-path">Curriculum</a></li>
+        <li><a href="https://swayform.net/safety">Safety</a></li>
+        <li><a href="https://swayform.net/for-schools">For Schools</a></li>
+        <li><a href="https://swayform.net/purpose">Our Mission</a></li>
       </ul></div>
       <div class="footer-col"><h5>Contact</h5><ul>
-        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="https://swayform.net/contact">Contact Sales</a></li>
         <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
       <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
       <div class="footer-sub" style="flex-wrap:wrap">
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/terms">Terms of Use</a>
-        <a href="/accessibility">Accessibility</a>
-        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+        <a href="https://swayform.net/privacy">Privacy Policy</a>
+        <a href="https://swayform.net/terms">Terms of Use</a>
+        <a href="https://swayform.net/accessibility">Accessibility</a>
+        <a href="https://swayform.net/robot-safety">Robot Safety &amp; Acceptable Use</a>
       </div>
     </div>
   </div>
 </footer>
-<script>
-window.addEventListener('scroll',function(){
-  var tb=document.getElementById('topbar');
-  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
-},{passive:true});
-var ham=document.querySelector('.hamburger');
-if(ham) ham.addEventListener('click',function(){
-  document.getElementById('mobile-nav').classList.add('open');
-});
-</script>
 <script src="/site-data.js"></script>
 <script src="/learning-hub-search-data.js"></script>
 <script src="/learning-hub-shell.js"></script>

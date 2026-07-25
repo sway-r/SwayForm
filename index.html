@@ -69,10 +69,10 @@
   --line2:rgba(0,0,0,.05);
   --panel:rgba(0,0,0,.03);
   --panel2:rgba(0,0,0,.05);
-  /* ── Primary accent (monochrome) ── */
+  /* ── Primary accent (SwayForm blue) ── */
   --blue:#0057ff;
   --blue-lt:#2268ff;
-  --cyan:#6e6e73;
+  --cyan:#5fb7ff;
   /* ── Semantic / functional colors ── */
   --green:#1a5c38;
   --yellow:#7a5200;
@@ -95,7 +95,7 @@
   --nav-h:62px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
@@ -123,10 +123,12 @@ p{color:var(--muted);line-height:1.75}
 
 /* ── BUTTONS ─────────────────────────────────────────── */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;transition:all .18s ease;white-space:nowrap;letter-spacing:.01em}
-.btn-primary{background:var(--ink);color:#fff}
-.btn-primary:hover{background:var(--soft);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-lt);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,87,255,.28)}
 .btn-ghost{border:1px solid rgba(0,0,0,.12);color:var(--soft);background:transparent}
 .btn-ghost:hover{border-color:rgba(0,0,0,.25);color:var(--ink);background:var(--panel2)}
+.btn-secondary{border:1px solid rgba(0,87,255,.28);color:var(--blue);background:rgba(0,87,255,.05)}
+.btn-secondary:hover{border-color:rgba(0,87,255,.5);background:rgba(0,87,255,.09)}
 .btn-lg{padding:15px 32px;font-size:16px;border-radius:10px}
 .btn-group{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
@@ -154,11 +156,14 @@ p{color:var(--muted);line-height:1.75}
 .hub-cta:hover{background:var(--soft);transform:translateY(-1px)}
 .hamburger{display:none;flex-direction:column;gap:5px;padding:8px;cursor:pointer}
 .hamburger span{display:block;width:22px;height:2px;background:var(--soft);border-radius:2px;transition:.2s}
-#mobile-nav{display:none;position:fixed;inset:0;z-index:950;background:rgba(5,7,13,.98);backdrop-filter:blur(24px);flex-direction:column;align-items:center;justify-content:center;gap:6px}
+#mobile-nav{display:none;position:fixed;inset:0;z-index:950;background:#fff;flex-direction:column;align-items:center;justify-content:center;gap:6px}
 #mobile-nav.open{display:flex}
-#mobile-nav a{font-size:26px;font-weight:800;color:var(--soft);padding:12px 40px;letter-spacing:-0.02em}
-#mobile-nav a:hover{color:var(--ink)}
-.mob-close{position:absolute;top:20px;right:24px;font-size:32px;color:var(--muted);cursor:pointer}
+#mobile-nav a{font-size:26px;font-weight:800;color:var(--ink);padding:12px 40px;letter-spacing:-0.02em;border-radius:10px;transition:color .15s,background .15s}
+#mobile-nav a:hover,#mobile-nav a:focus-visible{color:var(--blue);background:var(--panel2)}
+#mobile-nav a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+#mobile-nav a.active{color:var(--blue)}
+.mob-close{position:absolute;top:20px;right:24px;font-size:32px;color:var(--muted);cursor:pointer;transition:color .15s}
+.mob-close:hover,.mob-close:focus-visible{color:var(--blue);outline:2px solid var(--blue);outline-offset:3px}
 
 
 /* ── DARK SECTIONS (hero, dramatic CTAs) ──────────────── */
@@ -351,28 +356,28 @@ p{color:var(--muted);line-height:1.75}
 .compare-note{margin-top:20px;text-align:center;font-size:14px;font-style:italic;color:var(--muted)}
 
 /* ── SCHOOLS CTA ─────────────────────────────────────── */
-#schools-cta{background:#000000}
-.cta-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.06);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+#schools-cta{background:var(--bg2)}
+.cta-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:16px;overflow:hidden;border:1px solid var(--line)}
 .cta-side{padding:72px 56px}
-.cta-side.left{background:rgba(255,255,255,.03)}
-.cta-side.right{background:rgba(255,255,255,.05);border-left:1px solid rgba(255,255,255,.08)}
-.cta-side .label{margin-bottom:16px;display:block;color:rgba(180,210,255,.7)}
-.cta-side h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-0.025em;margin-bottom:14px;color:#edf5ff}
-.cta-side>p{font-size:15px;color:rgba(200,220,240,.75);margin-bottom:32px;max-width:400px}
+.cta-side.left{background:#fff}
+.cta-side.right{background:#fff;border-left:1px solid var(--line)}
+.cta-side .label{margin-bottom:16px;display:block;color:var(--muted)}
+.cta-side h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-0.025em;margin-bottom:14px;color:var(--ink)}
+.cta-side>p{font-size:15px;color:var(--muted);margin-bottom:32px;max-width:400px}
 .cta-list{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
-.cta-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(200,220,240,.85)}
-.cta-list li::before{content:'→';color:#5fb7ff;font-weight:700;flex-shrink:0;margin-top:1px}
+.cta-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--soft)}
+.cta-list li::before{content:'→';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
 .contact-form{display:flex;flex-direction:column;gap:14px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase}
-.field input,.field select,.field textarea{padding:11px 15px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--ink);font-family:var(--font);font-size:14px;transition:border-color .15s;outline:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field input,.field select,.field textarea{padding:11px 15px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);color:var(--ink);font-family:var(--font);font-size:14px;transition:border-color .15s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);background:#fff}
 .field select{appearance:none;cursor:pointer;color:var(--soft)}
 .field textarea{min-height:90px;resize:vertical;line-height:1.5}
 .field input::placeholder,.field textarea::placeholder{color:var(--faint)}
-.form-submit{padding:14px;border-radius:8px;background:#ffffff;color:#000000;font-size:14px;font-weight:700;transition:all .18s;width:100%;letter-spacing:.01em}
-.form-submit:hover{background:rgba(255,255,255,.88);transform:translateY(-1px)}
+.form-submit{padding:14px;border-radius:8px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;transition:all .18s;width:100%;letter-spacing:.01em}
+.form-submit:hover{background:var(--blue-lt);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,87,255,.25)}
 .form-note{font-size:12px;color:var(--faint);text-align:center}
 
 /* ── FOOTER ──────────────────────────────────────────── */
@@ -621,6 +626,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .nav-inner{padding:0 20px}
   .nav-links{display:none}.hamburger{display:flex}
   .nav-right .btn-ghost{display:none}
+  .nav-right .btn-primary,.nav-right .btn-secondary{display:none}
   .lh-nav-hub{display:none!important}
   /* floating chip badges use negative offsets — cause horizontal overflow on mobile */
   .chip{display:none}
@@ -685,7 +691,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .hub-qref h4:first-child{margin-top:0}
 .hub-qref-item{font-size:12px;color:#556080;padding:5px 8px;border-radius:6px;margin-bottom:3px;line-height:1.4;cursor:default;transition:background .15s}
 .hub-qref-item:hover{background:rgba(0,87,255,.05);color:#1a1f2e}
-.hub-qref-item code{background:rgba(95,183,255,.1);color:#5fb7ff;border-radius:3px;padding:1px 4px;font-size:11px;font-family:var(--mono)}
+.hub-qref-item code{background:rgba(0,111,166,.1);color:#006fa6;border-radius:3px;padding:1px 4px;font-size:11px;font-family:var(--mono)}
 .hub-qref-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px;margin-bottom:3px}
 .qref-topic{background:rgba(0,87,255,.08);color:#0057ff}
 .qref-cmd{background:rgba(0,140,180,.08);color:#006fa6}
@@ -772,9 +778,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 </head>
 <style>
 /* ── ANNOUNCEMENT BAR ── */
-#announce-bar{position:fixed;top:0;left:0;right:0;z-index:901;background:#1d1d1f;border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0;text-align:center;font-size:12px;font-weight:500;color:rgba(255,255,255,.55);letter-spacing:.02em}
-#announce-bar a{color:rgba(255,255,255,.8);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:1px;transition:color .15s}
-#announce-bar a:hover{color:#fff}
+#announce-bar{position:fixed;top:0;left:0;right:0;z-index:901;background:#eaf1ff;border-bottom:1px solid rgba(0,87,255,.12);padding:10px 0;text-align:center;font-size:12px;font-weight:500;color:var(--soft);letter-spacing:.02em}
+#announce-bar a{color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(0,87,255,.35);padding-bottom:1px;transition:color .15s}
+#announce-bar a:hover{color:var(--blue-lt)}
 /* ── INSTITUTION STRIP ── */
 .inst-strip{background:var(--bg);border-bottom:1px solid var(--line);padding:32px 0}
 .inst-strip-inner{display:flex;align-items:center;gap:40px;max-width:1200px;margin:0 auto;padding:0 48px;flex-wrap:wrap}
@@ -841,12 +847,12 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="nav-links">
       <a href="/" class="active">Overview</a>
       <a href="/robot">The Robot</a>
-      <a href="/learning-hub">Learning Hub</a>
       <a href="/learning-path">Curriculum</a>
       <a href="/safety">Safety</a>
       <a href="/for-schools">For Schools</a>
     </div>
     <div class="nav-right">
+      <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:13px;padding:7px 18px">Open Learning Hub <span aria-hidden="true">&#8599;</span></a>
       <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:8px 18px">Contact Sales</a>
       <div class="hamburger" onclick="document.getElementById('mobile-nav').classList.add('open')" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -860,11 +866,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="/">Overview</a>
   <a href="/robot">The Robot</a>
-  <a href="/learning-hub">Learning Hub</a>
   <a href="/learning-path">Curriculum</a>
   <a href="/safety">Safety</a>
   <a href="/for-schools">For Schools</a>
-  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+  <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Hub &#8599;</a>
+  <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
 </div>
 
 
@@ -925,24 +931,27 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
   <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
   <style>
-  /* ── cinematic preview section ── */
+  /* ── preview section: light background, video in a framed card ── */
   #demo-preview{
     position:relative;
     overflow:hidden;
-    background:#000;
+    background:var(--bg2);
     min-height:560px;
     display:flex;
     align-items:center;
-    border-top:1px solid rgba(255,255,255,.06);
-    border-bottom:1px solid rgba(255,255,255,.06);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
   }
-  /* video fills the right 72% of the section */
+  /* video sits in a rounded, shadowed card on the right */
   .dp-video-bg{
     position:absolute;
-    top:0;right:0;
-    height:100%;
-    width:72%;
+    top:40px;right:48px;bottom:40px;
+    width:60%;
     z-index:1;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.16);
+    border:1px solid var(--line);
   }
   .dp-video-bg video{
     width:100%;height:100%;
@@ -950,22 +959,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     display:block;
     pointer-events:none; /* prevent tap-to-pause */
   }
-  /* left→right gradient: text stays on black, fades into video */
-  .dp-gradient{
-    position:absolute;
-    inset:0;
-    z-index:2;
-    background:linear-gradient(
-      90deg,
-      #000 0%,
-      #000 26%,
-      rgba(0,0,0,.82) 40%,
-      rgba(0,0,0,.35) 60%,
-      rgba(0,0,0,0) 100%
-    );
-    pointer-events:none;
-  }
-  /* text content sits above gradient */
+  .dp-gradient{ display:none; }
   .dp-content{
     position:relative;
     z-index:3;
@@ -975,16 +969,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     padding:80px 48px;
   }
   .dp-text{
-    max-width:480px;
+    max-width:440px;
   }
   /* fallback card when video errors */
   .dp-fallback{
     display:none;
     position:absolute;
-    top:50%;right:48px;
+    top:50%;right:80px;
     transform:translateY(-50%);
     z-index:3;
-    color:rgba(200,220,240,.3);
+    color:var(--faint);
     font-size:14px;
   }
   /* ── mobile ── */
@@ -996,17 +990,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     }
     .dp-video-bg{
       position:relative;
-      width:100%;
+      top:auto;right:auto;bottom:auto;
+      width:calc(100% - 40px);
+      margin:0 20px;
       height:260px;
       order:2; /* video below text on mobile */
-    }
-    .dp-gradient{
-      background:linear-gradient(
-        180deg,
-        #000 0%,
-        rgba(0,0,0,.6) 40%,
-        rgba(0,0,0,0) 100%
-      );
     }
     .dp-content{
       position:relative;
@@ -1044,10 +1032,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <!-- Text content — sits above gradient on z-index 3 -->
     <div class="dp-content">
       <div class="dp-text">
-        <span class="label" style="display:block;margin-bottom:16px;color:rgba(180,210,255,.55)">Learning Experience Preview</span>
-        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:#edf5ff;margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
-        <p style="font-size:16px;color:rgba(200,220,240,.65);line-height:1.75;margin-bottom:24px">SwayForm is built around the moment students stop watching technology and start controlling it. This preview shows the kind of hands-on learning the platform is designed for.</p>
-        <p style="font-size:12px;color:rgba(200,220,240,.32);line-height:1.65;font-style:italic">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Learning Experience Preview</span>
+        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.75;margin-bottom:24px">SwayForm is built around the moment students stop watching technology and start controlling it. This preview shows the kind of hands-on learning the platform is designed for.</p>
+        <p style="font-size:12px;color:var(--faint);line-height:1.65;font-style:italic">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
       </div>
     </div>
 
@@ -1147,7 +1135,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ha-panel" id="ha-panel">
           <div class="ha-default" id="ha-default">
             <div class="ha-default-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,220,240,.4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
             <p>Click a hotspot on the robot to explore that system.</p>
           </div>
@@ -1190,7 +1178,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div style="max-width:640px;margin:0 auto 0;text-align:center">
         <span class="label" style="display:block;margin-bottom:12px">How a class uses it</span>
         <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Students write real ROS 2 code. Every submission is checked and queued so an instructor reviews it before it can move the robot. Full detail in <a href="/learning-hub/classroom-workflow" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
+        <p style="margin-top:14px;color:var(--muted)">Students write real ROS 2 code. Every submission is checked and queued so an instructor reviews it before it can move the robot. Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
       </div>
       <div class="steps-flow" style="margin-top:56px">
         <div class="steps-track"></div>
@@ -1330,31 +1318,31 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <span class="demo-flow-badge">Build your own version</span>
       </div>
       <div class="demo-cards">
-        <div class="demo-card" onclick="window.location.href='/learning-hub/demos/wave'">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/wave'">
           <div class="demo-num">01</div>
           <h4>Wave</h4>
           <p>A coordinated greeting gesture using a timed servo sequence. The first demo students run — and the first code they modify.</p>
           <div class="demo-tag">Start here</div>
         </div>
-        <div class="demo-card" onclick="window.location.href='/learning-hub/demos/handshake'">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/handshake'">
           <div class="demo-num">02</div>
           <h4>Handshake</h4>
           <p>The robot detects a user with its camera and performs a handshake interaction.</p>
           <div class="demo-tag">Vision-triggered</div>
         </div>
-        <div class="demo-card" onclick="window.location.href='/learning-hub/demos/pick-and-place'">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/pick-and-place'">
           <div class="demo-num">03</div>
           <h4>Pick and Place</h4>
           <p>The robot picks up an object and places it in another location — approach, grasp, lift, transport, release.</p>
           <div class="demo-tag">Manipulation</div>
         </div>
-        <div class="demo-card" onclick="window.location.href='/learning-hub/demos/rock-paper-scissors'">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/rock-paper-scissors'">
           <div class="demo-num">04</div>
           <h4>Rock Paper Scissors</h4>
           <p>The robot plays rock-paper-scissors with a person using hand pose presets and a game loop.</p>
           <div class="demo-tag">Game logic</div>
         </div>
-        <div class="demo-card" onclick="window.location.href='/learning-hub/demos/interactive-exchange'">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/interactive-exchange'">
           <div class="demo-num">05</div>
           <h4>Interactive Exchange</h4>
           <p>The robot accepts an item from a user — such as a dollar bill or token — and gives another item back.</p>
@@ -1362,7 +1350,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
       </div>
       <div style="text-align:center;margin-top:36px">
-        <a href="/learning-hub/demos" class="btn btn-ghost">See the full demo library &#8594;</a>
+        <a href="https://learning.swayform.net/demos" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">See the full demo library &#8594;</a>
       </div>
     </div>
   </section>
@@ -1433,7 +1421,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         </div>
       </div>
       <div style="text-align:center;margin-top:36px">
-        <a href="/learning-hub/repair" class="btn btn-ghost">Read the repair guide &#8594;</a>
+        <a href="https://learning.swayform.net/repair" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">Read the repair guide &#8594;</a>
       </div>
     </div>
   </section>
@@ -1578,7 +1566,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <p>21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, ROS 2. Interactive anatomy, joint reference table, servo specs, and wiring architecture.</p>
           <span class="explore-card-link">Explore the robot →</span>
         </a>
-        <a href="/learning-hub" class="explore-card">
+        <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="explore-card">
           <span class="explore-card-tag">Free, always</span>
           <h3>Learning Hub</h3>
           <p>Demos, labs, classroom workflow, safety, setup, repair, and technical reference — everything needed to teach with SwayForm, at no cost.</p>
@@ -1649,7 +1637,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <li>10 structured labs now, expanding to 40</li>
             <li>Runs locally — core robot operation needs no cloud subscription</li>
           </ul>
-          <a href="/robot" class="btn btn-primary" style="background:#fff;color:#000;font-weight:700">Explore the platform</a>
+          <a href="/robot" class="btn btn-primary" style="font-weight:700">Explore the platform</a>
         </div>
         <div class="cta-side right">
           <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Contact Sales</span>
@@ -1700,7 +1688,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <ul>
           <li><a href="/">Overview</a></li>
           <li><a href="/robot">The Robot</a></li>
-          <li><a href="/learning-hub">Learning Hub</a></li>
+          <li><a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Learning Hub</a></li>
           <li><a href="/learning-path">Curriculum</a></li>
           <li><a href="/safety">Safety</a></li>
           <li><a href="/for-schools">For Schools</a></li>
@@ -1793,327 +1781,23 @@ window.addEventListener('scroll', function() {
      Wrapped in an IIFE so nothing leaks into the global scope —
      no shared variable or function names with the script above.
      ══════════════════════════════════════════════════════ -->
+<script src="/anatomy-viewer.js"></script>
 <script>
+/* Interactive Anatomy — part data, video assets, and the transition
+   state machine now live in the shared /anatomy-viewer.js (also used
+   by robot.html) so the two pages cannot drift apart. This just wires
+   it to this page's existing element IDs/classes. */
 (function(){
-
-  var HA_REDUCED_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-  /* ── Part definitions — identical content to robot.html's PARTS ── */
-  var HA_PARTS = [
-    { id:'head',
-      label:'Head',         xPercent:50, yPercent:27, labelSide:'r',
-      videoGroup:'head',    finalImage:'images/head.png',
-      title:'Head System', category:'Vision + Head System',
-      description:'The head unit integrates the Intel RealSense D435i depth camera with a 2-DOF pan/tilt neck (neck_yaw and neck_pitch). Together they enable object tracking, proximity sensing, and feedback-driven behaviors — all from code students write themselves.',
-      learns:['How RGB and depth image streams are published as separate ROS topics','Proportional controllers and why dead zones prevent jitter in pan/tilt systems','HSV color segmentation vs depth-based proximity detection','How camera feedback loops drive physical joint movement in real time'] },
-
-    { id:'shoulder',
-      label:'Shoulder',     xPercent:73, yPercent:43, labelSide:'l',
-      videoGroup:'shoulder', finalImage:'images/shoulder.png',
-      title:'Shoulder Joint', category:'High-Torque Joint',
-      description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
-      learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
-
-    { id:'arm',
-      label:'Arm',          xPercent:78, yPercent:50, labelSide:'l',
-      videoGroup:'arm',     finalImage:'images/Arm.png',
-      title:'Arm System', category:'Multi-Joint Arm',
-      description:'The arm chain spans shoulder, elbow, and wrist — three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',
-      learns:['Multi-joint coordination and timing','Mechanical advantage and why elbow angle affects shoulder load','Keyframe interpolation across a joint chain','Safe range design for compound motion'] },
-
-    { id:'fingers',
-      label:'Hand / Fingers', xPercent:16, yPercent:16, labelSide:'r',
-      videoGroup:'hand',    finalImage:'images/hand.png',
-      title:'Five-Finger Hand', category:'Fine Motor',
-      description:'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
-      learns:['Individual joint addressing within a single message type','Simultaneous multi-joint commands vs sequential','Servo driver channel assignment','Fine PWM precision requirements at low-torque joints'] },
-
-    { id:'electronics',
-      label:'Electronics',  xPercent:50, yPercent:59, labelSide:'r',
-      videoGroup:'electronics', finalImage:'images/swayform_robot_2.png',
-      title:'Raspberry Pi 5 + Electronics', category:'Compute + Control',
-      description:'Raspberry Pi 5 (8 GB) running Linux and a ROS 2-based software stack. Servo drivers on the I²C bus. A 12V bus bar distributes power to a dedicated 5V buck converter for the Pi and two separate 6V buck converters for the servo groups. Everything is accessible, labeled, and replaceable — no black boxes.',
-      learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Regulated power architecture — separate rails for compute and servos, plus a direct 12V motor line','SSH workflow — how students connect and deploy code'] },
-
-    { id:'base',
-      label:'Base',         xPercent:50, yPercent:80, labelSide:'r',
-      videoGroup:'base',    finalImage:'images/Base.png',
-      title:'Rotating Base', category:'Actuated Base',
-      description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation, powered directly from the 12V bus rather than through a servo buck converter. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
-      learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
-  ];
-
-  /* ── Video paths — same files as robot.html's viewer ── */
-  var HA_VIDEOS = {
-    overview_to_head:        'transition/OverviewToHead.mp4',
-    head_to_overview:        'transition/HeadToOverview.mp4',
-    overview_to_shoulder:    'transition/OverviewToShoulder.mp4',
-    shoulder_to_overview:    'transition/ShoulderToOverview.mp4',
-    overview_to_arm:         'transition/OverviewToArm.mp4',
-    arm_to_overview:         'transition/ArmToOverview.mp4',
-    overview_to_hand:        'transition/OverviewToHand.mp4',
-    hand_to_overview:        'transition/HandToOverview.mp4',
-    overview_to_base:        'transition/OverviewToBase.mp4',
-    base_to_overview:        'transition/BaseToOverview.mp4',
-    overview_to_electronics: 'transition/OverviewToElectronics.mp4',
-    electronics_to_overview: 'transition/ElectronicsToOverview.mp4'
-  };
-
-  /* ── Final still image per video group ── */
-  var HA_GROUP_IMAGES = {
-    overview:    'images/RobotOverview.png',
-    head:        'images/head.png',
-    shoulder:    'images/shoulder.png',
-    arm:         'images/Arm.png',
-    hand:        'images/hand.png',
-    base:        'images/Base.png',
-    electronics: 'images/swayform_robot_2.png'
-  };
-
-  /* ── Viewer state (scoped to this IIFE — cannot collide with anything) ── */
-  var haViewer = { group:'overview', transitioning:false, partId:null };
-
-  function haInitAnatomy(){
-    var layer = document.getElementById('ha-hotspot-layer');
-    if(!layer) return;
-    HA_PARTS.forEach(function(p){
-      var dot = document.createElement('div');
-      dot.className = 'ha-hs';
-      dot.id = 'ha-spot-'+p.id;
-      dot.style.left = p.xPercent+'%';
-      dot.style.top  = p.yPercent+'%';
-      dot.setAttribute('role','button');
-      dot.setAttribute('tabindex','0');
-      dot.setAttribute('aria-label', p.label);
-      dot.addEventListener('click', function(){ haSelectPart(p.id); });
-      dot.addEventListener('keydown', function(e){
-        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); haSelectPart(p.id); }
-      });
-      var lbl = document.createElement('span');
-      lbl.className = 'ha-lbl ha-lbl-'+p.labelSide;
-      lbl.textContent = p.label;
-      dot.appendChild(lbl);
-      layer.appendChild(dot);
-    });
-    var overviewBtn = document.getElementById('ha-overview-btn');
-    if(overviewBtn) overviewBtn.addEventListener('click', haGoToOverview);
-    haPreloadAssets();
-  }
-
-  function haShowLoading(on){
-    var el = document.getElementById('ha-loader');
-    if(el) el.style.display = on ? 'block' : 'none';
-  }
-
-  function haPreloadAssets(){
-    var seen = {};
-    Object.values(HA_GROUP_IMAGES).forEach(function(src){
-      if(!seen[src]){ seen[src] = true; var img = new Image(); img.src = src; }
-    });
-    if(HA_REDUCED_MOTION) return; /* skip video preloading — reduced motion never plays them */
-    Object.values(HA_VIDEOS).forEach(function(path){
-      var pv = document.createElement('video');
-      pv.muted = true; pv.preload = 'auto'; pv.src = path;
-      pv.load();
-    });
-  }
-
-  function haFadeToStill(src, cb){
-    var el = document.getElementById('ha-still');
-    if(HA_REDUCED_MOTION){
-      el.src = src;
-      if(cb) cb();
-      return;
-    }
-    el.style.transition = 'opacity .28s ease';
-    el.style.opacity = '0';
-    setTimeout(function(){
-      el.src = src;
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        el.style.opacity = '1';
-        if(cb) setTimeout(cb, 300);
-      }); });
-    }, 290);
-  }
-
-  function haPlayTransition(key, finalImage, cb){
-    /* reduced motion: cut straight to the final still, never play a video */
-    if(HA_REDUCED_MOTION){ haFadeToStill(finalImage, cb); return; }
-
-    var vid   = document.getElementById('ha-video');
-    var still = document.getElementById('ha-still');
-    var path  = HA_VIDEOS[key];
-    var done  = false;
-    var timer = null;
-
-    haShowLoading(true);
-
-    function cleanup(){
-      clearTimeout(timer);
-      vid.onended = null;
-      vid.onerror = null;
-      if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
-      haShowLoading(false);
-    }
-
-    function finish(){
-      if(done) return; done = true;
-      cleanup();
-      still.src = finalImage;
-      still.style.opacity = '1';
-      vid.style.transition = 'opacity .2s ease';
-      vid.style.opacity = '0';
-      setTimeout(function(){
-        vid.style.display = 'none';
-        vid.style.opacity = '1';
-        vid.style.transition = '';
-        vid.removeAttribute('src'); vid.load();
-        if(cb) cb();
-      }, 220);
-    }
-
-    function fallback(reason){
-      if(done) return; done = true;
-      console.warn('[home-anatomy] fallback ('+reason+') -> fading to '+finalImage);
-      cleanup();
-      vid.style.display = 'none';
-      vid.removeAttribute('src'); vid.load();
-      haFadeToStill(finalImage, cb);
-    }
-
-    if(!path){ haShowLoading(false); haFadeToStill(finalImage, cb); return; }
-
-    if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
-    vid.onended = null; vid.onerror = null;
-    vid.removeAttribute('src'); vid.load();
-
-    vid.onended = function(){ finish(); };
-    vid.onerror = function(){
-      var c = vid.error ? vid.error.code : '?';
-      fallback('onerror code='+c+' src='+path);
-    };
-
-    function tryPlay(){
-      vid.removeEventListener('canplay', tryPlay);
-      vid._ph = null;
-      if(done) return;
-      clearTimeout(timer);
-      vid.currentTime = 0;
-      var prom = vid.play();
-      if(prom && prom.catch) prom.catch(function(e){
-        fallback('play() rejected: '+e.name+' '+e.message);
-      });
-    }
-
-    vid._ph = tryPlay;
-    vid.addEventListener('canplay', tryPlay);
-
-    still.style.opacity = '1';
-    vid.style.opacity = '1';
-    vid.src = path;
-    vid.style.display = 'block';
-    vid.load();
-
-    timer = setTimeout(function(){ fallback('5s timeout — canplay never fired for '+path); }, 5000);
-  }
-
-  function haSetOverviewUI(isOverview){
-    var layer = document.getElementById('ha-hotspot-layer');
-    if(layer) layer.style.display = isOverview ? 'block' : 'none';
-  }
-
-  function haSetActive(partId){
-    HA_PARTS.forEach(function(p){
-      var d = document.getElementById('ha-spot-'+p.id);
-      if(d) d.classList.toggle('active', p.id===partId);
-    });
-  }
-
-  function haUpdatePanel(partId){
-    var slot = document.getElementById('ha-detail');
-    var def  = document.getElementById('ha-default');
-    if(!partId){
-      if(slot) slot.style.display = 'none';
-      if(def) def.style.display = 'flex';
-      return;
-    }
-    var p = null;
-    for(var i=0;i<HA_PARTS.length;i++){ if(HA_PARTS[i].id===partId){p=HA_PARTS[i];break;} }
-    if(!p) return;
-    if(def) def.style.display = 'none';
-    slot.innerHTML =
-      '<div class="ha-detail-label">'+p.category+'</div>'+
-      '<h3>'+p.title+'</h3>'+
-      '<p>'+p.description+'</p>'+
-      '<div class="ha-learns-label">What students learn from this</div>'+
-      '<ul class="ha-learns">'+
-        p.learns.map(function(b){ return '<li>'+b+'</li>'; }).join('')+
-      '</ul>';
-    slot.style.display = 'block';
-    if(window.innerWidth < 900) setTimeout(function(){
-      var panel = document.getElementById('ha-panel');
-      if(panel) panel.scrollIntoView({behavior: HA_REDUCED_MOTION ? 'auto' : 'smooth', block:'nearest'});
-    }, 80);
-  }
-
-  function haSelectPart(partId){
-    if(haViewer.transitioning) return;
-    var part = null;
-    for(var i=0;i<HA_PARTS.length;i++){ if(HA_PARTS[i].id===partId){part=HA_PARTS[i];break;} }
-    if(!part) return;
-
-    var tg = part.videoGroup;
-
-    if(haViewer.group === tg && haViewer.group !== 'overview'){
-      haViewer.partId = partId;
-      haSetActive(partId);
-      haUpdatePanel(partId);
-      return;
-    }
-
-    haViewer.transitioning = true;
-    haSetActive(partId);
-    haSetOverviewUI(false);
-
-    if(haViewer.group === 'overview'){
-      haPlayTransition('overview_to_'+tg, part.finalImage, function(){
-        haViewer.group = tg;
-        haViewer.partId = partId;
-        haViewer.transitioning = false;
-        haUpdatePanel(partId);
-      });
-    } else {
-      var fromGroup = haViewer.group;
-      haPlayTransition(fromGroup+'_to_overview', HA_GROUP_IMAGES.overview, function(){
-        haViewer.group = 'overview';
-        setTimeout(function(){
-          haPlayTransition('overview_to_'+tg, part.finalImage, function(){
-            haViewer.group = tg;
-            haViewer.partId = partId;
-            haViewer.transitioning = false;
-            haUpdatePanel(partId);
-          });
-        }, 100);
-      });
-    }
-  }
-
-  function haGoToOverview(){
-    if(haViewer.transitioning || haViewer.group === 'overview') return;
-    haViewer.transitioning = true;
-    haSetActive(null);
-    var fromGroup = haViewer.group;
-    haPlayTransition(fromGroup+'_to_overview', HA_GROUP_IMAGES.overview, function(){
-      haViewer.group = 'overview';
-      haViewer.partId = null;
-      haViewer.transitioning = false;
-      haSetOverviewUI(true);
-      haUpdatePanel(null);
-    });
-  }
-
-  haInitAnatomy();
-
+  if (!window.SwayFormAnatomy) { console.warn('[home-anatomy] /anatomy-viewer.js failed to load'); return; }
+  window.SwayFormAnatomy.create({
+    frameId:'ha-frame', stillId:'ha-still', videoId:'ha-video',
+    hotspotLayerId:'ha-hotspot-layer', overviewBtnId:'ha-overview-btn', loaderId:'ha-loader',
+    panelId:'ha-panel', detailSlotId:'ha-detail', defaultPanelId:'ha-default',
+    hotspotClass:'ha-hs', hotspotIdPrefix:'ha-spot-',
+    labelClass:'ha-lbl', labelSidePrefix:'ha-lbl-',
+    detailLabelClass:'ha-detail-label', learnsLabelClass:'ha-learns-label', learnsListClass:'ha-learns',
+    logPrefix:'[home-anatomy]'
+  }).init();
 })();
 </script>
 
@@ -2227,28 +1911,28 @@ window.addEventListener('scroll', function() {
 .stats-dof-note{display:none}
 
 /* ── QUOTE SECTION ── */
-.quote-section{background:var(--dark);padding:88px 0}
+.quote-section{background:#fff;padding:88px 0}
 .quote-wrap{max-width:740px;margin:0 auto;padding:0 48px}
-.quote-big{font-size:clamp(22px,2.8vw,32px);font-weight:500;line-height:1.52;letter-spacing:-.02em;color:#edf5ff;margin-bottom:22px}
-.quote-big::before{content:'\201C';color:rgba(200,220,240,.2);margin-right:2px}
-.quote-big::after{content:'\201D';color:rgba(200,220,240,.2);margin-left:2px}
+.quote-big{font-size:clamp(22px,2.8vw,32px);font-weight:500;line-height:1.52;letter-spacing:-.02em;color:var(--ink);margin-bottom:22px}
+.quote-big::before{content:'\201C';color:var(--blue);margin-right:2px}
+.quote-big::after{content:'\201D';color:var(--blue);margin-left:2px}
 .quote-row{display:flex;align-items:center;gap:16px;margin-bottom:36px}
-.quote-bar{width:36px;height:1px;background:rgba(255,255,255,.12)}
-.quote-who{font-size:12px;font-weight:600;color:rgba(200,220,240,.35);letter-spacing:.07em;text-transform:uppercase}
-.quote-body{font-size:clamp(15px,1.5vw,17px);color:rgba(200,220,240,.56);line-height:1.82;max-width:620px}
+.quote-bar{width:36px;height:1px;background:var(--line)}
+.quote-who{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase}
+.quote-body{font-size:clamp(15px,1.5vw,17px);color:var(--muted);line-height:1.82;max-width:620px}
 @media(max-width:600px){.quote-wrap{padding:0 20px}}
 
 /* ── WHY SCHOOLS ── */
-.why-section{background:#0a0b0e;border-top:1px solid rgba(255,255,255,.05);padding:88px 0}
-.why-section .label{color:rgba(200,220,240,.3)}
-.why-section h2{color:#edf5ff}
-.why-section p.lead-why{font-size:17px;color:rgba(200,220,240,.5);max-width:560px;margin:14px 0 0;line-height:1.7}
-.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin-top:56px}
-.why-card{background:rgba(255,255,255,.025);padding:36px 28px;transition:background .2s}
-.why-card:hover{background:rgba(255,255,255,.05)}
-.why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(200,220,240,.2);margin-bottom:14px}
-.why-card h4{font-size:17px;font-weight:700;color:#edf5ff;margin-bottom:12px;letter-spacing:-.01em;line-height:1.35}
-.why-card p{font-size:14px;color:rgba(200,220,240,.5);line-height:1.75;margin:0}
+.why-section{background:var(--bg2);border-top:1px solid var(--line);padding:88px 0}
+.why-section .label{color:var(--muted)}
+.why-section h2{color:var(--ink)}
+.why-section p.lead-why{font-size:17px;color:var(--muted);max-width:560px;margin:14px 0 0;line-height:1.7}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:56px}
+.why-card{background:#fff;padding:36px 28px;transition:background .2s}
+.why-card:hover{background:var(--bg2)}
+.why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--faint);margin-bottom:14px}
+.why-card h4{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:12px;letter-spacing:-.01em;line-height:1.35}
+.why-card p{font-size:14px;color:var(--muted);line-height:1.75;margin:0}
 @media(max-width:860px){.why-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.why-grid{grid-template-columns:1fr}}
 
@@ -2311,18 +1995,18 @@ window.addEventListener('scroll', function() {
    page's own globals or with robot.html's copy (a separate
    document — ids only need to be unique within one page).
    ══════════════════════════════════════════════════════ */
-.ha-section{background:#0a0b0e;border-top:1px solid rgba(255,255,255,.05);padding:88px 0}
-.ha-eyebrow{color:rgba(200,220,240,.3)}
-.ha-heading{color:#edf5ff}
-.ha-lead{font-size:17px;color:rgba(200,220,240,.5);max-width:560px;margin:14px 0 0;line-height:1.7}
+.ha-section{background:#fff;border-top:1px solid var(--line);padding:88px 0}
+.ha-eyebrow{color:var(--muted)}
+.ha-heading{color:var(--ink)}
+.ha-lead{font-size:17px;color:var(--muted);max-width:560px;margin:14px 0 0;line-height:1.7}
 
 .ha-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:48px}
 
 /* left: media viewer */
-.ha-viewer{position:relative;line-height:0;border-radius:14px;overflow:visible;background:rgba(255,255,255,.03);box-shadow:0 2px 16px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08)}
-.ha-frame{position:relative;width:100%;aspect-ratio:624/479;overflow:hidden;border-radius:14px;background:rgba(255,255,255,.03);flex-shrink:0}
-.ha-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block;border-radius:0;pointer-events:none;background:rgba(255,255,255,.03)}
-.ha-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:none;z-index:2;border-radius:0;background:rgba(255,255,255,.03)}
+.ha-viewer{position:relative;line-height:0;border-radius:14px;overflow:visible;background:#f0f2f5;box-shadow:0 2px 16px rgba(0,0,0,.1);border:1px solid rgba(0,0,0,.07)}
+.ha-frame{position:relative;width:100%;aspect-ratio:624/479;overflow:hidden;border-radius:14px;background:#f0f2f5;flex-shrink:0}
+.ha-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block;border-radius:0;pointer-events:none;background:#f0f2f5}
+.ha-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:none;z-index:2;border-radius:0;background:#f0f2f5}
 .ha-hotspot-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
 
 .ha-overview-btn{position:absolute;top:12px;left:12px;z-index:4;background:rgba(4,8,18,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);color:rgba(200,220,240,.88);font-size:11px;font-weight:600;padding:5px 14px;border-radius:16px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;transition:background .15s,border-color .15s;pointer-events:auto}
@@ -2335,6 +2019,8 @@ window.addEventListener('scroll', function() {
 .ha-hs::before{content:'';width:14px;height:14px;border-radius:50%;background:rgba(95,183,255,.2);border:1.5px solid rgba(95,183,255,.72);transition:background .18s,box-shadow .18s}
 .ha-hs::after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(95,183,255,.95);pointer-events:none}
 .ha-hs:hover::before,.ha-hs:active::before{background:rgba(95,183,255,.38);box-shadow:0 0 0 7px rgba(95,183,255,.12)}
+.ha-hs:focus-visible{outline:2px solid #0057ff;outline-offset:3px;border-radius:50%}
+.ha-hs:focus-visible::before{background:rgba(95,183,255,.38)}
 .ha-hs.active::before{background:rgba(95,183,255,.5)!important;box-shadow:0 0 0 7px rgba(95,183,255,.18),0 0 0 14px rgba(95,183,255,.06)!important}
 
 .ha-lbl{position:absolute;white-space:nowrap;font-size:10px;font-weight:700;letter-spacing:.05em;color:rgba(215,232,255,.92);background:rgba(4,8,18,.76);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:3px 9px;border-radius:4px;pointer-events:auto;cursor:pointer;top:50%;transform:translateY(-50%);line-height:1.4;max-width:38vw;overflow:hidden;text-overflow:ellipsis}
@@ -2342,17 +2028,17 @@ window.addEventListener('scroll', function() {
 .ha-lbl-l{right:calc(100% + 9px)}
 
 /* right: text panel — naturally sized, no fixed desktop height */
-.ha-panel{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:32px}
+.ha-panel{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:32px}
 .ha-default{display:flex;align-items:center;justify-content:center;height:100%;min-height:220px;flex-direction:column;gap:14px;text-align:center}
-.ha-default-icon{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ha-default p{color:rgba(200,220,240,.4);font-size:14px;margin:0;max-width:200px;line-height:1.6}
-.ha-detail-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,220,240,.4);margin-bottom:8px}
-.ha-detail h3{font-size:20px;font-weight:800;letter-spacing:-.02em;color:#edf5ff;margin:0 0 14px}
-.ha-detail p{font-size:15px;color:rgba(200,220,240,.55);line-height:1.72;margin:0 0 20px}
-.ha-learns-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7dffbd;margin-bottom:12px}
+.ha-default-icon{width:44px;height:44px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ha-default p{color:var(--faint);font-size:14px;margin:0;max-width:200px;line-height:1.6}
+.ha-detail-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ha-detail h3{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin:0 0 14px}
+.ha-detail p{font-size:15px;color:var(--muted);line-height:1.72;margin:0 0 20px}
+.ha-learns-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:12px}
 .ha-learns{list-style:none;padding:0;margin:0}
-.ha-learns li{font-size:14px;color:rgba(200,220,240,.7);padding-left:20px;position:relative;margin-bottom:8px}
-.ha-learns li::before{content:'→';position:absolute;left:0;color:#7dffbd;font-size:11px;font-weight:800;top:2px}
+.ha-learns li{font-size:14px;color:var(--soft);padding-left:20px;position:relative;margin-bottom:8px}
+.ha-learns li::before{content:'→';position:absolute;left:0;color:var(--green);font-size:11px;font-weight:800;top:2px}
 
 @media(max-width:900px){
   .ha-wrap{grid-template-columns:1fr;gap:28px}

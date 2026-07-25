@@ -109,6 +109,11 @@
   background:rgba(95,183,255,.38);
   box-shadow:0 0 0 7px rgba(95,183,255,.12);
 }
+.anat-hs:focus-visible{
+  outline:2px solid #0057ff;
+  outline-offset:3px;
+  background:rgba(95,183,255,.38);
+}
 .anat-hs.active{
   background:rgba(95,183,255,.5) !important;
   box-shadow:0 0 0 7px rgba(95,183,255,.18), 0 0 0 14px rgba(95,183,255,.06) !important;
@@ -263,12 +268,12 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="/robot" class="active">The Robot</a>
-      <a href="/learning-hub">Learning Hub</a>
-      <a href="/learning-path">Curriculum</a>
+  <a href="/learning-path">Curriculum</a>
       <a href="/safety">Safety</a>
       <a href="/for-schools">For Schools</a>
     </div>
     <div class="nav-right">
+      <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:13px;padding:8px 18px">Open Learning Hub <span aria-hidden="true">&#8599;</span></a>
       <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
       <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
     </div>
@@ -278,11 +283,11 @@
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="/">Overview</a>
   <a href="/robot">The Robot</a>
-  <a href="/learning-hub">Learning Hub</a>
   <a href="/learning-path">Curriculum</a>
   <a href="/safety">Safety</a>
   <a href="/for-schools">For Schools</a>
-  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+  <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Hub &#8599;</a>
+  <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
 </div>
 
 <!-- ═══ HERO — 2-column: text left, real robot photo right ═══ -->
@@ -293,7 +298,7 @@
 
       <!-- Left: text -->
       <div>
-        <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">The Robot</span>
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">The Robot</span>
         <h1 style="font-size:clamp(32px,4.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;max-width:560px;margin-bottom:18px;color:#0a0f1e">21 programmable degrees of freedom.<br>Governed by a protected motion system.</h1>
         <p style="font-size:17px;color:var(--muted);max-width:480px;line-height:1.72;margin-bottom:32px">A real physical platform running ROS 2 on an onboard Raspberry Pi. Students write code for all 21 joints — every command is validated, queued, and approved before it reaches the motors. Click the anatomy hotspots below to explore every system.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -317,31 +322,31 @@
 </section>
 
 <!-- ═══ STAT STRIP ═══ -->
-<section style="border-bottom:1px solid rgba(255,255,255,.07);background:var(--dark2)">
+<section style="border-bottom:1px solid var(--line);background:var(--bg2)">
   <div class="section-wide stat-strip-inner" style="gap:0;padding:0">
-    <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#5fb7ff;letter-spacing:-.03em">21</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Degrees of freedom</div>
+    <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--blue);letter-spacing:-.03em">21</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Degrees of freedom</div>
     </div>
-    <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#7af1ff;letter-spacing:-.03em">8 GB</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">RPi 5 RAM</div>
+    <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
+      <div style="font-size:28px;font-weight:800;color:#0e7490;letter-spacing:-.03em">8 GB</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">RPi 5 RAM</div>
     </div>
-    <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#7dffbd;letter-spacing:-.03em">12V</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Main supply rail</div>
+    <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--green);letter-spacing:-.03em">12V</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Main supply rail</div>
     </div>
-    <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#c084fc;letter-spacing:-.03em">D435i</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">RealSense depth</div>
+    <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--purple);letter-spacing:-.03em">D435i</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">RealSense depth</div>
     </div>
-    <div style="padding:28px 20px;border-right:1px solid rgba(255,255,255,.07);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#ffab6e;letter-spacing:-.03em">ROS 2</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">Software stack</div>
+    <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--orange);letter-spacing:-.03em">ROS 2</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Software stack</div>
     </div>
     <div style="padding:28px 20px;text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#ffd166;letter-spacing:-.03em">PLA</div>
-      <div style="font-size:12px;color:rgba(200,220,240,.5);margin-top:4px">3D printed frame</div>
+      <div style="font-size:28px;font-weight:800;color:var(--yellow);letter-spacing:-.03em">PLA</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">3D printed frame</div>
     </div>
   </div>
 </section>
@@ -718,7 +723,7 @@
   <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Electrical</span>
   <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:8px">Power architecture</h2>
   <p style="color:var(--muted);margin-bottom:16px">A single 12V/50A supply feeds a central bus bar with four outgoing paths — one buck converter each for the Pi and the two servo groups, plus a direct 12V line to the base motor. Rails are separately regulated so current spikes from motors should never reset the Pi.</p>
-  <p style="color:var(--faint);font-size:13px;margin-bottom:40px;max-width:640px">Final current protection, fuse sizing, and conductor ratings will be validated before classroom release. Detailed converter models, wire gauges, and measured current draw are documented in the Learning Hub <a href="/learning-hub/technical-reference" style="color:var(--blue);text-decoration:underline">technical reference</a>.</p>
+  <p style="color:var(--faint);font-size:13px;margin-bottom:40px;max-width:640px">Final current protection, fuse sizing, and conductor ratings will be validated before classroom release. Detailed converter models, wire gauges, and measured current draw are documented in the Learning Hub <a href="https://learning.swayform.net/technical-reference" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">technical reference</a>.</p>
 
   <div style="background:var(--dark);border:none;border-radius:var(--radius);overflow:hidden;margin-bottom:40px;box-shadow:0 4px 24px rgba(0,0,0,.18)">
     <div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
@@ -807,7 +812,7 @@
       <div class="footer-col"><h5>Navigation</h5><ul>
         <li><a href="/">Overview</a></li>
         <li><a href="/robot">The Robot</a></li>
-        <li><a href="/learning-hub">Learning Hub</a></li>
+        <li><a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Learning Hub</a></li>
         <li><a href="/learning-path">Curriculum</a></li>
         <li><a href="/safety">Safety</a></li>
         <li><a href="/for-schools">For Schools</a></li>
@@ -830,349 +835,28 @@
   </div>
 </footer>
 <script src="/site-data.js"></script>
+<script src="/anatomy-viewer.js"></script>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
-   ANATOMY VIEWER — state machine + part definitions
-   ══════════════════════════════════════════════════════════════
-   HOW TO ADD VIDEO ASSETS
-   Place .mp4 files in transition/ using CamelCase names, e.g.:
-     transition/OverviewToHead.mp4  (already present)
-     transition/HeadToOverview.mp4
-   Until a file exists the viewer fades between still images.
+   ANATOMY VIEWER
+   Part data, video assets, and the transition state machine now
+   live in the shared /anatomy-viewer.js (also used by index.html)
+   so the two pages cannot drift apart. This just wires it to this
+   page's existing element IDs/classes.
    ══════════════════════════════════════════════════════════════ */
-
-/* ── Part definitions ── */
-/* xPercent / yPercent: position relative to the image container.
-   Each id IS the state name — videoGroup must match the VIDEOS key prefix. */
-var PARTS = [
-  { id:'head',
-    label:'Head',         xPercent:50, yPercent:27, labelSide:'r',
-    videoGroup:'head',    finalImage:'images/head.png',
-    title:'Head System', category:'Vision + Head System',
-    description:'The head unit integrates the Intel RealSense D435i depth camera with a 2-DOF pan/tilt neck (neck_yaw and neck_pitch). Together they enable object tracking, proximity sensing, and feedback-driven behaviors — all from code students write themselves.',
-    learns:['How RGB and depth image streams are published as separate ROS topics','Proportional controllers and why dead zones prevent jitter in pan/tilt systems','HSV color segmentation vs depth-based proximity detection','How camera feedback loops drive physical joint movement in real time'] },
-
-  { id:'shoulder',
-    label:'Shoulder',     xPercent:73, yPercent:43, labelSide:'l',
-    videoGroup:'shoulder', finalImage:'images/shoulder.png',
-    title:'Shoulder Joint', category:'High-Torque Joint',
-    description:'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
-    learns:['Why mechanical load matters — not just angle range','How joint limits interact with each other in a chain','The importance of motion sequencing order','Torque vs. speed tradeoffs in servo selection'] },
-
-  { id:'arm',
-    label:'Arm',          xPercent:78, yPercent:50, labelSide:'l',
-    videoGroup:'arm',     finalImage:'images/Arm.png',
-    title:'Arm System', category:'Multi-Joint Arm',
-    description:'The arm chain spans shoulder, elbow, and wrist — three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',
-    learns:['Multi-joint coordination and timing','Mechanical advantage and why elbow angle affects shoulder load','Keyframe interpolation across a joint chain','Safe range design for compound motion'] },
-
-  { id:'fingers',
-    label:'Hand / Fingers', xPercent:16, yPercent:16, labelSide:'r',
-    videoGroup:'hand',    finalImage:'images/hand.png',
-    title:'Five-Finger Hand', category:'Fine Motor',
-    description:'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
-    learns:['Individual joint addressing within a single message type','Simultaneous multi-joint commands vs sequential','Servo driver channel assignment','Fine PWM precision requirements at low-torque joints'] },
-
-  { id:'electronics',
-    label:'Electronics',  xPercent:50, yPercent:59, labelSide:'r',
-    videoGroup:'electronics', finalImage:'images/swayform_robot_2.png',
-    title:'Raspberry Pi 5 + Electronics', category:'Compute + Control',
-    description:'Raspberry Pi 5 (8 GB) running Linux and a ROS 2-based software stack. Servo drivers on the I²C bus. A 12V bus bar distributes power to a dedicated 5V buck converter for the Pi and two separate 6V buck converters for the servo groups. Everything is accessible, labeled, and replaceable — no black boxes.',
-    learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Regulated power architecture — separate rails for compute and servos, plus a direct 12V motor line','SSH workflow — how students connect and deploy code'] },
-
-  { id:'base',
-    label:'Base',         xPercent:50, yPercent:80, labelSide:'r',
-    videoGroup:'base',    finalImage:'images/Base.png',
-    title:'Rotating Base', category:'Actuated Base',
-    description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation, powered directly from the 12V bus rather than through a servo buck converter. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
-    learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
-];
-
-/* ── Video paths — all files live in transition/ (CamelCase) ─────────
-   Each key maps to the exact filename on disk.
-   If a file is missing the viewer falls back to a smooth fade and
-   logs a console warning with the missing path.
-   ─────────────────────────────────────────────────────────────────── */
-var VIDEOS = {
-  overview_to_head:        'transition/OverviewToHead.mp4',
-  head_to_overview:        'transition/HeadToOverview.mp4',
-  overview_to_shoulder:    'transition/OverviewToShoulder.mp4',
-  shoulder_to_overview:    'transition/ShoulderToOverview.mp4',
-  overview_to_arm:         'transition/OverviewToArm.mp4',
-  arm_to_overview:         'transition/ArmToOverview.mp4',
-  overview_to_hand:        'transition/OverviewToHand.mp4',
-  hand_to_overview:        'transition/HandToOverview.mp4',
-  overview_to_base:        'transition/OverviewToBase.mp4',
-  base_to_overview:        'transition/BaseToOverview.mp4',
-  overview_to_electronics: 'transition/OverviewToElectronics.mp4', /* fade fallback until file added */
-  electronics_to_overview: 'transition/ElectronicsToOverview.mp4'  /* fade fallback until file added */
-};
-
-/* ── Final still image per video group ── */
-var GROUP_IMAGES = {
-  overview:    'images/RobotOverview.png',
-  head:        'images/head.png',
-  shoulder:    'images/shoulder.png',
-  arm:         'images/Arm.png',   /* elbow + wrist share arm group/still */
-  hand:        'images/hand.png',
-  base:        'images/Base.png',
-  electronics: 'images/swayform_robot_2.png'
-};
-
-/* ── Viewer state ── */
-var viewer = { group:'overview', transitioning:false, partId:null };
-
-/* ── Build hotspot overlay on load + kick off asset preloading ── */
-function initAnatomy(){
-  var layer = document.getElementById('anat-hotspot-layer');
-  if(!layer) return;
-  PARTS.forEach(function(p){
-    var dot = document.createElement('div');
-    dot.className = 'anatomy-spot anat-hs';
-    dot.id = 'spot-'+p.id;
-    dot.style.left = p.xPercent+'%';
-    dot.style.top  = p.yPercent+'%';
-    dot.setAttribute('aria-label', p.label);
-    dot.onclick = function(){ selectPart(p.id); };
-    var lbl = document.createElement('span');
-    lbl.className = 'anat-lbl anat-lbl-'+p.labelSide;
-    lbl.textContent = p.label;
-    dot.appendChild(lbl);
-    layer.appendChild(dot);
-  });
-  preloadAssets();
-}
-
-/* ── Loading indicator ── */
-function showLoading(on){
-  var el = document.getElementById('anat-loader');
-  if(el) el.style.display = on ? 'block' : 'none';
-}
-
-/* ── Preload all still images + all available transition videos ── */
-function preloadAssets(){
-  /* Deduplicate still images (shoulder and arm share Arm.png) */
-  var seen = {};
-  Object.values(GROUP_IMAGES).forEach(function(src){
-    if(!seen[src]){ seen[src] = true; var img = new Image(); img.src = src; }
-  });
-  /* Preload every video listed in VIDEOS via hidden <video> elements.
-     Browsers ignore 404s silently; the viewer's onerror handles failures. */
-  Object.values(VIDEOS).forEach(function(path){
-    var pv = document.createElement('video');
-    pv.muted = true; pv.preload = 'auto'; pv.src = path;
-    pv.load();
-  });
-}
-
-/* ── Fade between still images (fallback when video file is missing) ── */
-function fadeToStill(src, cb){
-  var el = document.getElementById('anat-still');
-  el.style.transition = 'opacity .28s ease';
-  el.style.opacity = '0';
-  setTimeout(function(){
-    el.src = src;
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      el.style.opacity = '1';
-      if(cb) setTimeout(cb, 300);
-    }); });
-  }, 290);
-}
-
-/* ── Play transition video; graceful fallback if file is missing ──────────
-   Sequence: clear old src → load() → set new src → load()
-             → wait for canplay → currentTime=0 → play()
-             → wait for ended → show finalImage → call cb()
-   `done` flag: prevents double-callback from onerror + play().catch.
-   `vid._ph`   : named canplay handler stored on element so cleanup is exact.
-   Safety timeout (5 s): handles browsers that stall on 404 without onerror. */
-function playTransition(key, finalImage, cb){
-  var vid   = document.getElementById('anat-video');
-  var still = document.getElementById('anat-still');
-  var path  = VIDEOS[key];
-  var done  = false;
-  var timer = null;
-
-  console.log('[anatomy] playTransition key='+key+' → '+path);
-  showLoading(true);
-
-  function cleanup(){
-    clearTimeout(timer);
-    vid.onended = null;
-    vid.onerror = null;
-    if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
-    showLoading(false);
-  }
-
-  function finish(){
-    if(done) return; done = true;
-    console.log('[anatomy] video ended → showing '+finalImage);
-    cleanup();
-    /* Update the still behind the video while it's still hidden by z-index */
-    still.src = finalImage;
-    still.style.opacity = '1';
-    /* Fade the video out to reveal the still — same frame, no size change */
-    vid.style.transition = 'opacity .2s ease';
-    vid.style.opacity = '0';
-    setTimeout(function(){
-      vid.style.display = 'none';
-      vid.style.opacity = '1';
-      vid.style.transition = '';
-      vid.removeAttribute('src'); vid.load();
-      if(cb) cb();
-    }, 220);
-  }
-
-  function fallback(reason){
-    if(done) return; done = true;
-    console.warn('[anatomy] fallback ('+reason+') → fading to '+finalImage);
-    cleanup();
-    vid.style.display = 'none';
-    vid.removeAttribute('src'); vid.load();
-    fadeToStill(finalImage, cb);
-  }
-
-  if(!path){ console.log('[anatomy] no video for key='+key); showLoading(false); fadeToStill(finalImage, cb); return; }
-
-  /* clear previous state before loading new source */
-  if(vid._ph){ vid.removeEventListener('canplay', vid._ph); vid._ph = null; }
-  vid.onended = null; vid.onerror = null;
-  vid.removeAttribute('src'); vid.load();
-
-  vid.onended = function(){ finish(); };
-  vid.onerror = function(){
-    var c = vid.error ? vid.error.code : '?';
-    fallback('onerror code='+c+' src='+path);
-  };
-
-  function tryPlay(){
-    vid.removeEventListener('canplay', tryPlay);
-    vid._ph = null;
-    if(done) return;
-    clearTimeout(timer);
-    vid.currentTime = 0;
-    console.log('[anatomy] canplay fired → play()');
-    var prom = vid.play();
-    if(prom && prom.catch) prom.catch(function(e){
-      fallback('play() rejected: '+e.name+' '+e.message);
-    });
-  }
-
-  vid._ph = tryPlay;
-  vid.addEventListener('canplay', tryPlay);
-
-  /* Ensure still is fully visible underneath before video covers it */
-  still.style.opacity = '1';
-
-  vid.style.opacity = '1';
-  vid.src = path;
-  vid.style.display = 'block';
-  vid.load();
-
-  timer = setTimeout(function(){ fallback('5s timeout — canplay never fired for '+path); }, 5000);
-}
-
-/* ── Show/hide hotspot overlay (overview button is always visible) ── */
-function setOverviewUI(isOverview){
-  document.getElementById('anat-hotspot-layer').style.display = isOverview ? 'block' : 'none';
-}
-
-/* ── Ring the active hotspot dot ── */
-function setActive(partId){
-  PARTS.forEach(function(p){
-    var d = document.getElementById('spot-'+p.id);
-    if(d) d.classList.toggle('active', p.id===partId);
-  });
-}
-
-/* ── Update right-side text panel (no images) ── */
-function updatePanel(partId){
-  var slot = document.getElementById('anatomy-detail-slot');
-  var def  = document.getElementById('anatomy-default');
-  if(!partId){
-    slot.style.display = 'none';
-    if(def) def.style.display = 'flex';
-    return;
-  }
-  var p = null;
-  for(var i=0;i<PARTS.length;i++){ if(PARTS[i].id===partId){p=PARTS[i];break;} }
-  if(!p) return;
-  if(def) def.style.display = 'none';
-  slot.innerHTML =
-    '<div class="anatomy-detail-label">'+p.category+'</div>'+
-    '<h3>'+p.title+'</h3>'+
-    '<p>'+p.description+'</p>'+
-    '<div class="anatomy-learns-label">What students learn from this</div>'+
-    '<ul class="anatomy-learns">'+
-      p.learns.map(function(b){ return '<li>'+b+'</li>'; }).join('')+
-    '</ul>';
-  slot.style.display = 'block';
-  if(window.innerWidth < 900) setTimeout(function(){
-    document.getElementById('anatomy-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
-  }, 80);
-}
-
-/* ── Main click handler ── */
-function selectPart(partId){
-  if(viewer.transitioning) return;
-  var part = null;
-  for(var i=0;i<PARTS.length;i++){ if(PARTS[i].id===partId){part=PARTS[i];break;} }
-  if(!part) return;
-
-  var tg = part.videoGroup;
-
-  /* Same video group already visible — only swap text, no animation */
-  if(viewer.group === tg && viewer.group !== 'overview'){
-    viewer.partId = partId;
-    setActive(partId);
-    updatePanel(partId);
-    return;
-  }
-
-  viewer.transitioning = true;
-  setActive(partId);
-  setOverviewUI(false);
-
-  if(viewer.group === 'overview'){
-    /* overview → target */
-    playTransition('overview_to_'+tg, part.finalImage, function(){
-      viewer.group = tg;
-      viewer.partId = partId;
-      viewer.transitioning = false;
-      updatePanel(partId);
-    });
-  } else {
-    /* current → overview → target (never jump directly between parts) */
-    var fromGroup = viewer.group;
-    playTransition(fromGroup+'_to_overview', GROUP_IMAGES.overview, function(){
-      viewer.group = 'overview';
-      setTimeout(function(){
-        playTransition('overview_to_'+tg, part.finalImage, function(){
-          viewer.group = tg;
-          viewer.partId = partId;
-          viewer.transitioning = false;
-          updatePanel(partId);
-        });
-      }, 100);
-    });
-  }
-}
-
-/* ── Back to overview ── */
-function goToOverview(){
-  if(viewer.transitioning || viewer.group === 'overview') return;
-  viewer.transitioning = true;
-  setActive(null);
-  var fromGroup = viewer.group;
-  playTransition(fromGroup+'_to_overview', GROUP_IMAGES.overview, function(){
-    viewer.group = 'overview';
-    viewer.partId = null;
-    viewer.transitioning = false;
-    setOverviewUI(true);
-    updatePanel(null);
-  });
-}
+var robotAnatomy = window.SwayFormAnatomy.create({
+  frameId:'anat-frame', stillId:'anat-still', videoId:'anat-video',
+  hotspotLayerId:'anat-hotspot-layer', overviewBtnId:'anat-overview-btn', loaderId:'anat-loader',
+  panelId:'anatomy-panel', detailSlotId:'anatomy-detail-slot', defaultPanelId:'anatomy-default',
+  hotspotClass:'anatomy-spot anat-hs', hotspotIdPrefix:'spot-',
+  labelClass:'anat-lbl', labelSidePrefix:'anat-lbl-',
+  detailLabelClass:'anatomy-detail-label', learnsLabelClass:'anatomy-learns-label', learnsListClass:'anatomy-learns',
+  logPrefix:'[robot-anatomy]'
+});
+robotAnatomy.init();
+function selectPart(partId){ robotAnatomy.selectPart(partId); }
+function goToOverview(){ robotAnatomy.goToOverview(); }
 
 /* ── Nav / misc ── */
 window.addEventListener('scroll',function(){
@@ -1196,8 +880,6 @@ function filterJoints(cat){
     });
   }catch(e){console.error('filterJoints error:',e);}
 }
-
-initAnatomy();
 </script>
 </body>
 </html>

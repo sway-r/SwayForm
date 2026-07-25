@@ -7,10 +7,44 @@ function toggleSbGroup(btn) {
   if (items) items.classList.toggle('open');
 }
 
-function toggleLhSidebarMobile() {
+var lhDrawerTrigger = null;
+
+function openLhSidebarMobile(triggerEl) {
   var sb = document.getElementById('lh-sidebar');
-  if (sb) sb.classList.toggle('mobile-open');
+  var backdrop = document.getElementById('lh-sidebar-backdrop');
+  if (!sb) return;
+  lhDrawerTrigger = triggerEl || document.querySelector('.lh-mob-nav-toggle');
+  sb.classList.add('mobile-open');
+  if (backdrop) backdrop.classList.add('open');
+  if (lhDrawerTrigger) lhDrawerTrigger.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+  var closeBtn = sb.querySelector('.lh-sb-close');
+  if (closeBtn) closeBtn.focus();
 }
+
+function closeLhSidebarMobile() {
+  var sb = document.getElementById('lh-sidebar');
+  var backdrop = document.getElementById('lh-sidebar-backdrop');
+  if (!sb) return;
+  sb.classList.remove('mobile-open');
+  if (backdrop) backdrop.classList.remove('open');
+  var trigger = lhDrawerTrigger || document.querySelector('.lh-mob-nav-toggle');
+  if (trigger) { trigger.setAttribute('aria-expanded', 'false'); trigger.focus(); }
+  document.body.style.overflow = '';
+}
+
+function toggleLhSidebarMobile(el) {
+  var sb = document.getElementById('lh-sidebar');
+  if (!sb) return;
+  if (sb.classList.contains('mobile-open')) closeLhSidebarMobile();
+  else openLhSidebarMobile(el);
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  var sb = document.getElementById('lh-sidebar');
+  if (sb && sb.classList.contains('mobile-open')) closeLhSidebarMobile();
+});
 
 function copyCode(btn) {
   var pre = btn.closest('.lh-code').querySelector('pre code');

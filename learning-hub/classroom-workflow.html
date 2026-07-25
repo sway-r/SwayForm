@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Classroom Workflow | SwayForm Learning Hub</title>
 <meta name="description" content="How a SwayForm classroom actually runs: from lesson introduction through student code, validation, instructor approval, and protected robot execution.">
-<link rel="canonical" href="https://swayform.net/learning-hub/classroom-workflow">
+<link rel="canonical" href="https://learning.swayform.net/classroom-workflow">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,42 +13,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/learning-hub-shell.css">
-<style>#topbar{top:0!important}</style>
 </head>
 <body>
 
-<nav id="topbar">
-  <div class="nav-inner">
-    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
-    <div class="nav-links">
-      <a href="/">Overview</a>
-      <a href="/robot">The Robot</a>
-      <a href="/learning-hub" class="active">Learning Hub</a>
-      <a href="/learning-path">Curriculum</a>
-      <a href="/safety">Safety</a>
-      <a href="/for-schools">For Schools</a>
-    </div>
-    <div class="nav-right">
-      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
-      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+<header id="lh-topbar">
+  <div class="lh-topbar-inner">
+    <a href="https://swayform.net/" class="lh-brand"><span class="lh-brand-s">S</span>wayForm<span class="lh-brand-sep">/</span><span class="lh-brand-label">Learning Hub</span></a>
+    <div class="lh-topbar-actions">
+      <a href="https://swayform.net/contact" class="lh-topbar-contact">Contact Sales</a>
+      <a href="https://swayform.net/" class="lh-topbar-back">Back to SwayForm &#8599;</a>
     </div>
   </div>
-</nav>
-<div id="mobile-nav">
-  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
-  <a href="/">Overview</a>
-  <a href="/robot">The Robot</a>
-  <a href="/learning-hub">Learning Hub</a>
-  <a href="/learning-path">Curriculum</a>
-  <a href="/safety">Safety</a>
-  <a href="/for-schools">For Schools</a>
-  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
-</div>
+</header>
 
-<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile()">☰ Learning Hub Sections</button>
+<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile(this)" aria-expanded="false" aria-controls="lh-sidebar">&#9776; Lessons</button>
+<div id="lh-sidebar-backdrop" onclick="closeLhSidebarMobile()"></div>
 
 <div id="lh-shell">
   <aside id="lh-sidebar">
+    <button class="lh-sb-close" onclick="closeLhSidebarMobile()" aria-label="Close lessons menu">&times;</button>
     <div class="lh-sb-top">
       <div class="lh-sb-hub-label">Learning Hub</div>
       <div class="lh-sb-search-wrap">
@@ -61,45 +44,45 @@
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr open" onclick="toggleSbGroup(this)">Start Here <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items open">
-          <a class="lh-sb-item" href="/learning-hub">Hub Home</a>
-          <a class="lh-sb-item" href="/learning-hub/getting-started">Getting Started</a>
-          <a class="lh-sb-item active" href="/learning-hub/classroom-workflow">Classroom Workflow</a>
-          <a class="lh-sb-item" href="/learning-hub/safety">Safety Notes</a>
+          <a class="lh-sb-item" href="/">Hub Home</a>
+          <a class="lh-sb-item" href="/getting-started">Getting Started</a>
+          <a class="lh-sb-item active" href="/classroom-workflow">Classroom Workflow</a>
+          <a class="lh-sb-item" href="/safety">Safety Notes</a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Setup <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/setup">VS Code, Run &amp; Stop</a>
-          <a class="lh-sb-item" href="/learning-hub/ssh">SSH &amp; Student Accounts</a>
-          <a class="lh-sb-item" href="/learning-hub/projects">Student Projects</a>
-          <a class="lh-sb-item" href="/learning-hub/queue">Validation &amp; Queue</a>
+          <a class="lh-sb-item" href="/setup">VS Code, Run &amp; Stop</a>
+          <a class="lh-sb-item" href="/ssh">SSH &amp; Student Accounts</a>
+          <a class="lh-sb-item" href="/projects">Student Projects</a>
+          <a class="lh-sb-item" href="/queue">Validation &amp; Queue</a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Demo Code Library <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/demos">Overview</a>
-          <a class="lh-sb-item" href="/learning-hub/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
-          <a class="lh-sb-item" href="/learning-hub/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos">Overview</a>
+          <a class="lh-sb-item" href="/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Student Labs <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/labs">All Labs <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/labs">All Labs <span class="lh-sb-dot ready"></span></a>
         </div>
       </div>
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Reference <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items">
-          <a class="lh-sb-item" href="/learning-hub/repair">Repair</a>
-          <a class="lh-sb-item" href="/learning-hub/technical-reference">Technical Reference</a>
-          <a class="lh-sb-item" href="/learning-hub/troubleshooting">Troubleshooting</a>
-          <a class="lh-sb-item" href="/learning-hub/glossary">Glossary</a>
+          <a class="lh-sb-item" href="/repair">Repair</a>
+          <a class="lh-sb-item" href="/technical-reference">Technical Reference</a>
+          <a class="lh-sb-item" href="/troubleshooting">Troubleshooting</a>
+          <a class="lh-sb-item" href="/glossary">Glossary</a>
         </div>
       </div>
     </div>
@@ -107,7 +90,7 @@
 
   <main id="lh-main">
     <div class="lh-panel">
-      <div class="lh-bc"><a href="/learning-hub">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Classroom Workflow</span></div>
+      <div class="lh-bc"><a href="/">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Classroom Workflow</span></div>
       <h1>Classroom Workflow</h1>
       <p class="lh-lead">Students write real ROS 2 code, but they never send commands straight to the motors. Every submission moves through the same protected path before the robot moves.</p>
 
@@ -123,13 +106,13 @@
       <h2>The full sequence</h2>
       <div class="lh-path-steps">
         <div class="lh-path-step"><div class="lh-path-num">1</div><div class="lh-path-text">The instructor introduces the lesson or objective.</div></div>
-        <div class="lh-path-step"><div class="lh-path-num">2</div><div class="lh-path-text">Students open the free <a href="/learning-hub">Learning Hub</a>.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">2</div><div class="lh-path-text">Students open the free <a href="/">Learning Hub</a>.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">3</div><div class="lh-path-text">Students follow the lesson explanation and examples in a demo or lab.</div></div>
-        <div class="lh-path-step"><div class="lh-path-num">4</div><div class="lh-path-text">Students connect to the Raspberry Pi through SSH using the <a href="/learning-hub/ssh">shared student environment</a>.</div></div>
-        <div class="lh-path-step"><div class="lh-path-num">5</div><div class="lh-path-text">Students create a named ROS 2 <a href="/learning-hub/projects">project</a> using the SwayForm project-creation tool.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">4</div><div class="lh-path-text">Students connect to the Raspberry Pi through SSH using the <a href="/ssh">shared student environment</a>.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">5</div><div class="lh-path-text">Students create a named ROS 2 <a href="/projects">project</a> using the SwayForm project-creation tool.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">6</div><div class="lh-path-text">The tool generates the appropriate folder structure and starter files.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">7</div><div class="lh-path-text">Students modify a partially completed lab template, or write their own program.</div></div>
-        <div class="lh-path-step"><div class="lh-path-num">8</div><div class="lh-path-text">Students submit their program to the SwayForm <a href="/learning-hub/queue">execution queue</a>.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">8</div><div class="lh-path-text">Students submit their program to the SwayForm <a href="/queue">execution queue</a>.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">9</div><div class="lh-path-text">The system performs automated validation — syntax, build, and safety checks.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">10</div><div class="lh-path-text">The instructor reviews the program and its source code.</div></div>
         <div class="lh-path-step"><div class="lh-path-num">11</div><div class="lh-path-text">The instructor approves or rejects the submission, with feedback if needed.</div></div>
@@ -138,14 +121,14 @@
         <div class="lh-path-step"><div class="lh-path-num">14</div><div class="lh-path-text">Students observe, debug, revise, and resubmit.</div></div>
       </div>
 
-      <div class="lh-callout safety"><div class="lh-callout-lbl">What this is not</div><p>A student does not press Run and immediately control the hardware. Nothing reaches a motor without passing through validation, the queue, and instructor approval first — see <a href="/safety">Safety</a> for the full protected motion-control architecture.</p></div>
+      <div class="lh-callout safety"><div class="lh-callout-lbl">What this is not</div><p>A student does not press Run and immediately control the hardware. Nothing reaches a motor without passing through validation, the queue, and instructor approval first — see <a href="https://swayform.net/safety">Safety</a> for the full protected motion-control architecture.</p></div>
 
       <h2>Why the queue exists</h2>
-      <p>Because the review step is real, instructors do not need to watch every keystroke. They review the source once, before it can move the robot, which keeps the classroom open for real experimentation without needing constant supervision of the code itself — physical supervision of the robot is still required, see <a href="/learning-hub/safety">Safety Notes</a>.</p>
+      <p>Because the review step is real, instructors do not need to watch every keystroke. They review the source once, before it can move the robot, which keeps the classroom open for real experimentation without needing constant supervision of the code itself — physical supervision of the robot is still required, see <a href="/safety">Safety Notes</a>.</p>
 
       <div class="lh-nav-row">
-        <a class="lh-nav-btn" href="/learning-hub/getting-started">← Getting Started</a>
-        <a class="lh-nav-btn primary" href="/learning-hub/safety">Safety Notes →</a>
+        <a class="lh-nav-btn" href="/getting-started">← Getting Started</a>
+        <a class="lh-nav-btn primary" href="/safety">Safety Notes →</a>
       </div>
     </div>
   </main>
@@ -155,44 +138,34 @@
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <a href="https://swayform.net/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
         <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col"><h5>Navigation</h5><ul>
-        <li><a href="/">Overview</a></li>
-        <li><a href="/robot">The Robot</a></li>
-        <li><a href="/learning-hub" class="active">Learning Hub</a></li>
-        <li><a href="/learning-path">Curriculum</a></li>
-        <li><a href="/safety">Safety</a></li>
-        <li><a href="/for-schools">For Schools</a></li>
-        <li><a href="/purpose">Our Mission</a></li>
+        <li><a href="https://swayform.net/">Overview</a></li>
+        <li><a href="https://swayform.net/robot">The Robot</a></li>
+        <li><a href="/" class="active">Learning Hub</a></li>
+        <li><a href="https://swayform.net/learning-path">Curriculum</a></li>
+        <li><a href="https://swayform.net/safety">Safety</a></li>
+        <li><a href="https://swayform.net/for-schools">For Schools</a></li>
+        <li><a href="https://swayform.net/purpose">Our Mission</a></li>
       </ul></div>
       <div class="footer-col"><h5>Contact</h5><ul>
-        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="https://swayform.net/contact">Contact Sales</a></li>
         <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
       <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
       <div class="footer-sub" style="flex-wrap:wrap">
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/terms">Terms of Use</a>
-        <a href="/accessibility">Accessibility</a>
-        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+        <a href="https://swayform.net/privacy">Privacy Policy</a>
+        <a href="https://swayform.net/terms">Terms of Use</a>
+        <a href="https://swayform.net/accessibility">Accessibility</a>
+        <a href="https://swayform.net/robot-safety">Robot Safety &amp; Acceptable Use</a>
       </div>
     </div>
   </div>
 </footer>
-<script>
-window.addEventListener('scroll',function(){
-  var tb=document.getElementById('topbar');
-  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
-},{passive:true});
-var ham=document.querySelector('.hamburger');
-if(ham) ham.addEventListener('click',function(){
-  document.getElementById('mobile-nav').classList.add('open');
-});
-</script>
 <script src="/site-data.js"></script>
 <script src="/learning-hub-search-data.js"></script>
 <script src="/learning-hub-shell.js"></script>

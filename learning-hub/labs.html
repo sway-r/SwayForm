@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Student Labs | SwayForm Learning Hub</title>
+<meta name="description" content="10 structured student labs available now, with the curriculum expanding to 40. Guided activities to edit motion code, test safe joint limits, and build robot behaviors.">
+<link rel="canonical" href="https://swayform.net/learning-hub/labs">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/learning-hub-shell.css">
+<style>#topbar{top:0!important}</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-hub" class="active">Learning Hub</a>
+      <a href="/learning-path">Curriculum</a>
+      <a href="/safety">Safety</a>
+      <a href="/for-schools">For Schools</a>
+    </div>
+    <div class="nav-right">
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-hub">Learning Hub</a>
+  <a href="/learning-path">Curriculum</a>
+  <a href="/safety">Safety</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+</div>
+
+<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile()">☰ Learning Hub Sections</button>
+
+<div id="lh-shell">
+  <aside id="lh-sidebar">
+    <div class="lh-sb-top">
+      <div class="lh-sb-hub-label">Learning Hub</div>
+      <div class="lh-sb-search-wrap">
+        <span class="lh-search-icon-pos">⌕</span>
+        <input type="text" id="lh-search-input" placeholder="Search demos, labs, setup…" autocomplete="off" spellcheck="false">
+        <div id="lh-search-results" style="display:none"></div>
+      </div>
+    </div>
+    <div class="lh-sb-groups">
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Start Here <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub">Hub Home</a>
+          <a class="lh-sb-item" href="/learning-hub/getting-started">Getting Started</a>
+          <a class="lh-sb-item" href="/learning-hub/classroom-workflow">Classroom Workflow</a>
+          <a class="lh-sb-item" href="/learning-hub/safety">Safety Notes</a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Setup <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/setup">VS Code, Run &amp; Stop</a>
+          <a class="lh-sb-item" href="/learning-hub/ssh">SSH &amp; Student Accounts</a>
+          <a class="lh-sb-item" href="/learning-hub/projects">Student Projects</a>
+          <a class="lh-sb-item" href="/learning-hub/queue">Validation &amp; Queue</a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Demo Code Library <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/demos">Overview</a>
+          <a class="lh-sb-item" href="/learning-hub/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr open" onclick="toggleSbGroup(this)">Student Labs <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items open">
+          <a class="lh-sb-item active" href="/learning-hub/labs">All Labs <span class="lh-sb-dot ready"></span></a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Reference <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/repair">Repair</a>
+          <a class="lh-sb-item" href="/learning-hub/technical-reference">Technical Reference</a>
+          <a class="lh-sb-item" href="/learning-hub/troubleshooting">Troubleshooting</a>
+          <a class="lh-sb-item" href="/learning-hub/glossary">Glossary</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="lh-main">
+    <div class="lh-panel">
+      <div class="lh-bc"><a href="/learning-hub">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Student Labs</span></div>
+      <h1>Student Labs</h1>
+      <p class="lh-lead">Student labs are guided activities where students edit code, run the robot, observe the result, and answer a short reflection question. Begin with 10 structured labs, with the curriculum expanding to 40.</p>
+
+      <h2>Available now (Level 1 — Control)</h2>
+      <div class="lh-grid">
+        <a class="lh-card" href="#lab-01"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">01</div><div class="lh-card-title">Hello Robot Motion</div><div class="lh-card-desc">Run your first safe motion and confirm the robot responds to your code.</div><div class="lh-card-footer"><span class="lh-diff beg">Beginner</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-02"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">02</div><div class="lh-card-title">Servo Angles &amp; Safe Limits</div><div class="lh-card-desc">Learn why joints have angle limits and what safe testing looks like.</div><div class="lh-card-footer"><span class="lh-diff beg">Beginner</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-03"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">03</div><div class="lh-card-title">Build a Gesture Sequence</div><div class="lh-card-desc">Create a gesture by combining safe poses with timing delays.</div><div class="lh-card-footer"><span class="lh-diff begplus">Beginner+</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-04"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">04</div><div class="lh-card-title">Head Tracking Basics</div><div class="lh-card-desc">Move the robot head toward a simple target zone.</div><div class="lh-card-footer"><span class="lh-diff begplus">Beginner+</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-05"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">05</div><div class="lh-card-title">Button-to-Motion Control</div><div class="lh-card-desc">Connect keyboard input to safe robot actions.</div><div class="lh-card-footer"><span class="lh-diff begplus">Beginner+</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-06"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">06</div><div class="lh-card-title">RealSense Detection Basics</div><div class="lh-card-desc">Use camera zone data to trigger a robot behavior.</div><div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-07"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">07</div><div class="lh-card-title">Hand Pose Timing</div><div class="lh-card-desc">Adjust timing to see how small delays affect gestures.</div><div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-08"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">08</div><div class="lh-card-title">Base Rotation Basics</div><div class="lh-card-desc">Command the robot's rotating base to turn left and right safely.</div><div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-09"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">09</div><div class="lh-card-title">Behavior Priority &amp; Motion Locking</div><div class="lh-card-desc">Learn why one behavior should not interrupt another at the wrong time.</div><div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span class="lh-pill ready">Available</span></div></div></a>
+        <a class="lh-card" href="#lab-10"><div class="lh-card-stripe blue"></div><div class="lh-card-body"><div class="lh-card-num blue">10</div><div class="lh-card-title">Mini Demo Challenge</div><div class="lh-card-desc">Build a small custom demo combining motion, timing, and optional perception.</div><div class="lh-card-footer"><span class="lh-diff inter">Intermediate</span><span class="lh-pill ready">Available</span></div></div></a>
+      </div>
+
+      <h2>Planned (Levels 2–4)</h2>
+      <p>30 more labs are planned to complete the 40-lab curriculum. Level 2 working titles are listed below; Level 3 and 4 titles will be finalized as development continues — see <a href="/learning-path">Curriculum</a> for the full roadmap.</p>
+      <div class="lh-grid">
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">11</div><div class="lh-card-title">Simple State Machines</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">12</div><div class="lh-card-title">Custom Motion Presets</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">13</div><div class="lh-card-title">Camera-Based User Greeting</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">14</div><div class="lh-card-title">Object Position Mapping</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">15</div><div class="lh-card-title">Two-Arm Coordination</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">16</div><div class="lh-card-title">Speaker Prompts and Timing</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">17</div><div class="lh-card-title">Classroom Challenge: Helpful Robot</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">18</div><div class="lh-card-title">Intro to Robot Debug Logs</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">19</div><div class="lh-card-title">Build Your Own Interaction</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">20</div><div class="lh-card-title">Final Showcase Demo</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">21–30</div><div class="lh-card-title">Level 3 — Perceive: vision, tracking, state design</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+        <div class="lh-card locked"><div class="lh-card-stripe gray"></div><div class="lh-card-body"><div class="lh-card-num gray">31–40</div><div class="lh-card-title">Level 4 — Create: original project, final showcase</div><div class="lh-card-footer"><span class="lh-pill planned">Planned</span></div></div></div>
+      </div>
+
+      <div class="lh-divider"></div>
+
+      <div id="lab-01">
+        <h1 style="font-size:22px">Lab 01: Hello Robot Motion</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff beg">Beginner</span></div><div class="lh-meta-chip"><strong>Time</strong> 20–30 minutes</div></div>
+        <p><strong>Goal:</strong> Run your first safe robot motion and understand that code sends target positions to robot joints.</p>
+        <p><strong>What students edit:</strong> Students change a small motion value or timing value after running the starter version.</p>
+        <h3>Concepts</h3>
+        <ul><li>Motion commands</li><li>Neutral pose</li><li>Safe movement</li><li>Terminal command</li><li>Observation before editing</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_01_hello_motion</div></div>
+        <h3>Steps</h3>
+        <ol><li>Connect to the robot through VS Code and SSH.</li><li>Open the lab file in your student project.</li><li>Run the starter command without editing anything.</li><li>Observe which part of the robot moves.</li><li>Change one allowed value.</li><li>Submit through the queue and wait for approval.</li><li>Return the robot to idle.</li></ol>
+        <h3>Expected result</h3>
+        <p>The robot performs a small safe motion, such as moving an arm or head, then returns to a neutral pose.</p>
+        <h3>Reflection question</h3>
+        <p>What changed physically when you changed the code value?</p>
+        <h3>Extension challenge</h3>
+        <p>Add a second safe motion after the first one, then return the robot to idle.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-02">
+        <h1 style="font-size:22px">Lab 02: Servo Angles and Safe Limits</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff beg">Beginner</span></div><div class="lh-meta-chip"><strong>Time</strong> 25–35 minutes</div></div>
+        <p><strong>Goal:</strong> Understand that each joint has safe angle limits and that robot motion should stay inside tested ranges.</p>
+        <p><strong>What students edit:</strong> Students adjust allowed servo target values inside a provided safe range.</p>
+        <h3>Concepts</h3>
+        <ul><li>Servo range</li><li>Joint limits</li><li>Mechanical safety</li><li>Angle values</li><li>Safe testing</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_02_servo_limits</div></div>
+        <h3>Steps</h3>
+        <ol><li>Open the lab file and find the safe angle range.</li><li>Run the starter motion.</li><li>Change the angle slightly within the allowed range.</li><li>Run the motion again.</li><li>Compare small changes to larger changes.</li><li>Return the joint to neutral.</li><li>Write down why random angles are unsafe.</li></ol>
+        <h3>Expected result</h3>
+        <p>Students see that small code changes can create visible joint movement, but only within safe mechanical limits.</p>
+        <h3>Reflection question</h3>
+        <p>Why should a robot program use safe limits instead of sending any angle directly to a servo?</p>
+        <h3>Extension challenge</h3>
+        <p>Create a helper function that rejects values outside the safe range.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-03">
+        <h1 style="font-size:22px">Lab 03: Build a Gesture Sequence</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff begplus">Beginner+</span></div><div class="lh-meta-chip"><strong>Time</strong> 30–40 minutes</div></div>
+        <p><strong>Goal:</strong> Create a small gesture by combining multiple safe poses with timing delays.</p>
+        <p><strong>What students edit:</strong> Students reorder poses, adjust delays, and add one extra gesture step.</p>
+        <h3>Concepts</h3>
+        <ul><li>Sequences</li><li>Timing</li><li>Poses</li><li>Reusable functions</li><li>Human-readable robot behavior</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_03_gesture_sequence</div></div>
+        <h3>Steps</h3>
+        <ol><li>Run the starter gesture.</li><li>Identify each pose in the sequence.</li><li>Change one delay value.</li><li>Add one new pose from the provided safe pose list.</li><li>Run the new sequence.</li><li>Check whether the gesture still looks smooth.</li><li>Return the robot to idle.</li></ol>
+        <h3>Expected result</h3>
+        <p>The robot performs a short custom gesture using multiple poses.</p>
+        <h3>Reflection question</h3>
+        <p>How does timing change the way a robot gesture feels to a person watching it?</p>
+        <h3>Extension challenge</h3>
+        <p>Create two versions of the same gesture: one that looks calm and one that looks excited.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-04">
+        <h1 style="font-size:22px">Lab 04: Head Tracking Basics</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff begplus">Beginner+</span></div><div class="lh-meta-chip"><strong>Time</strong> 30–45 minutes</div></div>
+        <p><strong>Goal:</strong> Move the robot head left, center, or right based on a simple target position.</p>
+        <p><strong>What students edit:</strong> Students adjust zone thresholds and head yaw values.</p>
+        <h3>Concepts</h3>
+        <ul><li>Neck yaw</li><li>Neck pitch</li><li>Camera target position</li><li>Mapping input to motion</li><li>Simple tracking behavior</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_04_head_tracking</div></div>
+        <h3>Steps</h3>
+        <ol><li>Run the starter head tracking script.</li><li>Move the target between left, center, and right zones.</li><li>Observe how the head responds.</li><li>Change one threshold value.</li><li>Change one head yaw value within the safe range.</li><li>Run the script again.</li><li>Return the head to center.</li></ol>
+        <h3>Reflection question</h3>
+        <p>What is the difference between detecting where something is and deciding how far the robot should move?</p>
+        <h3>Extension challenge</h3>
+        <p>Add a small delay so the head movement feels smoother and less twitchy.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-05">
+        <h1 style="font-size:22px">Lab 05: Button-to-Motion Control</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff begplus">Beginner+</span></div><div class="lh-meta-chip"><strong>Time</strong> 25–40 minutes</div></div>
+        <p><strong>Goal:</strong> Connect a keyboard input or simple button event to a robot motion.</p>
+        <p><strong>What students edit:</strong> Students map different inputs to different safe robot actions.</p>
+        <h3>Concepts</h3>
+        <ul><li>Events</li><li>Input handling</li><li>Calling robot actions</li><li>Safety stop</li><li>Simple control interface</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_05_button_motion</div></div>
+        <h3>Steps</h3>
+        <ol><li>Run the starter input script.</li><li>Press the provided key to trigger a motion.</li><li>Find where the input is checked in the code.</li><li>Add a second input option.</li><li>Map the second input to a different safe pose.</li><li>Test both inputs.</li><li>Use the stop key before ending the lab.</li></ol>
+        <h3>Reflection question</h3>
+        <p>Why is it useful to separate input handling from the actual robot motion function?</p>
+        <h3>Extension challenge</h3>
+        <p>Add a simple menu that shows which keys trigger which motions.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-06">
+        <h1 style="font-size:22px">Lab 06: RealSense Detection Basics</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff inter">Intermediate</span></div><div class="lh-meta-chip"><strong>Time</strong> 35–45 minutes</div></div>
+        <p><strong>Goal:</strong> Use RealSense camera data as a trigger for a simple robot behavior.</p>
+        <p><strong>What students edit:</strong> Students adjust a detection zone or distance threshold.</p>
+        <h3>Concepts</h3>
+        <ul><li>Camera input</li><li>Detection zones</li><li>Depth and distance</li><li>Perception-triggered motion</li><li>False positives</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_06_realsense_detection</div></div>
+        <h3>Steps</h3>
+        <ol><li>Start the camera-based lab.</li><li>Place a target or user inside the detection area.</li><li>Observe when the robot triggers a response.</li><li>Adjust the detection distance or zone.</li><li>Run the test again.</li><li>Compare reliable and unreliable trigger conditions.</li><li>Return the robot to idle.</li></ol>
+        <h3>Reflection question</h3>
+        <p>Why should camera-based triggers be conservative when the robot is near people?</p>
+        <h3>Extension challenge</h3>
+        <p>Add a timeout so the robot returns to idle if the target disappears.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-07">
+        <h1 style="font-size:22px">Lab 07: Hand Pose Timing</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff inter">Intermediate</span></div><div class="lh-meta-chip"><strong>Time</strong> 30–45 minutes</div></div>
+        <p><strong>Goal:</strong> Adjust hand and finger timing to understand how small delays affect robot gestures.</p>
+        <p><strong>What students edit:</strong> Students change finger pose timing, open/close delays, or gesture order.</p>
+        <h3>Concepts</h3>
+        <ul><li>Finger servo poses</li><li>Timing</li><li>Grip and release</li><li>Gesture realism</li><li>Small motion changes</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_07_hand_pose_timing</div></div>
+        <h3>Steps</h3>
+        <ol><li>Run the starter hand pose.</li><li>Observe how quickly the fingers move.</li><li>Change one timing delay.</li><li>Run the gesture again.</li><li>Change the order of two finger movements.</li><li>Compare which version looks more natural.</li><li>Return the hand to relaxed pose.</li></ol>
+        <h3>Reflection question</h3>
+        <p>Why can timing make a robot motion feel more natural even if the final pose is the same?</p>
+        <h3>Extension challenge</h3>
+        <p>Create a small hand gesture that looks like a count-in or signal.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-08">
+        <h1 style="font-size:22px">Lab 08: Base Rotation Basics</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff inter">Intermediate</span></div><div class="lh-meta-chip"><strong>Time</strong> 30–45 minutes</div></div>
+        <p><strong>Goal:</strong> Command the robot's rotating base to turn left or right safely.</p>
+        <p><strong>What students edit:</strong> Students adjust direction, duration, or speed values inside safe limits.</p>
+        <h3>Concepts</h3>
+        <ul><li>Base yaw</li><li>Motor control</li><li>Direction</li><li>Speed</li><li>Stop command</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_08_base_rotation</div></div>
+        <h3>Steps</h3>
+        <ol><li>Make sure the robot base area is clear.</li><li>Run the starter base rotation command.</li><li>Observe direction and stopping behavior.</li><li>Change the direction.</li><li>Change the duration slightly.</li><li>Run the test again.</li><li>Send the stop command.</li></ol>
+        <h3>Reflection question</h3>
+        <p>Why should base motion always include a clear stop condition?</p>
+        <h3>Extension challenge</h3>
+        <p>Create a turn-left, pause, turn-right sequence.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-09">
+        <h1 style="font-size:22px">Lab 09: Behavior Priority and Motion Locking</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff inter">Intermediate</span></div><div class="lh-meta-chip"><strong>Time</strong> 35–45 minutes</div></div>
+        <p><strong>Goal:</strong> Understand why one robot behavior should not interrupt another motion at the wrong time.</p>
+        <p><strong>What students edit:</strong> Students test simple behavior priority rules and see how a motion lock protects a running action.</p>
+        <h3>Concepts</h3>
+        <ul><li>Motion lock</li><li>Behavior priority</li><li>State control</li><li>Safe cancellation</li><li>Competing commands</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_09_motion_locking</div></div>
+        <h3>Steps</h3>
+        <ol><li>Run the starter behavior.</li><li>Trigger a second behavior while the first is active.</li><li>Observe whether the second behavior is blocked or delayed.</li><li>Find the motion lock in the code.</li><li>Change the priority of one behavior.</li><li>Run the test again.</li><li>Return the robot to idle.</li></ol>
+        <h3>Reflection question</h3>
+        <p>What could go wrong if two scripts tried to control the same arm at the same time?</p>
+        <h3>Extension challenge</h3>
+        <p>Add a low-priority idle behavior that pauses when a higher-priority demo starts.</p>
+      </div>
+      <div class="lh-divider"></div>
+
+      <div id="lab-10">
+        <h1 style="font-size:22px">Lab 10: Mini Demo Challenge</h1>
+        <div class="lh-meta"><div class="lh-meta-chip"><strong>Status</strong> <span class="lh-pill ready">Available</span></div><div class="lh-meta-chip"><strong>Level</strong> <span class="lh-diff inter">Intermediate</span></div><div class="lh-meta-chip"><strong>Time</strong> 40–60 minutes</div></div>
+        <p><strong>Goal:</strong> Combine motion, timing, and optional perception into a small custom robot demo.</p>
+        <p><strong>What students edit:</strong> Students create their own short behavior using safe poses and at least one idea from earlier labs.</p>
+        <h3>Concepts</h3>
+        <ul><li>Project planning</li><li>Code reuse</li><li>Debugging</li><li>Demo presentation</li><li>Behavior design</li></ul>
+        <h3>Starter command</h3>
+        <div class="lh-term"><div class="lh-term-bar"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div><span class="lh-term-lbl">Terminal</span></div><div class="lh-term-body">ros2 run swayform_labs lab_10_mini_demo_challenge</div></div>
+        <h3>Steps</h3>
+        <ol><li>Choose a simple demo idea.</li><li>Pick which robot parts will move.</li><li>Start from a provided safe template.</li><li>Add two or more motion steps.</li><li>Add timing between steps.</li><li>Test one part at a time.</li><li>Prepare a short explanation of how the demo works.</li></ol>
+        <h3>Expected result</h3>
+        <p>Students build and run a short custom robot behavior that they can explain.</p>
+        <h3>Reflection question</h3>
+        <p>What part of your demo was easiest to control, and what part needed the most debugging?</p>
+        <h3>Extension challenge</h3>
+        <p>Add camera input or user input to trigger the demo.</p>
+      </div>
+
+      <div class="lh-nav-row">
+        <a class="lh-nav-btn" href="/learning-hub/demos/interactive-exchange">← Demo: Interactive Exchange</a>
+        <a class="lh-nav-btn primary" href="/learning-hub/repair">Repair →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="/learning-hub" class="active">Learning Hub</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script src="/site-data.js"></script>
+<script src="/learning-hub-search-data.js"></script>
+<script src="/learning-hub-shell.js"></script>
+</body>
+</html>

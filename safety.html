@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Safety | SwayForm Robotics</title>
+<meta name="description" content="How SwayForm keeps a classroom robot program safe: protected motion-control architecture, validation and instructor approval, layered emergency stop, and physical safety practices.">
+<link rel="canonical" href="https://swayform.net/safety">
+<meta property="og:title" content="Safety | SwayForm Robotics">
+<meta property="og:description" content="How SwayForm keeps a classroom robot program safe: protected motion-control architecture, validation and instructor approval, layered emergency stop, and physical safety practices.">
+<meta property="og:url" content="https://swayform.net/safety">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SwayForm Robotics","item":"https://swayform.net/"},{"@type":"ListItem","position":2,"name":"Safety","item":"https://swayform.net/safety"}]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+#topbar{top:0!important}
+.sf-flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:32px 0}
+.sf-flow-step{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:600;color:var(--ink)}
+.sf-flow-arrow{color:var(--faint);font-size:16px}
+.status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.status-implemented{background:rgba(125,255,189,.12);color:#1a5c38;border:1px solid rgba(26,92,56,.2)}
+.status-validation{background:rgba(255,209,102,.15);color:#7a5200;border:1px solid rgba(122,82,0,.2)}
+.status-planned{background:var(--panel2);color:var(--faint);border:1px solid var(--line)}
+@media(max-width:768px){.sf-flow{flex-direction:column;align-items:stretch}.sf-flow-arrow{transform:rotate(90deg);text-align:center}}
+</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-hub">Learning Hub</a>
+      <a href="/learning-path">Curriculum</a>
+      <a href="/safety" class="active">Safety</a>
+      <a href="/for-schools">For Schools</a>
+    </div>
+    <div class="nav-right">
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-hub">Learning Hub</a>
+  <a href="/learning-path">Curriculum</a>
+  <a href="/safety">Safety</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+</div>
+
+<!-- hero -->
+<section style="padding-top:calc(var(--nav-h) + 114px);padding-bottom:64px;background:var(--dark);border-bottom:none;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 60% 50%,rgba(125,255,189,.08) 0%,transparent 70%);pointer-events:none"></div>
+  <div class="section-wide">
+    <span class="label" style="display:block;margin-bottom:16px;color:#7dffbd">Safety</span>
+    <h1 style="font-size:clamp(34px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:740px;margin-bottom:20px;color:#edf5ff">Open student development. Protected physical execution.</h1>
+    <p style="font-size:17px;color:rgba(200,220,240,.7);max-width:640px;line-height:1.7">Students write and run real code across all 21 degrees of freedom. Every command is validated, queued, and approved by an instructor before it reaches a motor — and a physical emergency stop always sits underneath the software.</p>
+  </div>
+</section>
+
+<!-- protected motion architecture -->
+<section class="section-wide" style="padding-top:80px;padding-bottom:60px">
+  <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Motion Architecture</span>
+  <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">Every command passes through one protected path.</h2>
+  <p style="color:var(--muted);max-width:640px;margin-bottom:8px;line-height:1.7">Student programs never talk to the motors directly. A single protected motion-control node is the only software layer permitted to send final commands to the servo controllers and base motor system.</p>
+
+  <div class="sf-flow">
+    <div class="sf-flow-step">Student program</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step">Movement request</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step">Validation &amp; queue</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step">Instructor approval</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step" style="background:#0a2318;color:#c8e2cc;border-color:rgba(125,255,189,.3)">Protected motion-control node</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step">Motor controllers</div><div class="sf-flow-arrow">→</div>
+    <div class="sf-flow-step">Robot movement</div>
+  </div>
+
+  <p style="color:var(--muted);max-width:640px;margin-top:8px;line-height:1.7">The motion-control node enforces (or is designed to enforce) joint limits, speed limits, movement-duration limits, safe sequencing, command timeouts, and rejection of malformed or impossible requests, and it respects emergency-stop state and instructor execution control at all times.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px">
+    <div class="card" style="padding:22px">
+      <div style="font-weight:700;margin-bottom:8px;font-size:14px">Valid joint names &amp; angle limits</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">Every one of the 21 joints has a bounded safe range enforced before a command reaches a servo.</p>
+    </div>
+    <div class="card" style="padding:22px">
+      <div style="font-weight:700;margin-bottom:8px;font-size:14px">Speed &amp; duration limits</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">Requested speeds and command durations are capped so motion stays predictable.</p>
+    </div>
+    <div class="card" style="padding:22px">
+      <div style="font-weight:700;margin-bottom:8px;font-size:14px">Command timeouts</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">A stalled or disconnected program cannot leave the robot mid-motion indefinitely.</p>
+    </div>
+    <div class="card" style="padding:22px">
+      <div style="font-weight:700;margin-bottom:8px;font-size:14px">Malformed request rejection</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">Out-of-range, impossible, or badly formed requests are rejected before execution.</p>
+    </div>
+  </div>
+
+  <p style="color:var(--faint);font-size:13px;max-width:640px;margin-top:24px;line-height:1.7">All 21 programmable degrees of freedom — including the rotating base — are available to student programs. This is open student development with protected physical execution, not unrestricted motor access.</p>
+</section>
+
+<!-- validation queue -->
+<section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
+  <div class="section-wide">
+    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Validation &amp; Queue</span>
+    <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">Students write real ROS 2 code. SwayForm checks and queues it first.</h2>
+    <p style="color:var(--muted);max-width:640px;margin-bottom:32px;line-height:1.7">Before an instructor ever sees a submission, it runs through automated checks. Some are already part of the architecture; others are planned ahead of classroom release.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <div class="card" style="padding:20px">Python syntax validation</div>
+      <div class="card" style="padding:20px">ROS 2 package build checks</div>
+      <div class="card" style="padding:20px">Required dependency validation</div>
+      <div class="card" style="padding:20px">Valid message structure</div>
+      <div class="card" style="padding:20px">Supported node configuration</div>
+      <div class="card" style="padding:20px">Valid joint names &amp; angle bounds</div>
+      <div class="card" style="padding:20px">Requested speed limits</div>
+      <div class="card" style="padding:20px">Command-duration limits</div>
+      <div class="card" style="padding:20px">Missing-file detection</div>
+      <div class="card" style="padding:20px">Unsupported hardware access</div>
+      <div class="card" style="padding:20px">Direct motor-controller access attempts</div>
+    </div>
+    <p style="color:var(--faint);font-size:13px;margin-top:24px;max-width:640px;line-height:1.7">This is planned architecture for the checks above; it does not claim complete behavioral simulation or a guaranteed-safe program. Full detail on the queue and instructor review flow lives in the Learning Hub's <a href="/learning-hub/queue" style="color:var(--blue);text-decoration:underline">Queue</a> and <a href="/learning-hub/classroom-workflow" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a> pages.</p>
+  </div>
+</section>
+
+<!-- physical safety -->
+<section class="section-wide" style="padding-top:80px;padding-bottom:60px">
+  <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Physical Safety</span>
+  <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">Layered safety, not just Ctrl+C.</h2>
+  <p style="color:var(--muted);max-width:640px;margin-bottom:32px;line-height:1.7">Software validation is one layer. A classroom also needs a physical layer that works even if a program misbehaves.</p>
+
+  <div style="display:flex;flex-direction:column;gap:14px;max-width:720px">
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Physical emergency stop / servo-power cutoff</div><p style="font-size:13px;color:var(--muted)">Disables motor power without necessarily cutting power to the Raspberry Pi, where practical.</p></div>
+      <span class="status-pill status-validation">Under validation</span>
+    </div>
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Normal software stop</div><p style="font-size:13px;color:var(--muted)">A standard, always-available stop command for ending a running program.</p></div>
+      <span class="status-pill status-implemented">Implemented</span>
+    </div>
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Instructor execution control</div><p style="font-size:13px;color:var(--muted)">Instructors can start, stop, and revoke approval for any running or queued program.</p></div>
+      <span class="status-pill status-implemented">Implemented</span>
+    </div>
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Protected motion limits, timeouts &amp; queue approval</div><p style="font-size:13px;color:var(--muted)">See Motion Architecture and Validation &amp; Queue above.</p></div>
+      <span class="status-pill status-implemented">Implemented</span>
+    </div>
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Clearly marked pinch zones &amp; supervised operation</div><p style="font-size:13px;color:var(--muted)">Physical labeling and classroom supervision practices for finger, elbow, and shoulder pinch points.</p></div>
+      <span class="status-pill status-planned">Planned before classroom release</span>
+    </div>
+    <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><div style="font-weight:700;margin-bottom:4px">Safe startup &amp; shutdown procedures</div><p style="font-size:13px;color:var(--muted)">Documented power-on/power-off sequence to avoid unexpected motion.</p></div>
+      <span class="status-pill status-planned">Planned before classroom release</span>
+    </div>
+  </div>
+
+  <p style="color:var(--faint);font-size:13px;max-width:640px;margin-top:28px;line-height:1.7">SwayForm does not claim a guaranteed-safe system. Robot operation should always be supervised, and instructors should review the full <a href="/robot-safety" style="color:var(--blue);text-decoration:underline">Robot Safety and Acceptable Use Policy</a> before classroom use.</p>
+</section>
+
+<!-- CTA -->
+<section style="background:var(--dark);padding:72px 0">
+  <div class="wrap" style="text-align:center;max-width:640px">
+    <h2 style="font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.025em;color:#edf5ff;margin-bottom:16px">Questions about safety for your program?</h2>
+    <a class="btn btn-primary btn-lg" href="/contact">Contact Sales</a>
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="/learning-hub">Learning Hub</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety" class="active">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script src="/site-data.js"></script>
+</body>
+</html>

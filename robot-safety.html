@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot Safety and Acceptable Use Policy | SwayForm Robotics</title>
+<meta name="description" content="Rules and expectations for safely operating a SwayForm robot in a classroom, including supervision, physical safety, and acceptable use of student accounts and code.">
+<link rel="canonical" href="https://swayform.net/robot-safety">
+<meta property="og:title" content="Robot Safety and Acceptable Use Policy | SwayForm Robotics">
+<meta property="og:description" content="Rules and expectations for safely operating a SwayForm robot in a classroom, including supervision, physical safety, and acceptable use of student accounts and code.">
+<meta property="og:url" content="https://swayform.net/robot-safety">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+#topbar{top:0!important}
+.policy-wrap{max-width:760px;margin:0 auto;padding:calc(var(--nav-h) + 80px) 24px 100px}
+.policy-wrap h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.03em;margin-bottom:8px;color:var(--ink)}
+.policy-updated{font-size:13px;color:var(--faint);margin-bottom:40px}
+.policy-wrap h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:40px 0 12px;color:var(--ink)}
+.policy-wrap p{color:var(--muted);line-height:1.75;margin-bottom:14px}
+.policy-wrap ul{margin:0 0 14px 20px;list-style:disc;color:var(--muted);line-height:1.75}
+.policy-wrap li{margin-bottom:6px}
+.policy-wrap a{color:var(--blue);text-decoration:underline}
+.policy-note{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);margin:20px 0}
+.policy-warn{background:#fdf0ee;border:1px solid rgba(196,43,0,.15);border-left:3px solid #c42b00;border-radius:10px;padding:16px 20px;font-size:14px;color:#7a2600;margin:20px 0}
+</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-hub">Learning Hub</a>
+      <a href="/learning-path">Curriculum</a>
+      <a href="/safety">Safety</a>
+      <a href="/for-schools">For Schools</a>
+    </div>
+    <div class="nav-right">
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-hub">Learning Hub</a>
+  <a href="/learning-path">Curriculum</a>
+  <a href="/safety">Safety</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+</div>
+
+<div class="policy-wrap">
+  <h1>Robot Safety and Acceptable Use Policy</h1>
+  <p class="policy-updated">Last updated: <span class="copy-year">2026</span></p>
+
+  <p>This policy sets expectations for safely operating a SwayForm robot in a classroom or club setting, and for acceptable use of the student accounts, code submission queue, and Learning Hub. It works alongside the architectural overview on the <a href="/safety">Safety</a> page — read both before classroom use.</p>
+
+  <div class="policy-warn">SwayForm robots must always be operated under instructor or supervisor presence. This policy does not replace your school's own lab-safety and equipment-use rules — follow whichever is stricter.</div>
+
+  <h2>Supervision</h2>
+  <ul>
+    <li>A SwayForm robot should only run approved programs while an instructor or designated supervisor is present.</li>
+    <li>Instructors retain execution control at all times — the ability to start, stop, and revoke approval for any program.</li>
+    <li>New students should be introduced to safe operation, pinch zones, and the stop procedure before working near a powered robot.</li>
+  </ul>
+
+  <h2>Physical safety rules</h2>
+  <ul>
+    <li>Keep hands and loose clothing clear of joints while the robot is powered, and especially during a program you have not run before.</li>
+    <li>Do not force a joint past resistance. If a joint will not move to a commanded position, stop and investigate rather than pushing it by hand.</li>
+    <li>Know the location of the emergency stop / servo-power cutoff before running any program.</li>
+    <li>Reposition or approach the robot only when motion has fully stopped.</li>
+    <li>Report unexpected motion, unusual noise, or a hot component immediately and stop the robot.</li>
+  </ul>
+
+  <h2>Acceptable use of student accounts and code</h2>
+  <ul>
+    <li>Student SSH access and project tools are for coursework related to the SwayForm platform.</li>
+    <li>Do not attempt to bypass the validation queue, instructor approval step, or the protected motion-control node to send commands directly to motor hardware.</li>
+    <li>Project passwords, where used, are a classroom-organization feature to help students find and protect their own work on a shared account — they are not a security boundary against another student with access to the same shared filesystem. Do not rely on them to protect sensitive information.</li>
+    <li>Do not attempt to access another student's or team's project without permission.</li>
+  </ul>
+
+  <h2>What instructors are responsible for</h2>
+  <ul>
+    <li>Reviewing queued student submissions before approving execution.</li>
+    <li>Maintaining physical supervision during robot operation.</li>
+    <li>Following the startup/shutdown and emergency-stop procedures documented in the Learning Hub.</li>
+    <li>Reporting hardware issues promptly rather than continuing to operate a robot with a known fault.</li>
+  </ul>
+
+  <h2>Repairs and modification</h2>
+  <p>Student-performed repairs and 3D-printed part replacement are encouraged as a learning opportunity — see <a href="/learning-hub/repair">Repair</a> — but should be done with the robot powered off and, where the Learning Hub repair guide calls for it, under instructor supervision.</p>
+
+  <div class="policy-note">This policy will be expanded with more detailed procedures (startup/shutdown checklists, incident reporting) as those materials are finalized in the Learning Hub ahead of commercial release.</div>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy can be sent to <a href="mailto:contact@swayform.net">contact@swayform.net</a>.</p>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="/learning-hub">Learning Hub</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety" class="active">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script src="/site-data.js"></script>
+</body>
+</html>

@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SwayForm Learning Hub | Robotics Labs, Demo Code, and Student Guides</title>
-<meta name="description" content="The free SwayForm Learning Hub: student robotics labs, demo code, classroom workflow, safety, setup guides, and technical reference for the humanoid robotics platform.">
-<link rel="canonical" href="https://swayform.net/learning-hub">
-<meta property="og:title" content="SwayForm Learning Hub">
-<meta property="og:description" content="Student-facing robotics demos, labs, setup guides, and code walkthroughs for learning how software becomes physical robot behavior.">
-<meta property="og:url" content="https://swayform.net/learning-hub">
-<meta property="og:type" content="website">
+<title>Getting Started | SwayForm Learning Hub</title>
+<meta name="description" content="What SwayForm teaches, how students use the Learning Hub, and how demo, lab, and project files are organized.">
+<link rel="canonical" href="https://swayform.net/learning-hub/getting-started">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/learning-hub-shell.css">
 <style>#topbar{top:0!important}</style>
@@ -65,8 +64,8 @@
       <div class="lh-sb-group">
         <button class="lh-sb-group-hdr open" onclick="toggleSbGroup(this)">Start Here <span class="lh-sb-group-caret"></span></button>
         <div class="lh-sb-group-items open">
-          <a class="lh-sb-item active" href="/learning-hub">Hub Home</a>
-          <a class="lh-sb-item" href="/learning-hub/getting-started">Getting Started</a>
+          <a class="lh-sb-item" href="/learning-hub">Hub Home</a>
+          <a class="lh-sb-item active" href="/learning-hub/getting-started">Getting Started</a>
           <a class="lh-sb-item" href="/learning-hub/classroom-workflow">Classroom Workflow</a>
           <a class="lh-sb-item" href="/learning-hub/safety">Safety Notes</a>
         </div>
@@ -111,73 +110,65 @@
 
   <main id="lh-main">
     <div class="lh-panel">
-      <div class="lh-home-hero">
-        <h1>Learn robotics by running a real humanoid system.</h1>
-        <p>The SwayForm Learning Hub is free, permanently. It gives students and instructors demos, labs, setup guides, safety documentation, and code walkthroughs for learning Python, ROS 2-style architecture, RealSense vision, servo control, and physical robot behavior.</p>
-        <p>Start by running a safe provided demo. Then inspect the code, modify it, and build your own robot interaction — every submission is validated and instructor-approved before it reaches the robot.</p>
-        <div class="lh-home-hero-actions">
-          <a class="lh-btn-primary" href="/learning-hub/getting-started">Begin Orientation</a>
-          <a class="lh-btn-ghost-dark" href="/learning-hub/demos">Open Demo Library</a>
-          <a class="lh-btn-ghost-dark" href="/learning-hub/labs">View Student Labs</a>
-        </div>
-      </div>
+      <div class="lh-bc"><a href="/learning-hub">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Getting Started</span></div>
+      <h1>Getting Started</h1>
+      <p class="lh-lead">SwayForm is built around the idea that robotics makes more sense when students can see code turn into physical motion. This page covers what the platform teaches, how students use the hub day to day, and how the files are organized.</p>
 
-      <div class="lh-dash-cards">
-        <a class="lh-dash-card" href="/learning-hub/getting-started">
-          <div class="lh-dc-label">Recommended first</div>
-          <div class="lh-dc-title">New Students &amp; Instructors</div>
-          <div class="lh-dc-desc">Start here if this is your first time using SwayForm. Learn what the hub is, how the robot is controlled, and how to move from demos into editable labs. No prior ROS 2 experience required.</div>
-          <div class="lh-dc-action">Begin Orientation →</div>
-        </a>
-        <a class="lh-dash-card" href="/learning-hub/demos">
-          <div class="lh-dc-label">5 ready demos</div>
-          <div class="lh-dc-title">Demo Code</div>
-          <div class="lh-dc-desc">Run finished example behaviors: Wave, Handshake, Pick and Place, Rock Paper Scissors, and Interactive Exchange.</div>
-          <div class="lh-dc-action">Browse Demos →</div>
-        </a>
-        <a class="lh-dash-card" href="/learning-hub/labs">
-          <div class="lh-dc-label">10 ready labs · 40 planned</div>
-          <div class="lh-dc-title">Student Labs</div>
-          <div class="lh-dc-desc">Guided activities to edit motion code, test safe joint limits, create gestures, use camera triggers, and build simple robot behaviors.</div>
-          <div class="lh-dc-action">Open Labs →</div>
-        </a>
-        <a class="lh-dash-card" href="/learning-hub/classroom-workflow">
-          <div class="lh-dc-label">How it fits together</div>
-          <div class="lh-dc-title">Classroom Workflow</div>
-          <div class="lh-dc-desc">How a student submission moves from code, to validation and queue, to instructor approval, to the robot.</div>
-          <div class="lh-dc-action">See the Workflow →</div>
-        </a>
-      </div>
+      <h2 id="what-teaches">What SwayForm Teaches</h2>
+      <p><strong>Programming through robot behavior.</strong> Students use Python to define poses, trigger motions, adjust timing, and create behavior sequences — code that moves a physical system, not just a terminal.</p>
+      <p><strong>ROS 2-style system thinking.</strong> The hub introduces nodes, topics, publishers, subscribers, services, launch files, and motion commands through SwayForm examples, not abstract definitions.</p>
+      <p><strong>Motion and safe control.</strong> Robot joints cannot be commanded randomly. Every motion respects safe limits, timing, physical spacing, and the difference between smooth and unsafe movement.</p>
+      <p><strong>Vision and interaction.</strong> SwayForm uses a RealSense camera for demos and labs that connect perception to behavior — simple user detection and target zones, without pretending the robot has perfect human-level understanding.</p>
+      <p><strong>Debugging real systems.</strong> Students learn to read terminal output, check whether a process is running, source a workspace, stop a motion safely, and understand why hardware may not behave exactly as expected.</p>
+      <div class="lh-callout note"><div class="lh-callout-lbl">Key idea</div><p>SwayForm teaches robotics as a connected system: code, motion, sensors, timing, safety, and debugging all working together.</p></div>
 
-      <div class="lh-divider"></div>
-
-      <h1>SwayForm Learning Hub</h1>
-      <p class="lh-lead">The Learning Hub is the student-facing home for SwayForm demos, labs, setup guides, safety documentation, and code walkthroughs. It is designed so students can go from running a provided robot behavior to understanding how that behavior works, editing it safely, and building their own interaction — and so instructors do not need to arrive as ROS 2 experts.</p>
-      <p>Instead of learning robotics only through slides or simulations, students work with code that creates real motion. A script can turn the head, move an arm, open a hand, respond to camera input, or run a complete tabletop demo. Every activity connects a programming idea to something the robot physically does — validated, queued, and instructor-approved before it runs.</p>
-
-      <h2>Current hub status</h2>
-      <div class="lh-status-grid">
-        <div class="lh-status-item"><span class="lh-status-dot ready"></span><span class="lh-status-text">5 ready demo programs</span></div>
-        <div class="lh-status-item"><span class="lh-status-dot ready"></span><span class="lh-status-text">10 ready student labs</span></div>
-        <div class="lh-status-item"><span class="lh-status-dot soon"></span><span class="lh-status-text">30 more labs planned (40 total)</span></div>
-        <div class="lh-status-item"><span class="lh-status-dot ready"></span><span class="lh-status-text">VS Code and SSH setup workflow</span></div>
-        <div class="lh-status-item"><span class="lh-status-dot ready"></span><span class="lh-status-text">RealSense, motion, and servo-control reference</span></div>
-        <div class="lh-status-item"><span class="lh-status-dot ready"></span><span class="lh-status-text">Repair and technical reference documentation</span></div>
-      </div>
-
-      <h2>Recommended first path</h2>
-      <p>If you are opening the Learning Hub for the first time, follow this order.</p>
+      <h2 id="how-students">How Students Use This Hub</h2>
+      <p>The Learning Hub is meant to be used directly by students. A teacher or club lead introduces the activity, but students should be able to open the hub, follow the steps, and understand what they are changing.</p>
       <div class="lh-path-steps">
-        <div class="lh-path-step"><div class="lh-path-num">1</div><div class="lh-path-text">Read <a href="/learning-hub/getting-started">Getting Started.</a></div></div>
-        <div class="lh-path-step"><div class="lh-path-num">2</div><div class="lh-path-text">Complete <a href="/learning-hub/setup">VS Code + SSH setup.</a></div></div>
-        <div class="lh-path-step"><div class="lh-path-num">3</div><div class="lh-path-text">Run <a href="/learning-hub/demos/wave">Demo: Wave.</a></div></div>
-        <div class="lh-path-step"><div class="lh-path-num">4</div><div class="lh-path-text">Complete <a href="/learning-hub/labs#lab-01">Lab 01: Hello Robot Motion.</a></div></div>
-        <div class="lh-path-step"><div class="lh-path-num">5</div><div class="lh-path-text">See how it all connects in <a href="/learning-hub/classroom-workflow">Classroom Workflow.</a></div></div>
+        <div class="lh-path-step"><div class="lh-path-num">1</div><div class="lh-path-text"><strong>Open the Learning Hub.</strong> Students begin here instead of searching through the public website.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">2</div><div class="lh-path-text"><strong>Connect to the robot.</strong> Students use VS Code and SSH to open the shared robot workspace from their laptop.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">3</div><div class="lh-path-text"><strong>Run a provided demo.</strong> The first step is usually running a finished demo, such as Wave or Handshake.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">4</div><div class="lh-path-text"><strong>Read the walkthrough.</strong> Each ready demo includes a code walkthrough explaining what the script does and what hardware is involved.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">5</div><div class="lh-path-text"><strong>Modify a small part.</strong> Students change one controlled part of the code — a delay value, a target angle, a pose name.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">6</div><div class="lh-path-text"><strong>Complete a guided lab.</strong> Labs ask students to edit code, test a result, answer a reflection question, and try an extension challenge.</div></div>
+        <div class="lh-path-step"><div class="lh-path-num">7</div><div class="lh-path-text"><strong>Submit for execution.</strong> Finished code goes through the <a href="/learning-hub/queue">validation queue</a> and instructor approval — see <a href="/learning-hub/classroom-workflow">Classroom Workflow</a>.</div></div>
       </div>
+      <div class="lh-callout tip"><div class="lh-callout-lbl">Important</div><p>Students should not be guessing randomly. The hub is designed to move them from running code, to reading code, to editing code, to designing behavior.</p></div>
 
-      <h2>For instructors</h2>
-      <p>Instructors can use the ready labs as structured classroom activities and use the coming-soon slots as placeholders for future course material. The hub is built so a class can begin with safe provided demos, then move toward editable code and student-created behaviors, with every submission reviewed before it runs.</p>
-      <div class="lh-closing-line">The goal is not to memorize robotics terms. The goal is to understand what the system is doing.</div>
+      <h2 id="file-structure">File Structure</h2>
+      <p>SwayForm examples are organized so students can tell the difference between official demo programs, editable lab files, and their own project code.</p>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">Example demo folder</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">~/ros2_ws/src/swayform_demos/
+├── wave_demo.py
+├── handshake_demo.py
+├── pick_and_place.py
+├── rock_paper_scissors.py
+└── interactive_exchange.py</code></pre>
+      </div>
+      <div class="lh-code">
+        <div class="lh-code-hdr"><span class="lh-code-lang">Example lab folder</span><button class="lh-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">~/ros2_ws/src/swayform_labs/
+├── lab_01_hello_motion.py
+├── lab_02_servo_limits.py
+├── lab_03_gesture_sequence.py
+├── lab_04_head_tracking.py
+├── lab_05_button_motion.py
+├── lab_06_realsense_detection.py
+├── lab_07_hand_pose_timing.py
+├── lab_08_base_rotation.py
+├── lab_09_motion_locking.py
+└── lab_10_mini_demo_challenge.py</code></pre>
+      </div>
+      <p>Student-authored work lives in a separately named project folder created with the SwayForm project tool — see <a href="/learning-hub/projects">Student Projects</a>.</p>
+
+      <h2>Recommended editing rule</h2>
+      <p>Students should not rewrite official demos during the first session. Run the demo first, read the code, then copy the important idea into a lab file or a new student project.</p>
+
+      <div class="lh-nav-row">
+        <a class="lh-nav-btn" href="/learning-hub">← Hub Home</a>
+        <a class="lh-nav-btn primary" href="/learning-hub/classroom-workflow">Classroom Workflow →</a>
+      </div>
     </div>
   </main>
 </div>

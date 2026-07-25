@@ -2,21 +2,45 @@
   "redirects": [
     { "source": "/overview",      "destination": "/",              "permanent": false },
     { "source": "/learn",         "destination": "/learning-path", "permanent": false },
-    { "source": "/labs",          "destination": "/learning-path", "permanent": false },
+    { "source": "/labs",          "destination": "/learning-hub/labs", "permanent": false },
     { "source": "/curriculum",    "destination": "/learning-path", "permanent": false },
     { "source": "/platform",      "destination": "/robot",         "permanent": false },
     { "source": "/robots",        "destination": "/robot",         "permanent": false },
-    { "source": "/schools",       "destination": "/contact",       "permanent": false },
-    { "source": "/for-schools",   "destination": "/contact",       "permanent": false },
-    { "source": "/demos",         "destination": "/",              "permanent": false },
-    { "source": "/demo-programs", "destination": "/",              "permanent": false }
+    { "source": "/schools",       "destination": "/for-schools",   "permanent": false },
+    { "source": "/demos",         "destination": "/learning-hub/demos", "permanent": false },
+    { "source": "/demo-programs", "destination": "/learning-hub/demos", "permanent": false }
   ],
   "rewrites": [
     { "source": "/purpose",       "destination": "/purpose.html"       },
     { "source": "/robot",         "destination": "/robot.html"         },
     { "source": "/learning-path", "destination": "/learning-path.html" },
     { "source": "/contact",       "destination": "/contact.html"       },
-    { "source": "/learning-hub",  "destination": "/learning-hub.html"  }
+    { "source": "/safety",        "destination": "/safety.html"        },
+    { "source": "/for-schools",   "destination": "/for-schools.html"   },
+    { "source": "/privacy",       "destination": "/privacy.html"       },
+    { "source": "/terms",         "destination": "/terms.html"         },
+    { "source": "/accessibility", "destination": "/accessibility.html" },
+    { "source": "/robot-safety",  "destination": "/robot-safety.html"  },
+
+    { "source": "/learning-hub",                     "destination": "/learning-hub.html" },
+    { "source": "/learning-hub/getting-started",     "destination": "/learning-hub/getting-started.html" },
+    { "source": "/learning-hub/classroom-workflow",  "destination": "/learning-hub/classroom-workflow.html" },
+    { "source": "/learning-hub/safety",              "destination": "/learning-hub/safety.html" },
+    { "source": "/learning-hub/setup",               "destination": "/learning-hub/setup.html" },
+    { "source": "/learning-hub/ssh",                 "destination": "/learning-hub/ssh.html" },
+    { "source": "/learning-hub/projects",            "destination": "/learning-hub/projects.html" },
+    { "source": "/learning-hub/queue",                "destination": "/learning-hub/queue.html" },
+    { "source": "/learning-hub/demos",                "destination": "/learning-hub/demos.html" },
+    { "source": "/learning-hub/demos/wave",                "destination": "/learning-hub/demos/wave.html" },
+    { "source": "/learning-hub/demos/handshake",           "destination": "/learning-hub/demos/handshake.html" },
+    { "source": "/learning-hub/demos/pick-and-place",      "destination": "/learning-hub/demos/pick-and-place.html" },
+    { "source": "/learning-hub/demos/rock-paper-scissors", "destination": "/learning-hub/demos/rock-paper-scissors.html" },
+    { "source": "/learning-hub/demos/interactive-exchange","destination": "/learning-hub/demos/interactive-exchange.html" },
+    { "source": "/learning-hub/labs",                 "destination": "/learning-hub/labs.html" },
+    { "source": "/learning-hub/repair",               "destination": "/learning-hub/repair.html" },
+    { "source": "/learning-hub/technical-reference",  "destination": "/learning-hub/technical-reference.html" },
+    { "source": "/learning-hub/troubleshooting",      "destination": "/learning-hub/troubleshooting.html" },
+    { "source": "/learning-hub/glossary",             "destination": "/learning-hub/glossary.html" }
   ],
   "headers": [
     {

@@ -262,14 +262,14 @@
     <a href="/" class="logo"><span class="s">S</span>wayForm</a>
     <div class="nav-links">
       <a href="/">Overview</a>
-      <a href="/purpose">Mission Statement</a>
       <a href="/robot" class="active">The Robot</a>
-      <a href="/learning-path">Learning Path</a>
-      <a href="/contact">Contact</a>
+      <a href="/learning-hub">Learning Hub</a>
+      <a href="/learning-path">Curriculum</a>
+      <a href="/safety">Safety</a>
+      <a href="/for-schools">For Schools</a>
     </div>
     <div class="nav-right">
-      <a href="/learning-hub" target="_blank" rel="noopener noreferrer" title="Open the SwayForm Learning Hub in a new tab" class="lh-nav-hub">Learning Hub</a>
-      <a href="/contact" class="btn btn-ghost" style="font-size:13px;padding:8px 18px">Request Demo</a>
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
       <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
     </div>
   </div>
@@ -277,11 +277,12 @@
 <div id="mobile-nav">
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="/">Overview</a>
-  <a href="/purpose">Our Purpose</a>
   <a href="/robot">The Robot</a>
-  <a href="/learning-path">Learning Path</a>
-  <a href="/contact">Contact</a>
-  <a href="/learning-hub" target="_blank" rel="noopener noreferrer" style="color:#5fb7ff!important">Learning Hub ↗</a>
+  <a href="/learning-hub">Learning Hub</a>
+  <a href="/learning-path">Curriculum</a>
+  <a href="/safety">Safety</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
 </div>
 
 <!-- ═══ HERO — 2-column: text left, real robot photo right ═══ -->
@@ -293,8 +294,8 @@
       <!-- Left: text -->
       <div>
         <span class="label" style="display:block;margin-bottom:16px;color:#5fb7ff">The Robot</span>
-        <h1 style="font-size:clamp(32px,4.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;max-width:560px;margin-bottom:18px;color:#0a0f1e">21 degrees of freedom.<br>All student-controlled.</h1>
-        <p style="font-size:17px;color:var(--muted);max-width:480px;line-height:1.72;margin-bottom:32px">A real physical platform running ROS 2. Students write code, connect it to hardware, and watch a machine respond. Click the anatomy hotspots below to explore every system.</p>
+        <h1 style="font-size:clamp(32px,4.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;max-width:560px;margin-bottom:18px;color:#0a0f1e">21 programmable degrees of freedom.<br>Governed by a protected motion system.</h1>
+        <p style="font-size:17px;color:var(--muted);max-width:480px;line-height:1.72;margin-bottom:32px">A real physical platform running ROS 2 on an onboard Raspberry Pi. Students write code for all 21 joints — every command is validated, queued, and approved before it reaches the motors. Click the anatomy hotspots below to explore every system.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-ghost" onclick="document.getElementById('anatomy-section').scrollIntoView({behavior:'smooth'})">Explore anatomy ↓</button>
           <button class="btn btn-ghost" onclick="document.getElementById('joints-section').scrollIntoView({behavior:'smooth'})">Joint reference →</button>
@@ -400,7 +401,8 @@
 <section id="joints-section" class="section-wide" style="padding-top:80px;padding-bottom:80px">
   <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Joint Reference</span>
   <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:8px">All joints</h2>
-  <p style="color:var(--muted);margin-bottom:32px">ROS joint names, PCA9685 channels, safe ranges, and servo models.</p>
+  <p style="color:var(--muted);margin-bottom:8px">ROS joint names, controller assignment, safe ranges, and servo models.</p>
+  <p style="color:var(--faint);font-size:13px;margin-bottom:32px;max-width:640px">All 21 joints are available to student programs. Every command passes through the protected motion-control node, which enforces these joint limits, speed limits, and command timeouts before anything reaches a motor — see <a href="/safety" style="color:var(--blue);text-decoration:underline">Safety</a>.</p>
 
   <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap" id="joint-filters">
     <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="filterJoints('all')" id="jf-all">All</button>
@@ -416,180 +418,202 @@
         <tr style="background:var(--bg2);border-bottom:1px solid var(--line)">
           <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted)">Joint name</th>
           <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted)">ROS name</th>
+          <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--muted)">Controller</th>
           <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--muted)">Ch</th>
           <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted)">Range</th>
+          <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--muted)">Neutral</th>
           <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted)">Servo</th>
-          <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--muted)">Access</th>
         </tr>
       </thead>
       <tbody id="joint-tbody">
-        <tr class="jrow jcat-head" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-head" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">Neck Yaw</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">neck_yaw</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0</td>
           <td style="padding:12px 16px;color:var(--muted)">−45° / +45°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-head" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-head" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">Neck Pitch</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">neck_pitch</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">1</td>
           <td style="padding:12px 16px;color:var(--muted)">−20° / +25°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Shoulder Pitch</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_shoulder_pitch</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">2</td>
           <td style="padding:12px 16px;color:var(--muted)">−10° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Shoulder Roll</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_shoulder_roll</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">3</td>
           <td style="padding:12px 16px;color:var(--muted)">−30° / +20°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Elbow</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_elbow</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">4</td>
           <td style="padding:12px 16px;color:var(--muted)">−120° / 0°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">−10°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Wrist</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_wrist</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">5</td>
           <td style="padding:12px 16px;color:var(--muted)">−45° / +45°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Thumb</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_thumb</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">6</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +70°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Index Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_index</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">7</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Middle Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_middle</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">8</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Ring Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_ring</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">9</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-right" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">R. Pinky Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">right_pinky</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">10</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +80°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Shoulder Pitch</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_shoulder_pitch</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">11</td>
           <td style="padding:12px 16px;color:var(--muted)">−10° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Shoulder Roll</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_shoulder_roll</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">12</td>
           <td style="padding:12px 16px;color:var(--muted)">−20° / +30°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Elbow</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_elbow</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">13</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +120°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">10°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG996R</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Wrist</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_wrist</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">14</td>
           <td style="padding:12px 16px;color:var(--muted)">−45° / +45°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Thumb</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_thumb</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x40</td>
           <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">15</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +70°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Index Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_index</td>
-          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">16</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x41</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Middle Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_middle</td>
-          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">17</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x41</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">1</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Ring Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_ring</td>
-          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">18</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x41</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">2</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +90°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-left" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">L. Pinky Finger</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">left_pinky</td>
-          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">19</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">0x41</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">3</td>
           <td style="padding:12px 16px;color:var(--muted)">0° / +80°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">15°</td>
           <td style="padding:12px 16px;color:var(--muted)">MG90S</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-green">Student</span></td>
         </tr>
-        <tr class="jrow jcat-torso" style="border-bottom:1px solid var(--line);transition:background .1s" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background=''">
+        <tr class="jrow jcat-torso" style="border-bottom:1px solid var(--line)">
           <td style="padding:12px 16px;font-weight:600">Waist Rotation</td>
           <td style="padding:12px 16px;font-family:var(--mono);font-size:12px;color:var(--blue)">waist_yaw</td>
-          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">DC</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">—</td>
+          <td style="padding:12px 16px;text-align:center;font-family:var(--mono)">12V direct</td>
           <td style="padding:12px 16px;color:var(--muted)">−60° / +60°</td>
+          <td style="padding:12px 16px;text-align:center;color:var(--muted)">0°</td>
           <td style="padding:12px 16px;color:var(--muted)">DC+encoder</td>
-          <td style="padding:12px 16px;text-align:center"><span class="safe-yellow">Supervised</span></td>
         </tr>
       </tbody>
     </table>
@@ -609,7 +633,7 @@
           <div style="font-weight:700">Raspberry Pi 5 (8GB)</div>
           <span class="tag">Compute</span>
         </div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">The robot's brain. Runs Ubuntu 22.04, ROS 2, the hardware driver, and all student nodes. Connects to everything over GPIO, I²C, USB, and WiFi.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">The robot's brain. Runs Linux and a ROS 2-based software stack locally — current development builds use Ubuntu 22.04 — plus the hardware driver and all student nodes. Connects to everything over GPIO, I²C, USB, and Wi-Fi. The commercial release will use a tested, supported long-term-support software image available at launch.</p>
         <div style="font-size:12px;color:var(--faint)">Python lib: <span style="font-family:var(--mono);color:var(--blue)">rclpy</span></div>
       </div>
 
@@ -627,7 +651,7 @@
           <div style="font-weight:700">PCA9685 ×2</div>
           <span class="tag">Motion</span>
         </div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">16-channel PWM controllers on I²C. Two units give 32 total channels. Addresses 0x40 and 0x41. 12-bit resolution, 50Hz default frequency.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">16-channel PWM controllers on I²C. Two units give 32 total channels — controller 0x40 uses all 16 channels (neck, right arm, left arm), controller 0x41 uses 4 of 16 (left hand), leaving 12 channels free for future expansion. 12-bit resolution, 50Hz default frequency.</p>
         <div style="font-size:12px;color:var(--faint)">Python lib: <span style="font-family:var(--mono);color:var(--blue)">adafruit_pca9685</span></div>
       </div>
 
@@ -669,19 +693,19 @@
 
       <div class="card" style="padding:22px">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-          <div style="font-weight:700">12V / 5A Power Supply</div>
+          <div style="font-weight:700">12V / 50A Power Supply</div>
           <span class="tag">Power</span>
         </div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">Main input rail. Steps down to 6V servo rail and 5V Pi rail via buck converters. Never connect/disconnect while servos are active.</p>
-        <div style="font-size:12px;color:var(--faint)">Two-rail isolated architecture</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">Feeds a central bus bar with four outgoing paths: a buck converter to the Raspberry Pi (5V), two separately regulated 6V buck converters for the servo groups (one of which also supplies the neck motors), and a direct 12V line to the base-rotation DC motor. Never connect/disconnect while servos are active.</p>
+        <div style="font-size:12px;color:var(--faint)">Two separately regulated 6V servo rails</div>
       </div>
 
       <div class="card" style="padding:22px">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-          <div style="font-weight:700">PAM8403 Amp + Speaker</div>
+          <div style="font-weight:700">USB Audio + Amp + Speaker</div>
           <span class="tag">Audio</span>
         </div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">3.5mm from Pi 5 → PAM8403 amp → 3W speaker. Software: pyttsx3 for TTS, pygame.mixer for clips. Triggered via /swayform/audio_command.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">Raspberry Pi 5 has no built-in analog audio output, so sound runs Pi 5 → USB audio adapter → 3.5mm → PAM8403 amp (separately powered) → 3W speaker. Software: pyttsx3 for TTS, pygame.mixer for clips. Triggered via /swayform/audio_command.</p>
         <div style="font-size:12px;color:var(--faint)">Topic: <span style="font-family:var(--mono);color:var(--blue)">/swayform/audio_command</span></div>
       </div>
 
@@ -693,44 +717,63 @@
 <section id="electrical-section" class="section-wide" style="padding-top:80px;padding-bottom:100px">
   <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Electrical</span>
   <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:8px">Power architecture</h2>
-  <p style="color:var(--muted);margin-bottom:40px">The servo rail and Pi rail are intentionally separate. Current spikes from motors should never reset the Pi.</p>
+  <p style="color:var(--muted);margin-bottom:16px">A single 12V/50A supply feeds a central bus bar with four outgoing paths — one buck converter each for the Pi and the two servo groups, plus a direct 12V line to the base motor. Rails are separately regulated so current spikes from motors should never reset the Pi.</p>
+  <p style="color:var(--faint);font-size:13px;margin-bottom:40px;max-width:640px">Final current protection, fuse sizing, and conductor ratings will be validated before classroom release. Detailed converter models, wire gauges, and measured current draw are documented in the Learning Hub <a href="/learning-hub/technical-reference" style="color:var(--blue);text-decoration:underline">technical reference</a>.</p>
 
   <div style="background:var(--dark);border:none;border-radius:var(--radius);overflow:hidden;margin-bottom:40px;box-shadow:0 4px 24px rgba(0,0,0,.18)">
     <div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
       <span style="font-size:13px;font-weight:600;color:rgba(200,220,240,.6)">Wiring block diagram</span>
     </div>
-    <svg viewBox="0 0 860 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;padding:28px 32px" font-family="Inter,sans-serif" font-size="12">
+    <svg viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;padding:28px 32px" font-family="Inter,sans-serif" font-size="12">
       <defs><marker id="a2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(255,255,255,.3)"/></marker></defs>
-      <rect x="0" y="45" width="100" height="50" rx="8" fill="rgba(255,209,102,.08)" stroke="rgba(255,209,102,.3)" stroke-width="1.5"/>
-      <text x="50" y="65" text-anchor="middle" fill="#ffd166" font-weight="700">12V PSU</text>
-      <text x="50" y="82" text-anchor="middle" fill="rgba(201,217,235,.5)">5A+</text>
-      <line x1="100" y1="70" x2="145" y2="70" stroke="rgba(255,209,102,.4)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <rect x="145" y="45" width="110" height="50" rx="8" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
-      <text x="200" y="65" text-anchor="middle" fill="#edf5ff" font-weight="600">Terminal</text>
-      <text x="200" y="82" text-anchor="middle" fill="rgba(201,217,235,.5)">Bus bar</text>
-      <line x1="255" y1="55" x2="320" y2="30" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <line x1="255" y1="85" x2="320" y2="110" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <rect x="320" y="10" width="120" height="40" rx="8" fill="rgba(95,183,255,.08)" stroke="rgba(95,183,255,.3)" stroke-width="1.5"/>
-      <text x="380" y="28" text-anchor="middle" fill="#5fb7ff" font-weight="600">Buck 5V</text>
-      <text x="380" y="44" text-anchor="middle" fill="rgba(201,217,235,.5)">Pi 5 rail</text>
-      <line x1="440" y1="30" x2="490" y2="30" stroke="rgba(95,183,255,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <rect x="490" y="10" width="100" height="40" rx="8" fill="rgba(95,183,255,.06)" stroke="rgba(95,183,255,.2)" stroke-width="1.5"/>
-      <text x="540" y="28" text-anchor="middle" fill="#5fb7ff" font-weight="600">Pi 5</text>
-      <text x="540" y="44" text-anchor="middle" fill="rgba(201,217,235,.5)">USB-C 5V</text>
-      <line x1="590" y1="30" x2="640" y2="30" stroke="rgba(122,241,255,.25)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <rect x="640" y="10" width="110" height="40" rx="8" fill="rgba(122,241,255,.06)" stroke="rgba(122,241,255,.2)" stroke-width="1.5"/>
-      <text x="695" y="28" text-anchor="middle" fill="#7af1ff" font-weight="600">PCA9685 ×2</text>
-      <text x="695" y="44" text-anchor="middle" fill="rgba(201,217,235,.5)">I²C @ 0x40/41</text>
-      <rect x="320" y="90" width="120" height="40" rx="8" fill="rgba(125,255,189,.08)" stroke="rgba(125,255,189,.3)" stroke-width="1.5"/>
-      <text x="380" y="108" text-anchor="middle" fill="#7dffbd" font-weight="600">Buck 6V</text>
-      <text x="380" y="124" text-anchor="middle" fill="rgba(201,217,235,.5)">Servo rail</text>
-      <line x1="440" y1="110" x2="490" y2="110" stroke="rgba(125,255,189,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
-      <rect x="490" y="90" width="120" height="40" rx="8" fill="rgba(125,255,189,.06)" stroke="rgba(125,255,189,.2)" stroke-width="1.5"/>
-      <text x="550" y="108" text-anchor="middle" fill="#7dffbd" font-weight="600">Servo Power</text>
-      <text x="550" y="124" text-anchor="middle" fill="rgba(201,217,235,.5)">MG996R/90S</text>
-      <line x1="695" y1="50" x2="695" y2="90" stroke="rgba(122,241,255,.2)" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="720" y="75" fill="rgba(201,217,235,.3)" font-size="10">PWM signal</text>
+
+      <rect x="10" y="14" width="110" height="44" rx="8" fill="rgba(255,209,102,.08)" stroke="rgba(255,209,102,.3)" stroke-width="1.5"/>
+      <text x="65" y="34" text-anchor="middle" fill="#ffd166" font-weight="700">12V PSU</text>
+      <text x="65" y="50" text-anchor="middle" fill="rgba(201,217,235,.5)">50A</text>
+      <line x1="120" y1="36" x2="175" y2="36" stroke="rgba(255,209,102,.4)" stroke-width="1.5" marker-end="url(#a2)"/>
+
+      <rect x="175" y="14" width="130" height="44" rx="8" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
+      <text x="240" y="34" text-anchor="middle" fill="#edf5ff" font-weight="600">Bus Bar</text>
+      <text x="240" y="50" text-anchor="middle" fill="rgba(201,217,235,.5)">4 outputs</text>
+
+      <line x1="240" y1="58" x2="65" y2="100" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <line x1="240" y1="58" x2="285" y2="100" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <line x1="240" y1="58" x2="505" y2="100" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <line x1="240" y1="58" x2="725" y2="100" stroke="rgba(255,255,255,.2)" stroke-width="1.5" marker-end="url(#a2)"/>
+
+      <rect x="10" y="100" width="110" height="40" rx="8" fill="rgba(95,183,255,.08)" stroke="rgba(95,183,255,.3)" stroke-width="1.5"/>
+      <text x="65" y="120" text-anchor="middle" fill="#5fb7ff" font-weight="600">Buck 5V</text>
+      <text x="65" y="135" text-anchor="middle" fill="rgba(201,217,235,.5)">Pi rail</text>
+      <line x1="65" y1="140" x2="65" y2="180" stroke="rgba(95,183,255,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <rect x="10" y="180" width="110" height="44" rx="8" fill="rgba(95,183,255,.06)" stroke="rgba(95,183,255,.2)" stroke-width="1.5"/>
+      <text x="65" y="200" text-anchor="middle" fill="#5fb7ff" font-weight="600">Pi 5</text>
+      <text x="65" y="216" text-anchor="middle" fill="rgba(201,217,235,.5)">USB-C 5V</text>
+
+      <rect x="230" y="100" width="110" height="40" rx="8" fill="rgba(255,171,110,.08)" stroke="rgba(255,171,110,.3)" stroke-width="1.5"/>
+      <text x="285" y="120" text-anchor="middle" fill="#ffab6e" font-weight="600">12V Direct</text>
+      <text x="285" y="135" text-anchor="middle" fill="rgba(201,217,235,.5)">no converter</text>
+      <line x1="285" y1="140" x2="285" y2="180" stroke="rgba(255,171,110,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <rect x="230" y="180" width="110" height="44" rx="8" fill="rgba(255,171,110,.06)" stroke="rgba(255,171,110,.2)" stroke-width="1.5"/>
+      <text x="285" y="200" text-anchor="middle" fill="#ffab6e" font-weight="600">Base Motor</text>
+      <text x="285" y="216" text-anchor="middle" fill="rgba(201,217,235,.5)">waist_yaw</text>
+
+      <rect x="450" y="100" width="110" height="40" rx="8" fill="rgba(125,255,189,.08)" stroke="rgba(125,255,189,.3)" stroke-width="1.5"/>
+      <text x="505" y="120" text-anchor="middle" fill="#7dffbd" font-weight="600">Buck 6V — A</text>
+      <text x="505" y="135" text-anchor="middle" fill="rgba(201,217,235,.5)">incl. neck</text>
+      <line x1="505" y1="140" x2="505" y2="180" stroke="rgba(125,255,189,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <rect x="450" y="180" width="110" height="44" rx="8" fill="rgba(125,255,189,.06)" stroke="rgba(125,255,189,.2)" stroke-width="1.5"/>
+      <text x="505" y="200" text-anchor="middle" fill="#7dffbd" font-weight="600">Servo Power A</text>
+      <text x="505" y="216" text-anchor="middle" fill="rgba(201,217,235,.5)">MG996R/90S</text>
+
+      <rect x="670" y="100" width="110" height="40" rx="8" fill="rgba(192,132,252,.08)" stroke="rgba(192,132,252,.3)" stroke-width="1.5"/>
+      <text x="725" y="120" text-anchor="middle" fill="#c084fc" font-weight="600">Buck 6V — B</text>
+      <text x="725" y="135" text-anchor="middle" fill="rgba(201,217,235,.5)">2nd rail</text>
+      <line x1="725" y1="140" x2="725" y2="180" stroke="rgba(192,132,252,.3)" stroke-width="1.5" marker-end="url(#a2)"/>
+      <rect x="670" y="180" width="110" height="44" rx="8" fill="rgba(192,132,252,.06)" stroke="rgba(192,132,252,.2)" stroke-width="1.5"/>
+      <text x="725" y="200" text-anchor="middle" fill="#c084fc" font-weight="600">Servo Power B</text>
+      <text x="725" y="216" text-anchor="middle" fill="rgba(201,217,235,.5)">MG996R/90S</text>
     </svg>
+    <div style="padding:0 32px 22px;font-size:12px;color:rgba(200,220,240,.45)">Both PCA9685 controllers draw power from the two 6V servo rails and receive position commands over a separate I²C signal path — see Components above.</div>
   </div>
 
   <h3 style="font-size:18px;font-weight:700;margin-bottom:20px">Common electrical issues</h3>
@@ -741,7 +784,7 @@
     </div>
     <div style="background:#fdf0ee;border:1px solid rgba(196,43,0,.15);border-left:3px solid #c42b00;border-radius:var(--radius);padding:20px">
       <div style="font-weight:700;font-size:14px;margin-bottom:8px;color:#c42b00">Pi reboots when robot moves</div>
-      <div style="font-size:13px;color:var(--muted)">Servo rail and Pi rail sharing ground but not properly isolated. Inrush current from multiple servos starting simultaneously spikes the Pi supply. Use separate buck converters.</div>
+      <div style="font-size:13px;color:var(--muted)">Inrush current from several servos starting at once sags the shared 12V bus, dipping the Pi's 5V buck converter output. Add bulk capacitance near the Pi's buck converter and stagger servo startup in software.</div>
     </div>
     <div style="background:#fdf0ee;border:1px solid rgba(196,43,0,.15);border-left:3px solid #c42b00;border-radius:var(--radius);padding:20px">
       <div style="font-weight:700;font-size:14px;margin-bottom:8px;color:#c42b00">One side of robot dead</div>
@@ -763,24 +806,30 @@
       </div>
       <div class="footer-col"><h5>Navigation</h5><ul>
         <li><a href="/">Overview</a></li>
-        <li><a href="/purpose">Our Purpose</a></li>
         <li><a href="/robot">The Robot</a></li>
-        <li><a href="/learning-path">Learning Path</a></li>
-        <li><a href="/contact">Contact</a></li>
+        <li><a href="/learning-hub">Learning Hub</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
       </ul></div>
       <div class="footer-col"><h5>Contact</h5><ul>
-        <li><a href="/contact">Request Demo</a></li>
+        <li><a href="/contact">Contact Sales</a></li>
         <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
       </ul></div>
     </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">© 2025 SwayForm. All rights reserved.</span>
-      <div class="footer-sub">
-        <a href="mailto:contact@swayform.net">contact@swayform.net</a>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
       </div>
     </div>
   </div>
 </footer>
+<script src="/site-data.js"></script>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -829,14 +878,14 @@ var PARTS = [
     label:'Electronics',  xPercent:50, yPercent:59, labelSide:'r',
     videoGroup:'electronics', finalImage:'images/swayform_robot_2.png',
     title:'Raspberry Pi 5 + Electronics', category:'Compute + Control',
-    description:'Raspberry Pi 5 (8 GB) running Ubuntu and a ROS 2-based software stack. Servo drivers on the I²C bus. Buck converters for rail separation. Everything is accessible, labeled, and replaceable — no black boxes.',
-    learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Two-rail power architecture and why rails are separated','SSH workflow — how students connect and deploy code'] },
+    description:'Raspberry Pi 5 (8 GB) running Linux and a ROS 2-based software stack. Servo drivers on the I²C bus. A 12V bus bar distributes power to a dedicated 5V buck converter for the Pi and two separate 6V buck converters for the servo groups. Everything is accessible, labeled, and replaceable — no black boxes.',
+    learns:['Onboard Linux compute and why it runs ROS natively','I²C bus, device addressing, and how the servo driver is configured','Regulated power architecture — separate rails for compute and servos, plus a direct 12V motor line','SSH workflow — how students connect and deploy code'] },
 
   { id:'base',
     label:'Base',         xPercent:50, yPercent:80, labelSide:'r',
     videoGroup:'base',    finalImage:'images/Base.png',
     title:'Rotating Base', category:'Actuated Base',
-    description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
+    description:'DC motor with encoder driving a belt/pulley system for torso yaw rotation, powered directly from the 12V bus rather than through a servo buck converter. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
     learns:['DC motor control vs servo control — different command interfaces','Encoder feedback and position estimation','Belt/pulley mechanical advantage and backlash','Why actuator type selection matters at the design stage'] }
 ];
 

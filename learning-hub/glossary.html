@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glossary | SwayForm Learning Hub</title>
+<meta name="description" content="Quick definitions for terms used throughout the SwayForm Learning Hub.">
+<link rel="canonical" href="https://swayform.net/learning-hub/glossary">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/learning-hub-shell.css">
+<style>#topbar{top:0!important}</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/learning-hub" class="active">Learning Hub</a>
+      <a href="/learning-path">Curriculum</a>
+      <a href="/safety">Safety</a>
+      <a href="/for-schools">For Schools</a>
+    </div>
+    <div class="nav-right">
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/learning-hub">Learning Hub</a>
+  <a href="/learning-path">Curriculum</a>
+  <a href="/safety">Safety</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/contact" style="color:#5fb7ff!important">Contact Sales</a>
+</div>
+
+<button class="lh-mob-nav-toggle" onclick="toggleLhSidebarMobile()">☰ Learning Hub Sections</button>
+
+<div id="lh-shell">
+  <aside id="lh-sidebar">
+    <div class="lh-sb-top">
+      <div class="lh-sb-hub-label">Learning Hub</div>
+      <div class="lh-sb-search-wrap">
+        <span class="lh-search-icon-pos">⌕</span>
+        <input type="text" id="lh-search-input" placeholder="Search demos, labs, setup…" autocomplete="off" spellcheck="false">
+        <div id="lh-search-results" style="display:none"></div>
+      </div>
+    </div>
+    <div class="lh-sb-groups">
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Start Here <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub">Hub Home</a>
+          <a class="lh-sb-item" href="/learning-hub/getting-started">Getting Started</a>
+          <a class="lh-sb-item" href="/learning-hub/classroom-workflow">Classroom Workflow</a>
+          <a class="lh-sb-item" href="/learning-hub/safety">Safety Notes</a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Setup <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/setup">VS Code, Run &amp; Stop</a>
+          <a class="lh-sb-item" href="/learning-hub/ssh">SSH &amp; Student Accounts</a>
+          <a class="lh-sb-item" href="/learning-hub/projects">Student Projects</a>
+          <a class="lh-sb-item" href="/learning-hub/queue">Validation &amp; Queue</a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Demo Code Library <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/demos">Overview</a>
+          <a class="lh-sb-item" href="/learning-hub/demos/wave">Wave <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/handshake">Handshake <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/pick-and-place">Pick and Place <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/rock-paper-scissors">Rock Paper Scissors <span class="lh-sb-dot ready"></span></a>
+          <a class="lh-sb-item" href="/learning-hub/demos/interactive-exchange">Interactive Exchange <span class="lh-sb-dot ready"></span></a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr" onclick="toggleSbGroup(this)">Student Labs <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items">
+          <a class="lh-sb-item" href="/learning-hub/labs">All Labs <span class="lh-sb-dot ready"></span></a>
+        </div>
+      </div>
+      <div class="lh-sb-group">
+        <button class="lh-sb-group-hdr open" onclick="toggleSbGroup(this)">Reference <span class="lh-sb-group-caret"></span></button>
+        <div class="lh-sb-group-items open">
+          <a class="lh-sb-item" href="/learning-hub/repair">Repair</a>
+          <a class="lh-sb-item" href="/learning-hub/technical-reference">Technical Reference</a>
+          <a class="lh-sb-item" href="/learning-hub/troubleshooting">Troubleshooting</a>
+          <a class="lh-sb-item active" href="/learning-hub/glossary">Glossary</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="lh-main">
+    <div class="lh-panel">
+      <div class="lh-bc"><a href="/learning-hub">Learning Hub</a><span class="lh-bc-sep">/</span><span class="lh-bc-cur">Glossary</span></div>
+      <h1>Glossary</h1>
+      <p>Quick definitions for terms used throughout the Learning Hub.</p>
+      <div class="lh-divider"></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Behavior</div><div class="lh-gloss-def">A robot action or interaction made from code, motion, timing, and sometimes sensor input.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Demo</div><div class="lh-gloss-def">A finished example behavior that students can run and inspect.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Lab</div><div class="lh-gloss-def">A guided activity where students edit code, test the robot, and answer a reflection question.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Joint</div><div class="lh-gloss-def">A part of the robot that can move, such as an elbow, shoulder, neck, hand, or base rotation.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Servo</div><div class="lh-gloss-def">A motor used to move a robot joint to a commanded position.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Pose</div><div class="lh-gloss-def">A saved set of joint positions that creates a specific robot position or gesture.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Safe limit</div><div class="lh-gloss-def">A tested range that keeps a joint from moving too far.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">RealSense</div><div class="lh-gloss-def">A camera used for visual input, depth information, and camera-assisted demos.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">SSH</div><div class="lh-gloss-def">A way to remotely connect to the robot's computer from a laptop.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Workspace</div><div class="lh-gloss-def">The folder where robot code, packages, demos, and labs are organized.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">ROS 2</div><div class="lh-gloss-def">A robotics software framework that helps organize robot programs into nodes, topics, services, and launch files.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Motion lock</div><div class="lh-gloss-def">A software rule that prevents two behaviors from trying to control the same robot part at the same time.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Neutral pose</div><div class="lh-gloss-def">A safe resting position the robot can return to before or after a behavior.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Motion-control node</div><div class="lh-gloss-def">The single protected software layer permitted to send final commands to the servo controllers and base motor.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Validation queue</div><div class="lh-gloss-def">The system that checks a student submission and holds it for instructor review before it can move the robot.</div></div>
+      <div class="lh-gloss-item"><div class="lh-gloss-term">Student project</div><div class="lh-gloss-def">A named ROS 2 package generated by the SwayForm project-creation tool for one student or team.</div></div>
+
+      <div class="lh-nav-row">
+        <a class="lh-nav-btn" href="/learning-hub/troubleshooting">← Troubleshooting</a>
+        <a class="lh-nav-btn primary" href="/learning-hub">← Hub Home</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="/learning-hub" class="active">Learning Hub</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script src="/site-data.js"></script>
+<script src="/learning-hub-search-data.js"></script>
+<script src="/learning-hub-shell.js"></script>
+</body>
+</html>

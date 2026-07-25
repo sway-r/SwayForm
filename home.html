@@ -258,28 +258,41 @@ p{color:var(--muted);line-height:1.75}
 
 /* ── PLATFORM SECTION ────────────────────────────────── */
 #platform-sec{background:#fff}
-.plat-grid{display:grid;grid-template-columns:0.9fr 1.3fr;gap:64px;align-items:center}
+.plat-grid{display:grid;grid-template-columns:1.25fr 0.85fr;gap:56px;align-items:center}
 .plat-content{display:flex;flex-direction:column}
 .plat-text .label{margin-bottom:16px;display:block}
 .plat-text p{font-size:17px;color:var(--muted);line-height:1.75;margin-top:16px;max-width:480px}
 .plat-features{margin-top:48px;display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
 .plat-feat{
-  background:var(--bg2);padding:24px 28px;
-  display:flex;align-items:flex-start;gap:18px;
-  transition:background .2s;
+  background:var(--bg2);padding:22px 26px;
+  display:flex;align-items:flex-start;gap:16px;
+  border-left:3px solid transparent;
+  transition:background .2s,border-color .2s,transform .2s;
+  position:relative;
 }
-.plat-feat:hover{background:var(--bg2)}
-.plat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.plat-icon.blue{background:var(--panel2)}
-.plat-icon.green{background:var(--panel2)}
-.plat-icon.purple{background:var(--panel2)}
-.plat-icon-mark{width:14px;height:14px;border-radius:2px;background:var(--ink);opacity:.35}
+.plat-feat:hover{background:#fff;border-left-color:var(--blue);transform:translateX(4px);box-shadow:0 8px 24px rgba(0,87,255,.08)}
+.plat-feat-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue);opacity:.55;flex-shrink:0;padding-top:3px;letter-spacing:.02em}
+.plat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
+.plat-feat:hover .plat-icon{transform:scale(1.08)}
+.plat-icon.blue{background:rgba(0,87,255,.1)}
+.plat-icon.green{background:rgba(26,92,56,.1)}
+.plat-icon.purple{background:rgba(76,29,149,.1)}
+.plat-icon-mark{width:14px;height:14px;border-radius:3px;opacity:1}
+.plat-icon.blue .plat-icon-mark{background:var(--blue)}
+.plat-icon.green .plat-icon-mark{background:var(--green)}
+.plat-icon.purple .plat-icon-mark{background:var(--purple)}
 .plat-feat h4{margin-bottom:4px}
 .plat-feat p{font-size:14px;color:var(--muted);margin:0}
-.plat-visual{position:relative}
-.plat-img-wrap{border-radius:20px;overflow:hidden;border:1px solid var(--line);position:relative}
+.plat-feat mark,.plat-text mark{background:rgba(0,87,255,.12);color:var(--blue);font-weight:600;padding:0 3px;border-radius:3px}
+.plat-visual{position:relative;max-width:420px;margin-left:auto;padding:30px 40px 0 0}
+.plat-visual::before{
+  content:'';position:absolute;top:0;right:0;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(0,87,255,.14) 0%,transparent 72%);
+  z-index:0;pointer-events:none;
+}
+.plat-img-wrap{border-radius:20px;overflow:hidden;border:1px solid var(--line);position:relative;z-index:1;box-shadow:0 12px 32px rgba(0,87,255,.1)}
 .plat-img-wrap img{width:100%;object-fit:cover;display:block}
-.plat-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(95,183,255,.08),transparent 60%)}
+.plat-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,87,255,.1),transparent 60%)}
 .plat-specs{
   position:absolute;bottom:20px;left:20px;right:20px;
   background:rgba(5,7,13,.85);backdrop-filter:blur(16px);
@@ -614,7 +627,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 @media(max-width:1100px){
   #hero{grid-template-columns:1fr}.hero-visual{display:none}
   .hero-text{padding:100px 0 80px}
-  .plat-grid{grid-template-columns:1fr;gap:32px}.plat-visual{order:-1}
+  .plat-grid{grid-template-columns:1fr;gap:32px}.plat-visual{order:-1;max-width:100%;margin-left:0}
   .plat-img-wrap{aspect-ratio:4/3}.plat-img-wrap img{height:100%}
   .quarters{grid-template-columns:1fr 1fr}
   .demo-cards{grid-template-columns:1fr 1fr 1fr}
@@ -936,29 +949,32 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="wrap-lg">
       <div class="plat-grid">
         <div class="plat-content">
-          <span class="label" style="display:block;margin-bottom:16px">Why this matters</span>
+          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Why this matters</span>
           <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
-          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">Modern robotics should not be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
+          <p class="plat-text" style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">Modern robotics shouldn't be limited to <mark>universities and advanced research labs</mark>. SwayForm gives high-school and community-college students <mark>direct experience</mark> with the tools shaping the next generation of engineering.</p>
           <div class="plat-features">
             <div class="plat-feat">
+              <div class="plat-feat-num">01</div>
               <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
               <div>
                 <h4>Most schools can't connect the pieces</h4>
-                <p>Robotics and AI are relevant across nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
+                <p>Robotics and AI touch nearly every technical career now, but few schools have equipment that connects <mark>software, electronics, mechanics, perception</mark>, and physical debugging in one system.</p>
               </div>
             </div>
             <div class="plat-feat">
+              <div class="plat-feat-num">02</div>
               <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
               <div>
                 <h4>Instructors don't have time to build this alone</h4>
-                <p>Building an advanced robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
+                <p>Building a robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the <mark>hardware and the teaching system together</mark>.</p>
               </div>
             </div>
             <div class="plat-feat">
+              <div class="plat-feat-num">03</div>
               <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
               <div>
                 <h4>The same technology, at classroom scale</h4>
-                <p>SwayForm introduces students to the same foundational technologies and system architecture shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
+                <p>Students work with the same foundations shaping modern humanoid robotics — <mark>Linux, Python, ROS 2</mark>, computer vision, and motion planning.</p>
               </div>
             </div>
           </div>

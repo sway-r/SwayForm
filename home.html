@@ -243,18 +243,30 @@ p{color:var(--muted);line-height:1.75}
 .c4{bottom:20%;right:-16px;animation-delay:2.4s}
 
 /* ── STATS STRIP ─────────────────────────────────────── */
-#stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
-.stats-inner{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:1440px;margin:0 auto}
-#stats .stats-inner-single{grid-template-columns:1fr!important;justify-items:center}
-.stat{
-  padding:36px 40px;border-right:1px solid var(--line);
-  display:flex;flex-direction:column;gap:4px;
+.stats-ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;padding:8px 0}
+.stats-ticker-inner{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:1440px;margin:0 auto}
+.stat-tick{padding:32px 24px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.stat-tick:last-child{border-right:none}
+.stat-tick-n{font-size:clamp(26px,3.2vw,36px);font-weight:900;letter-spacing:-0.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.stat-tick-text{font-size:clamp(20px,2.6vw,28px)}
+.stat-tick-l{font-size:13px;font-weight:500;color:var(--muted);margin-top:2px}
+@media(max-width:700px){
+  .stats-ticker-inner{grid-template-columns:1fr 1fr}
+  .stat-tick{padding:20px 12px;border-right:1px solid var(--line)}
+  .stat-tick:nth-child(2n){border-right:none}
+  .stat-tick:nth-child(n+3){border-top:1px solid var(--line)}
 }
-.stat:last-child{border-right:none!important}
-.stat-n{font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--ink);line-height:1}
-.stat-n span{color:var(--ink)}
-.stat-l{font-size:13px;font-weight:500;color:var(--muted);margin-top:4px}
-.stat-lm{display:none;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px;line-height:1.3}
+
+/* ── SCROLL-REVEAL ───────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.is-visible{opacity:1;transform:translateY(0)}
+.reveal-1{transition-delay:.08s}
+.reveal-2{transition-delay:.16s}
+.reveal-3{transition-delay:.24s}
+.reveal-4{transition-delay:.32s}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1!important;transform:none!important;transition:none!important}
+}
 
 /* ── PLATFORM SECTION ────────────────────────────────── */
 #platform-sec{background:#fff}
@@ -377,9 +389,8 @@ p{color:var(--muted);line-height:1.75}
 .cta-side .label{margin-bottom:16px;display:block;color:var(--muted)}
 .cta-side h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-0.025em;margin-bottom:14px;color:var(--ink)}
 .cta-side>p{font-size:15px;color:var(--muted);margin-bottom:32px;max-width:400px}
-.cta-list{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
-.cta-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--soft)}
-.cta-list li::before{content:'→';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
+.cta-btn-row{display:flex;gap:12px;flex-wrap:wrap}
+@media(max-width:480px){.cta-btn-row .btn{width:100%;justify-content:center}}
 .contact-form{display:flex;flex-direction:column;gap:14px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{display:flex;flex-direction:column;gap:6px}
@@ -913,15 +924,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <a href="/contact" class="btn btn-primary btn-lg">Contact Sales</a>
         <a href="/robot" class="btn btn-ghost btn-lg">Explore the Robot</a>
       </div>
-      <div class="hero-meta" style="margin-top:44px">
-        <div class="hero-meta-item"><span class="hero-meta-num">21</span>&thinsp;degrees of freedom</div>
-        <div class="hero-meta-sep">|</div>
-        <div class="hero-meta-item"><span class="hero-meta-num">10</span>&thinsp;labs now, 40 planned</div>
-        <div class="hero-meta-sep">|</div>
-        <div class="hero-meta-item"><span class="hero-meta-num">5</span>&thinsp;preloaded demos</div>
-        <div class="hero-meta-sep">|</div>
-        <div class="hero-meta-item"><span class="hero-meta-num">No</span>&thinsp;background required</div>
-      </div>
     </div>
     <!-- RIGHT: robot visual — swap <img> for <video autoplay muted loop playsinline> when demo is ready -->
     <div class="hero-visual-panel">
@@ -936,15 +938,18 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ STATS STRIP ═══ -->
-  <section id="stats">
-    <div class="stats-inner stats-inner-single">
-      <div class="stat" style="border-right:none;text-align:center;padding:20px 24px"><span class="stat-n" style="font-size:22px;display:inline">Fall '27</span><span class="stat-l" style="display:inline;margin-left:8px">Commercial launch target</span></div>
+  <!-- ═══ ANIMATED STATS TICKER ═══ -->
+  <section id="stats" class="stats-ticker" aria-label="Key numbers">
+    <div class="stats-ticker-inner">
+      <div class="stat-tick"><span class="stat-tick-n" data-count-to="21">0</span><span class="stat-tick-l">Degrees of freedom</span></div>
+      <div class="stat-tick"><span class="stat-tick-n"><span data-count-to="10">0</span>→<span data-count-to="40">0</span></span><span class="stat-tick-l">Labs, expanding</span></div>
+      <div class="stat-tick"><span class="stat-tick-n" data-count-to="5">0</span><span class="stat-tick-l">Preloaded demos</span></div>
+      <div class="stat-tick"><span class="stat-tick-n stat-tick-text">Fall '27</span><span class="stat-tick-l">Commercial launch</span></div>
     </div>
   </section>
 
   <!-- ═══ WHY THIS MATTERS ═══ -->
-  <section id="platform-sec" class="section">
+  <section id="platform-sec" class="section reveal">
     <div class="wrap-lg">
       <div class="plat-grid">
         <div class="plat-content">
@@ -1074,7 +1079,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   }
   </style>
 
-  <section id="demo-preview">
+  <section id="demo-preview" class="reveal">
 
     <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
     <div class="dp-video-bg">
@@ -1096,10 +1101,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <!-- Text content — sits above gradient on z-index 3 -->
     <div class="dp-content">
       <div class="dp-text">
-        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Learning Experience Preview</span>
-        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:20px">See what hands-on robotics learning can feel like.</h2>
-        <p style="font-size:16px;color:var(--muted);line-height:1.75;margin-bottom:24px">SwayForm is built around the moment students stop watching technology and start controlling it. This preview shows the kind of hands-on learning the platform is designed for.</p>
-        <p style="font-size:12px;color:var(--faint);line-height:1.65;font-style:italic">Concept preview. Final classroom footage will be added as pilot programs develop.</p>
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">See it in action</span>
+        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:16px">Stop watching. Start controlling.</h2>
+        <p style="font-size:clamp(15px,3.8vw,16px);color:var(--muted);line-height:1.65;margin-bottom:20px">This is the moment students' code becomes real motion.</p>
+        <p style="font-size:12px;color:var(--faint);line-height:1.65;font-style:italic">Concept preview — classroom footage arrives as pilots begin.</p>
       </div>
     </div>
 
@@ -1117,26 +1122,26 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   </script>
 
   <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
-  <section class="why-section">
+  <section class="why-section reveal">
     <div class="wrap">
       <span class="label" style="display:block;margin-bottom:12px">What schools receive</span>
       <h2 class="d3">One robot. A free curriculum. A clear upgrade path.</h2>
-      <p class="lead-why">The robot, the Learning Hub, and future premium services are three distinct things — here's exactly what's included and what's optional.</p>
+      <p class="lead-why">Tap a card for what's included.</p>
       <div class="why-grid">
         <div class="why-card">
-          <div class="why-num">01</div>
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>01</span></div>
           <h4>The SwayForm robot</h4>
-          <p>A 21-DOF programmable humanoid running Linux and ROS 2 locally on an onboard Raspberry Pi, assembled and tested before it ships. Contact Sales for institutional pricing.</p>
+          <p>21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi — assembled and tested before it ships. Contact Sales for institutional pricing.</p>
         </div>
         <div class="why-card">
-          <div class="why-num">02</div>
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>02</span></div>
           <h4>The free Learning Hub</h4>
-          <p>Free, permanently — no license required. Core documentation, setup, safety notes, repair tutorials, and 10 structured labs, with the curriculum expanding to 40.</p>
+          <p>Free, permanently. Setup, safety, and repair guides, plus 10 structured labs today — expanding to 40.</p>
         </div>
         <div class="why-card">
-          <div class="why-num">03</div>
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg><span>03</span></div>
           <h4>Optional premium subscription</h4>
-          <p>Six months included free with every robot purchase, renewing annually after that. Planned premium additions include new monthly labs, expanded curriculum, and future simulation tools.</p>
+          <p>Six months free with every robot, renewing annually. New monthly labs, expanded curriculum, and future simulation tools.</p>
         </div>
       </div>
     </div>
@@ -1177,49 +1182,46 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ FLEXIBLE SETUPS ═══ -->
-  <section style="background:var(--bg2);border-bottom:1px solid var(--line);padding:88px 0">
+  <!-- ═══ FLEXIBLE SETUPS (tabs) ═══ -->
+  <section class="reveal" style="background:var(--bg2);border-bottom:1px solid var(--line);padding:72px 0">
     <div class="wrap">
-      <div style="max-width:600px;margin:0 auto 56px;text-align:center">
+      <div style="max-width:600px;margin:0 auto 40px;text-align:center">
         <span class="label" style="display:block;margin-bottom:12px">Flexible by design</span>
         <h2 class="d3">One robot is enough to start.</h2>
-        <p style="margin-top:14px;color:var(--muted)">SwayForm adapts to the program — weekly club, semester course, or advanced student team. One unit supports meaningful learning from day one.</p>
       </div>
-      <div class="setups-grid">
-        <div class="setup-card">
-          <div class="setup-tag">One robot</div>
-          <h4 class="setup-title">Robotics club</h4>
-          <p class="setup-desc">Students rotate engineering roles each session — programmer, systems operator, safety lead, and more. One robot supports an active after-school team of up to 15 students without anyone sitting idle.</p>
+      <div class="setup-tabs" role="tablist" aria-label="Ways to use SwayForm">
+        <button type="button" class="setup-tab active" role="tab" aria-selected="true" data-setup="club">Robotics club</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="classroom">Classroom station</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="student">Independent study</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="instructor">Structured labs</button>
+      </div>
+      <div class="setup-panels">
+        <div class="setup-panel active" data-panel="club" role="tabpanel">
+          <p class="setup-desc">Students rotate engineering roles each session. One robot supports an active team of up to 15 without anyone sitting idle.</p>
           <ul class="setup-list">
-            <li>Rotating roles keeps everyone engaged</li>
+            <li>Rotating roles keep everyone engaged</li>
             <li>Weekly labs with clear goals</li>
             <li>End-of-term demo showcase</li>
           </ul>
         </div>
-        <div class="setup-card">
-          <div class="setup-tag">One robot in the room</div>
-          <h4 class="setup-title">Classroom station</h4>
-          <p class="setup-desc">Used as a shared lab station, live demo platform, or rotating group project. One unit supports a full class with structured time slots.</p>
+        <div class="setup-panel" data-panel="classroom" role="tabpanel" hidden>
+          <p class="setup-desc">Used as a shared lab station or live demo platform. One unit supports a full class with structured time slots.</p>
           <ul class="setup-list">
             <li>Groups work while others plan or review</li>
             <li>Live demo as a teaching tool</li>
-            <li>Structured rubrics and team roles included</li>
+            <li>Rubrics and team roles included</li>
           </ul>
         </div>
-        <div class="setup-card">
-          <div class="setup-tag">Student-led</div>
-          <h4 class="setup-title">Independent exploration</h4>
-          <p class="setup-desc">Advanced students work independently. The platform, Learning Hub, and lab structure guide them — no robotics expert required.</p>
+        <div class="setup-panel" data-panel="student" role="tabpanel" hidden>
+          <p class="setup-desc">Advanced students work independently — the Learning Hub and lab structure guide them, no robotics expert required.</p>
           <ul class="setup-list">
             <li>Full SSH and terminal access</li>
             <li>Open ROS 2 authoring across all 21 DOF</li>
             <li>Documented hardware interfaces</li>
           </ul>
         </div>
-        <div class="setup-card">
-          <div class="setup-tag">Instructor-guided</div>
-          <h4 class="setup-title">Structured labs</h4>
-          <p class="setup-desc">Teachers run the full curriculum without building anything from scratch. Labs come with learning objectives, starter code, step-by-step guides, rubrics, and debug checklists.</p>
+        <div class="setup-panel" data-panel="instructor" role="tabpanel" hidden>
+          <p class="setup-desc">Teachers run the full curriculum without building anything from scratch — labs come ready to teach.</p>
           <ul class="setup-list">
             <li>10 labs ready now, expanding to 40</li>
             <li>Instructor notes and session guides</li>
@@ -1227,35 +1229,20 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           </ul>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- ═══ SAFETY AND INSTRUCTOR CONTROL ═══ -->
-  <section class="section" style="background:var(--bg2);border-bottom:1px solid var(--line)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">Safety and instructor control</span>
-        <h2 class="d3">Every command is validated, queued, and approved.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Student programs never talk to the motors directly. A protected motion-control node is the only software layer permitted to send final commands — enforcing joint limits, speed limits, and command timeouts on all 21 degrees of freedom.</p>
+  <!-- ═══ SAFETY AND INSTRUCTOR CONTROL (compact) ═══ -->
+  <section class="mini-banner reveal">
+    <div class="wrap mini-banner-inner">
+      <div class="mini-banner-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
       </div>
-      <div class="why-grid">
-        <div class="why-card">
-          <div class="why-num">01</div>
-          <h4>Layered physical safety</h4>
-          <p>A normal software stop is always available, and a physical emergency stop / servo-power cutoff is being validated ahead of classroom release — see <a href="/safety" style="color:var(--blue);text-decoration:underline">Safety</a>.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">02</div>
-          <h4>Instructor execution control</h4>
-          <p>Instructors can view every queued submission, review the source, approve or reject it, and start or stop any running program at any time.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">03</div>
-          <h4>Open development, protected motion</h4>
-          <p>Students get real, open ROS 2 development. The robot itself only ever executes what's been validated and approved — not unrestricted motor access.</p>
-        </div>
+      <div class="mini-banner-text">
+        <h3>Every command is validated, queued, and approved before it moves the robot.</h3>
+        <p>Students get real ROS 2 development; a protected motion-control layer is the only thing that ever reaches the motors.</p>
       </div>
+      <a href="/safety" class="btn btn-ghost mini-banner-btn">Learn about Safety →</a>
     </div>
   </section>
 
@@ -1271,57 +1258,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ HOW A CLASS USES IT ═══ -->
-  <section class="section" style="background:var(--bg);border-bottom:1px solid var(--line)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 0;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">How a class uses it</span>
-        <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Students write real ROS 2 code. Every submission is checked and queued so an instructor reviews it before it can move the robot. Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
-      </div>
-      <div class="steps-flow" style="margin-top:56px">
-        <div class="steps-track"></div>
-        <div class="step-item">
-          <div class="step-dot">01</div>
-          <div class="step-label">Learn &amp; connect</div>
-          <div class="step-sub">Students open the free Learning Hub and connect over SSH</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">02</div>
-          <div class="step-label">Build a project</div>
-          <div class="step-sub">A guided tool generates a named ROS 2 project</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">03</div>
-          <div class="step-label">Write &amp; submit</div>
-          <div class="step-sub">Students edit a lab or write their own program, then submit it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">04</div>
-          <div class="step-label">Validate &amp; queue</div>
-          <div class="step-sub">Automated checks run before an instructor ever sees it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">05</div>
-          <div class="step-label">Instructor approves</div>
-          <div class="step-sub">The instructor reviews the source and approves or rejects it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">06</div>
-          <div class="step-label">Robot executes</div>
-          <div class="step-sub">Only approved code reaches the protected motion-control system</div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ═══ DEMOS: EDITABLE STARTER PROGRAMS ═══ -->
-  <section id="demos-preview" class="section">
+  <!-- ═══ WHAT STUDENTS CAN CREATE ═══ -->
+  <section id="demos-preview" class="section reveal">
     <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 48px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:10px">Preloaded demos</span>
-        <h2 class="d3">Five programs ready on day one</h2>
-        <p style="margin-top:14px;color:var(--muted)">These are not showpiece animations. They are starter programs students can inspect, modify, and rebuild. Every SwayForm unit is built to run all five from day one.</p>
+      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
+        <span class="label" style="display:block;margin-bottom:10px">What students can create</span>
+        <h2 class="d3">Five real programs, ready to rebuild.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Not demos to watch — starter code every student inspects, modifies, and makes their own.</p>
       </div>
       <div class="demo-flow-row">
         <span class="demo-flow-badge">Run the demo</span>
@@ -1372,124 +1316,114 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ LEARNING PATH SUMMARY ═══ -->
-  <section id="learning-sec" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:88px 0">
+  <!-- ═══ LEARNING PATH SUMMARY (compact) ═══ -->
+  <section id="learning-sec" class="reveal" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:64px 0">
     <div class="wrap">
-      <div style="text-align:center;max-width:560px;margin:0 auto 56px">
+      <div style="text-align:center;max-width:560px;margin:0 auto 36px">
         <span class="label" style="display:block;margin-bottom:12px">Learning path</span>
-        <h2 class="d3">Begin with 10 labs. The curriculum is expanding to 40.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Level 1 is complete and available today, free in the Learning Hub. Levels 2–4 are the planned path to a full 40-lab curriculum.</p>
+        <h2 class="d3">10 labs now. Expanding to 40.</h2>
       </div>
       <div class="quarters">
         <div class="qcard q1">
           <div class="q-num">Level 1 — Control</div>
           <div class="q-title">Drive the hardware</div>
-          <div class="q-desc">SSH in, write joint commands, author motion sequences. First contact with real hardware.</div>
-          <div class="q-footer">10 labs &middot; 5 demos &middot; available now</div>
+          <div class="q-desc">First contact with real hardware.</div>
+          <div class="q-footer">Available now</div>
         </div>
         <div class="qcard q2">
           <div class="q-num">Level 2 — React</div>
           <div class="q-title">Add sensors</div>
-          <div class="q-desc">Build reactive behaviors that respond to distance, IMU, and face detection in real time.</div>
-          <div class="q-footer">10 labs planned</div>
+          <div class="q-desc">Reactive behaviors in real time.</div>
+          <div class="q-footer">Planned</div>
         </div>
         <div class="qcard q3">
           <div class="q-num">Level 3 — Perceive</div>
           <div class="q-title">Build vision systems</div>
-          <div class="q-desc">OpenCV pipelines, depth-based tracking, state machine design, and multi-sensor integration.</div>
-          <div class="q-footer">10 labs planned &middot; project track begins</div>
+          <div class="q-desc">Tracking and sensor fusion.</div>
+          <div class="q-footer">Planned</div>
         </div>
         <div class="qcard q4">
           <div class="q-num">Level 4 — Create</div>
           <div class="q-title">Author full systems</div>
-          <div class="q-desc">Fully student-written programs, multi-node architecture, and a live demo showcase.</div>
-          <div class="q-footer">10 labs planned &middot; final showcase</div>
+          <div class="q-desc">A live demo showcase.</div>
+          <div class="q-footer">Planned</div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:40px">
+      <div style="text-align:center;margin-top:32px">
         <a href="/learning-path" class="btn btn-ghost">See the full curriculum &#8594;</a>
       </div>
     </div>
   </section>
 
-  <!-- ═══ REPAIRABILITY ═══ -->
-  <section class="section" style="background:var(--bg)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">Repairability</span>
-        <h2 class="d3">Built to be fixed, not replaced.</h2>
-        <p style="margin-top:14px;color:var(--muted)">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. When something breaks, schools replace the affected part — not the whole robot.</p>
+  <!-- ═══ REPAIRABILITY (compact) ═══ -->
+  <section class="mini-banner reveal" style="background:var(--bg)">
+    <div class="wrap mini-banner-inner">
+      <div class="mini-banner-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg>
       </div>
-      <div class="why-grid">
-        <div class="why-card">
-          <div class="why-num">01</div>
-          <h4>Parts under $20</h4>
-          <p>Every individual 3D-printed replacement part is priced below $20. Schools may also download the available print files and produce parts themselves.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">02</div>
-          <h4>Repair is a lesson, not a ticket</h4>
-          <p>The Learning Hub includes component identification, diagnostics, disassembly, calibration, and safety guidance — many repairs are a supervised student learning opportunity.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">03</div>
-          <h4>No single point of failure</h4>
-          <p>When a larger assembly is damaged, schools replace only the affected printed or electronic components. Electronic and mechanical replacement costs vary by component.</p>
-        </div>
+      <div class="mini-banner-text">
+        <h3>Built to be fixed, not replaced.</h3>
+        <p>Every 3D-printed part is under $20. When something breaks, schools replace the part — not the robot.</p>
       </div>
-      <div style="text-align:center;margin-top:36px">
-        <a href="https://learning.swayform.net/repair" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">Read the repair guide &#8594;</a>
-      </div>
+      <a href="https://learning.swayform.net/repair" target="_blank" rel="noopener noreferrer" class="btn btn-ghost mini-banner-btn">Repair guide →</a>
     </div>
   </section>
 
-  <!-- ═══ COMPARISON ═══ -->
-  <section class="section" style="background:var(--bg)">
+  <!-- ═══ WHY SWAYFORM (comparison tabs) ═══ -->
+  <section class="section reveal" style="background:var(--bg)">
     <div class="wrap">
-      <div style="max-width:560px">
+      <div style="max-width:560px;margin:0 auto 32px;text-align:center">
         <span class="label" style="display:block;margin-bottom:12px">Why SwayForm</span>
         <h2 class="d3">Not every robotics experience teaches the same thing.</h2>
-        <p style="margin-top:14px;color:var(--muted);max-width:480px">Screen-only learning and basic kits both have value. But the type of understanding they build is genuinely different from working with a real system.</p>
       </div>
-      <div class="compare-3">
-        <div class="c3-col">
-          <div class="c3-tag">Option A</div>
-          <div class="c3-title">Screen-only learning</div>
-          <p class="c3-sub">Simulations, tutorials, coding platforms. Easy to access and scale. No setup required.</p>
+      <div class="setup-tabs compare-tabs" role="tablist" aria-label="Compare learning approaches">
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="screen">Screen-only</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="kits">Basic kits</button>
+        <button type="button" class="setup-tab active" role="tab" aria-selected="true" data-compare="sway">SwayForm</button>
+      </div>
+      <div class="compare-panels">
+        <div class="compare-panel" data-cpanel="screen" hidden>
+          <p class="c3-sub">Simulations and coding platforms. Zero setup, but no physical consequences.</p>
           <div class="c3-items">
             <div class="c3-item pro">Zero setup, widely accessible</div>
-            <div class="c3-item pro">Safe for unlimited experimentation</div>
-            <div class="c3-item con">No physical limits, wiring, or calibration</div>
-            <div class="c3-item con">Sensor noise and real failure modes absent</div>
-            <div class="c3-item con">Students miss the diagnostic process</div>
+            <div class="c3-item con">No wiring, calibration, or sensor noise</div>
             <div class="c3-item con">No connection between code and physical motion</div>
           </div>
         </div>
-        <div class="c3-col">
-          <div class="c3-tag">Option B</div>
-          <div class="c3-title">Basic robotics kits</div>
-          <p class="c3-sub">Assembly-based kits, line followers, arm kits. Good introduction to hardware concepts.</p>
+        <div class="compare-panel" data-cpanel="kits" hidden>
+          <p class="c3-sub">Assembly kits and line followers. A real intro to hardware — with limits.</p>
           <div class="c3-items">
             <div class="c3-item pro">Hands-on physical experience</div>
-            <div class="c3-item pro">Teaches assembly and basic circuits</div>
-            <div class="c3-item con">Usually limited to specific pre-defined tasks</div>
-            <div class="c3-item con">No real perception or vision pipeline</div>
+            <div class="c3-item con">Limited to pre-defined tasks, no real perception</div>
             <div class="c3-item con">No professional middleware (ROS 2)</div>
-            <div class="c3-item con">Students outgrow them quickly</div>
           </div>
         </div>
-        <div class="c3-col hi">
-          <div class="c3-tag">SwayForm</div>
-          <div class="c3-title">Real humanoid platform</div>
-          <p class="c3-sub">A humanoid robot platform with a free guided curriculum, real sensing, and protected classroom execution — ready for classroom use.</p>
+        <div class="compare-panel active" data-cpanel="sway">
+          <p class="c3-sub">A full humanoid platform with a free guided curriculum and protected classroom execution.</p>
           <div class="c3-items">
-            <div class="c3-item pro">Real physical consequences of code choices</div>
-            <div class="c3-item pro">Industry-standard robotics software (ROS 2) — skills that transfer</div>
+            <div class="c3-item pro">Real physical consequences of every code choice</div>
+            <div class="c3-item pro">Industry-standard ROS 2 — skills that transfer</div>
             <div class="c3-item pro">Vision, audio, depth, and IMU in one system</div>
-            <div class="c3-item pro">10 labs now, expanding to a 40-lab curriculum</div>
-            <div class="c3-item pro">Students debug real wiring and sensor noise</div>
-            <div class="c3-item pro">Scales from beginner to advanced system design</div>
+            <div class="c3-item pro">Scales from first script to advanced system design</div>
           </div>
+        </div>
+      </div>
+      <div class="roadmap-strip">
+        <div class="roadmap-col">
+          <div class="roadmap-tag">Available now</div>
+          <ul class="setup-list">
+            <li>21-DOF robot, local Raspberry Pi + ROS 2</li>
+            <li>Free Learning Hub, 5 demos, 10 labs</li>
+            <li>Protected motion-control &amp; queue</li>
+          </ul>
+        </div>
+        <div class="roadmap-col hi">
+          <div class="roadmap-tag">Planned</div>
+          <ul class="setup-list">
+            <li>30 more labs — completing all 40</li>
+            <li>Monthly labs + simulation tools (premium)</li>
+            <li>Multi-robot, team-based coordination</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1543,121 +1477,54 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ EXPLORE SWAYFORM ═══ -->
-  <style>
-  .explore-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:1px;
-    background:var(--line);
-    border:1px solid var(--line);
-    border-radius:16px;
-    overflow:hidden;
-    margin-top:40px;
-  }
-  .explore-card{
-    background:#fff;
-    padding:32px 28px;
-    display:flex;
-    flex-direction:column;
-    text-decoration:none;
-    transition:background .18s;
-  }
-  .explore-card:hover{background:var(--bg2)}
-  .explore-card-tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-  .explore-card h3{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin:0 0 10px}
-  .explore-card p{font-size:13px;color:var(--muted);line-height:1.65;margin:0;flex:1}
-  .explore-card-link{font-size:13px;font-weight:600;color:var(--blue);margin-top:18px;display:inline-block}
-  @media(max-width:900px){.explore-grid{grid-template-columns:1fr 1fr}}
-  @media(max-width:520px){.explore-grid{grid-template-columns:1fr}}
-  </style>
-  <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
+  <!-- ═══ HOW IT WORKS (4 scroll-highlighted steps) ═══ -->
+  <section class="section reveal" style="background:var(--bg);border-bottom:1px solid var(--line)">
     <div class="wrap">
-      <span class="label" style="display:block;margin-bottom:12px">Explore SwayForm</span>
-      <h2 style="font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.025em;color:var(--ink);margin-bottom:8px">Everything the platform offers.</h2>
-      <p style="color:var(--muted);max-width:520px">From hardware reference to structured curriculum to program information — each section is built to be technically useful.</p>
-      <div class="explore-grid">
-        <a href="/robot" class="explore-card">
-          <span class="explore-card-tag">Hardware</span>
-          <h3>The Robot</h3>
-          <p>21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5, ROS 2. Interactive anatomy, joint reference table, servo specs, and wiring architecture.</p>
-          <span class="explore-card-link">Explore the robot →</span>
-        </a>
-        <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="explore-card">
-          <span class="explore-card-tag">Free, always</span>
-          <h3>Learning Hub</h3>
-          <p>Demos, labs, classroom workflow, safety, setup, repair, and technical reference — everything needed to teach with SwayForm, at no cost.</p>
-          <span class="explore-card-link">Open the Learning Hub →</span>
-        </a>
-        <a href="/learning-path" class="explore-card">
-          <span class="explore-card-tag">Curriculum</span>
-          <h3>Curriculum</h3>
-          <p>10 structured labs available now, with the curriculum expanding to 40 across four skill levels — from first SSH connection to multi-node ROS 2 systems.</p>
-          <span class="explore-card-link">View the curriculum →</span>
-        </a>
-        <a href="/for-schools" class="explore-card">
-          <span class="explore-card-tag">Programs</span>
-          <h3>For Schools</h3>
-          <p>What a robot package includes, setup requirements, instructor support, and purchasing information for high schools and community colleges.</p>
-          <span class="explore-card-link">See program info →</span>
-        </a>
+      <div style="max-width:640px;margin:0 auto 0;text-align:center">
+        <span class="label" style="display:block;margin-bottom:12px">How it works</span>
+        <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
       </div>
-    </div>
-  </section>
-
-  <!-- ═══ PRODUCT ROADMAP ═══ -->
-  <section class="section" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">Product roadmap</span>
-        <h2 class="d3">What's here now, and what's planned.</h2>
-        <p style="margin-top:14px;color:var(--muted)">We label features clearly so schools know exactly what they're buying today versus what's coming.</p>
-      </div>
-      <div class="compare-3" style="grid-template-columns:1fr 1fr">
-        <div class="c3-col">
-          <div class="c3-tag">Available now</div>
-          <div class="c3-title">Current platform</div>
-          <div class="c3-items">
-            <div class="c3-item pro">21-DOF robot with local Raspberry Pi + ROS 2</div>
-            <div class="c3-item pro">Free Learning Hub, permanently</div>
-            <div class="c3-item pro">5 demos, 10 structured labs</div>
-            <div class="c3-item pro">Protected motion-control &amp; queue architecture</div>
-            <div class="c3-item pro">Repair guide &amp; replacement parts under $20</div>
-          </div>
+      <div class="hiw-flow" id="hiw-flow" style="margin-top:56px">
+        <div class="hiw-track"><div class="hiw-track-fill" id="hiw-track-fill"></div></div>
+        <div class="hiw-step">
+          <div class="step-dot">01</div>
+          <div class="step-label">Learn &amp; connect</div>
+          <div class="step-sub">Open the free Learning Hub, connect over SSH</div>
         </div>
-        <div class="c3-col hi">
-          <div class="c3-tag">Planned</div>
-          <div class="c3-title">Future roadmap</div>
-          <div class="c3-items">
-            <div class="c3-item pro">30 more labs, completing the 40-lab curriculum</div>
-            <div class="c3-item pro">New labs released monthly (premium)</div>
-            <div class="c3-item pro">Interactive simulation tools (premium)</div>
-            <div class="c3-item pro">Multi-robot coordination for team-based labs</div>
-            <div class="c3-item pro">Additional demonstration programs</div>
-          </div>
+        <div class="hiw-step">
+          <div class="step-dot">02</div>
+          <div class="step-label">Build &amp; submit</div>
+          <div class="step-sub">Write real ROS 2 code, then submit it</div>
+        </div>
+        <div class="hiw-step">
+          <div class="step-dot">03</div>
+          <div class="step-label">Validate &amp; approve</div>
+          <div class="step-sub">Automated checks, then instructor review</div>
+        </div>
+        <div class="hiw-step">
+          <div class="step-dot">04</div>
+          <div class="step-label">Robot executes</div>
+          <div class="step-sub">Only approved code ever reaches the motors</div>
         </div>
       </div>
+      <p style="text-align:center;margin-top:32px;font-size:13px;color:var(--faint)">Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
     </div>
   </section>
-
   <!-- ═══ FINAL CTA / CONTACT SALES ═══ -->
   <section id="schools-cta" class="section">
     <div class="wrap">
       <div class="cta-split">
         <div class="cta-side left">
-          <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Fall 2027 Commercial Launch</span>
+          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Fall 2027 Commercial Launch</span>
           <h2>SwayForm is in active pilot development.</h2>
-          <p>Pilot interest is currently open as we finalize hardware revision 2. Commercial availability is targeted for Fall 2027.</p>
-          <ul class="cta-list">
-            <li>21 programmable degrees of freedom, governed by a protected classroom motion system</li>
-            <li>5 preloaded demo programs, ready to run and modify</li>
-            <li>10 structured labs now, expanding to 40</li>
-            <li>Runs locally — core robot operation needs no cloud subscription</li>
-          </ul>
-          <a href="/robot" class="btn btn-primary" style="font-weight:700">Explore the platform</a>
+          <p>Pilot interest is open now, ahead of Fall 2027 commercial availability.</p>
+          <div class="cta-btn-row">
+            <a href="/robot" class="btn btn-primary" style="font-weight:700">Explore the Robot</a>
+            <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">View the Learning Hub ↗</a>
+          </div>
         </div>
         <div class="cta-side right">
-          <span class="label" style="display:block;margin-bottom:16px;color:rgba(255,255,255,.3)">Contact Sales</span>
+          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Contact Sales</span>
           <h2>Get in touch.</h2>
           <p>Running a robotics club, engineering class, or lab program? Fill this out and we will follow up within five business days.</p>
           <form class="contact-form" id="contact-form" onsubmit="handleForm(event)">
@@ -1808,6 +1675,116 @@ window.addEventListener('scroll', function() {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
   });
+})();
+
+/* ── animated count-up stats (respects reduced motion) ── */
+(function () {
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('[data-count-to]');
+  if (!els.length) return;
+  function animate(el) {
+    var target = parseInt(el.getAttribute('data-count-to'), 10);
+    if (REDUCED || !target) { el.textContent = target; return; }
+    var start = null, duration = 1100;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  if (!('IntersectionObserver' in window)) { els.forEach(animate); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) { animate(entry.target); io.unobserve(entry.target); }
+    });
+  }, { threshold: 0.4 });
+  els.forEach(function (el) { io.observe(el); });
+})();
+
+/* ── "Flexible by design" setup tabs ── */
+(function () {
+  var tabs = document.querySelectorAll('.setup-tab');
+  var panels = document.querySelectorAll('.setup-panel');
+  if (!tabs.length) return;
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var target = tab.getAttribute('data-setup');
+      tabs.forEach(function (t) { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+      panels.forEach(function (p) {
+        var match = p.getAttribute('data-panel') === target;
+        p.hidden = !match;
+        p.classList.toggle('active', match);
+      });
+    });
+  });
+})();
+
+/* ── "Why SwayForm" comparison tabs ── */
+(function () {
+  var tabs = document.querySelectorAll('.compare-tabs .setup-tab');
+  var panels = document.querySelectorAll('.compare-panel');
+  if (!tabs.length) return;
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var target = tab.getAttribute('data-compare');
+      tabs.forEach(function (t) { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+      panels.forEach(function (p) {
+        var match = p.getAttribute('data-cpanel') === target;
+        p.hidden = !match;
+        p.classList.toggle('active', match);
+      });
+    });
+  });
+})();
+
+/* ── "How it works" scroll-highlighted steps + progress track ── */
+(function () {
+  var flow = document.getElementById('hiw-flow');
+  var fill = document.getElementById('hiw-track-fill');
+  if (!flow || !fill) return;
+  var steps = flow.querySelectorAll('.hiw-step');
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if ('IntersectionObserver' in window && !REDUCED) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle('hiw-active', entry.isIntersecting);
+      });
+    }, { threshold: 0.6 });
+    steps.forEach(function (s) { io.observe(s); });
+  } else {
+    steps.forEach(function (s) { s.classList.add('hiw-active'); });
+  }
+
+  function updateFill() {
+    var r = flow.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var progress = (vh * 0.75 - r.top) / (r.height + vh * 0.1);
+    progress = Math.max(0, Math.min(1, progress));
+    fill.style.width = (progress * 100) + '%';
+  }
+  window.addEventListener('scroll', function () { requestAnimationFrame(updateFill); }, { passive: true });
+  updateFill();
+})();
+
+/* ── shared scroll-reveal: fade/rise elements with class="reveal" into view ── */
+(function () {
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  if (REDUCED || !('IntersectionObserver' in window)) {
+    els.forEach(function (el) { el.classList.add('is-visible'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('is-visible'); io.unobserve(entry.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (el) { io.observe(el); });
 })();
 </script>
 
@@ -1964,13 +1941,26 @@ window.addEventListener('scroll', function() {
 .why-section .label{color:var(--muted)}
 .why-section h2{color:var(--ink)}
 .why-section p.lead-why{font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:560px;margin:14px 0 0;line-height:1.65}
+/* ── MINI BANNER (compact icon + text + link — Safety, Repairability) ── */
+.mini-banner{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:48px 0}
+.mini-banner-inner{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.mini-banner-icon{width:52px;height:52px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mini-banner-text{flex:1;min-width:240px}
+.mini-banner-text h3{font-size:clamp(17px,2.2vw,20px);font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.35;margin-bottom:6px}
+.mini-banner-text p{font-size:14px;color:var(--muted);line-height:1.6;margin:0}
+.mini-banner-btn{flex-shrink:0;white-space:nowrap}
+@media(max-width:640px){
+  .mini-banner{padding:36px 0}
+  .mini-banner-inner{flex-direction:column;align-items:flex-start;gap:16px}
+  .mini-banner-btn{width:100%;justify-content:center}
+}
 .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:56px}
 .why-card{background:#fff;padding:36px 28px;cursor:pointer;transition:background .2s;outline:none}
 .why-card.open,.why-card:focus-visible{background:var(--bg2)}
 .why-card:focus-visible{box-shadow:inset 0 0 0 2px var(--blue)}
-.why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--faint);margin-bottom:14px;transition:color .2s;display:flex;align-items:center;justify-content:space-between}
+.why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--faint);margin-bottom:14px;transition:color .2s;display:flex;align-items:center;gap:8px}
 .why-card.open .why-num,.why-card:focus-visible .why-num{color:var(--blue)}
-.why-num::after{content:'+';font-size:15px;font-weight:400;color:var(--faint);transition:transform .25s ease,color .2s}
+.why-num::after{content:'+';font-size:15px;font-weight:400;color:var(--faint);margin-left:auto;transition:transform .25s ease,color .2s}
 .why-card.open .why-num::after,.why-card:focus-visible .why-num::after{color:var(--blue);transform:rotate(45deg)}
 .why-card h4{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:0;letter-spacing:-.01em;line-height:1.35;transition:margin-bottom .3s ease}
 .why-card.open h4,.why-card:focus-visible h4{margin-bottom:12px}
@@ -1990,45 +1980,60 @@ window.addEventListener('scroll', function() {
 @media(max-width:560px){.why-grid{grid-template-columns:1fr}}
 
 /* ── WHAT STUDENTS DO (steps) ── */
-.steps-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:56px;position:relative}
-.steps-track{position:absolute;top:21px;left:10%;right:10%;height:1px;background:linear-gradient(to right,transparent 0%,var(--line) 12%,var(--line) 88%,transparent 100%)}
-.step-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 6px}
-.step-dot{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);margin-bottom:14px;position:relative;z-index:1;flex-shrink:0;box-shadow:0 0 0 5px var(--bg)}
+.hiw-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:56px;position:relative}
+.hiw-track{position:absolute;top:21px;left:12%;right:12%;height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.hiw-track-fill{height:100%;width:0;background:var(--blue);transition:width .25s linear;border-radius:2px}
+.hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 10px;opacity:.45;transition:opacity .35s ease}
+.hiw-step.hiw-active{opacity:1}
+.step-dot{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);margin-bottom:14px;position:relative;z-index:1;flex-shrink:0;box-shadow:0 0 0 5px var(--bg);transition:all .3s ease}
+.hiw-step.hiw-active .step-dot{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
 .step-label{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.3}
 .step-sub{font-size:14px;color:var(--muted);line-height:1.6}
-@media(max-width:860px){.steps-flow{grid-template-columns:1fr 1fr;gap:28px 12px}.steps-track{display:none}}
-@media(max-width:480px){.steps-flow{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.hiw-step,.step-dot,.hiw-track-fill{transition:none}}
+@media(max-width:860px){.hiw-flow{grid-template-columns:1fr 1fr;gap:28px 12px}.hiw-track{display:none}.hiw-step{opacity:1}}
+@media(max-width:480px){.hiw-flow{grid-template-columns:1fr}}
 
 /* ── SETUPS GRID ── */
-.setups-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.setup-card{background:var(--bg);padding:34px 30px;transition:background .2s}
-.setup-card:hover{background:var(--bg2)}
-.setup-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
-.setup-title{font-size:18px;font-weight:800;letter-spacing:-.015em;color:var(--ink);margin-bottom:10px;line-height:1.25;margin-top:0}
+/* ── SETUP TABS ── */
+.setup-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
+.setup-tab{padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:13px;font-weight:600;transition:all .18s;white-space:nowrap}
+.setup-tab:hover{border-color:rgba(0,87,255,.35);color:var(--ink)}
+.setup-tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.setup-tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.setup-panels{max-width:600px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px 36px;min-height:170px}
+.setup-panel{animation:setup-fade .3s ease}
+@keyframes setup-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.setup-panel{animation:none}}
+@media(max-width:600px){.setup-panels{padding:24px 20px}.setup-tabs{gap:6px}.setup-tab{padding:8px 14px;font-size:12px}}
+/* comparison tabs reuse .setup-tab styling; panel + roadmap strip get their own layout */
+.compare-panels{max-width:640px;margin:0 auto}
+.compare-panel{animation:setup-fade .3s ease}
+@media(prefers-reduced-motion:reduce){.compare-panel{animation:none}}
+.compare-panel .c3-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:16px;text-align:center}
+.compare-panel .c3-items{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.roadmap-strip{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:640px;margin:40px auto 0}
+.roadmap-col{background:#fff;padding:22px 24px}
+.roadmap-col.hi{background:var(--blue-dim)}
+.roadmap-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+.roadmap-col.hi .roadmap-tag{color:var(--blue)}
+@media(max-width:600px){.roadmap-strip{grid-template-columns:1fr}}
 .setup-desc{font-size:13px;color:var(--muted);line-height:1.72;margin-bottom:14px}
 .setup-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
 .setup-list li{font-size:12px;color:var(--soft);padding-left:16px;position:relative;line-height:1.45}
 .setup-list li::before{content:'→';position:absolute;left:0;color:var(--ink);font-weight:700;font-size:10px;opacity:.3;top:2px}
-@media(max-width:768px){.setups-grid{grid-template-columns:1fr}}
 
 /* ── DEMO FLOW ROW ── */
 .demo-flow-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:28px}
 .demo-flow-badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;background:var(--bg2);border:1px solid var(--line);font-size:11px;font-weight:600;color:var(--soft);white-space:nowrap}
 .demo-flow-arrow{color:var(--faint);font-size:11px;flex-shrink:0}
 
-/* ── COMPARISON 3-COL ── */
-.compare-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:16px;overflow:hidden;border:1px solid var(--line);margin-top:56px}
-.c3-col{background:var(--bg);padding:36px 28px}
-.c3-col.hi{background:var(--bg2)}
-.c3-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
-.c3-title{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px;line-height:1.2}
+/* ── COMPARISON PANEL CONTENT (columns reused inside .compare-panel tabs) ── */
 .c3-sub{font-size:15px;color:var(--muted);line-height:1.7;padding-bottom:20px;border-bottom:1px solid var(--line)}
 .c3-items{display:flex;flex-direction:column;gap:9px;margin-top:20px}
 .c3-item{font-size:14px;line-height:1.55;padding-left:20px;position:relative;color:var(--muted)}
 .c3-item.pro{color:var(--soft)}
 .c3-item.pro::before{content:'✓';position:absolute;left:0;color:#007a44;font-weight:800;font-size:11px;top:1px}
 .c3-item.con::before{content:'·';position:absolute;left:7px;color:var(--faint);font-size:14px;line-height:1;top:0}
-@media(max-width:860px){.compare-3{grid-template-columns:1fr}}
 
 /* ── PROGRAMS GRID (kept for other pages) ── */
 .programs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -2075,6 +2080,11 @@ window.addEventListener('scroll', function() {
 .ha-hs:focus-visible{outline:2px solid #0057ff;outline-offset:3px;border-radius:50%}
 .ha-hs:focus-visible::before{background:rgba(95,183,255,.38)}
 .ha-hs.active::before{background:rgba(95,183,255,.5)!important;box-shadow:0 0 0 7px rgba(95,183,255,.18),0 0 0 14px rgba(95,183,255,.06)!important}
+/* pulsing cue so first-time visitors notice the robot is interactive */
+@keyframes ha-pulse{0%{box-shadow:0 0 0 0 rgba(0,87,255,.35)}100%{box-shadow:0 0 0 16px rgba(0,87,255,0)}}
+.ha-hs:not(.active)::before{animation:ha-pulse 2.4s ease-out infinite}
+.ha-hs:hover::before,.ha-hs:focus-visible::before{animation:none}
+@media(prefers-reduced-motion:reduce){.ha-hs::before{animation:none!important}}
 
 .ha-lbl{position:absolute;white-space:nowrap;font-size:10px;font-weight:700;letter-spacing:.05em;color:rgba(215,232,255,.92);background:rgba(4,8,18,.76);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:3px 9px;border-radius:4px;pointer-events:auto;cursor:pointer;top:50%;transform:translateY(-50%);line-height:1.4;max-width:38vw;overflow:hidden;text-overflow:ellipsis}
 .ha-lbl-r{left:calc(100% + 9px)}

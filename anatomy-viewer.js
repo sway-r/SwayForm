@@ -111,7 +111,6 @@
         var src = GROUP_IMAGES[k];
         if (!seen[src]) { seen[src] = true; var img = new Image(); img.src = src; }
       });
-      if (REDUCED_MOTION) return; /* reduced motion never plays video, so never preload it */
       Object.keys(VIDEOS).forEach(function (k) {
         var pv = document.createElement('video');
         pv.muted = true; pv.preload = 'auto'; pv.src = VIDEOS[k];
@@ -141,8 +140,6 @@
     }
 
     function playTransition(key, finalImage, cb) {
-      if (REDUCED_MOTION) { fadeToStill(finalImage, cb); return; }
-
       var vid = $(cfg.videoId);
       var still = $(cfg.stillId);
       if (!vid || !still) { if (cb) cb(); return; }

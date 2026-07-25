@@ -1966,16 +1966,26 @@ window.addEventListener('scroll', function() {
 .why-section p.lead-why{font-size:17px;color:var(--muted);max-width:560px;margin:14px 0 0;line-height:1.7}
 .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:56px}
 .why-card{background:#fff;padding:36px 28px;cursor:pointer;transition:background .2s;outline:none}
-.why-card:hover,.why-card.open,.why-card:focus-visible{background:var(--bg2)}
+.why-card.open,.why-card:focus-visible{background:var(--bg2)}
 .why-card:focus-visible{box-shadow:inset 0 0 0 2px var(--blue)}
 .why-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--faint);margin-bottom:14px;transition:color .2s;display:flex;align-items:center;justify-content:space-between}
-.why-card:hover .why-num,.why-card.open .why-num,.why-card:focus-visible .why-num{color:var(--blue)}
+.why-card.open .why-num,.why-card:focus-visible .why-num{color:var(--blue)}
 .why-num::after{content:'+';font-size:15px;font-weight:400;color:var(--faint);transition:transform .25s ease,color .2s}
-.why-card:hover .why-num::after,.why-card.open .why-num::after,.why-card:focus-visible .why-num::after{color:var(--blue);transform:rotate(45deg)}
+.why-card.open .why-num::after,.why-card:focus-visible .why-num::after{color:var(--blue);transform:rotate(45deg)}
 .why-card h4{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:0;letter-spacing:-.01em;line-height:1.35;transition:margin-bottom .3s ease}
-.why-card:hover h4,.why-card.open h4,.why-card:focus-visible h4{margin-bottom:12px}
+.why-card.open h4,.why-card:focus-visible h4{margin-bottom:12px}
 .why-card p{font-size:14px;color:var(--muted);line-height:1.75;margin:0;max-height:0;opacity:0;overflow:hidden;transition:max-height .35s ease,opacity .3s ease}
-.why-card:hover p,.why-card.open p,.why-card:focus-visible p{max-height:220px;opacity:1}
+.why-card.open p,.why-card:focus-visible p{max-height:220px;opacity:1}
+/* hover-reveal only for real mouse pointers -- touch devices rely purely on the JS tap-toggle
+   above, since CSS :hover can "stick" after a tap on touch screens and make a second tap
+   not visually close the card even though the .open class was removed. */
+@media (hover:hover) and (pointer:fine) {
+  .why-card:hover{background:var(--bg2)}
+  .why-card:hover .why-num{color:var(--blue)}
+  .why-card:hover .why-num::after{color:var(--blue);transform:rotate(45deg)}
+  .why-card:hover h4{margin-bottom:12px}
+  .why-card:hover p{max-height:220px;opacity:1}
+}
 @media(max-width:860px){.why-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.why-grid{grid-template-columns:1fr}}
 

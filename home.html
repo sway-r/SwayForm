@@ -245,6 +245,7 @@ p{color:var(--muted);line-height:1.75}
 /* ── STATS STRIP ─────────────────────────────────────── */
 #stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
 .stats-inner{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:1440px;margin:0 auto}
+#stats .stats-inner-single{grid-template-columns:1fr!important;justify-items:center}
 .stat{
   padding:36px 40px;border-right:1px solid var(--line);
   display:flex;flex-direction:column;gap:4px;
@@ -257,7 +258,7 @@ p{color:var(--muted);line-height:1.75}
 
 /* ── PLATFORM SECTION ────────────────────────────────── */
 #platform-sec{background:#fff}
-.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.plat-grid{display:grid;grid-template-columns:0.9fr 1.3fr;gap:64px;align-items:center}
 .plat-content{display:flex;flex-direction:column}
 .plat-text .label{margin-bottom:16px;display:block}
 .plat-text p{font-size:17px;color:var(--muted);line-height:1.75;margin-top:16px;max-width:480px}
@@ -613,7 +614,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 @media(max-width:1100px){
   #hero{grid-template-columns:1fr}.hero-visual{display:none}
   .hero-text{padding:100px 0 80px}
-  .plat-grid{grid-template-columns:1fr;gap:48px}.plat-visual{display:none}
+  .plat-grid{grid-template-columns:1fr;gap:32px}.plat-visual{order:-1}
+  .plat-img-wrap{aspect-ratio:4/3}.plat-img-wrap img{height:100%}
   .quarters{grid-template-columns:1fr 1fr}
   .demo-cards{grid-template-columns:1fr 1fr 1fr}
   .footer-top{grid-template-columns:1fr 1fr;gap:32px}
@@ -809,10 +811,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .faq-section{background:var(--bg2);padding:120px 0;border-top:1px solid var(--line)}
 .faq-head{max-width:560px;margin-bottom:60px}
 .faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 80px}
-.faq-item{padding:28px 0;border-bottom:1px solid var(--line)}
+.faq-item{padding:22px 0;border-bottom:1px solid var(--line)}
 .faq-item:last-child{border-bottom:none}
-.faq-q{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-bottom:10px}
+.faq-q{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';font-size:20px;font-weight:400;color:var(--faint);flex-shrink:0;transition:transform .2s}
+.faq-item[open] .faq-q::after{transform:rotate(45deg)}
+.faq-item[open] .faq-q{margin-bottom:10px}
 .faq-a{font-size:14px;color:var(--muted);line-height:1.75}
+.faq-q:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 /* ── SPECS BAND ── */
 .specs-band{background:var(--ink);padding:72px 0}
 .specs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(255,255,255,.06)}
@@ -847,8 +854,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="nav-links">
       <a href="/" class="active">Overview</a>
       <a href="/robot">The Robot</a>
-      <a href="/learning-path">Curriculum</a>
-      <a href="/safety">Safety</a>
       <a href="/for-schools">For Schools</a>
     </div>
     <div class="nav-right">
@@ -866,8 +871,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
   <a href="/">Overview</a>
   <a href="/robot">The Robot</a>
-  <a href="/learning-path">Curriculum</a>
-  <a href="/safety">Safety</a>
   <a href="/for-schools">For Schools</a>
   <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Hub &#8599;</a>
   <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
@@ -880,6 +883,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ──────────────────────────────────── HOME PAGE -->
 <div id="pg-home" class="pg active">
 
+
   <!-- ═══ HERO — light/white layout, video-ready right panel ═══ -->
   <section id="hero">
     <div class="hero-bg-grid"></div>
@@ -890,7 +894,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         Humanoid robotics education for every classroom
       </div>
       <h1 class="d1">Bring modern<br>humanoid robotics<br><em>into the classroom.</em></h1>
-      <p class="hero-sub">SwayForm combines a programmable humanoid robot, a guided Learning Hub, real ROS 2 development, and a protected classroom workflow — giving students hands-on experience with the technologies shaping modern robotics. Instructors do not need to arrive as robotics experts.</p>
+      <p class="hero-sub">A programmable humanoid robot, a free guided curriculum, and real ROS 2 development — hands-on robotics for the classroom. No prior robotics experience required to teach it.</p>
       <div class="hero-actions">
         <a href="/contact" class="btn btn-primary btn-lg">Contact Sales</a>
         <a href="/robot" class="btn btn-ghost btn-lg">Explore the Robot</a>
@@ -920,12 +924,55 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
   <!-- ═══ STATS STRIP ═══ -->
   <section id="stats">
-    <div class="stats-inner">
-      <div class="stat"><div class="stat-n">21</div><div class="stat-l">Degrees of freedom</div><div class="stat-lm">DOF</div></div>
-      <div class="stat"><div class="stat-n">10</div><div class="stat-l">Labs available now</div><div class="stat-lm">Labs now</div></div>
-      <div class="stat"><div class="stat-n">40</div><div class="stat-l">Labs in the full curriculum</div><div class="stat-lm">Planned</div></div>
-      <div class="stat"><div class="stat-n">5</div><div class="stat-l">Preloaded demos</div><div class="stat-lm">Demos</div></div>
-      <div class="stat" style="border-right:none"><div class="stat-n" style="font-size:28px">Fall '27</div><div class="stat-l">Commercial launch target</div><div class="stat-lm">Launch</div></div>
+    <div class="stats-inner stats-inner-single">
+      <div class="stat" style="border-right:none;text-align:center;padding:20px 24px"><span class="stat-n" style="font-size:22px;display:inline">Fall '27</span><span class="stat-l" style="display:inline;margin-left:8px">Commercial launch target</span></div>
+    </div>
+  </section>
+
+  <!-- ═══ WHY THIS MATTERS ═══ -->
+  <section id="platform-sec" class="section">
+    <div class="wrap-lg">
+      <div class="plat-grid">
+        <div class="plat-content">
+          <span class="label" style="display:block;margin-bottom:16px">Why this matters</span>
+          <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
+          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">Modern robotics should not be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
+          <div class="plat-features">
+            <div class="plat-feat">
+              <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>Most schools can't connect the pieces</h4>
+                <p>Robotics and AI are relevant across nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
+              </div>
+            </div>
+            <div class="plat-feat">
+              <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>Instructors don't have time to build this alone</h4>
+                <p>Building an advanced robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
+              </div>
+            </div>
+            <div class="plat-feat">
+              <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>The same technology, at classroom scale</h4>
+                <p>SwayForm introduces students to the same foundational technologies and system architecture shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="plat-visual">
+          <div class="plat-img-wrap">
+            <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
+                 onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
+            <div class="plat-specs">
+              <div class="plat-spec-item"><div class="plat-spec-val">21</div><div class="plat-spec-key">Degrees of freedom</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">5</div><div class="plat-spec-key">Preloaded demos</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">10→40</div><div class="plat-spec-key">Labs, expanding</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1052,68 +1099,35 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   })();
   </script>
 
-  <!-- ═══ WHY THIS MATTERS ═══ -->
-  <section id="platform-sec" class="section">
+  <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
+  <section class="why-section">
     <div class="wrap">
-      <div class="plat-grid">
-        <div class="plat-content">
-          <span class="label" style="display:block;margin-bottom:16px">Why this matters</span>
-          <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
-          <p style="margin-top:16px;font-size:17px;color:var(--muted);line-height:1.75;max-width:480px">Modern robotics should not be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
-          <div class="plat-features">
-            <div class="plat-feat">
-              <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Most schools can't connect the pieces</h4>
-                <p>Robotics and AI are relevant across nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Instructors don't have time to build this alone</h4>
-                <p>Building an advanced robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>The same technology, at classroom scale</h4>
-                <p>SwayForm introduces students to the same foundational technologies and system architecture shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
-              </div>
-            </div>
-          </div>
+      <span class="label" style="display:block;margin-bottom:12px">What schools receive</span>
+      <h2 class="d3">One robot. A free curriculum. A clear upgrade path.</h2>
+      <p class="lead-why">The robot, the Learning Hub, and future premium services are three distinct things — here's exactly what's included and what's optional.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-num">01</div>
+          <h4>The SwayForm robot</h4>
+          <p>A 21-DOF programmable humanoid running Linux and ROS 2 locally on an onboard Raspberry Pi, assembled and tested before it ships. Contact Sales for institutional pricing.</p>
         </div>
-        <div class="plat-visual">
-          <div class="plat-img-wrap">
-            <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
-                 onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
-            <div class="plat-specs">
-              <div class="plat-spec-item"><div class="plat-spec-val">21</div><div class="plat-spec-key">Degrees of freedom</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">5</div><div class="plat-spec-key">Preloaded demos</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">10→40</div><div class="plat-spec-key">Labs, expanding</div></div>
-            </div>
-          </div>
+        <div class="why-card">
+          <div class="why-num">02</div>
+          <h4>The free Learning Hub</h4>
+          <p>Free, permanently — no license required. Core documentation, setup, safety notes, repair tutorials, and 10 structured labs, with the curriculum expanding to 40.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-num">03</div>
+          <h4>Optional premium subscription</h4>
+          <p>Six months included free with every robot purchase, renewing annually after that. Planned premium additions include new monthly labs, expanded curriculum, and future simulation tools.</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ═══ FEYNMAN QUOTE + HANDS-ON EXPLANATION ═══ -->
-  <section class="quote-section">
-    <div class="quote-wrap">
-      <div class="quote-big">What I cannot create, I do not understand.</div>
-      <div class="quote-row">
-        <div class="quote-bar"></div>
-        <div class="quote-who">Richard Feynman</div>
-      </div>
-      <p class="quote-body">Students understand robotics on a deeper level when their code moves real hardware. Rather than only observing concepts on a screen, students must transform their designs into a working system — revealing both the strengths and limitations of their understanding.</p>
     </div>
   </section>
 
   <!-- ═══ INTERACTIVE ROBOT ANATOMY (ported from robot.html) ═══ -->
   <section class="ha-section" id="home-anatomy-section">
-    <div class="wrap">
+    <div class="wrap-lg">
       <span class="label ha-eyebrow">Interactive Robot</span>
       <h2 class="d3 ha-heading">Explore the system, part by part.</h2>
       <p class="ha-lead">Select a component to see what it does, how students control it, and what they learn from it.</p>
@@ -1142,76 +1156,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="ha-detail" id="ha-detail" style="display:none"></div>
         </div>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
-  <section class="why-section">
-    <div class="wrap">
-      <span class="label" style="display:block;margin-bottom:12px">What schools receive</span>
-      <h2 class="d3">One robot. A free curriculum. A clear upgrade path.</h2>
-      <p class="lead-why">The robot, the Learning Hub, and future premium services are three distinct things — here's exactly what's included and what's optional.</p>
-      <div class="why-grid">
-        <div class="why-card">
-          <div class="why-num">01</div>
-          <h4>The SwayForm robot</h4>
-          <p>A 21-DOF programmable humanoid running Linux and ROS 2 locally on an onboard Raspberry Pi, assembled and tested before it ships. Contact Sales for institutional pricing.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">02</div>
-          <h4>The free Learning Hub</h4>
-          <p>Free, permanently — no license required. Core documentation, setup, safety notes, repair tutorials, and 10 structured labs, with the curriculum expanding to 40.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num">03</div>
-          <h4>Optional premium subscription</h4>
-          <p>Six months included free with every robot purchase, renewing annually after that. Planned premium additions include new monthly labs, expanded curriculum, and future simulation tools.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ HOW A CLASS USES IT ═══ -->
-  <section class="section" style="background:var(--bg);border-bottom:1px solid var(--line)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 0;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">How a class uses it</span>
-        <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Students write real ROS 2 code. Every submission is checked and queued so an instructor reviews it before it can move the robot. Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
-      </div>
-      <div class="steps-flow" style="margin-top:56px">
-        <div class="steps-track"></div>
-        <div class="step-item">
-          <div class="step-dot">01</div>
-          <div class="step-label">Learn &amp; connect</div>
-          <div class="step-sub">Students open the free Learning Hub and connect over SSH</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">02</div>
-          <div class="step-label">Build a project</div>
-          <div class="step-sub">A guided tool generates a named ROS 2 project</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">03</div>
-          <div class="step-label">Write &amp; submit</div>
-          <div class="step-sub">Students edit a lab or write their own program, then submit it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">04</div>
-          <div class="step-label">Validate &amp; queue</div>
-          <div class="step-sub">Automated checks run before an instructor ever sees it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">05</div>
-          <div class="step-label">Instructor approves</div>
-          <div class="step-sub">The instructor reviews the source and approves or rejects it</div>
-        </div>
-        <div class="step-item">
-          <div class="step-dot">06</div>
-          <div class="step-label">Robot executes</div>
-          <div class="step-sub">Only approved code reaches the protected motion-control system</div>
-        </div>
       </div>
     </div>
   </section>
@@ -1293,6 +1237,62 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="why-num">03</div>
           <h4>Open development, protected motion</h4>
           <p>Students get real, open ROS 2 development. The robot itself only ever executes what's been validated and approved — not unrestricted motor access.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEYNMAN QUOTE + HANDS-ON EXPLANATION ═══ -->
+  <section class="quote-section">
+    <div class="quote-wrap">
+      <div class="quote-big">What I cannot create, I do not understand.</div>
+      <div class="quote-row">
+        <div class="quote-bar"></div>
+        <div class="quote-who">Richard Feynman</div>
+      </div>
+      <p class="quote-body">Students understand robotics on a deeper level when their code moves real hardware. Rather than only observing concepts on a screen, students must transform their designs into a working system — revealing both the strengths and limitations of their understanding.</p>
+    </div>
+  </section>
+
+  <!-- ═══ HOW A CLASS USES IT ═══ -->
+  <section class="section" style="background:var(--bg);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <div style="max-width:640px;margin:0 auto 0;text-align:center">
+        <span class="label" style="display:block;margin-bottom:12px">How a class uses it</span>
+        <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Students write real ROS 2 code. Every submission is checked and queued so an instructor reviews it before it can move the robot. Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
+      </div>
+      <div class="steps-flow" style="margin-top:56px">
+        <div class="steps-track"></div>
+        <div class="step-item">
+          <div class="step-dot">01</div>
+          <div class="step-label">Learn &amp; connect</div>
+          <div class="step-sub">Students open the free Learning Hub and connect over SSH</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">02</div>
+          <div class="step-label">Build a project</div>
+          <div class="step-sub">A guided tool generates a named ROS 2 project</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">03</div>
+          <div class="step-label">Write &amp; submit</div>
+          <div class="step-sub">Students edit a lab or write their own program, then submit it</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">04</div>
+          <div class="step-label">Validate &amp; queue</div>
+          <div class="step-sub">Automated checks run before an instructor ever sees it</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">05</div>
+          <div class="step-label">Instructor approves</div>
+          <div class="step-sub">The instructor reviews the source and approves or rejects it</div>
+        </div>
+        <div class="step-item">
+          <div class="step-dot">06</div>
+          <div class="step-label">Robot executes</div>
+          <div class="step-sub">Only approved code reaches the protected motion-control system</div>
         </div>
       </div>
     </div>
@@ -1487,40 +1487,40 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       </div>
       <div class="faq-grid">
         <div>
-          <div class="faq-item">
-            <div class="faq-q">Who is SwayForm designed for?</div>
+          <details class="faq-item">
+            <summary class="faq-q">Who is SwayForm designed for?</summary>
             <div class="faq-a">High school engineering programs, community college robotics courses, student clubs, STEM labs, and any educational setting where students can work with real hardware regularly. It is not a consumer product.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">Does one robot support a whole class?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Does one robot support a whole class?</summary>
             <div class="faq-a">Yes. One unit is designed for teams of up to 15 students using rotating engineering roles, or a classroom where groups take turns. Programs can add more units later when they are ready to scale.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">What background do instructors need?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">What background do instructors need?</summary>
             <div class="faq-a">No prior ROS 2 or humanoid-robotics experience is required. Basic computer familiarity is recommended — the Learning Hub guides instructors and students through setup, programming, testing, debugging, safety, and repair.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">Does it need internet access?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Does it need internet access?</summary>
             <div class="faq-a">The robot's control, perception, ROS 2 environment, and physical execution all run locally on the onboard Raspberry Pi. Internet is used for things like opening the hosted Learning Hub or downloading updates, not for core robot operation.</div>
-          </div>
+          </details>
         </div>
         <div>
-          <div class="faq-item">
-            <div class="faq-q">What comes with the unit?</div>
+          <details class="faq-item">
+            <summary class="faq-q">What comes with the unit?</summary>
             <div class="faq-a">A robot with Linux, ROS 2, and five demo programs pre-installed, plus free, permanent access to the Learning Hub and six months of the premium subscription. Currently in pilot development — commercial availability targeted for Fall 2027.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">Is SwayForm available to order now?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Is SwayForm available to order now?</summary>
             <div class="faq-a">Pilot interest is currently open. Commercial availability is targeted for Fall 2027. Contact our sales team and we will keep you updated on timing.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">Can the labs fit into an existing course?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Can the labs fit into an existing course?</summary>
             <div class="faq-a">Yes. Begin with the 10 available Level 1 labs, with the curriculum expanding to 40 across four levels. Programs can use selected labs as part of an existing syllabus or follow the full path in order.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">What happens if a component breaks?</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">What happens if a component breaks?</summary>
             <div class="faq-a">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. Every individual printed part is priced below $20, and the Learning Hub includes a full repair guide.</div>
-          </div>
+          </details>
         </div>
       </div>
     </div>
@@ -1669,6 +1669,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       </div>
     </div>
   </section>
+
 
 </div><!-- /pg-home -->
 
@@ -2000,7 +2001,7 @@ window.addEventListener('scroll', function() {
 .ha-heading{color:var(--ink)}
 .ha-lead{font-size:17px;color:var(--muted);max-width:560px;margin:14px 0 0;line-height:1.7}
 
-.ha-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:48px}
+.ha-wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;align-items:start;margin-top:48px}
 
 /* left: media viewer */
 .ha-viewer{position:relative;line-height:0;border-radius:14px;overflow:visible;background:#f0f2f5;box-shadow:0 2px 16px rgba(0,0,0,.1);border:1px solid rgba(0,0,0,.07)}

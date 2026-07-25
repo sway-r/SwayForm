@@ -22,6 +22,8 @@
     { "source": "/",                         "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub.html" },
     { "source": "/sitemap.xml",              "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub-sitemap.xml" },
     { "source": "/robots.txt",               "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub-robots.txt" },
+    { "source": "/sitemap.xml",              "destination": "/main-sitemap.xml" },
+    { "source": "/robots.txt",               "destination": "/main-robots.txt" },
     { "source": "/getting-started",          "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub/getting-started.html" },
     { "source": "/classroom-workflow",       "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub/classroom-workflow.html" },
     { "source": "/safety",                   "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learning-hub/safety.html" },

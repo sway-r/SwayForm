@@ -951,6 +951,56 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
+  <!-- ═══ WHY THIS MATTERS ═══ -->
+  <section id="platform-sec" class="section reveal">
+    <div class="wrap-lg">
+      <div class="plat-grid">
+        <div class="plat-content">
+          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Why this matters</span>
+          <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
+          <p class="plat-text" style="margin-top:16px;font-size:clamp(15px,3.8vw,17px);color:var(--muted);line-height:1.65;max-width:480px">Modern robotics shouldn't be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
+          <div class="plat-features">
+            <div class="plat-feat">
+              <div class="plat-feat-num">01</div>
+              <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>Most schools can't connect the pieces</h4>
+                <p>Robotics and AI touch nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
+              </div>
+            </div>
+            <div class="plat-feat">
+              <div class="plat-feat-num">02</div>
+              <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>Instructors don't have time to build this alone</h4>
+                <p>Building a robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
+              </div>
+            </div>
+            <div class="plat-feat">
+              <div class="plat-feat-num">03</div>
+              <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
+              <div>
+                <h4>The same technology, at classroom scale</h4>
+                <p>Students work with the same foundations shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="plat-visual">
+          <div class="plat-img-wrap">
+            <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
+                 onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
+            <div class="plat-specs">
+              <div class="plat-spec-item"><div class="plat-spec-val">21</div><div class="plat-spec-key">Degrees of freedom</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">5</div><div class="plat-spec-key">Preloaded demos</div></div>
+              <div class="plat-spec-item"><div class="plat-spec-val">10→40</div><div class="plat-spec-key">Labs, expanding</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
   <style>
   /* ── preview section: light background, video in a framed card ── */
@@ -1322,85 +1372,42 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ WHY SWAYFORM (feature grid + comparison tabs) ═══ -->
-  <section class="section reveal sway-why-sec" style="background:var(--bg)">
+  <!-- ═══ WHY SWAYFORM (comparison tabs) ═══ -->
+  <section class="section reveal" style="background:var(--bg)">
     <div class="wrap">
       <div style="max-width:560px;margin:0 auto 32px;text-align:center">
         <span class="label" style="display:block;margin-bottom:12px">Why SwayForm</span>
         <h2 class="d3">Not every robotics experience teaches the same thing.</h2>
-        <p class="lead-why" style="margin:14px auto 0">More than a robotics kit — a complete learning platform built around a real humanoid robot.</p>
-      </div>
-
-      <div class="sw-feat-grid">
-        <div class="sw-feat">
-          <div class="sw-feat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><path d="M10 12h4"/></svg></div>
-          <h4>Physical + digital</h4>
-          <p>Code changes appear instantly on a real robot, not just a screen.</p>
-        </div>
-        <div class="sw-feat">
-          <div class="sw-feat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
-          <h4>Industry-relevant tools</h4>
-          <p>ROS 2, Python, computer vision, sensors, simulation, and electronics.</p>
-        </div>
-        <div class="sw-feat">
-          <div class="sw-feat-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
-          <h4>Full-system experience</h4>
-          <p>Perception, motion, hardware, and software working together.</p>
-        </div>
-        <div class="sw-feat">
-          <div class="sw-feat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h4>Built for classrooms</h4>
-          <p>Guided labs, protected motion limits, and student queueing.</p>
-        </div>
-        <div class="sw-feat">
-          <div class="sw-feat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-          <h4>Progressive learning</h4>
-          <p>Start with simple scripts, grow into advanced robotics projects.</p>
-        </div>
-        <div class="sw-feat">
-          <div class="sw-feat-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
-          <h4>More than a kit</h4>
-          <p>A complete platform, not a single isolated component.</p>
-        </div>
-      </div>
-
-      <div class="compare-head-2">
-        <span class="label" style="display:block">Compare approaches</span>
       </div>
       <div class="setup-tabs compare-tabs" role="tablist" aria-label="Compare learning approaches">
-        <button type="button" class="setup-tab compare-tab" role="tab" aria-selected="false" data-compare="screen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Screen-only</button>
-        <button type="button" class="setup-tab compare-tab" role="tab" aria-selected="false" data-compare="kits"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Basic kits</button>
-        <button type="button" class="setup-tab compare-tab active" role="tab" aria-selected="true" data-compare="sway"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg>SwayForm</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="screen">Screen-only</button>
+        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="kits">Basic kits</button>
+        <button type="button" class="setup-tab active" role="tab" aria-selected="true" data-compare="sway">SwayForm</button>
       </div>
       <div class="compare-panels">
         <div class="compare-panel" data-cpanel="screen" hidden>
           <p class="c3-sub">Simulations and coding platforms. Zero setup, but no physical consequences.</p>
-          <div class="c3-matrix">
-            <div class="c3-row"><span class="c3-dim">Real hardware feedback</span><span class="c3-ind none" title="Not included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Industry tools (ROS 2, sensors)</span><span class="c3-ind partial" title="Partially included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Full-system integration</span><span class="c3-ind none" title="Not included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Classroom-ready &amp; safe</span><span class="c3-ind partial" title="Partially included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Progressive skill path</span><span class="c3-ind partial" title="Partially included"></span></div>
+          <div class="c3-items">
+            <div class="c3-item pro">Zero setup, widely accessible</div>
+            <div class="c3-item con">No wiring, calibration, or sensor noise</div>
+            <div class="c3-item con">No connection between code and physical motion</div>
           </div>
         </div>
         <div class="compare-panel" data-cpanel="kits" hidden>
           <p class="c3-sub">Assembly kits and line followers. A real intro to hardware — with limits.</p>
-          <div class="c3-matrix">
-            <div class="c3-row"><span class="c3-dim">Real hardware feedback</span><span class="c3-ind full" title="Included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Industry tools (ROS 2, sensors)</span><span class="c3-ind none" title="Not included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Full-system integration</span><span class="c3-ind none" title="Not included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Classroom-ready &amp; safe</span><span class="c3-ind partial" title="Partially included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Progressive skill path</span><span class="c3-ind partial" title="Partially included"></span></div>
+          <div class="c3-items">
+            <div class="c3-item pro">Hands-on physical experience</div>
+            <div class="c3-item con">Limited to pre-defined tasks, no real perception</div>
+            <div class="c3-item con">No professional middleware (ROS 2)</div>
           </div>
         </div>
         <div class="compare-panel active" data-cpanel="sway">
           <p class="c3-sub">A full humanoid platform with a free guided curriculum and protected classroom execution.</p>
-          <div class="c3-matrix">
-            <div class="c3-row"><span class="c3-dim">Real hardware feedback</span><span class="c3-ind full" title="Included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Industry tools (ROS 2, sensors)</span><span class="c3-ind full" title="Included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Full-system integration</span><span class="c3-ind full" title="Included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Classroom-ready &amp; safe</span><span class="c3-ind full" title="Included"></span></div>
-            <div class="c3-row"><span class="c3-dim">Progressive skill path</span><span class="c3-ind full" title="Included"></span></div>
+          <div class="c3-items">
+            <div class="c3-item pro">Real physical consequences of every code choice</div>
+            <div class="c3-item pro">Industry-standard ROS 2 — skills that transfer</div>
+            <div class="c3-item pro">Vision, audio, depth, and IMU in one system</div>
+            <div class="c3-item pro">Scales from first script to advanced system design</div>
           </div>
         </div>
       </div>
@@ -1468,56 +1475,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <summary class="faq-q">What happens if a component breaks?</summary>
             <div class="faq-a">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. Every individual printed part is priced below $20, and the Learning Hub includes a full repair guide.</div>
           </details>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ WHY THIS MATTERS ═══ -->
-  <section id="platform-sec" class="section reveal">
-    <div class="wrap-lg">
-      <div class="plat-grid">
-        <div class="plat-content">
-          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Why this matters</span>
-          <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
-          <p class="plat-text" style="margin-top:16px;font-size:clamp(15px,3.8vw,17px);color:var(--muted);line-height:1.65;max-width:480px">Modern robotics shouldn't be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
-          <div class="plat-features">
-            <div class="plat-feat">
-              <div class="plat-feat-num">01</div>
-              <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Most schools can't connect the pieces</h4>
-                <p>Robotics and AI touch nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-feat-num">02</div>
-              <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Instructors don't have time to build this alone</h4>
-                <p>Building a robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-feat-num">03</div>
-              <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>The same technology, at classroom scale</h4>
-                <p>Students work with the same foundations shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="plat-visual">
-          <div class="plat-img-wrap">
-            <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
-                 onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
-            <div class="plat-specs">
-              <div class="plat-spec-item"><div class="plat-spec-val">21</div><div class="plat-spec-key">Degrees of freedom</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">5</div><div class="plat-spec-key">Preloaded demos</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">10→40</div><div class="plat-spec-key">Labs, expanding</div></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -1751,7 +1708,7 @@ window.addEventListener('scroll', function() {
 
 /* ── "Flexible by design" setup tabs ── */
 (function () {
-  var tabs = document.querySelectorAll('.setup-tabs:not(.compare-tabs) .setup-tab');
+  var tabs = document.querySelectorAll('.setup-tab');
   var panels = document.querySelectorAll('.setup-panel');
   if (!tabs.length) return;
   tabs.forEach(function (tab) {
@@ -2056,37 +2013,6 @@ window.addEventListener('scroll', function() {
 @media(prefers-reduced-motion:reduce){.compare-panel{animation:none}}
 .compare-panel .c3-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:16px;text-align:center}
 .compare-panel .c3-items{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-
-/* ── "Why SwayForm" scannable feature grid ── */
-.sw-feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:40px 0 48px}
-.sw-feat{background:#fff;padding:24px 22px;transition:background .2s}
-.sw-feat:hover{background:var(--bg2)}
-.sw-feat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.sw-feat-icon.blue{background:rgba(0,87,255,.1);color:var(--blue)}
-.sw-feat-icon.green{background:rgba(26,92,56,.1);color:var(--green)}
-.sw-feat-icon.purple{background:rgba(76,29,149,.1);color:var(--purple)}
-.sw-feat h4{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em}
-.sw-feat p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
-@media(max-width:860px){.sw-feat-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.sw-feat-grid{grid-template-columns:1fr}}
-
-/* ── comparison sub-heading + icon tabs ── */
-.compare-head-2{text-align:center;margin-bottom:16px}
-.compare-tab{display:inline-flex;align-items:center;gap:6px}
-
-/* ── comparison capability matrix ── */
-.c3-matrix{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px}
-.compare-panel .c3-matrix{margin-top:18px}
-.c3-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;padding:13px 20px}
-.c3-dim{font-size:13.5px;color:var(--soft);font-weight:500}
-.c3-ind{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;line-height:1}
-.c3-ind.full{background:rgba(0,122,68,.12);color:#007a44}
-.c3-ind.full::before{content:'✓'}
-.c3-ind.partial{background:rgba(179,93,0,.12);color:#b35d00}
-.c3-ind.partial::before{content:'~'}
-.c3-ind.none{background:rgba(0,0,0,.045);color:var(--faint)}
-.c3-ind.none::before{content:'–'}
-
 .roadmap-strip{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:640px;margin:40px auto 0}
 .roadmap-col{background:#fff;padding:22px 24px}
 .roadmap-col.hi{background:var(--blue-dim)}

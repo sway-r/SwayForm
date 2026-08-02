@@ -271,51 +271,27 @@ p{color:var(--muted);line-height:1.75}
   .reveal{opacity:1!important;transform:none!important;transition:none!important}
 }
 
-/* ── PLATFORM SECTION ────────────────────────────────── */
+/* ── WHY THIS MATTERS (Learn it / See it / Understand it) ── */
 #platform-sec{background:#fff}
-.plat-grid{display:grid;grid-template-columns:1.25fr 0.85fr;gap:56px;align-items:center}
-.plat-content{display:flex;flex-direction:column}
-.plat-text .label{margin-bottom:16px;display:block}
-.plat-text p{font-size:17px;color:var(--muted);line-height:1.75;margin-top:16px;max-width:480px}
-.plat-features{margin-top:48px;display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
-.plat-feat{
-  background:var(--bg2);padding:22px 26px;
-  display:flex;align-items:flex-start;gap:16px;
-  border-left:3px solid transparent;
-  transition:background .2s,border-color .2s,transform .2s;
-  position:relative;
+.wtm-head{max-width:640px;margin:0 auto 48px;text-align:center}
+.wtm-heading{margin-top:4px}
+.wtm-sub{margin-top:16px;font-size:clamp(15px,3.8vw,17px);color:var(--muted);line-height:1.65}
+.wtm-flow{display:flex;align-items:stretch;justify-content:center;gap:0;max-width:920px;margin:0 auto}
+.wtm-card{flex:1;background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px 26px;text-align:center;transition:transform .2s,box-shadow .2s}
+.wtm-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.wtm-num{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--faint);margin-bottom:14px}
+.wtm-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.wtm-icon.blue{background:rgba(0,87,255,.1);color:var(--blue)}
+.wtm-icon.green{background:rgba(26,92,56,.1);color:var(--green)}
+.wtm-icon.purple{background:rgba(76,29,149,.1);color:var(--purple)}
+.wtm-card h4{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.wtm-card p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
+.wtm-arrow{display:flex;align-items:center;justify-content:center;padding:0 10px;color:var(--faint);font-size:20px;flex-shrink:0}
+.wtm-transition{text-align:center;margin-top:36px;font-size:15px;color:var(--soft);font-weight:500}
+@media(max-width:760px){
+  .wtm-flow{flex-direction:column;gap:14px}
+  .wtm-arrow{transform:rotate(90deg);padding:6px 0}
 }
-.plat-feat:hover{background:#fff;border-left-color:var(--blue);transform:translateX(4px);box-shadow:0 8px 24px rgba(0,87,255,.08)}
-.plat-feat-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue);opacity:.55;flex-shrink:0;padding-top:3px;letter-spacing:.02em}
-.plat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
-.plat-feat:hover .plat-icon{transform:scale(1.08)}
-.plat-icon.blue{background:rgba(0,87,255,.1)}
-.plat-icon.green{background:rgba(26,92,56,.1)}
-.plat-icon.purple{background:rgba(76,29,149,.1)}
-.plat-icon-mark{width:14px;height:14px;border-radius:3px;opacity:1}
-.plat-icon.blue .plat-icon-mark{background:var(--blue)}
-.plat-icon.green .plat-icon-mark{background:var(--green)}
-.plat-icon.purple .plat-icon-mark{background:var(--purple)}
-.plat-feat h4{margin-bottom:4px}
-.plat-feat p{font-size:14px;color:var(--muted);margin:0}
-.plat-visual{position:relative;max-width:420px;margin-left:auto;padding:30px 40px 0 0}
-.plat-visual::before{
-  content:'';position:absolute;top:0;right:0;width:220px;height:220px;
-  background:radial-gradient(circle,rgba(0,87,255,.14) 0%,transparent 72%);
-  z-index:0;pointer-events:none;
-}
-.plat-img-wrap{border-radius:20px;overflow:hidden;border:1px solid var(--line);position:relative;z-index:1;box-shadow:0 12px 32px rgba(0,87,255,.1)}
-.plat-img-wrap img{width:100%;object-fit:cover;display:block}
-.plat-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,87,255,.1),transparent 60%)}
-.plat-specs{
-  position:absolute;bottom:20px;left:20px;right:20px;
-  background:rgba(5,7,13,.85);backdrop-filter:blur(16px);
-  border:1px solid var(--line);border-radius:12px;
-  padding:16px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-}
-.plat-spec-item{text-align:center}
-.plat-spec-val{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.02em}
-.plat-spec-key{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
 
 /* ── LEARNING SECTION ────────────────────────────────── */
 #learning-sec{background:var(--bg2)}
@@ -640,8 +616,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 @media(max-width:1100px){
   #hero{grid-template-columns:1fr}.hero-visual{display:none}
   .hero-text{padding:100px 0 80px}
-  .plat-grid{grid-template-columns:1fr;gap:32px}.plat-visual{order:-1;max-width:100%;margin-left:0}
-  .plat-img-wrap{aspect-ratio:4/3}.plat-img-wrap img{height:100%}
   .quarters{grid-template-columns:1fr 1fr}
   .demo-cards{grid-template-columns:1fr 1fr 1fr}
   .footer-top{grid-template-columns:1fr 1fr;gap:32px}
@@ -941,66 +915,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ ANIMATED STATS TICKER ═══ -->
-  <section id="stats" class="stats-ticker" aria-label="Key numbers">
-    <div class="stats-ticker-inner">
-      <div class="stat-tick"><span class="stat-tick-n" data-count-to="21">0</span><span class="stat-tick-l">Degrees of freedom</span></div>
-      <div class="stat-tick"><span class="stat-tick-n"><span data-count-to="10">0</span>→<span data-count-to="40">0</span></span><span class="stat-tick-l">Labs, expanding</span></div>
-      <div class="stat-tick"><span class="stat-tick-n" data-count-to="5">0</span><span class="stat-tick-l">Preloaded demos</span></div>
-      <div class="stat-tick"><span class="stat-tick-n stat-tick-text">Fall '27</span><span class="stat-tick-l">Commercial launch</span></div>
-    </div>
-  </section>
-
-  <!-- ═══ WHY THIS MATTERS ═══ -->
-  <section id="platform-sec" class="section reveal">
-    <div class="wrap-lg">
-      <div class="plat-grid">
-        <div class="plat-content">
-          <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Why this matters</span>
-          <h2 class="d3">Students are entering a world shaped by robotics and AI.</h2>
-          <p class="plat-text" style="margin-top:16px;font-size:clamp(15px,3.8vw,17px);color:var(--muted);line-height:1.65;max-width:480px">Modern robotics shouldn't be limited to universities and advanced research labs. SwayForm gives high-school and community-college students direct experience with the tools shaping the next generation of engineering.</p>
-          <div class="plat-features">
-            <div class="plat-feat">
-              <div class="plat-feat-num">01</div>
-              <div class="plat-icon blue"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Most schools can't connect the pieces</h4>
-                <p>Robotics and AI touch nearly every technical career now, but few schools have equipment that connects software, electronics, mechanics, perception, and physical debugging in one system.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-feat-num">02</div>
-              <div class="plat-icon green"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>Instructors don't have time to build this alone</h4>
-                <p>Building a robotics curriculum from scratch takes time most instructors don't have. SwayForm packages the hardware and the teaching system together.</p>
-              </div>
-            </div>
-            <div class="plat-feat">
-              <div class="plat-feat-num">03</div>
-              <div class="plat-icon purple"><div class="plat-icon-mark"></div></div>
-              <div>
-                <h4>The same technology, at classroom scale</h4>
-                <p>Students work with the same foundations shaping modern humanoid robotics — Linux, Python, ROS 2, computer vision, and motion planning.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="plat-visual">
-          <div class="plat-img-wrap">
-            <img src="images/swayform_robot_2.png" alt="SwayForm robot detail"
-                 onerror="this.parentElement.style.cssText='min-height:400px;background:var(--bg3);border-radius:20px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center'">
-            <div class="plat-specs">
-              <div class="plat-spec-item"><div class="plat-spec-val">21</div><div class="plat-spec-key">Degrees of freedom</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">5</div><div class="plat-spec-key">Preloaded demos</div></div>
-              <div class="plat-spec-item"><div class="plat-spec-val">10→40</div><div class="plat-spec-key">Labs, expanding</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
   <style>
   /* ── preview section: light background, video in a framed card ── */
@@ -1081,296 +995,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     .dp-content{padding:40px 20px 24px}
   }
   </style>
-
-  <section id="demo-preview" class="reveal">
-
-    <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
-    <div class="dp-video-bg">
-      <video id="demo-video"
-             src="videos/demo-video.mp4"
-             autoplay loop muted playsinline
-             preload="auto"
-             disablepictureinpicture
-             controlslist="nodownload nofullscreen noremoteplayback"></video>
-      <!-- fallback placeholder when video errors -->
-      <div id="demo-video-fallback" class="dp-fallback">
-        Learning preview video coming soon.
-      </div>
-    </div>
-
-    <!-- Gradient layer — fades video into black on the text side -->
-    <div class="dp-gradient"></div>
-
-    <!-- Text content — sits above gradient on z-index 3 -->
-    <div class="dp-content">
-      <div class="dp-text">
-        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">See it in action</span>
-        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:16px">Stop watching. Start controlling.</h2>
-        <p style="font-size:clamp(15px,3.8vw,16px);color:var(--muted);line-height:1.65;margin-bottom:20px">This is the moment students' code becomes real motion.</p>
-        <p style="font-size:12px;color:var(--faint);line-height:1.65;font-style:italic">Concept preview — classroom footage arrives as pilots begin.</p>
-      </div>
-    </div>
-
-  </section>
-  <script>
-  (function(){
-    var vid = document.getElementById('demo-video');
-    var fb  = document.getElementById('demo-video-fallback');
-    if(!vid) return;
-    vid.addEventListener('error', function(){
-      vid.style.display = 'none';
-      if(fb) fb.style.display = 'block';
-    });
-  })();
-  </script>
-
-  <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
-  <section class="why-section reveal">
-    <div class="wrap">
-      <span class="label" style="display:block;margin-bottom:12px">What schools receive</span>
-      <h2 class="d3">One robot. A free curriculum. A clear upgrade path.</h2>
-      <p class="lead-why">Tap a card for what's included.</p>
-      <div class="why-grid">
-        <div class="why-card">
-          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>01</span></div>
-          <h4>The SwayForm robot</h4>
-          <p>21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi — assembled and tested before it ships. Contact Sales for institutional pricing.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>02</span></div>
-          <h4>The free Learning Hub</h4>
-          <p>Free, permanently. Setup, safety, and repair guides, plus 10 structured labs today — expanding to 40.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg><span>03</span></div>
-          <h4>Optional premium subscription</h4>
-          <p>Six months free with every robot, renewing annually. New monthly labs, expanded curriculum, and future simulation tools.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ INTERACTIVE ROBOT ANATOMY (ported from robot.html) ═══ -->
-  <section class="ha-section" id="home-anatomy-section">
-    <div class="wrap-lg">
-      <span class="label ha-eyebrow">Interactive Robot</span>
-      <h2 class="d3 ha-heading">Explore the system, part by part.</h2>
-      <p class="ha-lead">Select a component to see what it does, how students control it, and what they learn from it.</p>
-
-      <div class="ha-wrap">
-
-        <!-- Left: state-based media viewer -->
-        <div class="ha-viewer" id="ha-viewer">
-          <div class="ha-frame" id="ha-frame">
-            <img class="ha-still" id="ha-still" src="images/RobotOverview.png" alt="SwayForm robot overview" loading="lazy">
-            <video class="ha-video" id="ha-video" playsinline muted preload="none"></video>
-          </div>
-          <div class="ha-hotspot-layer" id="ha-hotspot-layer"></div>
-          <button type="button" class="ha-overview-btn" id="ha-overview-btn">Overview</button>
-          <div class="ha-loader" id="ha-loader">Loading system view&hellip;</div>
-        </div>
-
-        <!-- Right: text explanation only -->
-        <div class="ha-panel" id="ha-panel">
-          <div class="ha-default" id="ha-default">
-            <div class="ha-default-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--faint)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <p>Click a hotspot on the robot to explore that system.</p>
-          </div>
-          <div class="ha-detail" id="ha-detail" style="display:none"></div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ FLEXIBLE SETUPS (tabs) ═══ -->
-  <section class="reveal" style="background:var(--bg2);border-bottom:1px solid var(--line);padding:72px 0">
-    <div class="wrap">
-      <div style="max-width:600px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">Flexible by design</span>
-        <h2 class="d3">One robot is enough to start.</h2>
-      </div>
-      <div class="setup-tabs" role="tablist" aria-label="Ways to use SwayForm">
-        <button type="button" class="setup-tab active" role="tab" aria-selected="true" data-setup="club">Robotics club</button>
-        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="classroom">Classroom station</button>
-        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="student">Independent study</button>
-        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-setup="instructor">Structured labs</button>
-      </div>
-      <div class="setup-panels">
-        <div class="setup-panel active" data-panel="club" role="tabpanel">
-          <p class="setup-desc">Students rotate engineering roles each session. One robot supports an active team of up to 15 without anyone sitting idle.</p>
-          <ul class="setup-list">
-            <li>Rotating roles keep everyone engaged</li>
-            <li>Weekly labs with clear goals</li>
-            <li>End-of-term demo showcase</li>
-          </ul>
-        </div>
-        <div class="setup-panel" data-panel="classroom" role="tabpanel" hidden>
-          <p class="setup-desc">Used as a shared lab station or live demo platform. One unit supports a full class with structured time slots.</p>
-          <ul class="setup-list">
-            <li>Groups work while others plan or review</li>
-            <li>Live demo as a teaching tool</li>
-            <li>Rubrics and team roles included</li>
-          </ul>
-        </div>
-        <div class="setup-panel" data-panel="student" role="tabpanel" hidden>
-          <p class="setup-desc">Advanced students work independently — the Learning Hub and lab structure guide them, no robotics expert required.</p>
-          <ul class="setup-list">
-            <li>Full SSH and terminal access</li>
-            <li>Open ROS 2 authoring across all 21 DOF</li>
-            <li>Documented hardware interfaces</li>
-          </ul>
-        </div>
-        <div class="setup-panel" data-panel="instructor" role="tabpanel" hidden>
-          <p class="setup-desc">Teachers run the full curriculum without building anything from scratch — labs come ready to teach.</p>
-          <ul class="setup-list">
-            <li>10 labs ready now, expanding to 40</li>
-            <li>Instructor notes and session guides</li>
-            <li>No robotics background required to start</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ SAFETY AND INSTRUCTOR CONTROL (compact) ═══ -->
-  <section class="mini-banner reveal">
-    <div class="wrap mini-banner-inner">
-      <div class="mini-banner-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
-      </div>
-      <div class="mini-banner-text">
-        <h3>Every command is validated, queued, and approved before it moves the robot.</h3>
-        <p>Students get real ROS 2 development; a protected motion-control layer is the only thing that ever reaches the motors.</p>
-      </div>
-      <a href="/safety" class="btn btn-ghost mini-banner-btn">Learn about Safety →</a>
-    </div>
-  </section>
-
-  <!-- ═══ FEYNMAN QUOTE + HANDS-ON EXPLANATION ═══ -->
-  <section class="quote-section">
-    <div class="quote-wrap">
-      <div class="quote-big">What I cannot create, I do not understand.</div>
-      <div class="quote-row">
-        <div class="quote-bar"></div>
-        <div class="quote-who">Richard Feynman</div>
-      </div>
-      <p class="quote-body">Students understand robotics on a deeper level when their code moves real hardware. Rather than only observing concepts on a screen, students must transform their designs into a working system — revealing both the strengths and limitations of their understanding.</p>
-    </div>
-  </section>
-
-
-  <!-- ═══ WHAT STUDENTS CAN CREATE ═══ -->
-  <section id="demos-preview" class="section reveal">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:10px">What students can create</span>
-        <h2 class="d3">Five real programs, ready to rebuild.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Not demos to watch — starter code every student inspects, modifies, and makes their own.</p>
-      </div>
-      <div class="demo-flow-row">
-        <span class="demo-flow-badge">Run the demo</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Watch the robot respond</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Open the source code</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Modify the behavior</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Build your own version</span>
-      </div>
-      <div class="demo-cards">
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/wave'">
-          <div class="demo-num">01</div>
-          <h4>Wave</h4>
-          <p>A coordinated greeting gesture using a timed servo sequence. The first demo students run — and the first code they modify.</p>
-          <div class="demo-tag">Start here</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/handshake'">
-          <div class="demo-num">02</div>
-          <h4>Handshake</h4>
-          <p>The robot detects a user with its camera and performs a handshake interaction.</p>
-          <div class="demo-tag">Vision-triggered</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/pick-and-place'">
-          <div class="demo-num">03</div>
-          <h4>Pick and Place</h4>
-          <p>The robot picks up an object and places it in another location — approach, grasp, lift, transport, release.</p>
-          <div class="demo-tag">Manipulation</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/rock-paper-scissors'">
-          <div class="demo-num">04</div>
-          <h4>Rock Paper Scissors</h4>
-          <p>The robot plays rock-paper-scissors with a person using hand pose presets and a game loop.</p>
-          <div class="demo-tag">Game logic</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/interactive-exchange'">
-          <div class="demo-num">05</div>
-          <h4>Interactive Exchange</h4>
-          <p>The robot accepts an item from a user — such as a dollar bill or token — and gives another item back.</p>
-          <div class="demo-tag">State machine</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:36px">
-        <a href="https://learning.swayform.net/demos" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">See the full demo library &#8594;</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ LEARNING PATH SUMMARY (compact) ═══ -->
-  <section id="learning-sec" class="reveal" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:64px 0">
-    <div class="wrap">
-      <div style="text-align:center;max-width:560px;margin:0 auto 36px">
-        <span class="label" style="display:block;margin-bottom:12px">Learning path</span>
-        <h2 class="d3">10 labs now. Expanding to 40.</h2>
-      </div>
-      <div class="quarters">
-        <div class="qcard q1">
-          <div class="q-num">Level 1 — Control</div>
-          <div class="q-title">Drive the hardware</div>
-          <div class="q-desc">First contact with real hardware.</div>
-          <div class="q-footer">Available now</div>
-        </div>
-        <div class="qcard q2">
-          <div class="q-num">Level 2 — React</div>
-          <div class="q-title">Add sensors</div>
-          <div class="q-desc">Reactive behaviors in real time.</div>
-          <div class="q-footer">Planned</div>
-        </div>
-        <div class="qcard q3">
-          <div class="q-num">Level 3 — Perceive</div>
-          <div class="q-title">Build vision systems</div>
-          <div class="q-desc">Tracking and sensor fusion.</div>
-          <div class="q-footer">Planned</div>
-        </div>
-        <div class="qcard q4">
-          <div class="q-num">Level 4 — Create</div>
-          <div class="q-title">Author full systems</div>
-          <div class="q-desc">A live demo showcase.</div>
-          <div class="q-footer">Planned</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:32px">
-        <a href="/learning-path" class="btn btn-ghost">See the full curriculum &#8594;</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ REPAIRABILITY (compact) ═══ -->
-  <section class="mini-banner reveal" style="background:var(--bg)">
-    <div class="wrap mini-banner-inner">
-      <div class="mini-banner-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg>
-      </div>
-      <div class="mini-banner-text">
-        <h3>Built to be fixed, not replaced.</h3>
-        <p>Every 3D-printed part is under $20. When something breaks, schools replace the part — not the robot.</p>
-      </div>
-      <a href="https://learning.swayform.net/repair" target="_blank" rel="noopener noreferrer" class="btn btn-ghost mini-banner-btn">Repair guide →</a>
-    </div>
-  </section>
 
   <!-- ═══ WHY SWAYFORM (comparison tabs) ═══ -->
   <section class="section reveal" style="background:var(--bg)">
@@ -1476,6 +1100,183 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <div class="faq-a">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. Every individual printed part is priced below $20, and the Learning Hub includes a full repair guide.</div>
           </details>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHY THIS MATTERS ═══ -->
+  <section id="platform-sec" class="section reveal wtm-section">
+    <div class="wrap">
+      <div class="wtm-head">
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Why this matters</span>
+        <h2 class="d2 wtm-heading">Robotics is changing the world.<br>Most students only get to watch.</h2>
+        <p class="wtm-sub">Students hear about AI and robotics constantly — but most never get to build, program, troubleshoot, and understand a real robotic system before college.</p>
+      </div>
+      <div class="wtm-flow">
+        <div class="wtm-card">
+          <div class="wtm-num">01</div>
+          <div class="wtm-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 3 2 6 2s6-1 6-2v-5"/></svg></div>
+          <h4>Learn it</h4>
+          <p>Programming, electronics, and robotics concepts.</p>
+        </div>
+        <div class="wtm-arrow">&#8594;</div>
+        <div class="wtm-card">
+          <div class="wtm-num">02</div>
+          <div class="wtm-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h4>See it</h4>
+          <p>Code produces real, physical behavior.</p>
+        </div>
+        <div class="wtm-arrow">&#8594;</div>
+        <div class="wtm-card">
+          <div class="wtm-num">03</div>
+          <div class="wtm-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg></div>
+          <h4>Understand it</h4>
+          <p>Debug, modify, and build complete systems.</p>
+        </div>
+      </div>
+      <p class="wtm-transition">This is the gap SwayForm was built to close.</p>
+    </div>
+  </section>
+
+  <section id="demo-preview" class="reveal">
+
+    <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
+    <div class="dp-video-bg">
+      <video id="demo-video"
+             src="videos/demo-video.mp4"
+             autoplay loop muted playsinline
+             preload="auto"
+             disablepictureinpicture
+             controlslist="nodownload nofullscreen noremoteplayback"></video>
+      <!-- fallback placeholder when video errors -->
+      <div id="demo-video-fallback" class="dp-fallback">
+        Learning preview video coming soon.
+      </div>
+    </div>
+
+    <!-- Gradient layer — fades video into black on the text side -->
+    <div class="dp-gradient"></div>
+
+    <!-- Text content — sits above gradient on z-index 3 -->
+    <div class="dp-content">
+      <div class="dp-text">
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">See it in action</span>
+        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:16px">Stop watching. Start controlling.</h2>
+        <p style="font-size:clamp(15px,3.8vw,16px);color:var(--muted);line-height:1.65;margin-bottom:20px">This is the moment students' code becomes real motion.</p>
+        <ul class="setup-list" style="margin-bottom:20px">
+          <li>Write real ROS 2 code</li>
+          <li>Run it on the physical robot</li>
+          <li>See the result instantly</li>
+        </ul>
+        <p style="font-size:12px;color:var(--faint);line-height:1.65;font-style:italic">Concept preview — classroom footage arrives as pilots begin.</p>
+      </div>
+    </div>
+
+  </section>
+  <script>
+  (function(){
+    var vid = document.getElementById('demo-video');
+    var fb  = document.getElementById('demo-video-fallback');
+    if(!vid) return;
+    vid.addEventListener('error', function(){
+      vid.style.display = 'none';
+      if(fb) fb.style.display = 'block';
+    });
+  })();
+  </script>
+
+  <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
+  <section class="why-section reveal">
+    <div class="wrap">
+      <span class="label" style="display:block;margin-bottom:12px">What schools receive</span>
+      <h2 class="d3">One robot. A free curriculum. A clear upgrade path.</h2>
+      <p class="lead-why">Tap a card for what's included.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg><span>01</span></div>
+          <h4>The SwayForm robot</h4>
+          <p>21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi — assembled and tested before it ships. Contact Sales for institutional pricing.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>02</span></div>
+          <h4>The free Learning Hub</h4>
+          <p>Free, permanently. Setup, safety, and repair guides, plus 10 structured labs today — expanding to 40.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-num"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg><span>03</span></div>
+          <h4>Optional premium subscription</h4>
+          <p>Six months free with every robot, renewing annually. New monthly labs, expanded curriculum, and future simulation tools.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEYNMAN QUOTE + HANDS-ON EXPLANATION ═══ -->
+  <section class="quote-section">
+    <div class="quote-wrap">
+      <div class="quote-big">What I cannot create, I do not understand.</div>
+      <div class="quote-row">
+        <div class="quote-bar"></div>
+        <div class="quote-who">Richard Feynman</div>
+      </div>
+      <p class="quote-body">Students understand robotics on a deeper level when their code moves real hardware. Rather than only observing concepts on a screen, students must transform their designs into a working system — revealing both the strengths and limitations of their understanding.</p>
+    </div>
+  </section>
+
+
+  <!-- ═══ WHAT STUDENTS CAN CREATE ═══ -->
+  <section id="demos-preview" class="section reveal">
+    <div class="wrap">
+      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
+        <span class="label" style="display:block;margin-bottom:10px">What students can create</span>
+        <h2 class="d3">Five real programs, ready to rebuild.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Not demos to watch — starter code every student inspects, modifies, and makes their own.</p>
+      </div>
+      <div class="demo-flow-row">
+        <span class="demo-flow-badge">Run the demo</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Watch the robot respond</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Open the source code</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Modify the behavior</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Build your own version</span>
+      </div>
+      <div class="demo-cards">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/wave'">
+          <div class="demo-num">01</div>
+          <h4>Wave</h4>
+          <p>A coordinated greeting gesture using a timed servo sequence. The first demo students run — and the first code they modify.</p>
+          <div class="demo-tag">Start here</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/handshake'">
+          <div class="demo-num">02</div>
+          <h4>Handshake</h4>
+          <p>The robot detects a user with its camera and performs a handshake interaction.</p>
+          <div class="demo-tag">Vision-triggered</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/pick-and-place'">
+          <div class="demo-num">03</div>
+          <h4>Pick and Place</h4>
+          <p>The robot picks up an object and places it in another location — approach, grasp, lift, transport, release.</p>
+          <div class="demo-tag">Manipulation</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/rock-paper-scissors'">
+          <div class="demo-num">04</div>
+          <h4>Rock Paper Scissors</h4>
+          <p>The robot plays rock-paper-scissors with a person using hand pose presets and a game loop.</p>
+          <div class="demo-tag">Game logic</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/demos/interactive-exchange'">
+          <div class="demo-num">05</div>
+          <h4>Interactive Exchange</h4>
+          <p>The robot accepts an item from a user — such as a dollar bill or token — and gives another item back.</p>
+          <div class="demo-tag">State machine</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <a href="https://learning.swayform.net/demos" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">See the full demo library &#8594;</a>
       </div>
     </div>
   </section>
@@ -1787,33 +1588,6 @@ window.addEventListener('scroll', function() {
     });
   }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   els.forEach(function (el) { io.observe(el); });
-})();
-</script>
-
-<!-- ══════════════════════════════════════════════════════
-     INTERACTIVE ROBOT ANATOMY — homepage copy
-     Ported from robot.html's anatomy viewer (same PARTS data,
-     hotspot layout, video/still transitions, and click behavior).
-     Wrapped in an IIFE so nothing leaks into the global scope —
-     no shared variable or function names with the script above.
-     ══════════════════════════════════════════════════════ -->
-<script src="/anatomy-viewer.js"></script>
-<script>
-/* Interactive Anatomy — part data, video assets, and the transition
-   state machine now live in the shared /anatomy-viewer.js (also used
-   by robot.html) so the two pages cannot drift apart. This just wires
-   it to this page's existing element IDs/classes. */
-(function(){
-  if (!window.SwayFormAnatomy) { console.warn('[home-anatomy] /anatomy-viewer.js failed to load'); return; }
-  window.SwayFormAnatomy.create({
-    frameId:'ha-frame', stillId:'ha-still', videoId:'ha-video',
-    hotspotLayerId:'ha-hotspot-layer', overviewBtnId:'ha-overview-btn', loaderId:'ha-loader',
-    panelId:'ha-panel', detailSlotId:'ha-detail', defaultPanelId:'ha-default',
-    hotspotClass:'ha-hs', hotspotIdPrefix:'ha-spot-',
-    labelClass:'ha-lbl', labelSidePrefix:'ha-lbl-',
-    detailLabelClass:'ha-detail-label', learnsLabelClass:'ha-learns-label', learnsListClass:'ha-learns',
-    logPrefix:'[home-anatomy]'
-  }).init();
 })();
 </script>
 

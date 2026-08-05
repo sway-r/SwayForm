@@ -1,0 +1,181 @@
+/* ============================================================
+   SwayForm Learning Portal — desktop shell & window manager
+   Layered on top of /styles.css brand tokens (--blue, --font, --mono…).
+   This file owns the dark "OS" surface tokens used by every app.
+============================================================ */
+:root{
+  --p-bg:#05070b;
+  --p-bg2:#0a0d13;
+  --p-surface:#12151c;
+  --p-surface2:#171a22;
+  --p-surface3:#1d212b;
+  --p-border:rgba(255,255,255,.08);
+  --p-border-soft:rgba(255,255,255,.05);
+  --p-ink:#eef1f8;
+  --p-soft:#b7bfd0;
+  --p-muted:#7c8496;
+  --p-faint:#535a6b;
+  --p-accent:#3d8bff;
+  --p-accent-dim:rgba(61,139,255,.12);
+  --p-accent-line:rgba(61,139,255,.35);
+  --p-green:#2fbf74;
+  --p-yellow:#e0a940;
+  --p-red:#e5534b;
+  --p-radius:8px;
+  --p-radius-sm:5px;
+  --taskbar-h:52px;
+  --topline-h:40px;
+}
+
+.portal-body{background:var(--p-bg);color:var(--p-ink);font-family:var(--font);overflow:hidden;height:100vh}
+.portal-body,.portal-body *{box-sizing:border-box}
+
+/* ── Desktop root ───────────────────────────────────────── */
+.desktop{position:fixed;inset:0;overflow:hidden;display:flex;flex-direction:column}
+.desktop-wallpaper{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('/images/background.png');
+  background-size:cover;background-position:center;
+  transform:scale(1.02);
+}
+.desktop-scrim{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(180deg,rgba(3,5,9,.72) 0%,rgba(3,5,9,.38) 22%,rgba(3,5,9,.42) 78%,rgba(3,5,9,.86) 100%);
+}
+
+/* ── Top identity line ──────────────────────────────────── */
+.desktop-topline{
+  position:relative;z-index:5;height:var(--topline-h);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+  background:rgba(5,7,11,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.desktop-brand{display:flex;align-items:center;font-size:13px;font-weight:700;letter-spacing:-.01em;color:var(--p-ink)}
+.desktop-brand-s{color:var(--p-accent)}
+.desktop-brand-sep{color:var(--p-faint);font-weight:400;margin:0 6px}
+.desktop-brand-label{font-size:11.5px;font-weight:600;color:var(--p-muted)}
+.desktop-topline-actions{display:flex;align-items:center;gap:16px}
+.desktop-clock{font-family:var(--mono);font-size:11.5px;color:var(--p-soft);letter-spacing:.02em}
+.desktop-exit{font-size:11.5px;font-weight:600;color:var(--p-soft);transition:color .15s}
+.desktop-exit:hover{color:var(--p-ink)}
+
+/* ── Desktop icons ──────────────────────────────────────── */
+.desktop-icons{
+  position:relative;z-index:5;flex:1;min-height:0;
+  display:grid;grid-auto-flow:column;grid-template-rows:repeat(4,88px);
+  gap:4px;padding:28px 0 0 28px;align-content:start;width:fit-content;
+}
+.desktop-icon{
+  width:96px;padding:10px 6px;border-radius:var(--p-radius);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  background:none;border:1px solid transparent;text-align:center;cursor:pointer;
+  transition:background .15s,border-color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.desktop-icon:hover,.desktop-icon:focus-visible{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.09)}
+.desktop-icon:focus-visible{outline:2px solid var(--p-accent);outline-offset:1px}
+.desktop-icon-glyph{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(155deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.desktop-icon-glyph svg{width:22px;height:22px;stroke:#eaf0ff;fill:none;stroke-width:1.6}
+.desktop-icon-label{font-size:11.5px;font-weight:600;color:#f0f3fa;text-shadow:0 1px 3px rgba(0,0,0,.6);line-height:1.3}
+
+/* ── Windows layer ──────────────────────────────────────── */
+.windows-layer{position:absolute;inset:0;z-index:10;pointer-events:none}
+.window{
+  position:absolute;display:flex;flex-direction:column;pointer-events:auto;
+  background:var(--p-surface);border:1px solid var(--p-border);border-radius:10px;
+  box-shadow:0 24px 64px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
+  overflow:hidden;min-width:320px;min-height:220px;
+}
+.window.maximized{border-radius:0}
+.window.restored{resize:both;overflow:auto}
+.window.focused{border-color:rgba(255,255,255,.16)}
+.window.dragging,.window.resizing-anim{transition:none!important}
+.window.minimized{display:none}
+
+.window-header{
+  flex-shrink:0;height:42px;display:flex;align-items:center;gap:10px;
+  padding:0 8px 0 14px;background:var(--p-surface2);border-bottom:1px solid var(--p-border);
+  cursor:default;user-select:none;
+}
+.window-header.draggable{cursor:grab}
+.window-header.draggable:active{cursor:grabbing}
+.window-title-icon{width:15px;height:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.85}
+.window-title-icon svg{width:14px;height:14px;stroke:var(--p-soft);fill:none;stroke-width:1.7}
+.window-title{font-size:12.5px;font-weight:600;color:var(--p-ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.window-title-sub{font-size:11px;color:var(--p-muted);margin-left:6px;font-weight:400}
+.window-header-spacer{flex:1}
+.window-controls{display:flex;align-items:center;gap:4px}
+.win-ctrl{
+  width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  color:var(--p-muted);transition:background .15s,color .15s;
+}
+.win-ctrl:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
+.win-ctrl.close:hover{background:rgba(229,83,75,.18);color:#ff8b84}
+.win-ctrl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.window-body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--p-surface);overflow:hidden}
+
+/* ── Taskbar ────────────────────────────────────────────── */
+.taskbar{
+  position:relative;z-index:20;height:var(--taskbar-h);flex-shrink:0;
+  display:flex;align-items:center;gap:10px;padding:0 12px;
+  background:rgba(9,11,16,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.taskbar-launcher{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--p-accent-dim);border:1px solid var(--p-accent-line);transition:background .15s;
+}
+.taskbar-launcher:hover{background:rgba(61,139,255,.2)}
+.taskbar-launcher-grid{display:grid;grid-template-columns:repeat(2,5px);grid-template-rows:repeat(2,5px);gap:3px}
+.taskbar-launcher-grid i{background:var(--p-accent);border-radius:1px;display:block}
+.taskbar-divider{width:1px;align-self:stretch;margin:12px 0;background:rgba(255,255,255,.08)}
+.taskbar-windows{display:flex;align-items:center;gap:6px;height:100%;overflow-x:auto}
+.taskbar-win{
+  height:34px;padding:0 12px 0 8px;border-radius:7px;display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.04);border:1px solid transparent;color:var(--p-soft);
+  font-size:12px;font-weight:600;white-space:nowrap;transition:all .15s;max-width:180px;
+}
+.taskbar-win svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.7;flex-shrink:0}
+.taskbar-win span{overflow:hidden;text-overflow:ellipsis}
+.taskbar-win:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
+.taskbar-win.active{background:var(--p-accent-dim);border-color:var(--p-accent-line);color:#eaf2ff}
+.taskbar-spacer{flex:1}
+.taskbar-status{display:flex;align-items:center;gap:7px;padding:0 10px;flex-shrink:0}
+.taskbar-status-dot{width:6px;height:6px;border-radius:50%;background:var(--p-green);box-shadow:0 0 0 3px rgba(47,191,116,.15)}
+.taskbar-status-text{font-size:11px;color:var(--p-muted);font-weight:500;white-space:nowrap}
+
+/* ── Shared "surface" primitives reused by every app ───── */
+.p-scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.p-scroll::-webkit-scrollbar{width:8px;height:8px}
+.p-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:4px}
+.p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.22)}
+.p-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:6px;
+  font-size:12.5px;font-weight:600;background:rgba(255,255,255,.06);color:var(--p-ink);
+  border:1px solid rgba(255,255,255,.09);transition:all .15s;
+}
+.p-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16)}
+.p-btn.primary{background:var(--p-accent);border-color:var(--p-accent);color:#fff}
+.p-btn.primary:hover{background:#5a9eff}
+.p-btn.ghost{background:none}
+.p-btn:disabled{opacity:.45;cursor:not-allowed}
+.p-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+.p-empty{padding:40px 24px;text-align:center;color:var(--p-muted);font-size:13px}
+
+@media(max-width:760px){
+  .desktop-icons{grid-template-rows:repeat(5,80px);padding:16px 0 0 12px}
+  .desktop-icon{width:78px}
+  .window{left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;border-radius:0}
+  .window.restored{resize:none}
+  .desktop-brand-label{display:none}
+}

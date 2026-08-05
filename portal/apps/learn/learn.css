@@ -1,0 +1,145 @@
+/* ============================================================
+   Learn app — notebook (lesson) pane | resizer | VS Code-style
+   coding workspace. Everything here lives inside one .window-body.
+============================================================ */
+.learn-root{display:flex;flex-direction:column;height:100%;min-height:0;background:var(--p-surface)}
+
+/* ── Top bar: breadcrumb + progress ─────────────────────── */
+.learn-topbar{
+  flex-shrink:0;height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;
+  background:var(--p-surface2);border-bottom:1px solid var(--p-border);
+}
+.learn-rail-toggle{padding:6px;height:28px;width:28px}
+.learn-breadcrumb{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0;overflow:hidden}
+.crumb-course{color:var(--p-muted);white-space:nowrap}
+.crumb-chapter{color:var(--p-muted);white-space:nowrap}
+.crumb-lesson{color:var(--p-ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb-sep{color:var(--p-faint)}
+.learn-topbar-spacer{flex:1}
+.learn-progress{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.learn-progress-text{font-size:11px;color:var(--p-muted);font-family:var(--mono);white-space:nowrap}
+.learn-progress-bar{width:74px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;display:block}
+.learn-progress-bar span{display:block;height:100%;background:var(--p-accent);border-radius:3px;transition:width .3s}
+
+/* ── Body split ─────────────────────────────────────────── */
+.learn-body{flex:1;min-height:0;display:flex}
+.learn-left{width:40%;min-width:300px;max-width:76%;display:flex;min-height:0;background:var(--p-surface)}
+.learn-resizer{width:6px;flex-shrink:0;cursor:col-resize;background:var(--p-border-soft);position:relative}
+.learn-resizer:hover,.learn-resizer:active{background:var(--p-accent-line)}
+.learn-right{flex:1;min-width:340px;display:flex;flex-direction:column;min-height:0;background:var(--p-bg2)}
+
+/* ── Curriculum rail ────────────────────────────────────── */
+.learn-curriculum-rail{width:230px;flex-shrink:0;border-right:1px solid var(--p-border);background:var(--p-surface2);display:flex;flex-direction:column;transition:width .18s,opacity .18s}
+.learn-curriculum-rail.collapsed{width:0;opacity:0;overflow:hidden;border-right:none}
+.learn-rail-scroll{flex:1;overflow-y:auto;padding:10px 0 20px}
+.rail-chapter{border-bottom:1px solid var(--p-border-soft)}
+.rail-chapter-hdr{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--p-muted);background:none;border:none;text-align:left;transition:color .15s}
+.rail-chapter-hdr:hover{color:var(--p-soft)}
+.rail-chapter-caret{width:12px;height:12px;transition:transform .18s}
+.rail-chapter-caret svg{stroke:var(--p-faint)}
+.rail-chapter-hdr.open .rail-chapter-caret{transform:rotate(180deg)}
+.rail-lessons{display:none;flex-direction:column;padding-bottom:6px}
+.rail-lessons.open{display:flex}
+.rail-lesson{display:flex;align-items:center;gap:9px;padding:7px 14px 7px 18px;font-size:12.5px;color:var(--p-soft);background:none;border:none;border-left:2px solid transparent;text-align:left;transition:all .15s;line-height:1.4}
+.rail-lesson:hover{background:rgba(255,255,255,.04);color:var(--p-ink)}
+.rail-lesson.active{background:var(--p-accent-dim);border-left-color:var(--p-accent);color:#eaf2ff;font-weight:600}
+.rail-lesson.locked{color:var(--p-faint);cursor:default}
+.rail-lesson.locked:hover{background:none;color:var(--p-faint)}
+.rail-lesson-status{width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.rail-lesson-status svg{width:9px;height:9px;stroke-width:2.6}
+.rail-lesson-status.ready svg{stroke:var(--p-faint)}
+.rail-lesson-status.ready::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--p-faint);display:block}
+.rail-lesson-status.done{background:var(--p-green);color:#06170e}
+.rail-lesson-status.done svg{stroke:#06170e}
+.rail-lesson-status.planned svg{stroke:var(--p-faint)}
+.rail-lesson-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Notebook (lesson content) ──────────────────────────── */
+.learn-notebook{flex:1;min-width:0;overflow-y:auto}
+.lesson-head{margin-bottom:6px}
+.lesson-title{font-size:clamp(19px,2.4vw,26px);font-weight:900;letter-spacing:-.025em;line-height:1.15;color:#151b2c;margin-bottom:12px}
+.content-surface.on-dark .lesson-title{color:var(--p-ink)}
+.lesson-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.lesson-chip{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(0,0,0,.05);color:#4a5578;text-transform:capitalize}
+.content-surface.on-dark .lesson-chip{background:rgba(255,255,255,.06);color:var(--p-soft)}
+.lesson-chip.status-ready{background:rgba(47,191,116,.12);color:#1a7a48}
+.lesson-chip.status-planned{background:rgba(255,255,255,.06);color:var(--p-muted)}
+.lesson-chip.level-beginner{background:rgba(47,191,116,.1);color:#1a7a48}
+.lesson-chip.level-beginner-plus{background:rgba(61,139,255,.1);color:#0057ff}
+.lesson-chip.level-intermediate{background:rgba(224,169,64,.12);color:#8a5a00}
+.lesson-chip.level-advanced{background:rgba(229,83,75,.12);color:#b91c1c}
+
+.lesson-nav-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:44px;padding-top:18px;border-top:1px solid rgba(0,0,0,.08)}
+.content-surface.on-dark .lesson-nav-row{border-color:rgba(255,255,255,.08)}
+.lesson-nav-row .p-btn{max-width:38%}
+.lesson-nav-row .p-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lesson-complete-btn{flex-shrink:0}
+
+/* ── Right: toolbar ─────────────────────────────────────── */
+.learn-toolbar{flex-shrink:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--p-surface2);border-bottom:1px solid var(--p-border);gap:10px}
+.wt-left{display:flex;align-items:center;gap:6px}
+.wt-right{display:flex;align-items:center;gap:12px;min-width:0}
+.wt-divider{width:1px;height:20px;background:var(--p-border);margin:0 2px}
+.wt-file-status{font-size:11px;font-family:var(--mono);color:var(--p-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.wt-sim{cursor:not-allowed}
+.wt-sim:hover{background:none;border-color:rgba(255,255,255,.09)}
+
+/* ── Right: file explorer + editor + terminal ───────────── */
+.learn-editor-area{flex:1;min-height:0;display:flex}
+.learn-explorer{width:210px;flex-shrink:0;border-right:1px solid var(--p-border);background:var(--p-surface2);padding:8px 0}
+.fx-row{width:100%;display:flex;align-items:center;gap:6px;padding:5px 10px;font-size:12px;color:var(--p-soft);background:none;border:none;text-align:left;transition:background .12s,color .12s;white-space:nowrap}
+.fx-row:hover{background:rgba(255,255,255,.05);color:var(--p-ink)}
+.fx-file.active{background:var(--p-accent-dim);color:#eaf2ff}
+.fx-caret{width:11px;height:11px;flex-shrink:0;transition:transform .15s;display:flex}
+.fx-caret svg{stroke:var(--p-faint)}
+.fx-caret.open{transform:rotate(90deg)}
+.fx-icon{width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.fx-icon svg{width:13px;height:13px;stroke:var(--p-muted);fill:none;stroke-width:1.6}
+.fx-icon-file{width:auto;min-width:14px}
+.fx-ext{font-family:var(--mono);font-size:8px;font-weight:800;color:#6f9aff;background:rgba(61,139,255,.14);border-radius:3px;padding:1px 3px;line-height:1.4}
+.fx-name{overflow:hidden;text-overflow:ellipsis}
+.fx-dot{width:6px;height:6px;border-radius:50%;background:var(--p-accent);margin-left:4px;flex-shrink:0}
+
+.learn-editor-main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.learn-tabs{flex-shrink:0;display:flex;align-items:stretch;overflow-x:auto;background:var(--p-surface2);border-bottom:1px solid var(--p-border)}
+.ed-tab{display:flex;align-items:center;gap:7px;padding:0 8px 0 12px;height:36px;font-size:12px;color:var(--p-muted);border-right:1px solid var(--p-border);cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;flex-shrink:0}
+.ed-tab:hover{color:var(--p-soft)}
+.ed-tab.active{background:var(--p-bg2);color:var(--p-ink);box-shadow:inset 0 -2px 0 var(--p-accent)}
+.ed-tab-name{font-family:var(--mono);font-size:11.5px}
+.ed-tab-dot{width:6px;height:6px;border-radius:50%;background:var(--p-accent);flex-shrink:0}
+.ed-tab-close{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ed-tab-close svg{width:10px;height:10px;stroke:currentColor}
+.ed-tab-close:hover{background:rgba(255,255,255,.12)}
+
+.learn-editor-surface{flex:1;min-height:0;position:relative;background:#1e1e1e}
+.editor-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--p-muted);font-size:12.5px;font-family:var(--mono)}
+.fallback-editor{width:100%;height:100%;border:none;resize:none;outline:none;background:#1e1e1e;color:#d6deeb;font-family:var(--mono);font-size:13px;line-height:1.7;padding:14px 16px;tab-size:4}
+
+.learn-terminal{flex-shrink:0;height:210px;display:flex;flex-direction:column;border-top:1px solid var(--p-border);background:#0e1015;transition:height .15s}
+.learn-terminal.collapsed{height:36px}
+.term-bar{flex-shrink:0;height:34px;display:flex;align-items:center;gap:4px;padding:0 8px 0 4px;background:var(--p-surface2);border-bottom:1px solid var(--p-border)}
+.term-tabs{display:flex;align-items:center;height:100%}
+.term-tab{display:flex;align-items:center;gap:6px;height:100%;padding:0 10px;font-size:11px;font-weight:600;color:var(--p-muted);background:none;border:none;border-bottom:2px solid transparent}
+.term-tab svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8}
+.term-tab.active{color:var(--p-ink);border-bottom-color:var(--p-accent)}
+.term-tab-count{font-family:var(--mono);font-size:10px;color:var(--p-red)}
+.term-bar-spacer{flex:1}
+.term-clear{font-size:11px;padding:4px 9px;height:24px}
+.term-collapse{width:24px;height:24px}
+.term-body{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;font-family:var(--mono);font-size:12px;line-height:1.85}
+.term-line{color:#9fb0c9;white-space:pre-wrap;word-break:break-word}
+.term-line.term-cmd{color:#7dffbd}
+.term-line.term-ok{color:#4fd68e}
+.term-line.term-warn{color:var(--p-yellow)}
+.term-line.term-accent{color:#7fb2ff}
+
+@media(max-width:900px){
+  .learn-body{flex-direction:column}
+  .learn-left,.learn-right{width:100%!important;max-width:100%}
+  .learn-resizer{display:none}
+  .learn-left{height:46%}
+  .learn-right{height:54%}
+  .learn-curriculum-rail{position:absolute;left:0;top:40px;bottom:0;z-index:5;box-shadow:8px 0 24px rgba(0,0,0,.4)}
+  .learn-curriculum-rail:not(.collapsed){width:230px}
+  .learn-explorer{width:160px}
+}

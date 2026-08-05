@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwayForm Learning Portal</title>
+<meta name="description" content="The SwayForm Learning Portal — a robotics engineering workspace for students: guided lessons, a real ROS 2 workspace, and a VS Code-style editor.">
+<link rel="canonical" href="https://learning.swayform.net/">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/portal/portal.css">
+<link rel="stylesheet" href="/portal/apps/content.css">
+<link rel="stylesheet" href="/portal/apps/learn/learn.css">
+<link rel="stylesheet" href="/portal/apps/projects/projects.css">
+<link rel="stylesheet" href="/portal/apps/account/account.css">
+<link rel="stylesheet" href="/portal/apps/help/help.css">
+<link rel="stylesheet" href="/portal/apps/settings/settings.css">
+</head>
+<body class="portal-body">
+
+<div id="desktop" class="desktop">
+  <div class="desktop-wallpaper" aria-hidden="true"></div>
+  <div class="desktop-scrim" aria-hidden="true"></div>
+
+  <div class="desktop-topline">
+    <a href="https://swayform.net/" class="desktop-brand"><span class="desktop-brand-s">S</span>wayForm<span class="desktop-brand-sep">/</span><span class="desktop-brand-label">Learning Portal</span></a>
+    <div class="desktop-topline-actions">
+      <span class="desktop-clock" id="desktop-clock"></span>
+      <a href="https://swayform.net/" class="desktop-exit">Exit to swayform.net &#8599;</a>
+    </div>
+  </div>
+
+  <div class="desktop-icons" id="desktop-icons" role="list" aria-label="Applications"></div>
+
+  <div class="windows-layer" id="windows-layer"></div>
+
+  <div class="taskbar" id="taskbar">
+    <div class="taskbar-launcher" id="taskbar-launcher" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-label="Applications">
+      <span class="taskbar-launcher-grid"><i></i><i></i><i></i><i></i></span>
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-windows" id="taskbar-windows"></div>
+    <div class="taskbar-spacer"></div>
+    <div class="taskbar-status">
+      <span class="taskbar-status-dot"></span>
+      <span class="taskbar-status-text">Workspace saved locally</span>
+    </div>
+  </div>
+</div>
+
+<script src="/site-data.js"></script>
+<script type="module" src="/portal/portal.js"></script>
+</body>
+</html>

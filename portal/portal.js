@@ -6,14 +6,21 @@ import * as ProjectsApp from './apps/projects/projects.js';
 import * as AccountApp from './apps/account/account.js';
 import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
+import * as Login from './auth/login.js';
+import { isAuthenticated, getSession } from './services/auth-service.js';
+import { getCurrentActivity, getCompletedActivities } from './services/progress-service.js';
+import { LEARNING_PATH, findActivity, flattenActivities } from './data/learning-path.js';
 
 const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
 
+const loginRootEl = document.getElementById('login-root');
 const desktopEl = document.getElementById('desktop');
-const iconsEl = document.getElementById('desktop-icons');
+const heroEl = document.getElementById('desktop-hero');
+const dockEl = document.getElementById('desktop-dock');
+const guestBadgeEl = document.getElementById('desktop-guest-badge');
 const layerEl = document.getElementById('windows-layer');
 const taskbarWinsEl = document.getElementById('taskbar-windows');
 const launcherEl = document.getElementById('taskbar-launcher');
@@ -24,24 +31,55 @@ const windows = new Map();
 let zCounter = 10;
 let activeAppId = null;
 
-/* ---------------------------------------------------------- Desktop icons */
-function renderDesktopIcons(){
-  iconsEl.innerHTML = '';
+/* ---------------------------------------------------------- Desktop dock */
+function renderDock(){
+  dockEl.innerHTML = '';
   REGISTRY_ORDER().forEach(mod => {
     const btn = document.createElement('button');
-    btn.className = 'desktop-icon';
+    btn.className = 'dock-icon';
     btn.type = 'button';
     btn.setAttribute('role', 'listitem');
+    btn.setAttribute('aria-label', mod.meta.title);
     btn.innerHTML = `
-      <span class="desktop-icon-glyph">${icon(mod.meta.icon)}</span>
-      <span class="desktop-icon-label">${mod.meta.title}</span>`;
+      <span class="dock-icon-glyph">${icon(mod.meta.icon)}</span>
+      <span class="dock-icon-label">${mod.meta.title}</span>`;
     btn.addEventListener('click', () => openApp(mod.meta.id));
-    iconsEl.appendChild(btn);
+    dockEl.appendChild(btn);
   });
 }
 
 function REGISTRY_ORDER(){
   return [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
+}
+
+/* ---------------------------------------------------------- Desktop hero */
+async function renderHero(){
+  const current = await getCurrentActivity();
+  const completed = await getCompletedActivities();
+  const total = flattenActivities().length;
+  const entry = current ? findActivity(current.activityId) : null;
+
+  if (entry){
+    heroEl.innerHTML = `
+      <div class="hero-eyebrow">Continue Learning</div>
+      <div class="hero-crumb">Level ${entry.level.number} · ${entry.section.title}</div>
+      <h1 class="hero-title">${entry.activity.title}</h1>
+      <div class="hero-progress-row">
+        <span class="hero-progress-bar"><span style="width:${total ? (completed.length / total * 100) : 0}%"></span></span>
+        <span class="hero-progress-text">${completed.length} / ${total} activities complete</span>
+      </div>
+      <button type="button" class="hero-resume p-btn primary" data-resume>${icon('arrowRight')}<span>Resume</span></button>`;
+    heroEl.querySelector('[data-resume]').addEventListener('click', () => {
+      openApp('learn', { view: 'activity', activityId: entry.activity.id });
+    });
+  } else {
+    heroEl.innerHTML = `
+      <div class="hero-eyebrow">SwayForm Fundamentals</div>
+      <h1 class="hero-title">Ready when you are.</h1>
+      <p class="hero-sub">${LEARNING_PATH.levels.length} levels, built around real robot behaviors — start with Foundations.</p>
+      <button type="button" class="hero-resume p-btn primary" data-start>${icon('arrowRight')}<span>Start Learning</span></button>`;
+    heroEl.querySelector('[data-start]').addEventListener('click', () => openApp('learn'));
+  }
 }
 
 /* ---------------------------------------------------------- Window geometry */
@@ -135,6 +173,7 @@ function createWindow(mod){
     navigate(path, params){ navigateForApp(mod.meta.id, params, path); },
     openApp(id, p){ openApp(id, p); },
     close(){ closeWindow(mod.meta.id); },
+    refreshDesktop(){ renderHero(); },
   };
 
   win.instance = mod.mount(body, ctx);
@@ -189,6 +228,7 @@ function closeWindow(appId){
   if (activeAppId === appId) activeAppId = null;
   persistOpenApps();
   renderTaskbar();
+  renderHero();
   if (windows.size === 0) navigateTo('/');
 }
 
@@ -246,7 +286,14 @@ function renderTaskbar(){
 
 /* ---------------------------------------------------------- Router */
 const ROUTES = {
-  course: { app: 'learn', parse: (p) => ({ courseId: p[0], lessonId: p[1] }) },
+  learn: {
+    app: 'learn',
+    parse: (p) => {
+      if (p[0] === 'section') return { view: 'section', sectionId: p[1] };
+      if (p[0] === 'activity') return { view: 'activity', activityId: p[1] };
+      return { view: 'home' };
+    },
+  },
   project: { app: 'projects', parse: (p) => ({ projectId: p[0] }) },
   account: { app: 'account', parse: () => ({}) },
   help: { app: 'help', parse: (p) => ({ topic: p[0] }) },
@@ -264,7 +311,10 @@ function routeFromPath(pathname){
 function pathForApp(appId, params){
   params = params || {};
   switch (appId){
-    case 'learn': return '/course/' + (params.courseId || 'robotics-fundamentals') + (params.lessonId ? '/' + params.lessonId : '');
+    case 'learn':
+      if (params.view === 'activity' && params.activityId) return '/learn/activity/' + params.activityId;
+      if (params.view === 'section' && params.sectionId) return '/learn/section/' + params.sectionId;
+      return '/learn';
     case 'projects': return '/project' + (params.projectId ? '/' + params.projectId : '');
     case 'account': return '/account';
     case 'help': return '/help' + (params.topic ? '/' + params.topic : '');
@@ -314,10 +364,7 @@ tickClock();
 setInterval(tickClock, 15000);
 
 /* ---------------------------------------------------------- Launcher */
-launcherEl.addEventListener('click', () => {
-  const first = REGISTRY_ORDER()[0];
-  openApp(first.meta.id);
-});
+launcherEl.addEventListener('click', () => openApp('learn'));
 launcherEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launcherEl.click(); }
 });
@@ -331,16 +378,44 @@ window.addEventListener('resize', () => {
   });
 });
 
-/* ---------------------------------------------------------- Boot */
-renderDesktopIcons();
+/* ---------------------------------------------------------- Boot / auth gate */
+async function showDesktop(){
+  loginRootEl.hidden = true;
+  desktopEl.hidden = false;
 
-const initialRoute = routeFromPath(location.pathname);
-if (initialRoute){
-  openApp(initialRoute.appId, initialRoute.params, { silent: true });
-  history.replaceState({}, '', location.pathname);
-} else {
-  restoreOpenApps();
+  const session = await getSession();
+  guestBadgeEl.hidden = !(session && session.mode === 'guest');
+
+  renderDock();
+  await renderHero();
+
+  const initialRoute = routeFromPath(location.pathname);
+  if (initialRoute){
+    openApp(initialRoute.appId, initialRoute.params, { silent: true });
+    history.replaceState({}, '', location.pathname);
+  } else {
+    restoreOpenApps();
+  }
 }
 
-export const Portal = { openApp, closeWindow, navigateTo };
+function showLogin(){
+  desktopEl.hidden = true;
+  loginRootEl.hidden = false;
+  Login.mount(loginRootEl, {
+    onAuthenticated: () => { showDesktop(); },
+  });
+}
+
+async function boot(){
+  const authed = await isAuthenticated();
+  if (!authed){
+    showLogin();
+    return;
+  }
+  await showDesktop();
+}
+
+boot();
+
+export const Portal = { openApp, closeWindow, navigateTo, refreshHero: renderHero };
 window.SwayPortal = Portal;

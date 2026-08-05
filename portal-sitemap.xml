@@ -7,79 +7,67 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/getting-started</loc>
+    <loc>https://learning.swayform.net/learn/activity/welcome</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/classroom-workflow</loc>
+    <loc>https://learning.swayform.net/learn/activity/how-submissions-work</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/safety-notes</loc>
+    <loc>https://learning.swayform.net/learn/activity/safety-first</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/setup-vscode</loc>
+    <loc>https://learning.swayform.net/learn/activity/vscode-ssh-setup</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/ssh-accounts</loc>
+    <loc>https://learning.swayform.net/learn/activity/create-student-project</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/student-projects</loc>
-    <lastmod>2026-08-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/validation-queue</loc>
-    <lastmod>2026-08-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/demo-wave</loc>
+    <loc>https://learning.swayform.net/learn/activity/wave</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/demo-handshake</loc>
+    <loc>https://learning.swayform.net/learn/activity/handshake</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/demo-pick-and-place</loc>
+    <loc>https://learning.swayform.net/learn/activity/pick-and-place</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/demo-rock-paper-scissors</loc>
+    <loc>https://learning.swayform.net/learn/activity/rock-paper-scissors</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/demo-interactive-exchange</loc>
+    <loc>https://learning.swayform.net/learn/activity/interactive-exchange</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://learning.swayform.net/course/robotics-fundamentals/lab-01</loc>
+    <loc>https://learning.swayform.net/learn/activity/hello-robot-motion</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

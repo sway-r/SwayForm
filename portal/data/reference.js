@@ -10,7 +10,7 @@ export const REFERENCE = {
       title: "Glossary",
       icon: "book",
       blocks: [
-        { type: "lead", text: "Quick definitions for terms used throughout the Learning Hub." },
+        { type: "lead", text: "Quick definitions for terms used throughout the Learning Portal." },
         {
           type: "terms",
           items: [
@@ -138,7 +138,7 @@ export const REFERENCE = {
         { type: "heading", level: 2, id: "realsense", text: "RealSense camera" },
         {
           type: "p",
-          text: "The Intel RealSense D435i publishes synchronized color and depth image streams (color at 640×480, depth per pixel in millimeters, minimum range roughly 0.3m) over USB. Learning Hub use cases: detecting that someone is in front of the robot, checking whether an object is in a target zone, turning the head toward a left/center/right region, and starting a behavior when a condition is met.",
+          text: "The Intel RealSense D435i publishes synchronized color and depth image streams (color at 640×480, depth per pixel in millimeters, minimum range roughly 0.3m) over USB. Learning Portal use cases: detecting that someone is in front of the robot, checking whether an object is in a target zone, turning the head toward a left/center/right region, and starting a behavior when a condition is met.",
         },
         {
           type: "callout",

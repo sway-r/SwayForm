@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/portal/portal.css">
+<link rel="stylesheet" href="/portal/auth/login.css">
 <link rel="stylesheet" href="/portal/apps/content.css">
 <link rel="stylesheet" href="/portal/apps/learn/learn.css">
 <link rel="stylesheet" href="/portal/apps/projects/projects.css">
@@ -22,19 +23,23 @@
 </head>
 <body class="portal-body">
 
-<div id="desktop" class="desktop">
+<div id="login-root" class="login-root" hidden></div>
+
+<div id="desktop" class="desktop" hidden>
   <div class="desktop-wallpaper" aria-hidden="true"></div>
   <div class="desktop-scrim" aria-hidden="true"></div>
 
   <div class="desktop-topline">
     <a href="https://swayform.net/" class="desktop-brand"><span class="desktop-brand-s">S</span>wayForm<span class="desktop-brand-sep">/</span><span class="desktop-brand-label">Learning Portal</span></a>
     <div class="desktop-topline-actions">
+      <span class="desktop-guest-badge" id="desktop-guest-badge" hidden>Guest mode</span>
       <span class="desktop-clock" id="desktop-clock"></span>
       <a href="https://swayform.net/" class="desktop-exit">Exit to swayform.net &#8599;</a>
     </div>
   </div>
 
-  <div class="desktop-icons" id="desktop-icons" role="list" aria-label="Applications"></div>
+  <div class="desktop-hero" id="desktop-hero"></div>
+  <div class="desktop-dock" id="desktop-dock" role="list" aria-label="Applications"></div>
 
   <div class="windows-layer" id="windows-layer"></div>
 

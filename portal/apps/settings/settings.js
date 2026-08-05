@@ -1,5 +1,6 @@
 import { icon } from '../../icons.js';
 import { getReadingTheme, setReadingTheme } from '../../theme.js';
+import { resetProgress } from '../../services/progress-service.js';
 
 export const meta = {
   id: 'settings',
@@ -62,7 +63,7 @@ export function mount(container, ctx){
             <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset lesson progress</span><span class="set-row-desc">Clears local "completed" marks on every lesson.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset learning progress</span><span class="set-row-desc">Clears local "completed" marks on every activity.</span></span>
             <button type="button" class="p-btn ghost" data-reset-progress>Reset progress</button>
           </div>
         </div>
@@ -89,7 +90,7 @@ export function mount(container, ctx){
     fs.resetAll();
   });
   container.querySelector('[data-reset-progress]').addEventListener('click', () => {
-    try { localStorage.removeItem('swayform.portal.progress'); } catch (e) { /* noop */ }
+    resetProgress();
   });
 
   ctx.setAppTitle && ctx.setAppTitle('Settings');

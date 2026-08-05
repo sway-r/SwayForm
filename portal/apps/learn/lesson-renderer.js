@@ -1,6 +1,6 @@
 /* Generic content-block renderer — shared by the Learn app's lesson pane
    and the Help app's reference viewer. Renders plain-data "blocks" (see
-   portal/data/curriculum.js and portal/data/reference.js for the schema)
+   portal/data/learning-path.js and portal/data/reference.js for the schema)
    into DOM nodes. No HTML strings are built from untrusted content — every
    text field is escaped, and only a small whitelist of inline markup
    (**bold**, `code`, [label](url)) is turned into real elements. */

@@ -1,5 +1,6 @@
 import { icon } from '../../icons.js';
 import { MOCK_PROJECTS } from '../../data/mock-projects.js';
+import { findActivity } from '../../data/learning-path.js';
 
 export const meta = {
   id: 'projects',
@@ -42,6 +43,8 @@ export function mount(container, ctx){
   const gridEl = container.querySelector('[data-grid]');
 
   MOCK_PROJECTS.forEach((p) => {
+    const found = findActivity(p.associatedActivityId);
+    const activityLabel = found ? found.activity.title : p.associatedActivityId;
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'proj-card';
@@ -52,15 +55,15 @@ export function mount(container, ctx){
       </div>
       <div class="proj-card-title">${p.title}</div>
       <div class="proj-card-desc">${p.summary}</div>
-      <div class="proj-card-foot">${icon('learn')}<span>${p.associatedLessonId}</span></div>`;
+      <div class="proj-card-foot">${icon('learn')}<span>${activityLabel}</span></div>`;
     card.addEventListener('click', () => {
-      ctx.openApp('learn', { courseId: 'robotics-fundamentals', lessonId: p.associatedLessonId });
+      ctx.openApp('learn', { view: 'activity', activityId: p.associatedActivityId });
     });
     gridEl.appendChild(card);
   });
 
   container.querySelector('[data-new-project]').addEventListener('click', () => {
-    ctx.openApp('learn', {});
+    ctx.openApp('learn', { view: 'home' });
   });
 
   ctx.setAppTitle && ctx.setAppTitle('Projects');

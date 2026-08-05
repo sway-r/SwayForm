@@ -117,3 +117,11 @@
 .content-surface.on-dark .cb-image{border-color:rgba(255,255,255,.08)}
 .cb-image img{width:100%;display:block}
 .cb-image-caption{padding:8px 12px;font-size:11.5px;color:#7c8496;background:rgba(0,0,0,.02)}
+
+/* .p-btn (portal.css) is styled for dark OS chrome by default — override it
+   wherever it's used on top of the light content-surface reading pane. */
+.content-surface:not(.on-dark) .p-btn{color:#1a1f2e;border-color:rgba(0,0,0,.14)}
+.content-surface:not(.on-dark) .p-btn:hover{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.22)}
+.content-surface:not(.on-dark) .p-btn.primary{color:#fff}
+.content-surface:not(.on-dark) .p-btn.ghost{background:none}
+.content-surface:not(.on-dark) .p-btn svg{stroke:currentColor}

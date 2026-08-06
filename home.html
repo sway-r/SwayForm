@@ -150,7 +150,7 @@ p{color:var(--muted);line-height:1.75}
 }
 .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1440px;margin:0 auto;padding:0 48px}
 .logo{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:var(--ink);display:flex;align-items:center;gap:0;flex-shrink:0;transition:color .25s}
-.logo-mark{height:1.2em;width:auto;margin-right:0.12em;flex-shrink:0}
+.logo .s{color:#0057ff}
 .nav-links{display:flex;align-items:center;gap:2px}
 .nav-links a{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--muted);transition:color .15s,background .15s;letter-spacing:.01em}
 .nav-links a:hover,.nav-links a.active{color:var(--ink);background:var(--panel2)}
@@ -386,6 +386,7 @@ p{color:var(--muted);line-height:1.75}
 /* ── FOOTER ──────────────────────────────────────────── */
 #footer{background:#fff;border-top:1px solid var(--line);padding:72px 0 40px}
 .footer-logo{color:var(--ink) !important}
+.footer-logo .s{color:#0057ff !important}
 .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:60px}
 .footer-brand .logo{font-size:20px;margin-bottom:14px;display:inline-flex}
 .footer-brand p{font-size:14px;color:var(--muted);max-width:260px;line-height:1.65}
@@ -849,7 +850,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 <!-- ═══════════════════════════════════════════════════ TOPBAR -->
 <nav id="topbar" class="scrolled force-scrolled">
   <div class="nav-inner">
-    <div class="logo"><img src="/images/logo.png" alt="" class="logo-mark">wayForm</div>
+    <div class="logo"><span class="s">S</span>wayForm</div>
     <div class="nav-links">
       <a href="/" class="active">Overview</a>
       <a href="/robot">The Robot</a>
@@ -1368,7 +1369,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="logo"><img src="/images/logo.png" alt="" class="logo-mark">wayForm</div>
+        <div class="logo"><span class="s">S</span>wayForm</div>
         <p>Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col">

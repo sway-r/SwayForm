@@ -7,7 +7,7 @@ export function mount(container, { onAuthenticated }){
       <div class="login-brand-wallpaper"></div>
       <div class="login-brand-scrim"></div>
       <div class="login-brand-top">
-        <img src="/images/logo-mark.png" alt="" class="login-brand-mark">wayForm<span class="login-brand-sep">/</span><span class="login-brand-label">Learning Portal</span>
+        <span class="login-brand-s">S</span>wayForm<span class="login-brand-sep">/</span><span class="login-brand-label">Learning Portal</span>
       </div>
       <div class="login-brand-mid">
         <h1>Learn to program a real robot.</h1>

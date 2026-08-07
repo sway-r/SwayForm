@@ -1,16 +1,19 @@
+/* Small Output/Problems strip inside the Code Editor window — diagnostics
+ * only (Check results, save confirmations). The primary terminal experience
+ * now lives in its own standalone application:
+ * portal/apps/learn/workspace/terminal-app.js + mock-shell.js. */
 import { icon } from '../../../icons.js';
 
 const TABS = [
-  { id: 'terminal', label: 'Terminal', icon: 'terminal' },
   { id: 'output', label: 'Output', icon: 'file' },
   { id: 'problems', label: 'Problems', icon: 'warning' },
 ];
 
-export class TerminalPanel {
+export class OutputPanel {
   constructor(container){
     this.container = container;
-    this.active = 'terminal';
-    this.lines = { terminal: [], output: [], problems: [] };
+    this.active = 'output';
+    this.lines = { output: [], problems: [] };
     this.collapsed = false;
     this._build();
   }
@@ -48,7 +51,7 @@ export class TerminalPanel {
   }
 
   appendLine(text, cls, tab){
-    tab = tab || 'terminal';
+    tab = tab || 'output';
     this.lines[tab].push({ text, cls: cls || '' });
     if (tab === this.active) this._renderBody();
     this._renderCounts();

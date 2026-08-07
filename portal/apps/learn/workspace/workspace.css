@@ -1,0 +1,131 @@
+/* ============================================================
+   Activity Workspace — nested desktop: independent Notebook /
+   Code Editor / Terminal windows over a slim top bar + dock.
+============================================================ */
+.aw-root{flex:1;min-height:0;display:flex;flex-direction:column}
+
+/* ── Top bar: back, breadcrumb, layout presets, reset ───── */
+.aw-header{flex-shrink:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--la-bg2);border-bottom:1px solid var(--la-border)}
+.aw-back{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--la-muted);background:none;border:none;flex-shrink:0}
+.aw-back:hover{color:var(--la-ink)}
+.aw-back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.aw-crumb{font-size:12.5px;color:var(--la-soft);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aw-crumb strong{color:var(--la-ink);font-weight:700}
+.aw-header-spacer{flex:1}
+.aw-presets{display:flex;align-items:center;gap:4px;background:var(--la-bg);border:1px solid var(--la-border);border-radius:7px;padding:3px}
+.aw-preset-btn{font-size:11px;font-weight:600;color:var(--la-muted);padding:5px 9px;border-radius:5px;background:none;border:none;white-space:nowrap}
+.aw-preset-btn:hover{color:var(--la-soft);background:var(--la-hover)}
+.aw-preset-btn.active{color:var(--la-accent);background:var(--la-accent-dim)}
+.aw-reset-btn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--la-muted);background:none;border:1px solid transparent;flex-shrink:0}
+.aw-reset-btn:hover{color:var(--la-ink);background:var(--la-hover);border-color:var(--la-border)}
+.aw-reset-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* ── The nested desktop surface — a light "workbench" the Notebook (light)
+   and Code Editor/Terminal (dark, see .ww-app-codeEditor/.ww-app-terminal
+   below) float over, mirroring the Portal Desktop's dark-wallpaper/
+   light-window contrast one level down. ── */
+.aw-desktop{
+  position:relative;flex:1;min-height:0;overflow:hidden;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(20,26,44,.06) 1px,transparent 0) 0 0/22px 22px,
+    var(--la-bg3);
+}
+
+/* ── Window chrome (default: light — Notebook) ──────────── */
+.ww-window{
+  position:absolute;display:flex;flex-direction:column;
+  background:var(--la-bg);border:1px solid var(--la-border);border-radius:9px;
+  box-shadow:0 18px 46px rgba(10,14,24,.22),0 2px 8px rgba(10,14,24,.14);
+  overflow:hidden;min-width:260px;min-height:180px;
+}
+.ww-window.ww-focused{border-color:rgba(20,26,44,.2);box-shadow:0 22px 56px rgba(10,14,24,.28),0 2px 10px rgba(10,14,24,.16)}
+.ww-window.ww-maximized{border-radius:0}
+.ww-window.ww-minimized{display:none}
+.ww-window.ww-dragging{transition:none!important;opacity:.96}
+
+.ww-titlebar{
+  flex-shrink:0;height:38px;display:flex;align-items:center;gap:8px;
+  padding:0 6px 0 12px;background:var(--la-bg2);border-bottom:1px solid var(--la-border);
+  cursor:grab;user-select:none;
+}
+.ww-window.ww-maximized .ww-titlebar{cursor:default}
+.ww-titlebar:active{cursor:grabbing}
+.ww-titlebar-icon{width:14px;height:14px;flex-shrink:0;display:flex;opacity:.85}
+.ww-titlebar-icon svg{width:13px;height:13px;stroke:var(--la-soft);fill:none;stroke-width:1.7}
+.ww-titlebar-title{font-size:12px;font-weight:600;color:var(--la-soft);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ww-focused .ww-titlebar-title{color:var(--la-ink)}
+.ww-titlebar-spacer{flex:1}
+.ww-controls{display:flex;align-items:center;gap:3px}
+.ww-ctrl{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--la-muted);background:none;border:none}
+.ww-ctrl:hover{background:var(--la-hover-strong);color:var(--la-ink)}
+.ww-ctrl.close:hover{background:rgba(220,53,45,.12);color:#c0332b}
+.ww-ctrl svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.ww-body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--la-bg);overflow:hidden}
+
+/* ── Dark override — Code Editor and Terminal stay a developer-dark theme
+   regardless of the rest of the workspace (see spec: "Code Editor can
+   remain dark. Terminal can also remain dark."). Applied via the app-id
+   class window-manager.js adds to each window element. ── */
+.ww-window.ww-app-codeEditor,.ww-window.ww-app-terminal{background:var(--p-surface);border-color:var(--p-border);box-shadow:0 18px 46px rgba(0,0,0,.42),0 2px 8px rgba(0,0,0,.28)}
+.ww-window.ww-app-codeEditor.ww-focused,.ww-window.ww-app-terminal.ww-focused{border-color:rgba(255,255,255,.18);box-shadow:0 22px 56px rgba(0,0,0,.5),0 2px 10px rgba(0,0,0,.32)}
+.ww-window.ww-app-codeEditor .ww-titlebar,.ww-window.ww-app-terminal .ww-titlebar{background:var(--p-surface2);border-color:var(--p-border)}
+.ww-window.ww-app-codeEditor .ww-titlebar-icon svg,.ww-window.ww-app-terminal .ww-titlebar-icon svg{stroke:var(--p-soft)}
+.ww-window.ww-app-codeEditor .ww-titlebar-title,.ww-window.ww-app-terminal .ww-titlebar-title{color:var(--p-soft)}
+.ww-window.ww-app-codeEditor.ww-focused .ww-titlebar-title,.ww-window.ww-app-terminal.ww-focused .ww-titlebar-title{color:var(--p-ink)}
+.ww-window.ww-app-codeEditor .ww-ctrl,.ww-window.ww-app-terminal .ww-ctrl{color:var(--p-muted)}
+.ww-window.ww-app-codeEditor .ww-ctrl:hover,.ww-window.ww-app-terminal .ww-ctrl:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
+.ww-window.ww-app-codeEditor .ww-ctrl.close:hover,.ww-window.ww-app-terminal .ww-ctrl.close:hover{background:rgba(229,83,75,.18);color:#ff8b84}
+.ww-window.ww-app-codeEditor .ww-body,.ww-window.ww-app-terminal .ww-body{background:var(--p-surface)}
+
+/* ── Resize handles ─────────────────────────────────────── */
+.ww-resize{position:absolute;z-index:5}
+.ww-resize-n{top:0;left:10px;right:10px;height:6px;cursor:ns-resize}
+.ww-resize-s{bottom:0;left:10px;right:10px;height:6px;cursor:ns-resize}
+.ww-resize-e{right:0;top:10px;bottom:10px;width:6px;cursor:ew-resize}
+.ww-resize-w{left:0;top:10px;bottom:10px;width:6px;cursor:ew-resize}
+.ww-resize-ne{top:0;right:0;width:13px;height:13px;cursor:nesw-resize}
+.ww-resize-nw{top:0;left:0;width:13px;height:13px;cursor:nwse-resize}
+.ww-resize-se{bottom:0;right:0;width:13px;height:13px;cursor:nwse-resize}
+.ww-resize-sw{bottom:0;left:0;width:13px;height:13px;cursor:nesw-resize}
+
+body.ww-no-select{user-select:none!important}
+body.ww-resizing-cursor-n,body.ww-resizing-cursor-s{cursor:ns-resize!important}
+body.ww-resizing-cursor-e,body.ww-resizing-cursor-w{cursor:ew-resize!important}
+body.ww-resizing-cursor-ne,body.ww-resizing-cursor-sw{cursor:nesw-resize!important}
+body.ww-resizing-cursor-nw,body.ww-resizing-cursor-se{cursor:nwse-resize!important}
+
+/* ── Snap preview ────────────────────────────────────────── */
+.ww-snap-preview{
+  position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--la-accent-dim);border:2px solid var(--la-accent-line);border-radius:8px;
+}
+
+/* ── Workspace dock ─────────────────────────────────────── */
+.aw-dock{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;
+  height:52px;padding:0 14px;background:rgba(255,255,255,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--la-border);
+}
+.aw-dock-item{
+  display:flex;align-items:center;gap:8px;padding:7px 14px 7px 10px;border-radius:8px;
+  background:none;border:1px solid transparent;color:var(--la-muted);transition:all .15s;
+}
+.aw-dock-item:hover{background:var(--la-hover);color:var(--la-soft)}
+.aw-dock-item.is-open{color:var(--la-soft)}
+.aw-dock-item.is-active{background:var(--la-accent-dim);border-color:var(--la-accent-line);color:var(--la-accent)}
+.aw-dock-item.is-minimized{color:var(--la-faint)}
+.aw-dock-icon{width:16px;height:16px;display:flex;flex-shrink:0}
+.aw-dock-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+.aw-dock-label{font-size:12px;font-weight:600;white-space:nowrap}
+.aw-dock-dot{width:5px;height:5px;border-radius:50%;background:var(--la-faint);flex-shrink:0}
+.aw-dock-item.is-open .aw-dock-dot{background:var(--p-green)}
+.aw-dock-item.is-minimized .aw-dock-dot{background:var(--p-yellow)}
+.aw-dock-item.is-active .aw-dock-dot{background:var(--la-accent)}
+.aw-dock-divider{width:1px;align-self:stretch;margin:10px 4px;background:var(--la-border)}
+
+@media(max-width:900px){
+  .aw-presets{display:none}
+  .aw-dock-label{display:none}
+  .ww-window{min-width:220px}
+}

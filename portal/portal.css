@@ -25,6 +25,27 @@
   --p-radius-sm:5px;
   --taskbar-h:52px;
   --topline-h:40px;
+
+  /* ── Light "app" chrome — every application surface EXCEPT the Portal
+     Desktop wallpaper/chrome, the Code Editor, and the Terminal, which stay
+     on the dark --p-* tokens above. Values match the existing content-surface
+     reading-pane palette (already used by Notebook/Help/curriculum) so the
+     newly-lightened chrome around it doesn't introduce a second, mismatched
+     off-white. ── */
+  --la-bg:#ffffff;
+  --la-bg2:#f6f7fb;
+  --la-bg3:#eef0f6;
+  --la-border:rgba(20,26,44,.09);
+  --la-border-soft:rgba(20,26,44,.055);
+  --la-ink:#151b2c;
+  --la-soft:#3a4258;
+  --la-muted:#6b7280;
+  --la-faint:#8a93a8;
+  --la-hover:rgba(20,26,44,.045);
+  --la-hover-strong:rgba(20,26,44,.075);
+  --la-accent:var(--p-accent);
+  --la-accent-dim:var(--p-accent-dim);
+  --la-accent-line:var(--p-accent-line);
 }
 
 .portal-body{background:var(--p-bg);color:var(--p-ink);font-family:var(--font);overflow:hidden;height:100vh}
@@ -110,38 +131,38 @@
 .windows-layer{position:absolute;top:var(--topline-h);left:0;right:0;bottom:var(--taskbar-h);z-index:10;pointer-events:none}
 .window{
   position:absolute;display:flex;flex-direction:column;pointer-events:auto;
-  background:var(--p-surface);border:1px solid var(--p-border);border-radius:10px;
-  box-shadow:0 24px 64px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
+  background:var(--la-bg);border:1px solid var(--la-border);border-radius:10px;
+  box-shadow:0 24px 64px rgba(3,5,10,.4),0 2px 8px rgba(3,5,10,.22);
   overflow:hidden;min-width:320px;min-height:220px;
 }
 .window.maximized{border-radius:0}
 .window.restored{resize:both;overflow:auto}
-.window.focused{border-color:rgba(255,255,255,.16)}
+.window.focused{border-color:rgba(20,26,44,.16)}
 .window.dragging,.window.resizing-anim{transition:none!important}
 .window.minimized{display:none}
 
 .window-header{
   flex-shrink:0;height:42px;display:flex;align-items:center;gap:10px;
-  padding:0 8px 0 14px;background:var(--p-surface2);border-bottom:1px solid var(--p-border);
+  padding:0 8px 0 14px;background:var(--la-bg2);border-bottom:1px solid var(--la-border);
   cursor:default;user-select:none;
 }
 .window-header.draggable{cursor:grab}
 .window-header.draggable:active{cursor:grabbing}
 .window-title-icon{width:15px;height:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.85}
-.window-title-icon svg{width:14px;height:14px;stroke:var(--p-soft);fill:none;stroke-width:1.7}
-.window-title{font-size:12.5px;font-weight:600;color:var(--p-ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.window-title-sub{font-size:11px;color:var(--p-muted);margin-left:6px;font-weight:400}
+.window-title-icon svg{width:14px;height:14px;stroke:var(--la-soft);fill:none;stroke-width:1.7}
+.window-title{font-size:12.5px;font-weight:600;color:var(--la-ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.window-title-sub{font-size:11px;color:var(--la-muted);margin-left:6px;font-weight:400}
 .window-header-spacer{flex:1}
 .window-controls{display:flex;align-items:center;gap:4px}
 .win-ctrl{
   width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-  color:var(--p-muted);transition:background .15s,color .15s;
+  color:var(--la-muted);transition:background .15s,color .15s;
 }
-.win-ctrl:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
-.win-ctrl.close:hover{background:rgba(229,83,75,.18);color:#ff8b84}
+.win-ctrl:hover{background:var(--la-hover-strong);color:var(--la-ink)}
+.win-ctrl.close:hover{background:rgba(220,53,45,.12);color:#c0332b}
 .win-ctrl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
 
-.window-body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--p-surface);overflow:hidden}
+.window-body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--la-bg);overflow:hidden}
 
 /* ── Taskbar ────────────────────────────────────────────── */
 .taskbar{
@@ -191,6 +212,22 @@
 .p-btn:disabled{opacity:.45;cursor:not-allowed}
 .p-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
 .p-empty{padding:40px 24px;text-align:center;color:var(--p-muted);font-size:13px}
+
+/* ── Light app surface — the default for every application EXCEPT the
+   Portal Desktop chrome, Code Editor, and Terminal (see --la-* tokens
+   above). .p-btn/.p-scroll default to the dark OS-chrome look (used by
+   the Desktop hero and the Code Editor toolbar), so light surfaces need
+   this override — same pattern content.css already uses for .content-surface. ── */
+.la-surface{background:var(--la-bg2);color:var(--la-ink)}
+.la-surface .p-btn{color:var(--la-ink);background:var(--la-bg);border-color:var(--la-border)}
+.la-surface .p-btn:hover{background:var(--la-hover-strong);border-color:rgba(20,26,44,.18)}
+.la-surface .p-btn.primary{background:var(--la-accent);border-color:var(--la-accent);color:#fff}
+.la-surface .p-btn.primary:hover{background:#2268ff;border-color:#2268ff}
+.la-surface .p-btn.ghost{background:none}
+.la-surface .p-btn svg{stroke:currentColor}
+.la-surface.p-scroll,.la-surface .p-scroll{scrollbar-color:rgba(20,26,44,.18) transparent}
+.la-surface.p-scroll::-webkit-scrollbar-thumb,.la-surface .p-scroll::-webkit-scrollbar-thumb{background:rgba(20,26,44,.14)}
+.la-surface.p-scroll::-webkit-scrollbar-thumb:hover,.la-surface .p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(20,26,44,.22)}
 
 @media(max-width:760px){
   .desktop-hero{padding:0 24px}

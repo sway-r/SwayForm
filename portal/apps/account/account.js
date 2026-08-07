@@ -41,7 +41,7 @@ async function render(container, ctx){
   }).filter((l) => l.total > 0);
 
   container.innerHTML = `
-    <div class="acct-root p-scroll">
+    <div class="acct-root p-scroll la-surface">
       <div class="acct-hero">
         <div class="acct-avatar">${initials(displayName)}</div>
         <div class="acct-hero-info">

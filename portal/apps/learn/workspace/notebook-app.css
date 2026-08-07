@@ -1,0 +1,59 @@
+/* ============================================================
+   Notebook app — continuous scrollable textbook, not a slideshow.
+============================================================ */
+.nb-root{height:100%;display:flex;flex-direction:column;position:relative}
+
+.nb-topbar{
+  flex-shrink:0;height:36px;display:flex;align-items:center;gap:10px;padding:0 12px;
+  background:var(--la-bg2);border-bottom:1px solid var(--la-border);
+}
+.nb-topbar-meta{display:flex;align-items:center;gap:8px;font-size:11px}
+.nb-topbar-time{color:var(--la-muted)}
+.nb-progress{flex:1;text-align:center;font-size:11px;font-family:var(--mono);color:var(--la-muted)}
+.nb-toc-toggle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--la-muted);padding:5px 9px;border-radius:6px;background:none;border:none;flex-shrink:0}
+.nb-toc-toggle:hover{color:var(--la-ink);background:var(--la-hover)}
+.nb-toc-toggle svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.nb-toc-panel{
+  position:absolute;top:36px;right:8px;z-index:20;width:260px;max-height:0;overflow:hidden;
+  background:var(--la-bg);border:1px solid var(--la-border);border-radius:0 0 8px 8px;
+  box-shadow:0 14px 34px rgba(10,14,24,.18);transition:max-height .18s;
+}
+.nb-toc-panel.open{max-height:340px;overflow-y:auto}
+.nb-toc-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;font-size:12px;color:var(--la-soft);background:none;border:none;text-align:left}
+.nb-toc-item:hover{background:var(--la-hover);color:var(--la-ink)}
+.nb-toc-item.active{background:var(--la-accent-dim);color:var(--la-accent)}
+.nb-toc-num{font-family:var(--mono);font-size:10.5px;color:var(--la-faint);width:16px;flex-shrink:0}
+.nb-toc-item.active .nb-toc-num{color:var(--la-accent)}
+.nb-toc-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.nb-scroll{flex:1;min-height:0;overflow-y:auto}
+.nb-doc{max-width:700px;margin:0 auto;padding:32px 32px 80px}
+
+.nb-crumb{font-size:11.5px;color:var(--p-muted);margin-bottom:8px}
+.nb-title{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;line-height:1.15;color:#151b2c;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,.08)}
+.content-surface.on-dark .nb-title{color:var(--p-ink);border-color:rgba(255,255,255,.08)}
+
+.nb-section{scroll-margin-top:16px;padding-top:8px}
+.nb-section-hdr{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.nb-section-num{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--p-accent);background:var(--p-accent-dim);border:1px solid var(--p-accent-line);width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nb-section-title{font-size:17px;font-weight:800;letter-spacing:-.015em;color:#151b2c}
+.content-surface.on-dark .nb-section-title{color:var(--p-ink)}
+.nb-section-divider{height:1px;background:rgba(0,0,0,.07);margin:36px 0}
+.content-surface.on-dark .nb-section-divider{background:rgba(255,255,255,.08)}
+
+.nb-complete{margin-top:48px;padding:36px 30px;text-align:center;background:rgba(61,139,255,.05);border:1px solid rgba(61,139,255,.16);border-radius:12px}
+.nb-complete-icon{width:44px;height:44px;border-radius:50%;background:rgba(47,191,116,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.nb-complete-icon svg{width:20px;height:20px;stroke:var(--p-green);stroke-width:2.2}
+.nb-complete h2{font-size:17px;font-weight:800;color:#151b2c;margin-bottom:8px}
+.content-surface.on-dark .nb-complete h2{color:var(--p-ink)}
+.nb-complete p{font-size:13px;color:#4a5578;line-height:1.65;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto}
+.content-surface.on-dark .nb-complete p{color:var(--p-soft)}
+.nb-complete-concepts{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:22px}
+.nb-complete-chip{font-size:11px;font-weight:600;color:var(--p-accent);background:var(--p-accent-dim);border:1px solid var(--p-accent-line);padding:4px 11px;border-radius:20px}
+.nb-complete-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+@media(max-width:520px){
+  .nb-doc{padding:22px 18px 60px}
+  .nb-toc-panel{width:calc(100% - 16px)}
+}

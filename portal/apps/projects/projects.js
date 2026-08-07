@@ -29,7 +29,7 @@ function relativeDate(iso){
 
 export function mount(container, ctx){
   container.innerHTML = `
-    <div class="proj-root p-scroll">
+    <div class="proj-root p-scroll la-surface">
       <div class="proj-head">
         <div>
           <h1 class="proj-title">Your Projects</h1>

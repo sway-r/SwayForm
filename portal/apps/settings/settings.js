@@ -32,7 +32,7 @@ export function mount(container, ctx){
   const prefs = loadPrefs();
 
   container.innerHTML = `
-    <div class="set-root p-scroll">
+    <div class="set-root p-scroll la-surface">
       <div class="set-section">
         <div class="set-section-title">Appearance</div>
         <div class="set-card">

@@ -8,8 +8,6 @@ import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
 import * as Login from './auth/login.js';
 import { isAuthenticated, getSession } from './services/auth-service.js';
-import { getCurrentActivity, getCompletedActivities } from './services/progress-service.js';
-import { LEARNING_PATH, findActivity, flattenActivities } from './data/learning-path.js';
 
 const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
@@ -18,8 +16,7 @@ const STORAGE_KEY = 'swayform.portal.openApps';
 
 const loginRootEl = document.getElementById('login-root');
 const desktopEl = document.getElementById('desktop');
-const continueEl = document.getElementById('desktop-continue');
-const launcherGridEl = document.getElementById('desktop-launcher');
+const desktopIconsEl = document.getElementById('desktop-icons');
 const guestBadgeEl = document.getElementById('desktop-guest-badge');
 const layerEl = document.getElementById('windows-layer');
 const taskbarWinsEl = document.getElementById('taskbar-windows');
@@ -31,59 +28,27 @@ const windows = new Map();
 let zCounter = 10;
 let activeAppId = null;
 
-/* ------------------------------------------------------ Desktop launcher */
-// The primary destination on Portal Home — apps, not a dashboard.
-function renderLauncher(){
-  launcherGridEl.innerHTML = '';
+/* -------------------------------------------------------- Desktop icons */
+// The entire purpose of Home: a place to launch applications. No hero, no
+// progress widgets, no dashboard — just shortcuts, like a real desktop.
+function renderDesktopIcons(){
+  desktopIconsEl.innerHTML = '';
   REGISTRY_ORDER().forEach(mod => {
     const btn = document.createElement('button');
-    btn.className = 'launcher-icon';
+    btn.className = 'desktop-icon';
     btn.type = 'button';
     btn.setAttribute('role', 'listitem');
     btn.setAttribute('aria-label', mod.meta.title);
     btn.innerHTML = `
-      <span class="launcher-icon-glyph">${icon(mod.meta.icon)}</span>
-      <span class="launcher-icon-label">${mod.meta.title}</span>`;
+      <span class="desktop-icon-glyph">${icon(mod.meta.icon)}</span>
+      <span class="desktop-icon-label">${mod.meta.title}</span>`;
     btn.addEventListener('click', () => openApp(mod.meta.id));
-    launcherGridEl.appendChild(btn);
+    desktopIconsEl.appendChild(btn);
   });
 }
 
 function REGISTRY_ORDER(){
   return [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
-}
-
-/* ------------------------------------------------- Desktop Continue widget */
-// Secondary to the launcher — a compact card when there's progress to
-// resume, an even smaller text nudge otherwise. Never the whole homepage.
-async function renderContinue(){
-  const current = await getCurrentActivity();
-  const completed = await getCompletedActivities();
-  const total = flattenActivities().length;
-  const entry = current ? findActivity(current.activityId) : null;
-
-  if (entry){
-    continueEl.innerHTML = `
-      <div class="dc-card">
-        <div>
-          <div class="dc-eyebrow">Continue Learning</div>
-          <div class="dc-title">${entry.activity.title}</div>
-          <div class="dc-crumb">Level ${entry.level.number} · ${entry.section.title}</div>
-          <div class="dc-progress-row">
-            <span class="dc-progress-bar"><span style="width:${total ? (completed.length / total * 100) : 0}%"></span></span>
-            <span class="dc-progress-text">${completed.length} / ${total} complete</span>
-          </div>
-        </div>
-        <button type="button" class="dc-resume p-btn primary" data-resume>${icon('arrowRight')}<span>Resume</span></button>
-      </div>`;
-    continueEl.querySelector('[data-resume]').addEventListener('click', () => {
-      openApp('learn', { view: 'activity', activityId: entry.activity.id });
-    });
-  } else {
-    continueEl.innerHTML = `
-      <button type="button" class="dc-nudge" data-start>${icon('arrowRight')}<span>New here? Start with Foundations</span></button>`;
-    continueEl.querySelector('[data-start]').addEventListener('click', () => openApp('learn'));
-  }
 }
 
 /* ---------------------------------------------------------- Window geometry */
@@ -177,7 +142,6 @@ function createWindow(mod){
     navigate(path, params){ navigateForApp(mod.meta.id, params, path); },
     openApp(id, p){ openApp(id, p); },
     close(){ closeWindow(mod.meta.id); },
-    refreshDesktop(){ renderContinue(); },
   };
 
   win.instance = mod.mount(body, ctx);
@@ -232,7 +196,6 @@ function closeWindow(appId){
   if (activeAppId === appId) activeAppId = null;
   persistOpenApps();
   renderTaskbar();
-  renderContinue();
   if (windows.size === 0) navigateTo('/');
 }
 
@@ -390,8 +353,7 @@ async function showDesktop(){
   const session = await getSession();
   guestBadgeEl.hidden = !(session && session.mode === 'guest');
 
-  renderLauncher();
-  await renderContinue();
+  renderDesktopIcons();
 
   const initialRoute = routeFromPath(location.pathname);
   if (initialRoute){
@@ -421,5 +383,5 @@ async function boot(){
 
 boot();
 
-export const Portal = { openApp, closeWindow, navigateTo, refreshHero: renderContinue };
+export const Portal = { openApp, closeWindow, navigateTo };
 window.SwayPortal = Portal;

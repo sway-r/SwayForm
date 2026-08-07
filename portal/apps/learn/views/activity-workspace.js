@@ -8,18 +8,33 @@ import { markComplete, setCurrentActivity, getCurrentActivity, isActivityComplet
 
 const LAYOUT_STORAGE_KEY = 'swayform.portal.workspace.layout';
 
+// Default tiled workstation: Notebook fills the left column at full height;
+// Code Editor and Terminal stack on the right (Code taller than Terminal).
+// Tight percentage gaps (~0.3-0.4%) read as a thin divider at any screen
+// width rather than a fixed-px value that would look enormous on some
+// screens and cramped on others.
 const DEFAULT_LAYOUT = {
+  notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
+  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 66 },
+  terminal:   { xPct: 37.6, yPct: 66.9, wPct: 62.1, hPct: 32.6 },
+};
+
+// "Learn + Code" preset: the old two-pane arrangement, Terminal minimized.
+// Its stored bounds (used if the student un-minimizes it without dragging)
+// match the tiled default's bottom-right tile, not a centered float.
+const LEARN_CODE_LAYOUT = {
   notebook:   { xPct: 3,  yPct: 4,  wPct: 38, hPct: 90 },
   codeEditor: { xPct: 43, yPct: 4,  wPct: 54, hPct: 90 },
-  terminal:   { xPct: 20, yPct: 24, wPct: 58, hPct: 55, minimized: true },
+  terminal:   { xPct: 37.6, yPct: 66.9, wPct: 62.1, hPct: 32.6, minimized: true },
 };
 
 const READING_DEFAULT_LAYOUT = {
-  notebook: { xPct: 8, yPct: 4, wPct: 84, hPct: 90 },
+  notebook: { xPct: 0.3, yPct: 0.5, wPct: 99.4, hPct: 99 },
 };
 
 const PRESETS = [
-  { id: 'default', label: 'Learn + Code' },
+  { id: 'default', label: 'Workspace' },
+  { id: 'learnCode', label: 'Learn + Code' },
   { id: 'code', label: 'Code Focus' },
   { id: 'learn', label: 'Learn Focus' },
   { id: 'terminal', label: 'Terminal Focus' },
@@ -140,6 +155,7 @@ export function mount(container, params, nav, ctx){
 
   function applyPreset(name){
     if (name === 'default'){ wm.resetLayout(); return; }
+    if (name === 'learnCode'){ wm.applyLayout(LEARN_CODE_LAYOUT); return; }
     if (name === 'code'){ wm.open('codeEditor'); wm.maximize('codeEditor'); return; }
     if (name === 'learn'){ wm.open('notebook'); wm.maximize('notebook'); return; }
     if (name === 'terminal'){ wm.open('terminal'); wm.maximize('terminal'); return; }
@@ -149,8 +165,13 @@ export function mount(container, params, nav, ctx){
 
   /* ---------------------------------------------------------------- boot */
   function bootDefault(){
+    // Open order matters: the last one opened ends up focused/on top, so
+    // Code Editor (the primary work surface) is opened last.
     wm.open('notebook', { silent: true });
-    if (!isReading) wm.open('codeEditor', { silent: true });
+    if (!isReading){
+      wm.open('terminal', { silent: true });
+      wm.open('codeEditor', { silent: true });
+    }
     renderDock();
   }
 
@@ -164,6 +185,7 @@ export function mount(container, params, nav, ctx){
   return {
     unmount(){
       wm.apps.forEach((cfg, id) => wm.close(id));
+      wm.destroy();
     },
   };
 }

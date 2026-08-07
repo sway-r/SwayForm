@@ -23,11 +23,18 @@ export function mount(bodyEl, winApi, opts) {
   let currentIndex = Math.min(Math.max(initialStepIndex || 0, 0), totalSteps - 1);
   let done = !!isDone;
 
+  // A continuous document reports reading progress as a percentage, not a
+  // "Step N of M" wizard count — this isn't a step-by-step slideshow.
+  function progressLabel(i) {
+    const pct = totalSteps > 1 ? Math.round(((i + 1) / totalSteps) * 100) : 100;
+    return `Progress: ${pct}%`;
+  }
+
   bodyEl.innerHTML = `
     <div class="nb-root">
       <div class="nb-topbar">
         <span class="nb-topbar-meta">${diffTag(activity.difficulty, isReading)}<span class="nb-topbar-time">${activity.estimatedTime || ''}</span></span>
-        <span class="nb-progress" data-progress>Step ${currentIndex + 1} of ${totalSteps}</span>
+        <span class="nb-progress" data-progress>${progressLabel(currentIndex)}</span>
         <button type="button" class="nb-toc-toggle" data-toc-toggle>${icon('layers')}<span>Contents</span></button>
       </div>
       <div class="nb-toc-panel" data-toc-panel></div>
@@ -131,7 +138,7 @@ export function mount(bodyEl, winApi, opts) {
       const i = Number(entry.target.dataset.index);
       if (i !== currentIndex) {
         currentIndex = i;
-        progressEl.textContent = `Step ${i + 1} of ${totalSteps}`;
+        progressEl.textContent = progressLabel(i);
         tocPanel.querySelectorAll('.nb-toc-item').forEach((el, idx) => el.classList.toggle('active', idx === i));
         onSectionChange && onSectionChange(i);
       }

@@ -37,6 +37,13 @@ export class WorkspaceWindowManager {
     this._ro.observe(this.desktopEl);
   }
 
+  /** Disconnects the ResizeObserver. Call when the desktop element is about
+   * to be torn down — otherwise a resize notification for the (now zero-size
+   * or removed) element can fire asynchronously afterward, and _reclampAll's
+   * _persist() would overwrite the just-saved layout with an empty one since
+   * this.windows was already cleared by close(). */
+  destroy() { this._ro.disconnect(); }
+
   onChange(cb) { this.listeners.add(cb); return () => this.listeners.delete(cb); }
   _notify() { this.listeners.forEach((cb) => cb(this.getAllStates())); }
 
@@ -64,7 +71,10 @@ export class WorkspaceWindowManager {
   }
 
   _defaultBoundsFor(id) {
-    const d = this.defaultLayout[id] || {};
+    return this._boundsFromPct(this.defaultLayout[id] || {});
+  }
+
+  _boundsFromPct(d) {
     const { w, h } = this._desktopBounds();
     return {
       x: Math.round((d.xPct != null ? d.xPct : 4) / 100 * w),
@@ -76,6 +86,24 @@ export class WorkspaceWindowManager {
     };
   }
 
+  /** Apply an explicit named layout (e.g. a preset) — same shape as
+   * defaultLayout. Apps missing from layoutMap are closed; others are
+   * opened/repositioned to the given bounds, minimized if requested. */
+  applyLayout(layoutMap) {
+    this.apps.forEach((cfg, id) => {
+      const d = layoutMap[id];
+      if (!d) { this.close(id); return; }
+      const bounds = this._boundsFromPct(d);
+      const w = this.open(id, { silent: true });
+      w.maximized = false;
+      w.x = bounds.x; w.y = bounds.y; w.w = bounds.w; w.h = bounds.h;
+      this._applyBounds(w);
+      if (d.minimized) this.minimize(id);
+    });
+    this._persist();
+    this._notify();
+  }
+
   /* ---------------------------------------------------------------- persistence */
   _loadLayout() {
     try { return JSON.parse(localStorage.getItem(this.storageKey) || '{}'); }
@@ -83,12 +111,15 @@ export class WorkspaceWindowManager {
   }
 
   _persist() {
-    const out = {};
+    // Merge into this._layout rather than rebuilding it from this.windows —
+    // this.windows only holds apps instantiated so far *this session*, so a
+    // wholesale rebuild would silently drop the saved position of an app
+    // that hasn't been open()'d yet (e.g. mid-boot-sequence), before its own
+    // open() call gets a chance to read it back.
     this.windows.forEach((w, id) => {
-      out[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: w.minimized, maximized: w.maximized, open: w.open, prevBounds: w.prevBounds };
+      this._layout[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: w.minimized, maximized: w.maximized, open: w.open, prevBounds: w.prevBounds };
     });
-    this._layout = out;
-    try { localStorage.setItem(this.storageKey, JSON.stringify(out)); } catch (e) { /* noop */ }
+    try { localStorage.setItem(this.storageKey, JSON.stringify(this._layout)); } catch (e) { /* noop */ }
   }
 
   resetLayout() {
@@ -277,18 +308,24 @@ export class WorkspaceWindowManager {
 
   /* ---------------------------------------------------------------- drag */
   _makeDraggable(handle, w) {
+    const DRAG_THRESHOLD = 4; // px — below this, treat mousedown+mouseup as a plain click, not a drag
     let drag = null;
     handle.addEventListener('mousedown', (e) => {
       if (e.target.closest('.ww-ctrl')) return;
       if (w.maximized) return;
-      drag = { sx: e.clientX, sy: e.clientY, x0: w.x, y0: w.y };
-      w.el.classList.add('ww-dragging');
-      document.body.classList.add('ww-no-select');
+      drag = { sx: e.clientX, sy: e.clientY, x0: w.x, y0: w.y, moved: false };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     });
     const onMove = (e) => {
       if (!drag) return;
+      if (!drag.moved) {
+        const dist = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy);
+        if (dist < DRAG_THRESHOLD) return;
+        drag.moved = true;
+        w.el.classList.add('ww-dragging');
+        document.body.classList.add('ww-no-select');
+      }
       const { w: dw, h: dh } = this._desktopBounds();
       let x = drag.x0 + (e.clientX - drag.sx);
       let y = drag.y0 + (e.clientY - drag.sy);
@@ -300,11 +337,13 @@ export class WorkspaceWindowManager {
     };
     const onUp = (e) => {
       if (!drag) return;
+      const { moved } = drag;
       drag = null;
-      w.el.classList.remove('ww-dragging');
-      document.body.classList.remove('ww-no-select');
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      if (!moved) return; // plain click (or the first half of a dblclick) — not a drag, nothing to snap/persist
+      w.el.classList.remove('ww-dragging');
+      document.body.classList.remove('ww-no-select');
       const zone = this._snapZoneFor(e);
       this._hideSnapPreview();
       if (zone) this._applySnap(w, zone);

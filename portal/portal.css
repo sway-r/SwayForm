@@ -84,54 +84,64 @@
 .desktop-exit:hover{color:var(--p-ink)}
 .desktop-guest-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7fb2ff;background:var(--p-accent-dim);border:1px solid var(--p-accent-line);padding:4px 10px;border-radius:20px}
 
-/* ── Desktop hero ("Continue Learning") ─────────────────── */
-.desktop-hero{
+/* ── Desktop main — the app launcher is the primary focus; "Continue
+   Learning" is a small secondary widget above it, not a full-bleed hero. ── */
+.desktop-main{
   position:relative;z-index:5;flex:1;min-height:0;
-  display:flex;flex-direction:column;justify-content:center;
-  max-width:640px;padding:0 56px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;
+  padding:0 24px;
 }
-.hero-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--p-accent);margin-bottom:14px}
-.hero-crumb{font-size:12.5px;color:var(--p-soft);margin-bottom:8px}
-.hero-title{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.03em;line-height:1.1;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-bottom:22px}
-.hero-sub{font-size:14px;color:var(--p-soft);line-height:1.6;margin-bottom:24px;max-width:440px}
-.hero-progress-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.hero-progress-bar{width:220px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;display:block}
-.hero-progress-bar span{display:block;height:100%;background:var(--p-accent);border-radius:3px;transition:width .3s}
-.hero-progress-text{font-size:12px;color:var(--p-muted);font-family:var(--mono);white-space:nowrap}
-.hero-resume{padding:13px 26px;font-size:13.5px;align-self:flex-start}
 
-/* ── Desktop dock ───────────────────────────────────────── */
-.desktop-dock{
-  position:relative;z-index:5;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:14px;margin:0 auto 20px;width:fit-content;
+/* ── Continue Learning — compact card, absent/minimal when there's no
+   in-progress activity so Home still makes sense with zero history. ── */
+.desktop-continue{display:flex}
+.desktop-continue:empty{display:none}
+.dc-card{
+  display:flex;align-items:center;gap:22px;max-width:520px;
   background:rgba(10,12,18,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  border:1px solid rgba(255,255,255,.08);border-radius:16px;
-  box-shadow:0 16px 40px rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:14px 20px;
+  box-shadow:0 12px 30px rgba(0,0,0,.3);
 }
-.dock-icon{
-  width:76px;padding:10px 4px;border-radius:10px;
-  display:flex;flex-direction:column;align-items:center;gap:7px;
+.dc-eyebrow{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent);margin-bottom:5px}
+.dc-title{font-size:14.5px;font-weight:700;letter-spacing:-.015em;color:#fff;margin-bottom:3px}
+.dc-crumb{font-size:11px;color:var(--p-soft)}
+.dc-progress-row{display:flex;align-items:center;gap:8px;margin-top:9px}
+.dc-progress-bar{width:120px;height:4px;border-radius:2px;background:rgba(255,255,255,.14);overflow:hidden;display:block}
+.dc-progress-bar span{display:block;height:100%;background:var(--p-accent);border-radius:2px}
+.dc-progress-text{font-size:10.5px;color:var(--p-muted);font-family:var(--mono);white-space:nowrap}
+.dc-resume{flex-shrink:0;padding:9px 18px;font-size:12.5px}
+.dc-nudge{font-size:12.5px;color:var(--p-soft);display:flex;align-items:center;gap:6px}
+.dc-nudge:hover{color:#fff}
+.dc-nudge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ── Desktop launcher — the primary destination grid ────── */
+.desktop-launcher{
+  position:relative;z-index:5;display:flex;align-items:flex-start;justify-content:center;
+  gap:10px;flex-wrap:wrap;max-width:640px;
+}
+.launcher-icon{
+  width:96px;padding:16px 6px;border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
   background:none;border:1px solid transparent;text-align:center;cursor:pointer;
   transition:background .15s,border-color .15s;
   -webkit-tap-highlight-color:transparent;
 }
-.dock-icon:hover,.dock-icon:focus-visible{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1)}
-.dock-icon:focus-visible{outline:2px solid var(--p-accent);outline-offset:1px}
-.dock-icon-glyph{
-  width:38px;height:38px;border-radius:9px;
+.launcher-icon:hover,.launcher-icon:focus-visible{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1)}
+.launcher-icon:focus-visible{outline:2px solid var(--p-accent);outline-offset:1px}
+.launcher-icon-glyph{
+  width:50px;height:50px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(155deg,rgba(255,255,255,.1),rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.12);
 }
-.dock-icon-glyph svg{width:19px;height:19px;stroke:#eaf0ff;fill:none;stroke-width:1.6}
-.dock-icon-label{font-size:10.5px;font-weight:600;color:#dfe6f4}
+.launcher-icon-glyph svg{width:23px;height:23px;stroke:#eaf0ff;fill:none;stroke-width:1.6}
+.launcher-icon-label{font-size:11.5px;font-weight:600;color:#dfe6f4}
 
 /* ── Windows layer ──────────────────────────────────────── */
 .windows-layer{position:absolute;top:var(--topline-h);left:0;right:0;bottom:var(--taskbar-h);z-index:10;pointer-events:none}
 .window{
   position:absolute;display:flex;flex-direction:column;pointer-events:auto;
-  background:var(--la-bg);border:1px solid var(--la-border);border-radius:10px;
+  background:var(--la-bg);border:1px solid var(--la-border);border-radius:8px;
   box-shadow:0 24px 64px rgba(3,5,10,.4),0 2px 8px rgba(3,5,10,.22);
   overflow:hidden;min-width:320px;min-height:220px;
 }
@@ -216,7 +226,7 @@
 /* ── Light app surface — the default for every application EXCEPT the
    Portal Desktop chrome, Code Editor, and Terminal (see --la-* tokens
    above). .p-btn/.p-scroll default to the dark OS-chrome look (used by
-   the Desktop hero and the Code Editor toolbar), so light surfaces need
+   the Desktop launcher/Continue widget and the Code Editor toolbar), so light surfaces need
    this override — same pattern content.css already uses for .content-surface. ── */
 .la-surface{background:var(--la-bg2);color:var(--la-ink)}
 .la-surface .p-btn{color:var(--la-ink);background:var(--la-bg);border-color:var(--la-border)}
@@ -230,10 +240,11 @@
 .la-surface.p-scroll::-webkit-scrollbar-thumb:hover,.la-surface .p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(20,26,44,.22)}
 
 @media(max-width:760px){
-  .desktop-hero{padding:0 24px}
-  .hero-progress-bar{width:140px}
-  .dock-icon{width:60px}
-  .dock-icon-label{display:none}
+  .desktop-main{padding:0 20px}
+  .dc-card{max-width:100%}
+  .dc-progress-bar{width:80px}
+  .launcher-icon{width:74px}
+  .launcher-icon-label{display:none}
   .window{left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;border-radius:0}
   .window.restored{resize:none}
   .desktop-brand-label{display:none}

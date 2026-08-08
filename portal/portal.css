@@ -78,11 +78,19 @@
   background-image:url('/images/background.png');
   background-size:cover;background-position:center;
   transform:scale(1.02);
+  /* Brighter, less harsh read on the source image — closer to the premium,
+     lighter feel of swayform.net without losing the desktop's dark identity. */
+  filter:brightness(1.22) contrast(0.94) saturate(1.05);
 }
 .desktop-scrim{
   position:absolute;inset:0;z-index:1;
   background:
-    linear-gradient(180deg,rgba(3,5,9,.72) 0%,rgba(3,5,9,.38) 22%,rgba(3,5,9,.42) 78%,rgba(3,5,9,.86) 100%);
+    /* soft SwayForm-blue haze, tasteful not neon */
+    radial-gradient(ellipse 70% 55% at 52% 34%,rgba(150,190,255,.10) 0%,transparent 62%),
+    /* lighter overlay than before — kept slightly darker at the very top/
+       bottom (topline and taskbar/dock text sit there) and much lighter
+       through the middle where the wallpaper's own detail lives */
+    linear-gradient(180deg,rgba(6,10,20,.46) 0%,rgba(8,13,24,.20) 22%,rgba(8,13,24,.22) 78%,rgba(4,7,14,.56) 100%);
 }
 
 /* ── Top identity line ──────────────────────────────────── */

@@ -17,9 +17,15 @@
  *   1. Getting Started   — orientation/setup reading (real content: 5 items)
  *   2. Essentials        — practical fundamentals (not authored yet: placeholders)
  *   3. Pre-Installed Demos — code walkthroughs of the real swayform_demos/ files
- *   4-7. Foundation / Sensors / Expression / Projects — the 40-lab program.
- *        10 real labs exist today (swayform_labs/lab_01..lab_10); the other
- *        30 slots are honest "Coming Soon" placeholders, not invented content.
+ *   4-7. Control / React / Perceive / Create — the 40-lab program, matching
+ *        the canonical public curriculum at swayform.net/learning-path
+ *        (4 levels of 10 labs). Level 1 — Control is fully built (the 10
+ *        real labs in swayform_labs/lab_01..lab_10); Levels 2-4 are planned
+ *        — Level 2's working titles are the real ones published on that
+ *        page, Levels 3-4 are theme-only placeholders because no specific
+ *        lab titles have been published for them yet. Do not resplit the
+ *        Level 1 labs across levels or rename them beyond matching that
+ *        page — swayform.net is the canonical source for this structure.
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -36,9 +42,13 @@ function pull(id) {
   return found.activity;
 }
 
-/** A real lab/reading activity, unmodified except for sectionId/number bookkeeping. */
-function real(id, sectionId, number) {
-  return { ...pull(id), sectionId, number };
+/** A real lab/reading activity. `overrides` corrects display metadata (title/
+ * difficulty/estimatedTime) to match the canonical copy already published on
+ * swayform.net/learning-path — it does not touch the underlying Notebook
+ * step/block content in learning-path.js, only what's shown in headers,
+ * lists, and the curriculum index. */
+function real(id, sectionId, number, overrides) {
+  return { ...pull(id), ...overrides, sectionId, number };
 }
 
 /** A finished swayform_demos/ program, reclassified from 'activity' to 'demo' —
@@ -87,57 +97,53 @@ const s3 = [
   demo('interactive-exchange', 'demos', '3.5'),
 ];
 
+// Level 1 — Control: all 10 currently-available labs, in the exact order,
+// titles, and difficulty published on swayform.net/learning-path (the
+// canonical public curriculum). Do not resplit these across levels or
+// rename them beyond matching that page — see file header.
 const s4 = [
-  real('hello-robot-motion', 'foundation', '4.1'),
-  real('safe-joint-limits', 'foundation', '4.2'),
-  real('gesture-sequence', 'foundation', '4.3'),
-  real('base-rotation', 'foundation', '4.4'),
-  placeholder('foundation-4-5', 'foundation', '4.5', 'Lab 4.5 — Coming Soon'),
-  placeholder('foundation-4-6', 'foundation', '4.6', 'Lab 4.6 — Coming Soon'),
-  placeholder('foundation-4-7', 'foundation', '4.7', 'Lab 4.7 — Coming Soon'),
-  placeholder('foundation-4-8', 'foundation', '4.8', 'Lab 4.8 — Coming Soon'),
-  placeholder('foundation-4-9', 'foundation', '4.9', 'Lab 4.9 — Coming Soon'),
-  placeholder('foundation-4-10', 'foundation', '4.10', 'Lab 4.10 — Coming Soon'),
+  real('hello-robot-motion', 'control', '1.01'),
+  real('safe-joint-limits', 'control', '1.02', { title: 'Servo Angles and Safe Limits' }),
+  real('gesture-sequence', 'control', '1.03'),
+  real('head-tracking', 'control', '1.04', { title: 'Head Tracking Basics', difficulty: 'intermediate' }),
+  real('button-to-motion-control', 'control', '1.05', { difficulty: 'intermediate' }),
+  real('realsense-detection-basics', 'control', '1.06'),
+  real('hand-pose-timing', 'control', '1.07'),
+  real('base-rotation', 'control', '1.08', { title: 'Base Rotation Basics' }),
+  real('behavior-priority-motion-locking', 'control', '1.09', { title: 'Behavior Priority and Motion Locking' }),
+  real('mini-demo-challenge', 'control', '1.10', { difficulty: 'advanced' }),
 ];
 
+// Level 2 — React: not built yet. Titles below are the actual planned
+// working titles published on swayform.net/learning-path ("Labs 11–20"),
+// not invented — kept as honest placeholders until each lab is authored.
 const s5 = [
-  real('button-to-motion-control', 'sensors', '5.1'),
-  real('head-tracking', 'sensors', '5.2'),
-  real('realsense-detection-basics', 'sensors', '5.3'),
-  placeholder('sensors-5-4', 'sensors', '5.4', 'Camera-Based Interaction', 'Greeting a user by camera and mapping detected object positions.'),
-  placeholder('sensors-5-5', 'sensors', '5.5', 'Lab 5.5 — Coming Soon'),
-  placeholder('sensors-5-6', 'sensors', '5.6', 'Lab 5.6 — Coming Soon'),
-  placeholder('sensors-5-7', 'sensors', '5.7', 'Lab 5.7 — Coming Soon'),
-  placeholder('sensors-5-8', 'sensors', '5.8', 'Lab 5.8 — Coming Soon'),
-  placeholder('sensors-5-9', 'sensors', '5.9', 'Lab 5.9 — Coming Soon'),
-  placeholder('sensors-5-10', 'sensors', '5.10', 'Lab 5.10 — Coming Soon'),
+  placeholder('react-11', 'react', '2.01', 'Simple State Machines'),
+  placeholder('react-12', 'react', '2.02', 'Custom Motion Presets'),
+  placeholder('react-13', 'react', '2.03', 'Camera-Based User Greeting'),
+  placeholder('react-14', 'react', '2.04', 'Object Position Mapping'),
+  placeholder('react-15', 'react', '2.05', 'Two-Arm Coordination'),
+  placeholder('react-16', 'react', '2.06', 'Speaker Prompts and Timing'),
+  placeholder('react-17', 'react', '2.07', 'Classroom Challenge: Helpful Robot'),
+  placeholder('react-18', 'react', '2.08', 'Intro to Robot Debug Logs'),
+  placeholder('react-19', 'react', '2.09', 'Build Your Own Interaction'),
+  placeholder('react-20', 'react', '2.10', 'Final Showcase Demo'),
 ];
 
-const s6 = [
-  real('hand-pose-timing', 'expression', '6.1'),
-  placeholder('expression-6-2', 'expression', '6.2', 'Speaker Prompts & Timing', 'Using speaker output alongside timed motion.'),
-  placeholder('expression-6-3', 'expression', '6.3', 'Two-Arm Coordination', 'Coordinating both arms in a single behavior.'),
-  placeholder('expression-6-4', 'expression', '6.4', 'Lab 6.4 — Coming Soon'),
-  placeholder('expression-6-5', 'expression', '6.5', 'Lab 6.5 — Coming Soon'),
-  placeholder('expression-6-6', 'expression', '6.6', 'Lab 6.6 — Coming Soon'),
-  placeholder('expression-6-7', 'expression', '6.7', 'Lab 6.7 — Coming Soon'),
-  placeholder('expression-6-8', 'expression', '6.8', 'Lab 6.8 — Coming Soon'),
-  placeholder('expression-6-9', 'expression', '6.9', 'Lab 6.9 — Coming Soon'),
-  placeholder('expression-6-10', 'expression', '6.10', 'Lab 6.10 — Coming Soon'),
-];
+// Level 3 — Perceive: theme only on the public site ("Vision pipelines,
+// depth-based tracking, state-machine design, and multi-sensor
+// integration") — no individual lab titles published yet, so these stay
+// generic placeholders rather than inventing specific ones.
+const s6 = Array.from({ length: 10 }, (_, i) =>
+  placeholder(`perceive-${21 + i}`, 'perceive', `3.${String(i + 1).padStart(2, '0')}`, `Lab ${21 + i} — Coming Soon`,
+    'Level 3 builds toward a student project track: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration. Exact lab titles will be finalized as development continues.'));
 
-const s7 = [
-  real('behavior-priority-motion-locking', 'projects', '7.1'),
-  placeholder('projects-7-2', 'projects', '7.2', 'State Machines & Motion Presets', 'Simple state machines and reusable custom motion presets.'),
-  placeholder('projects-7-3', 'projects', '7.3', 'Classroom Challenges & Showcase Demos', 'Open-ended classroom challenges and a final showcase demo.'),
-  placeholder('projects-7-4', 'projects', '7.4', 'Lab 7.4 — Coming Soon'),
-  placeholder('projects-7-5', 'projects', '7.5', 'Lab 7.5 — Coming Soon'),
-  placeholder('projects-7-6', 'projects', '7.6', 'Lab 7.6 — Coming Soon'),
-  placeholder('projects-7-7', 'projects', '7.7', 'Lab 7.7 — Coming Soon'),
-  placeholder('projects-7-8', 'projects', '7.8', 'Lab 7.8 — Coming Soon'),
-  placeholder('projects-7-9', 'projects', '7.9', 'Lab 7.9 — Coming Soon'),
-  real('mini-demo-challenge', 'projects', '7.10'),
-];
+// Level 4 — Create: theme only on the public site ("Original ROS 2 package
+// design, multi-node architecture, and a final showcase demo") — the
+// project track, no individual lab titles published yet.
+const s7 = Array.from({ length: 10 }, (_, i) =>
+  placeholder(`create-${31 + i}`, 'create', `4.${String(i + 1).padStart(2, '0')}`, `Lab ${31 + i} — Coming Soon`,
+    'Level 4 is the project track: fully student-authored programs, original ROS 2 package design, multi-node architecture, and a final showcase demo. Exact lab titles will be finalized as development continues.'));
 
 export const CURRICULUM = {
   id: 'swayform-robotics-path',
@@ -159,23 +165,23 @@ export const CURRICULUM = {
       items: s3,
     },
     {
-      id: 'foundation', number: 4, title: 'Foundation', type: 'lab', icon: 'building', levelLabel: 'Level 1',
-      description: '10 structured labs establishing the core programming patterns used throughout SwayForm.',
+      id: 'control', number: 4, title: 'Control', type: 'lab', icon: 'terminal', levelLabel: 'Level 1',
+      description: 'Drive the hardware — SSH in, write joint commands, and author motion sequences. Available now.',
       items: s4,
     },
     {
-      id: 'sensors', number: 5, title: 'Sensors', type: 'lab', icon: 'search', levelLabel: 'Level 2',
-      description: '10 labs connecting the robot to what it can detect in its environment.',
+      id: 'react', number: 5, title: 'React', type: 'lab', icon: 'search', levelLabel: 'Level 2',
+      description: 'Add sensors — build reactive behaviors that respond to distance, IMU, and face detection in real time. Planned.',
       items: s5,
     },
     {
-      id: 'expression', number: 6, title: 'Expression', type: 'lab', icon: 'user', levelLabel: 'Level 3',
-      description: '10 labs composing gesture, pose, and timing into expressive behavior.',
+      id: 'perceive', number: 6, title: 'Perceive', type: 'lab', icon: 'eye', levelLabel: 'Level 3',
+      description: 'Build vision systems — OpenCV pipelines, depth-based tracking, and state machine design. Planned; the project track begins here.',
       items: s6,
     },
     {
-      id: 'projects', number: 7, title: 'Projects', type: 'lab', icon: 'projects', levelLabel: 'Level 4',
-      description: '10 labs combining earlier skills into original, higher-level behaviors.',
+      id: 'create', number: 7, title: 'Create', type: 'lab', icon: 'projects', levelLabel: 'Level 4',
+      description: 'Author full systems — fully student-written programs, multi-node architecture, and a final showcase. Planned.',
       items: s7,
     },
   ],
@@ -185,7 +191,7 @@ export const CURRICULUM = {
 
 /** Sections 4-7 only — the "40 structured labs" the portal advertises.
  * Getting Started / Essentials / Demos are NOT part of that count. */
-export const LAB_SECTION_IDS = ['foundation', 'sensors', 'expression', 'projects'];
+export const LAB_SECTION_IDS = ['control', 'react', 'perceive', 'create'];
 
 export function findSection(sectionId) {
   return CURRICULUM.sections.find((s) => s.id === sectionId) || null;

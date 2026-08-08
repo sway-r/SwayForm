@@ -1,6 +1,6 @@
 import { icon } from '../../icons.js';
 import { MOCK_PROJECTS } from '../../data/mock-projects.js';
-import { findActivity } from '../../data/learning-path.js';
+import { findItem } from '../../data/curriculum.js';
 
 export const meta = {
   id: 'projects',
@@ -43,8 +43,8 @@ export function mount(container, ctx){
   const gridEl = container.querySelector('[data-grid]');
 
   MOCK_PROJECTS.forEach((p) => {
-    const found = findActivity(p.associatedActivityId);
-    const activityLabel = found ? found.activity.title : p.associatedActivityId;
+    const found = findItem(p.associatedActivityId);
+    const activityLabel = found ? found.item.title : p.associatedActivityId;
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'proj-card';

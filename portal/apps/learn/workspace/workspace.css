@@ -104,7 +104,7 @@ body.ww-resizing-cursor-nw,body.ww-resizing-cursor-se{cursor:nwse-resize!importa
 /* ── Workspace dock ─────────────────────────────────────── */
 .aw-dock{
   flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;
-  height:36px;padding:0 12px;background:rgba(255,255,255,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  height:36px;padding:0 12px;background:var(--la-bg2);
   border-top:1px solid var(--la-border);
 }
 .aw-dock-item{

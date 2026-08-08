@@ -48,6 +48,25 @@
   --la-accent-line:var(--p-accent-line);
 }
 
+/* ── Dark Mode — overrides the --la-* light-app tokens only. The Portal
+   Desktop wallpaper/chrome and the Code Editor/Terminal are unaffected by
+   design (see spec: "Code Editor dark in both light and dark portal mode is
+   fine" / "desktop wallpaper remains appropriate"). Toggled by Settings via
+   portal/theme.js, which sets data-theme on <html>. ── */
+[data-theme="dark"]{
+  --la-bg:#1b1e25;
+  --la-bg2:#15171d;
+  --la-bg3:#21242c;
+  --la-border:rgba(255,255,255,.09);
+  --la-border-soft:rgba(255,255,255,.06);
+  --la-ink:#eef1f6;
+  --la-soft:#c3c9d6;
+  --la-muted:#9098a8;
+  --la-faint:#6b7280;
+  --la-hover:rgba(255,255,255,.06);
+  --la-hover-strong:rgba(255,255,255,.09);
+}
+
 .portal-body{background:var(--p-bg);color:var(--p-ink);font-family:var(--font);overflow:hidden;height:100vh}
 .portal-body,.portal-body *{box-sizing:border-box}
 .portal-body [hidden]{display:none!important}
@@ -202,15 +221,15 @@
    the Desktop icons and the Code Editor toolbar), so light surfaces need
    this override — same pattern content.css already uses for .content-surface. ── */
 .la-surface{background:var(--la-bg2);color:var(--la-ink)}
-.la-surface .p-btn{color:var(--la-ink);background:var(--la-bg);border-color:var(--la-border)}
-.la-surface .p-btn:hover{background:var(--la-hover-strong);border-color:rgba(20,26,44,.18)}
-.la-surface .p-btn.primary{background:var(--la-accent);border-color:var(--la-accent);color:#fff}
-.la-surface .p-btn.primary:hover{background:#2268ff;border-color:#2268ff}
-.la-surface .p-btn.ghost{background:none}
-.la-surface .p-btn svg{stroke:currentColor}
-.la-surface.p-scroll,.la-surface .p-scroll{scrollbar-color:rgba(20,26,44,.18) transparent}
-.la-surface.p-scroll::-webkit-scrollbar-thumb,.la-surface .p-scroll::-webkit-scrollbar-thumb{background:rgba(20,26,44,.14)}
-.la-surface.p-scroll::-webkit-scrollbar-thumb:hover,.la-surface .p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(20,26,44,.22)}
+.la-surface .p-btn,.content-surface .p-btn{color:var(--la-ink);background:var(--la-bg);border-color:var(--la-border)}
+.la-surface .p-btn:hover,.content-surface .p-btn:hover{background:var(--la-hover-strong);border-color:rgba(20,26,44,.18)}
+.la-surface .p-btn.primary,.content-surface .p-btn.primary{background:var(--la-accent);border-color:var(--la-accent);color:#fff}
+.la-surface .p-btn.primary:hover,.content-surface .p-btn.primary:hover{background:#2268ff;border-color:#2268ff}
+.la-surface .p-btn.ghost,.content-surface .p-btn.ghost{background:none}
+.la-surface .p-btn svg,.content-surface .p-btn svg{stroke:currentColor}
+.la-surface.p-scroll,.la-surface .p-scroll,.content-surface.p-scroll,.content-surface .p-scroll{scrollbar-color:rgba(20,26,44,.18) transparent}
+.la-surface.p-scroll::-webkit-scrollbar-thumb,.la-surface .p-scroll::-webkit-scrollbar-thumb,.content-surface.p-scroll::-webkit-scrollbar-thumb,.content-surface .p-scroll::-webkit-scrollbar-thumb{background:rgba(20,26,44,.14)}
+.la-surface.p-scroll::-webkit-scrollbar-thumb:hover,.la-surface .p-scroll::-webkit-scrollbar-thumb:hover,.content-surface.p-scroll::-webkit-scrollbar-thumb:hover,.content-surface .p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(20,26,44,.22)}
 
 @media(max-width:760px){
   .desktop-icons{padding:16px 0 0 12px}

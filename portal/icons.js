@@ -42,6 +42,7 @@ const PATHS = {
   cloud:        '<path d="M7.5 18a4.5 4.5 0 0 1-.5-8.98A5.5 5.5 0 0 1 17.6 9.5 4 4 0 0 1 17 18H7.5Z"/>',
   layers:       '<polygon points="12 3 21 8 12 13 3 8"/><polyline points="3 13 12 18 21 13" opacity=".6"/><polyline points="3 17.5 12 22.5 21 17.5" opacity=".3"/>',
   target:       '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/>',
+  menu:         '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
 };
 
 export function icon(name, cls){

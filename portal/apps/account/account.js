@@ -1,6 +1,6 @@
 import { icon } from '../../icons.js';
 import { ACCOUNT_MOCK } from '../../data/account-mock.js';
-import { LEARNING_PATH, flattenActivities } from '../../data/learning-path.js';
+import { CURRICULUM, labTotals, sectionProgress } from '../../data/curriculum.js';
 import { getSession, logout } from '../../services/auth-service.js';
 import { getCompletedActivities, resetProgress } from '../../services/progress-service.js';
 
@@ -29,16 +29,12 @@ async function render(container, ctx){
   const session = await getSession();
   const isGuest = session && session.mode === 'guest';
   const completed = await getCompletedActivities();
-  const totalActivities = flattenActivities().length;
+  const labs = labTotals(completed);
 
   const displayName = isGuest ? 'Guest User' : a.studentName;
   const roleLine = isGuest ? 'Guest session · progress saved in this browser only' : `${a.role} · ${a.school}`;
 
-  const perLevel = LEARNING_PATH.levels.map((level) => {
-    const ids = level.sections.flatMap((s) => s.activities.map((act) => act.id));
-    const done = ids.filter((id) => completed.includes(id)).length;
-    return { level, done, total: ids.length };
-  }).filter((l) => l.total > 0);
+  const perSection = CURRICULUM.sections.map((section) => ({ section, ...sectionProgress(section.id, completed) }));
 
   container.innerHTML = `
     <div class="acct-root p-scroll la-surface">
@@ -56,8 +52,8 @@ async function render(container, ctx){
       <div class="acct-section">
         <div class="acct-section-title">Learning progress</div>
         <div class="acct-stats">
-          ${statRow('Activities complete', completed.length, totalActivities, 'checkCircle')}
-          ${perLevel.map((l) => statRow(`Level ${l.level.number} · ${l.level.title}`, l.done, l.total, 'layers')).join('')}
+          ${statRow('Labs complete (Foundation–Projects)', labs.complete, labs.total, 'checkCircle')}
+          ${perSection.map((l) => statRow(`${l.section.number}. ${l.section.title}`, l.complete, l.total, 'layers')).join('')}
         </div>
       </div>
 

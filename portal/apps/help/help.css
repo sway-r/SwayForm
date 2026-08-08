@@ -13,5 +13,4 @@
 .help-nav-item.active{background:var(--la-accent-dim);color:var(--la-accent)}
 .help-nav-item.dim{opacity:.35}
 .help-content{flex:1;min-width:0}
-.help-section-title{font-size:22px;font-weight:900;letter-spacing:-.025em;color:#151b2c;margin-bottom:18px}
-.content-surface.on-dark .help-section-title{color:var(--p-ink)}
+.help-section-title{font-size:22px;font-weight:900;letter-spacing:-.025em;color:var(--la-ink);margin-bottom:18px}

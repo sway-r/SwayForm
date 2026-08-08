@@ -1,7 +1,6 @@
 import { icon } from '../../icons.js';
 import { REFERENCE } from '../../data/reference.js';
 import { renderBlocks } from '../learn/lesson-renderer.js';
-import { applyReadingTheme } from '../../theme.js';
 
 export const meta = {
   id: 'help',
@@ -47,7 +46,6 @@ export function mount(container, ctx){
   const navListEl = container.querySelector('[data-nav-list]');
   const contentEl = container.querySelector('[data-help-content]');
   const searchInput = container.querySelector('.help-search-input');
-  applyReadingTheme(contentEl);
 
   function renderNav(filter){
     const q = (filter || '').trim().toLowerCase();

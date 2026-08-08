@@ -6,19 +6,19 @@
  * only how many steps render at once has changed. */
 import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
-import { applyReadingTheme } from '../../../theme.js';
 
 export const meta = { id: 'notebook', title: 'Notebook', icon: 'book' };
 
-function diffTag(difficulty, isReading) {
-  if (isReading) return '<span class="diff-tag reading">Reading</span>';
-  if (!difficulty) return '';
-  return `<span class="diff-tag ${difficulty}">${difficulty}</span>`;
+function diffTag(activity) {
+  if (activity.kind === 'demo') return '<span class="diff-tag demo">Demo walkthrough</span>';
+  if (activity.kind === 'reading' || activity.kind === 'placeholder') return '<span class="diff-tag reading">Reading</span>';
+  if (!activity.difficulty) return '';
+  return `<span class="diff-tag ${activity.difficulty}">${activity.difficulty}</span>`;
 }
 
 export function mount(bodyEl, winApi, opts) {
-  const { activity, section, level, initialStepIndex, nextActivity, isDone, lessonCtx, onSectionChange, onFinish } = opts;
-  const isReading = activity.kind === 'reading';
+  const { activity, section, initialStepIndex, nextActivity, isDone, lessonCtx, onSectionChange, onFinish } = opts;
+  const isReading = activity.kind === 'reading' || activity.kind === 'placeholder';
   const totalSteps = activity.steps.length;
   let currentIndex = Math.min(Math.max(initialStepIndex || 0, 0), totalSteps - 1);
   let done = !!isDone;
@@ -33,7 +33,7 @@ export function mount(bodyEl, winApi, opts) {
   bodyEl.innerHTML = `
     <div class="nb-root">
       <div class="nb-topbar">
-        <span class="nb-topbar-meta">${diffTag(activity.difficulty, isReading)}<span class="nb-topbar-time">${activity.estimatedTime || ''}</span></span>
+        <span class="nb-topbar-meta">${diffTag(activity)}<span class="nb-topbar-time">${activity.estimatedTime || ''}</span></span>
         <span class="nb-progress" data-progress>${progressLabel(currentIndex)}</span>
         <button type="button" class="nb-toc-toggle" data-toc-toggle>${icon('layers')}<span>Contents</span></button>
       </div>
@@ -45,7 +45,6 @@ export function mount(bodyEl, winApi, opts) {
   const progressEl = bodyEl.querySelector('[data-progress]');
   const tocPanel = bodyEl.querySelector('[data-toc-panel]');
   const tocToggle = bodyEl.querySelector('[data-toc-toggle]');
-  applyReadingTheme(scrollEl);
 
   const doc = document.createElement('div');
   doc.className = 'nb-doc';
@@ -54,7 +53,7 @@ export function mount(bodyEl, winApi, opts) {
   const head = document.createElement('div');
   head.className = 'nb-head';
   head.innerHTML = `
-    <div class="nb-crumb">${level ? `Level ${level.number} · ` : ''}${section.title}</div>
+    <div class="nb-crumb">${activity.number ? `${activity.number} · ` : ''}${section.title}</div>
     <h1 class="nb-title">${activity.title}</h1>`;
   doc.appendChild(head);
 
@@ -83,6 +82,18 @@ export function mount(bodyEl, winApi, opts) {
   const completeBlock = document.createElement('div');
   completeBlock.className = 'nb-complete';
   function renderComplete() {
+    // A placeholder has nothing to complete — no fake "Mark Complete" on
+    // content that doesn't exist yet.
+    if (activity.kind === 'placeholder') {
+      completeBlock.innerHTML = `
+        <div class="nb-complete-icon">${icon('clock')}</div>
+        <h2>Not written yet</h2>
+        <p>This entry is planned but not yet available — check back after this section is authored.</p>
+        ${nextActivity ? `<div class="nb-complete-actions"><button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button></div>` : ''}`;
+      const nextBtn = completeBlock.querySelector('[data-next-activity]');
+      if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next'));
+      return;
+    }
     completeBlock.innerHTML = `
       <div class="nb-complete-icon">${icon('checkCircle')}</div>
       <h2>${done ? `${activity.title} complete.` : 'Finished reading?'}</h2>

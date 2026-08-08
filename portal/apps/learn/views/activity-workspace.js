@@ -1,5 +1,5 @@
 import { icon } from '../../../icons.js';
-import { findActivity, flattenActivities } from '../../../data/learning-path.js';
+import { findItem, nextItem } from '../../../data/curriculum.js';
 import { WorkspaceWindowManager } from '../workspace/window-manager.js';
 import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
@@ -41,14 +41,19 @@ const PRESETS = [
 ];
 
 export function mount(container, params, nav, ctx){
-  const found = findActivity(params.activityId);
+  const found = findItem(params.activityId);
   if (!found){ nav.home(); return { unmount(){} }; }
-  const { level, section, activity } = found;
-  const isReading = activity.kind === 'reading';
+  const { section, item: activity } = found;
+  // Reading (orientation/essentials) and not-yet-written placeholders are
+  // Notebook-only — there's no code to run. Demos and labs get the full
+  // three-window workstation; a demo is still real, runnable code, just
+  // framed as "study this" rather than "write this from scratch".
+  const isReading = activity.kind === 'reading' || activity.kind === 'placeholder';
 
   container.innerHTML = `
     <div class="aw-root">
       <div class="aw-header">
+        <button type="button" class="lh-menu-btn" data-menu title="Curriculum" aria-label="Open curriculum index">${icon('menu')}</button>
         <button type="button" class="aw-back" data-back>${icon('arrowLeft')}<span></span></button>
         <div class="aw-crumb">${section.title} / <strong>${activity.title}</strong></div>
         <div class="aw-header-spacer"></div>
@@ -59,6 +64,7 @@ export function mount(container, params, nav, ctx){
       <div class="aw-dock" data-dock></div>
     </div>`;
 
+  container.querySelector('[data-menu]').addEventListener('click', () => nav.toggleIndex());
   container.querySelector('[data-back]').addEventListener('click', () => nav.section(section.id));
 
   const desktopEl = container.querySelector('[data-desktop]');
@@ -67,9 +73,7 @@ export function mount(container, params, nav, ctx){
 
   ctx.setTitle && ctx.setTitle(activity.title);
 
-  const flat = flattenActivities();
-  const idx = flat.findIndex((e) => e.activity.id === activity.id);
-  const nextActivity = flat[idx + 1] ? flat[idx + 1].activity : null;
+  const nextActivity = nextItem(activity.id);
 
   const wm = new WorkspaceWindowManager(desktopEl, {
     storageKey: LAYOUT_STORAGE_KEY,
@@ -78,7 +82,6 @@ export function mount(container, params, nav, ctx){
 
   async function finish(){
     await markComplete(activity.id);
-    ctx.refreshDesktop && ctx.refreshDesktop();
   }
 
   let resumeStep = 0;
@@ -87,7 +90,7 @@ export function mount(container, params, nav, ctx){
   wm.registerApp('notebook', {
     title: NotebookApp.meta.title, icon: NotebookApp.meta.icon, minWidth: 320, minHeight: 260,
     render: (bodyEl, winApi) => NotebookApp.mount(bodyEl, winApi, {
-      activity, section, level, nextActivity,
+      activity, section, nextActivity,
       initialStepIndex: resumeStep,
       isDone: resumeDone,
       lessonCtx: {

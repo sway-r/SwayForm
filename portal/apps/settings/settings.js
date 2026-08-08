@@ -1,5 +1,5 @@
 import { icon } from '../../icons.js';
-import { getReadingTheme, setReadingTheme } from '../../theme.js';
+import { getTheme, setTheme } from '../../theme.js';
 import { resetProgress } from '../../services/progress-service.js';
 
 export const meta = {
@@ -37,10 +37,10 @@ export function mount(container, ctx){
         <div class="set-section-title">Appearance</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reading surface theme</span><span class="set-row-desc">Applies to the Learn notebook pane and Help reference viewer. The desktop and code editor stay dark.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Theme</span><span class="set-row-desc">Applies across the whole portal — Learn, Notebook, Projects, Account, and Help. The Portal Desktop wallpaper and the Code Editor/Terminal stay dark either way.</span></span>
             <div class="set-theme-toggle" data-theme-toggle>
-              <button type="button" data-theme="light" class="${getReadingTheme() === 'light' ? 'active' : ''}">${icon('sun')}<span>Light</span></button>
-              <button type="button" data-theme="dark" class="${getReadingTheme() === 'dark' ? 'active' : ''}">${icon('moon')}<span>Dark</span></button>
+              <button type="button" data-theme="light" class="${getTheme() === 'light' ? 'active' : ''}">${icon('sun')}<span>Light</span></button>
+              <button type="button" data-theme="dark" class="${getTheme() === 'dark' ? 'active' : ''}">${icon('moon')}<span>Dark</span></button>
             </div>
           </div>
         </div>
@@ -59,6 +59,10 @@ export function mount(container, ctx){
         <div class="set-section-title">Workspace</div>
         <div class="set-card">
           <div class="set-row">
+            <span class="set-row-text"><span class="set-row-label">Reset window layout</span><span class="set-row-desc">Returns Notebook, Code Editor, and Terminal to the default tiled arrangement.</span></span>
+            <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
+          </div>
+          <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Reset all local workspace edits</span><span class="set-row-desc">Reverts every file in the mock ROS 2 workspace back to its starter version.</span></span>
             <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
@@ -72,7 +76,7 @@ export function mount(container, ctx){
 
   container.querySelectorAll('[data-theme-toggle] button').forEach((btn) => {
     btn.addEventListener('click', () => {
-      setReadingTheme(btn.dataset.theme);
+      setTheme(btn.dataset.theme);
       container.querySelectorAll('[data-theme-toggle] button').forEach((b) => b.classList.toggle('active', b === btn));
     });
   });
@@ -85,11 +89,17 @@ export function mount(container, ctx){
     });
   });
 
+  container.querySelector('[data-reset-layout]').addEventListener('click', () => {
+    try { localStorage.removeItem('swayform.portal.workspace.layout'); } catch (e) { /* noop */ }
+  });
+
   container.querySelector('[data-reset-fs]').addEventListener('click', async () => {
+    if (!window.confirm('Reset all local workspace edits? Every file reverts to its starter version. This cannot be undone.')) return;
     const fs = await import('../learn/editor/mock-fs.js');
     fs.resetAll();
   });
   container.querySelector('[data-reset-progress]').addEventListener('click', () => {
+    if (!window.confirm('Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.')) return;
     resetProgress();
   });
 

@@ -1,115 +1,101 @@
 /* ============================================================
-   Learn app — three views inside one .window-body:
-   Learning Home (.lh-*) -> Section (.sv-*) -> Activity Workspace (.aw-*).
-   The activity workspace's editor stack (toolbar/explorer/tabs/editor/
-   terminal) reuses the same class names across both phases of this app.
+   Learn app shell: Learning Home (.lh-*) -> Section (.sv-*) ->
+   Activity Workspace (.aw-*). The Curriculum Index drawer (see
+   curriculum-index.css) is mounted once at .learn-shell level so
+   it persists across all three. The activity workspace's editor
+   stack (toolbar/explorer/tabs/editor/terminal) reuses the same
+   class names across both phases of this app.
 ============================================================ */
-.learn-shell{height:100%;min-height:0;display:flex;flex-direction:column;background:var(--la-bg)}
+.learn-shell{height:100%;min-height:0;position:relative;display:flex;flex-direction:column;background:var(--la-bg)}
+.learn-view{flex:1;min-height:0;display:flex;flex-direction:column}
 
 /* ── Shared: difficulty tag (restrained — a label, not a colorful pill) ── */
-.diff-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--p-muted)}
+.diff-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--la-muted)}
 .diff-tag::before{content:"";width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .diff-tag.beginner::before{background:var(--p-green)}
-.diff-tag.intermediate::before{background:var(--p-accent)}
+.diff-tag.intermediate::before{background:var(--la-accent)}
 .diff-tag.advanced::before{background:var(--p-yellow)}
 .diff-tag.challenge::before{background:var(--p-red)}
-.diff-tag.reading::before{background:var(--p-faint)}
+.diff-tag.reading::before{background:var(--la-faint)}
+.diff-tag.demo::before{background:var(--la-accent)}
+
+/* ── Shared: the hamburger that opens the Curriculum Index ─── */
+.lh-menu-btn{flex-shrink:0;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--la-muted);background:none;border:none}
+.lh-menu-btn:hover{background:var(--la-hover-strong);color:var(--la-ink)}
+.lh-menu-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* ============================================================
-   LEARNING HOME
+   LEARNING HOME — seven sections only, no 40-item wall.
 ============================================================ */
-.lh-root{flex:1;min-height:0;overflow-y:auto;padding:44px 56px 72px}
-.lh-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:32px;flex-wrap:wrap}
-.lh-header h1{font-size:26px;font-weight:800;letter-spacing:-.025em;color:#151b2c}
-.content-surface.on-dark .lh-header h1{color:var(--p-ink)}
-.lh-search-wrap{position:relative;width:280px;max-width:100%}
-.lh-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:13px;height:13px;pointer-events:none}
-.lh-search-icon svg{stroke:var(--la-faint);width:13px;height:13px}
-.lh-search{width:100%;padding:9px 12px 9px 34px;border-radius:8px;background:var(--la-bg);border:1px solid var(--la-border);color:var(--la-ink);font-size:12.5px;font-family:var(--font);outline:none;transition:border-color .15s}
-.lh-search:focus{border-color:var(--la-accent-line)}
-.lh-search::placeholder{color:var(--la-faint)}
+.lh-root{flex:1;min-height:0;overflow-y:auto}
+.lh-topbar{position:sticky;top:0;z-index:2;flex-shrink:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--la-bg2);border-bottom:1px solid var(--la-border)}
+.lh-topbar-title{font-size:12.5px;font-weight:700;color:var(--la-ink)}
+.lh-body{padding:36px 48px 64px;max-width:840px;margin:0 auto}
+.lh-head{margin-bottom:36px}
+.lh-head h1{font-size:24px;font-weight:800;letter-spacing:-.025em;color:var(--la-ink);margin-bottom:8px}
+.lh-head-sub{font-size:12.5px;color:var(--la-muted);font-family:var(--mono)}
 
-.lh-continue{
-  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
-  background:linear-gradient(155deg,var(--la-bg3),var(--la-bg));
-  border:1px solid var(--la-border);border-radius:12px;padding:26px 30px;margin-bottom:52px;
-}
-.lh-continue-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--la-accent);margin-bottom:8px}
-.lh-continue-title{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--la-ink);margin-bottom:6px}
-.lh-continue-sub{font-size:12.5px;color:var(--la-muted)}
-.lh-continue-progress{display:flex;align-items:center;gap:10px;margin-top:14px}
-.lh-continue-bar{width:180px;height:5px;border-radius:3px;background:rgba(20,26,44,.09);overflow:hidden}
-.lh-continue-bar span{display:block;height:100%;background:var(--la-accent);border-radius:3px}
-.lh-continue-progress-text{font-size:11px;color:var(--la-muted);font-family:var(--mono)}
-.lh-continue-btn{flex-shrink:0;padding:12px 22px;font-size:13px}
-
-.lh-level{margin-bottom:44px}
-.lh-level-hdr{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
-.lh-level-num{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--la-accent);font-family:var(--mono);flex-shrink:0}
-.lh-level-hdr h2{font-size:17px;font-weight:800;letter-spacing:-.02em;color:#151b2c}
-.content-surface.on-dark .lh-level-hdr h2{color:var(--p-ink)}
-.lh-level-desc{font-size:12.5px;color:var(--la-muted);margin-bottom:16px;max-width:640px;line-height:1.6}
 .lh-sections{display:flex;flex-direction:column;border-top:1px solid var(--la-border-soft)}
-
-.lh-section-row{
-  display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;
-  padding:16px 4px;border-bottom:1px solid var(--la-border-soft);background:none;border-left:none;border-right:none;border-top:none;
-  text-align:left;cursor:pointer;transition:background .15s;
+.lh-sec-row{
+  display:flex;align-items:center;gap:16px;width:100%;padding:18px 8px;
+  border-bottom:1px solid var(--la-border-soft);background:none;border-left:none;border-right:none;border-top:none;
+  text-align:left;cursor:pointer;transition:background .15s;border-radius:6px;
 }
-.lh-section-row:hover{background:var(--la-hover)}
-.lh-section-row-main{min-width:0}
-.lh-section-title{font-size:14.5px;font-weight:700;color:#151b2c;letter-spacing:-.01em;margin-bottom:4px}
-.content-surface.on-dark .lh-section-title{color:var(--p-ink)}
-.lh-section-desc{font-size:12px;color:var(--la-muted);line-height:1.55;max-width:520px}
-.lh-section-meta{display:flex;align-items:center;gap:18px;flex-shrink:0}
-.lh-section-time{font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
-.lh-section-progress{font-size:11px;color:var(--la-faint);font-family:var(--mono);white-space:nowrap}
-.lh-section-chevron{width:14px;height:14px;flex-shrink:0}
-.lh-section-chevron svg{stroke:var(--la-faint);width:14px;height:14px}
-
-.lh-coming{padding:16px 4px;border-bottom:1px solid var(--la-border-soft)}
-.lh-coming-title{font-size:13px;font-weight:700;color:#2a3348;margin-bottom:4px}
-.content-surface.on-dark .lh-coming-title{color:var(--p-soft)}
-.lh-coming-desc{font-size:12px;color:var(--la-muted);margin-bottom:12px;max-width:520px;line-height:1.55}
-.lh-coming-list{display:flex;flex-direction:column;gap:9px}
-.lh-coming-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--la-muted)}
-.lh-coming-item svg{width:13px;height:13px;stroke:var(--la-faint);fill:none;stroke-width:1.8;flex-shrink:0;margin-top:2px}
-.lh-coming-item strong{color:#2a3348;font-weight:600}
-.content-surface.on-dark .lh-coming-item strong{color:var(--p-soft)}
-
-.lh-row-dim{opacity:.3}
+.lh-sec-row:hover{background:var(--la-hover)}
+.lh-sec-num{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--la-faint);flex-shrink:0;width:22px}
+.lh-sec-icon{flex-shrink:0;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--la-bg3);color:var(--la-accent)}
+.lh-sec-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+.lh-sec-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.lh-sec-title{font-size:14.5px;font-weight:700;color:var(--la-ink);letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.lh-sec-level{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--la-faint)}
+.lh-sec-desc{font-size:12px;color:var(--la-muted);line-height:1.5}
+.lh-sec-meta{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.lh-sec-progress{font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
+.lh-sec-chevron svg{width:14px;height:14px;stroke:var(--la-faint);fill:none;stroke-width:1.8}
 
 /* ============================================================
-   SECTION VIEW
+   SECTION VIEW — compact scannable item list, not giant cards.
 ============================================================ */
-.sv-root{flex:1;min-height:0;overflow-y:auto;padding:40px 56px 72px}
-.sv-back{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--la-muted);margin-bottom:24px;background:none;border:none}
-.sv-back:hover{color:#151b2c}
-.content-surface.on-dark .sv-back:hover{color:var(--p-ink)}
+.sv-root{flex:1;min-height:0;overflow-y:auto}
+.sv-topbar{position:sticky;top:0;z-index:2;flex-shrink:0;height:44px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--la-bg2);border-bottom:1px solid var(--la-border)}
+.sv-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--la-muted);background:none;border:none;padding:6px 8px;border-radius:6px}
+.sv-back:hover{color:var(--la-ink);background:var(--la-hover)}
 .sv-back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-.sv-crumb{font-size:12px;color:var(--la-muted);margin-bottom:10px}
-.sv-header h1{font-size:26px;font-weight:800;letter-spacing:-.025em;color:#151b2c;margin-bottom:12px}
-.content-surface.on-dark .sv-header h1{color:var(--p-ink)}
-.sv-header-meta{display:flex;align-items:center;gap:16px;margin-bottom:16px}
-.sv-desc{font-size:13.5px;color:var(--la-muted);line-height:1.7;max-width:640px;margin-bottom:36px}
 
-.sv-activities{display:flex;flex-direction:column;border-top:1px solid var(--la-border-soft)}
-.sv-activity-row{
-  display:flex;align-items:center;gap:18px;width:100%;padding:18px 4px;
+.sv-body{padding:32px 48px 64px;max-width:780px;margin:0 auto}
+.sv-crumb{font-size:11.5px;color:var(--la-muted);margin-bottom:10px}
+.sv-head h1{font-size:22px;font-weight:800;letter-spacing:-.025em;color:var(--la-ink);margin-bottom:10px;display:flex;align-items:baseline;gap:10px}
+.sv-level{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--la-faint)}
+.sv-desc{font-size:13px;color:var(--la-muted);line-height:1.6;max-width:600px;margin-bottom:18px}
+.sv-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:30px}
+.sv-progress-bar{width:160px;height:5px;border-radius:3px;background:var(--la-border);overflow:hidden;display:block}
+.sv-progress-bar span{display:block;height:100%;background:var(--la-accent);border-radius:3px}
+.sv-progress-text{font-size:11.5px;color:var(--la-muted);font-family:var(--mono)}
+
+.sv-items{display:flex;flex-direction:column;border-top:1px solid var(--la-border-soft)}
+.sv-item-row{
+  display:flex;align-items:center;gap:14px;width:100%;padding:13px 6px;
   border-bottom:1px solid var(--la-border-soft);background:none;border-left:none;border-right:none;border-top:none;
   text-align:left;cursor:pointer;transition:background .15s;
 }
-.sv-activity-row:hover{background:var(--la-hover)}
-.sv-activity-num{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--la-faint);width:24px;flex-shrink:0}
-.sv-activity-main{flex:1;min-width:0}
-.sv-activity-title{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;color:#151b2c;letter-spacing:-.01em;margin-bottom:4px}
-.content-surface.on-dark .sv-activity-title{color:var(--p-ink)}
-.sv-activity-title .done-check{width:15px;height:15px;border-radius:50%;background:var(--p-green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sv-activity-title .done-check svg{width:9px;height:9px;stroke:#06170e;stroke-width:2.6}
-.sv-activity-summary{font-size:12px;color:var(--la-muted);line-height:1.5}
-.sv-activity-meta{display:flex;align-items:center;gap:16px;flex-shrink:0}
-.sv-activity-time{font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
-.sv-activity-chevron svg{stroke:var(--la-faint);width:14px;height:14px}
+.sv-item-row:hover{background:var(--la-hover)}
+.sv-item-row.is-placeholder{opacity:.55}
+.sv-item-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--la-faint);width:34px;flex-shrink:0}
+.sv-item-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sv-item-title{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--la-ink);letter-spacing:-.01em}
+.sv-item-meta{display:flex;align-items:center;gap:10px}
+.sv-item-time{font-size:11px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
+.sv-item-status{flex-shrink:0}
+.sv-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap}
+.sv-status svg{width:13px;height:13px;stroke:none;fill:none}
+.sv-status.done{color:var(--p-green)}
+.sv-status.done svg{stroke:var(--p-green);stroke-width:2.2}
+.sv-status.current{color:var(--la-accent)}
+.sv-status.current svg{fill:var(--la-accent);width:7px;height:7px}
+.sv-status.open svg{stroke:var(--la-faint);fill:none;stroke-width:1.8}
+.sv-kind-badge{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:10px}
+.sv-kind-badge.demo{background:var(--la-accent-dim);color:var(--la-accent)}
+.sv-kind-badge.soon{background:var(--la-hover-strong);color:var(--la-faint)}
 
 /* ============================================================
    ACTIVITY WORKSPACE — window chrome/dock/notebook now live in
@@ -179,6 +165,6 @@
 .term-line.term-accent{color:#7fb2ff}
 
 @media(max-width:900px){
-  .lh-root,.sv-root{padding:28px 24px 56px}
+  .lh-body,.sv-body{padding:24px 20px 56px}
   .learn-explorer{width:160px}
 }

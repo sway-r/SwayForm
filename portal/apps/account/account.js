@@ -80,11 +80,12 @@ async function render(container, ctx){
       <div class="acct-actions">
         <button type="button" class="p-btn ghost" data-reset>${icon('refresh')}<span>Reset local progress</span></button>
         <button type="button" class="p-btn ghost" disabled title="Not available yet">${icon('externalLink')}<span>Manage subscription</span></button>
-        <button type="button" class="p-btn ghost" data-signout>${icon('close')}<span>Sign out</span></button>
+        <button type="button" class="p-btn ghost" data-signout>${icon('logout')}<span>Logout</span></button>
       </div>
     </div>`;
 
   container.querySelector('[data-signout]').addEventListener('click', async () => {
+    if (!window.confirm('Log out of SwayForm Learning Portal?')) return;
     await logout();
     location.href = '/';
   });

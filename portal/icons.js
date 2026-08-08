@@ -43,6 +43,7 @@ const PATHS = {
   layers:       '<polygon points="12 3 21 8 12 13 3 8"/><polyline points="3 13 12 18 21 13" opacity=".6"/><polyline points="3 17.5 12 22.5 21 17.5" opacity=".3"/>',
   target:       '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/>',
   menu:         '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
+  logout:       '<path d="M9 4H6a1.5 1.5 0 0 0-1.5 1.5v13A1.5 1.5 0 0 0 6 20h3"/><line x1="20" y1="12" x2="10.5" y2="12"/><polyline points="16 7.5 20.5 12 16 16.5"/>',
 };
 
 export function icon(name, cls){

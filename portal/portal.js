@@ -7,7 +7,7 @@ import * as AccountApp from './apps/account/account.js';
 import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
 import * as Login from './auth/login.js';
-import { isAuthenticated, getSession } from './services/auth-service.js';
+import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 
 const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
@@ -22,6 +22,7 @@ const layerEl = document.getElementById('windows-layer');
 const taskbarWinsEl = document.getElementById('taskbar-windows');
 const launcherEl = document.getElementById('taskbar-launcher');
 const clockEl = document.getElementById('desktop-clock');
+const logoutBtnEl = document.getElementById('taskbar-logout');
 
 /** appId -> { el, meta, instance, maximized, geometry:{left,top,w,h} } */
 const windows = new Map();
@@ -334,6 +335,17 @@ setInterval(tickClock, 15000);
 launcherEl.addEventListener('click', () => openApp('learn'));
 launcherEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launcherEl.click(); }
+});
+
+/* ---------------------------------------------------------- Logout */
+// The one primary way to end the session — Account's own Sign Out button
+// calls this same function, so there's a single consistent logout path
+// regardless of where it's triggered from.
+logoutBtnEl.querySelector('.taskbar-logout-glyph').innerHTML = icon('logout');
+logoutBtnEl.addEventListener('click', async () => {
+  if (!window.confirm('Log out of SwayForm Learning Portal?')) return;
+  await logout();
+  location.href = '/';
 });
 
 window.addEventListener('resize', () => {

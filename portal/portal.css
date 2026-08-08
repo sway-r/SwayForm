@@ -197,6 +197,17 @@
 .taskbar-status-dot{width:6px;height:6px;border-radius:50%;background:var(--p-green);box-shadow:0 0 0 3px rgba(47,191,116,.15)}
 .taskbar-status-text{font-size:11px;color:var(--p-muted);font-weight:500;white-space:nowrap}
 
+/* ── Logout — a persistent system control, bottom-right of the taskbar.
+   Subtle by default; only leans toward "warning red" on hover, not at rest. ── */
+.taskbar-logout{
+  flex-shrink:0;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;
+  border-radius:7px;background:none;border:1px solid transparent;
+  color:var(--p-soft);font-size:12px;font-weight:600;white-space:nowrap;transition:all .15s;
+}
+.taskbar-logout:hover{background:rgba(229,83,75,.14);border-color:rgba(229,83,75,.3);color:#ff9c95}
+.taskbar-logout-glyph{width:14px;height:14px;flex-shrink:0;display:flex}
+.taskbar-logout-glyph svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+
 /* ── Shared "surface" primitives reused by every app ───── */
 .p-scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
 .p-scroll::-webkit-scrollbar{width:8px;height:8px}

@@ -46,6 +46,7 @@
   --la-accent:var(--p-accent);
   --la-accent-dim:var(--p-accent-dim);
   --la-accent-line:var(--p-accent-line);
+  --la-focus-border:rgba(20,26,44,.28);
 }
 
 /* ── Dark Mode — overrides the --la-* light-app tokens only. The Portal
@@ -65,6 +66,7 @@
   --la-faint:#6b7280;
   --la-hover:rgba(255,255,255,.06);
   --la-hover-strong:rgba(255,255,255,.09);
+  --la-focus-border:rgba(255,255,255,.22);
 }
 
 .portal-body{background:var(--p-bg);color:var(--p-ink);font-family:var(--font);overflow:hidden;height:100vh}
@@ -107,8 +109,6 @@
 .desktop-brand-label{font-size:11.5px;font-weight:600;color:var(--p-muted)}
 .desktop-topline-actions{display:flex;align-items:center;gap:16px}
 .desktop-clock{font-family:var(--mono);font-size:11.5px;color:var(--p-soft);letter-spacing:.02em}
-.desktop-exit{font-size:11.5px;font-weight:600;color:var(--p-soft);transition:color .15s}
-.desktop-exit:hover{color:var(--p-ink)}
 .desktop-guest-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7fb2ff;background:var(--p-accent-dim);border:1px solid var(--p-accent-line);padding:4px 10px;border-radius:20px}
 
 /* ── Desktop icons — the entire homepage content. A vertical column of
@@ -147,17 +147,18 @@
 }
 .window.maximized{border-radius:0}
 .window.restored{resize:both;overflow:auto}
-.window.focused{border-color:rgba(20,26,44,.16)}
+.window.focused{border-color:var(--la-focus-border)}
 .window.dragging,.window.resizing-anim{transition:none!important}
 .window.minimized{display:none}
 
 .window-header{
   flex-shrink:0;height:42px;display:flex;align-items:center;gap:10px;
   padding:0 8px 0 14px;background:var(--la-bg2);border-bottom:1px solid var(--la-border);
-  cursor:default;user-select:none;
+  cursor:grab;user-select:none;
 }
-.window-header.draggable{cursor:grab}
-.window-header.draggable:active{cursor:grabbing}
+.window-header:active{cursor:grabbing}
+.window.maximized .window-header{cursor:default}
+.window.maximized .window-header:active{cursor:default}
 .window-title-icon{width:15px;height:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.85}
 .window-title-icon svg{width:14px;height:14px;stroke:var(--la-soft);fill:none;stroke-width:1.7}
 .window-title{font-size:12.5px;font-weight:600;color:var(--la-ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -233,6 +234,7 @@
 .p-btn:disabled{opacity:.45;cursor:not-allowed}
 .p-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
 .p-empty{padding:40px 24px;text-align:center;color:var(--p-muted);font-size:13px}
+.p-empty svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:.5;margin-bottom:10px}
 
 /* ── Light app surface — the default for every application EXCEPT the
    Portal Desktop chrome, Code Editor, and Terminal (see --la-* tokens
@@ -249,6 +251,7 @@
 .la-surface.p-scroll,.la-surface .p-scroll,.content-surface.p-scroll,.content-surface .p-scroll{scrollbar-color:rgba(20,26,44,.18) transparent}
 .la-surface.p-scroll::-webkit-scrollbar-thumb,.la-surface .p-scroll::-webkit-scrollbar-thumb,.content-surface.p-scroll::-webkit-scrollbar-thumb,.content-surface .p-scroll::-webkit-scrollbar-thumb{background:rgba(20,26,44,.14)}
 .la-surface.p-scroll::-webkit-scrollbar-thumb:hover,.la-surface .p-scroll::-webkit-scrollbar-thumb:hover,.content-surface.p-scroll::-webkit-scrollbar-thumb:hover,.content-surface .p-scroll::-webkit-scrollbar-thumb:hover{background:rgba(20,26,44,.22)}
+.la-surface .p-empty,.content-surface .p-empty{color:var(--la-muted)}
 
 @media(max-width:760px){
   .desktop-icons{padding:16px 0 0 12px}

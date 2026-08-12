@@ -126,7 +126,15 @@ export class WorkspaceWindowManager {
     this.apps.forEach((cfg, id) => this.close(id));
     try { localStorage.removeItem(this.storageKey); } catch (e) { /* noop */ }
     this._layout = {};
-    const order = Array.from(this.apps.keys());
+    // open() focuses each app as it opens, so whichever app opens LAST ends
+    // up active. Reopen with codeEditor last — matching bootDefault()'s
+    // explicit open order in activity-workspace.js — so Code Editor, the
+    // primary work surface, ends up focused after a reset, not Terminal
+    // (registration order alone would open Notebook, Code Editor, Terminal).
+    const keys = Array.from(this.apps.keys());
+    const order = keys.includes('codeEditor')
+      ? [...keys.filter((id) => id !== 'codeEditor'), 'codeEditor']
+      : keys;
     order.forEach((id) => {
       const d = this.defaultLayout[id] || {};
       if (d.minimized) return; // stays closed-until-opened, dock shows it available
@@ -390,6 +398,7 @@ export class WorkspaceWindowManager {
     handle.addEventListener('mousedown', (e) => {
       e.stopPropagation();
       if (w.maximized) return;
+      this.focus(w.id); // stopPropagation above prevents the window's own mousedown->focus from bubbling
       start = { sx: e.clientX, sy: e.clientY, x: w.x, y: w.y, w: w.w, h: w.h };
       document.body.classList.add('ww-resizing-cursor-' + dir, 'ww-no-select');
       document.addEventListener('mousemove', onMove);

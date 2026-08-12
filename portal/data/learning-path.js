@@ -1127,21 +1127,6 @@ export const LEARNING_PATH = {
             },
           ],
         },
-        {
-          id: 'coming-soon', title: 'Coming Soon', difficulty: null, estimatedTime: null,
-          description: 'The curriculum keeps expanding toward 40 total activities. These are planned, not available yet.',
-          activities: [],
-          comingSoon: [
-            { title: 'State Machines & Motion Presets', note: 'Simple state machines and reusable custom motion presets.' },
-            { title: 'Camera-Based Interaction', note: 'Greeting a user by camera and mapping detected object positions.' },
-            { title: 'Two-Arm Coordination', note: 'Coordinating both arms in a single behavior.' },
-            { title: 'Speaker Prompts & Timing', note: 'Using speaker output alongside timed motion.' },
-            { title: 'Classroom Challenges & Showcase Demos', note: 'Open-ended classroom challenges and a final showcase demo.' },
-            { title: 'Debug Logs & Diagnostics', note: 'Reading robot debug logs to understand what a running behavior is doing.' },
-            { title: 'Level 3 — Perceive', note: 'Vision, tracking, and state design across 10 activities.' },
-            { title: 'Level 4 — Create', note: 'An original final project and showcase across 10 activities.' },
-          ],
-        },
       ],
     },
   ],
@@ -1165,10 +1150,3 @@ export function findActivity(activityId){
   return flattenActivities().find((e) => e.activity.id === activityId) || null;
 }
 
-export function findSection(sectionId){
-  for (const level of LEARNING_PATH.levels){
-    const section = level.sections.find((s) => s.id === sectionId);
-    if (section) return { level, section };
-  }
-  return null;
-}

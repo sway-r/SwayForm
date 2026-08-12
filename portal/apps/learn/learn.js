@@ -16,9 +16,11 @@ export function mount(container, ctx){
   const viewEl = container.querySelector('[data-view]');
   let current = null; // { name, instance }
   let currentItemId = null;
+  let currentSectionId = null; // set on Section view too, so the drawer can auto-expand a section the student is just browsing, not only one containing an in-progress activity
 
   const indexApi = CurriculumIndex.mount(shellEl, {
     getCurrentItemId: () => currentItemId,
+    getCurrentSectionId: () => currentSectionId,
     onNavigate(dest){
       if (dest.type === 'section') nav.section(dest.id);
       else nav.activity(dest.id);
@@ -34,6 +36,7 @@ export function mount(container, ctx){
 
   function go(params){
     currentItemId = params.activityId || null;
+    currentSectionId = params.sectionId || null;
     render(params);
     ctx.navigate(null, params);
     indexApi.refresh();
@@ -59,6 +62,7 @@ export function mount(container, ctx){
   return {
     onParams(params){
       currentItemId = (params && params.activityId) || null;
+      currentSectionId = (params && params.sectionId) || null;
       render(params || { view: 'home' });
       indexApi.refresh();
     },

@@ -95,7 +95,11 @@ export function mount(container, params, nav, ctx){
       isDone: resumeDone,
       lessonCtx: {
         openFile: (path) => openInCodeEditor(path),
-        insertCode: (code) => { const ed = wm.getInstance('codeEditor'); if (ed) ed.insertCode(code); },
+        // Must open/focus the window first like openInCodeEditor does —
+        // otherwise this either no-ops entirely (window was closed, so
+        // getInstance returns null) or edits an invisible, still-minimized
+        // Monaco model with no feedback the insert happened at all.
+        insertCode: (code) => { wm.open('codeEditor'); const ed = wm.getInstance('codeEditor'); if (ed) ed.insertCode(code); },
       },
       onSectionChange: (i) => { resumeStep = i; setCurrentActivity(activity.id, i); },
       onFinish: async (mode) => {
@@ -166,6 +170,29 @@ export function mount(container, params, nav, ctx){
 
   container.querySelector('[data-reset-layout]').addEventListener('click', () => wm.resetLayout());
 
+  // Settings' own "Reset window layout" control (a separate window) can't
+  // reach this wm instance directly — it clears localStorage itself and
+  // broadcasts this event so a currently-open workspace updates live too.
+  function onExternalLayoutReset(){ wm.resetLayout(); }
+  window.addEventListener('swayform:workspace-layout-reset', onExternalLayoutReset);
+
+  // Workspace-wide keyboard shortcuts: Ctrl/Cmd+S saves the active Code
+  // Editor file (and stops the browser's own Save Page dialog), Ctrl/Cmd+`
+  // opens/focuses Terminal — a common convention (VS Code, etc).
+  function onKeydown(e){
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod || isReading) return;
+    if (e.key === 's'){
+      e.preventDefault();
+      const ed = wm.getInstance('codeEditor');
+      if (ed && ed.save) ed.save();
+    } else if (e.key === '`'){
+      e.preventDefault();
+      wm.open('terminal');
+    }
+  }
+  document.addEventListener('keydown', onKeydown);
+
   /* ---------------------------------------------------------------- boot */
   function bootDefault(){
     // Open order matters: the last one opened ends up focused/on top, so
@@ -187,6 +214,8 @@ export function mount(container, params, nav, ctx){
 
   return {
     unmount(){
+      window.removeEventListener('swayform:workspace-layout-reset', onExternalLayoutReset);
+      document.removeEventListener('keydown', onKeydown);
       wm.apps.forEach((cfg, id) => wm.close(id));
       wm.destroy();
     },

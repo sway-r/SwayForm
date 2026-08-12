@@ -26,7 +26,7 @@ function kindBadge(item) {
   return '';
 }
 
-export function mount(hostEl, { onNavigate, getCurrentItemId }) {
+export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionId }) {
   const root = document.createElement('div');
   root.className = 'ci-root';
   root.innerHTML = `
@@ -62,7 +62,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId }) {
       row.type = 'button';
       row.className = 'ci-item ci-search-result';
       if (r.type === 'section') {
-        row.innerHTML = `<span class="ci-item-num">${r.section.number}</span><span class="ci-item-title">${r.section.title}</span><span class="ci-kind-badge soon">Section</span>`;
+        row.innerHTML = `<span class="ci-item-num">${String(r.section.number).padStart(2, '0')}</span><span class="ci-item-title">${r.section.title}</span><span class="ci-kind-badge section-tag">Section</span>`;
         row.addEventListener('click', () => { close(); onNavigate({ type: 'section', id: r.section.id }); });
       } else {
         row.innerHTML = `
@@ -86,7 +86,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId }) {
       const isLabSection = LAB_SECTION_IDS.includes(section.id);
       const real = section.items.filter((i) => i.kind !== 'placeholder');
       const doneCount = real.filter((i) => completedIds.has(i.id)).length;
-      const hasCurrent = section.items.some((i) => i.id === currentId);
+      const hasCurrent = section.items.some((i) => i.id === currentId) || (getCurrentSectionId && getCurrentSectionId() === section.id);
       if (hasCurrent) expandedSections.add(section.id);
       const expanded = expandedSections.has(section.id);
 
@@ -96,7 +96,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId }) {
         <div class="ci-section-row">
           <button type="button" class="ci-chevron ${expanded ? 'open' : ''}" data-toggle="${section.id}" aria-label="${expanded ? 'Collapse' : 'Expand'} ${section.title}">${icon('chevronRight')}</button>
           <button type="button" class="ci-section-btn" data-goto-section="${section.id}">
-            <span class="ci-section-num">${section.number}</span>
+            <span class="ci-section-num">${String(section.number).padStart(2, '0')}</span>
             <span class="ci-section-title">${section.title}</span>
           </button>
           ${isLabSection ? `<span class="ci-section-count">${doneCount}/${real.length}</span>` : ''}

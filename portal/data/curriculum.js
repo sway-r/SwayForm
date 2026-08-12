@@ -102,32 +102,32 @@ const s3 = [
 // canonical public curriculum). Do not resplit these across levels or
 // rename them beyond matching that page — see file header.
 const s4 = [
-  real('hello-robot-motion', 'control', '1.01'),
-  real('safe-joint-limits', 'control', '1.02', { title: 'Servo Angles and Safe Limits' }),
-  real('gesture-sequence', 'control', '1.03'),
-  real('head-tracking', 'control', '1.04', { title: 'Head Tracking Basics', difficulty: 'intermediate' }),
-  real('button-to-motion-control', 'control', '1.05', { difficulty: 'intermediate' }),
-  real('realsense-detection-basics', 'control', '1.06'),
-  real('hand-pose-timing', 'control', '1.07'),
-  real('base-rotation', 'control', '1.08', { title: 'Base Rotation Basics' }),
-  real('behavior-priority-motion-locking', 'control', '1.09', { title: 'Behavior Priority and Motion Locking' }),
-  real('mini-demo-challenge', 'control', '1.10', { difficulty: 'advanced' }),
+  real('hello-robot-motion', 'control', '4.01'),
+  real('safe-joint-limits', 'control', '4.02', { title: 'Servo Angles and Safe Limits' }),
+  real('gesture-sequence', 'control', '4.03'),
+  real('head-tracking', 'control', '4.04', { title: 'Head Tracking Basics', difficulty: 'intermediate' }),
+  real('button-to-motion-control', 'control', '4.05', { difficulty: 'intermediate' }),
+  real('realsense-detection-basics', 'control', '4.06'),
+  real('hand-pose-timing', 'control', '4.07'),
+  real('base-rotation', 'control', '4.08', { title: 'Base Rotation Basics' }),
+  real('behavior-priority-motion-locking', 'control', '4.09', { title: 'Behavior Priority and Motion Locking' }),
+  real('mini-demo-challenge', 'control', '4.10', { difficulty: 'advanced' }),
 ];
 
 // Level 2 — React: not built yet. Titles below are the actual planned
 // working titles published on swayform.net/learning-path ("Labs 11–20"),
 // not invented — kept as honest placeholders until each lab is authored.
 const s5 = [
-  placeholder('react-11', 'react', '2.01', 'Simple State Machines'),
-  placeholder('react-12', 'react', '2.02', 'Custom Motion Presets'),
-  placeholder('react-13', 'react', '2.03', 'Camera-Based User Greeting'),
-  placeholder('react-14', 'react', '2.04', 'Object Position Mapping'),
-  placeholder('react-15', 'react', '2.05', 'Two-Arm Coordination'),
-  placeholder('react-16', 'react', '2.06', 'Speaker Prompts and Timing'),
-  placeholder('react-17', 'react', '2.07', 'Classroom Challenge: Helpful Robot'),
-  placeholder('react-18', 'react', '2.08', 'Intro to Robot Debug Logs'),
-  placeholder('react-19', 'react', '2.09', 'Build Your Own Interaction'),
-  placeholder('react-20', 'react', '2.10', 'Final Showcase Demo'),
+  placeholder('react-11', 'react', '5.01', 'Simple State Machines'),
+  placeholder('react-12', 'react', '5.02', 'Custom Motion Presets'),
+  placeholder('react-13', 'react', '5.03', 'Camera-Based User Greeting'),
+  placeholder('react-14', 'react', '5.04', 'Object Position Mapping'),
+  placeholder('react-15', 'react', '5.05', 'Two-Arm Coordination'),
+  placeholder('react-16', 'react', '5.06', 'Speaker Prompts and Timing'),
+  placeholder('react-17', 'react', '5.07', 'Classroom Challenge: Helpful Robot'),
+  placeholder('react-18', 'react', '5.08', 'Intro to Robot Debug Logs'),
+  placeholder('react-19', 'react', '5.09', 'Build Your Own Interaction'),
+  placeholder('react-20', 'react', '5.10', 'Final Showcase Demo'),
 ];
 
 // Level 3 — Perceive: theme only on the public site ("Vision pipelines,
@@ -135,14 +135,14 @@ const s5 = [
 // integration") — no individual lab titles published yet, so these stay
 // generic placeholders rather than inventing specific ones.
 const s6 = Array.from({ length: 10 }, (_, i) =>
-  placeholder(`perceive-${21 + i}`, 'perceive', `3.${String(i + 1).padStart(2, '0')}`, `Lab ${21 + i} — Coming Soon`,
+  placeholder(`perceive-${21 + i}`, 'perceive', `6.${String(i + 1).padStart(2, '0')}`, `Lab ${21 + i} — Coming Soon`,
     'Level 3 builds toward a student project track: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration. Exact lab titles will be finalized as development continues.'));
 
 // Level 4 — Create: theme only on the public site ("Original ROS 2 package
 // design, multi-node architecture, and a final showcase demo") — the
 // project track, no individual lab titles published yet.
 const s7 = Array.from({ length: 10 }, (_, i) =>
-  placeholder(`create-${31 + i}`, 'create', `4.${String(i + 1).padStart(2, '0')}`, `Lab ${31 + i} — Coming Soon`,
+  placeholder(`create-${31 + i}`, 'create', `7.${String(i + 1).padStart(2, '0')}`, `Lab ${31 + i} — Coming Soon`,
     'Level 4 is the project track: fully student-authored programs, original ROS 2 package design, multi-node architecture, and a final showcase demo. Exact lab titles will be finalized as development continues.'));
 
 export const CURRICULUM = {

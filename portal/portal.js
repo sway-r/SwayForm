@@ -78,7 +78,7 @@ function openApp(appId, params, opts){
 
   let win = windows.get(appId);
   if (!win){
-    win = createWindow(mod);
+    win = createWindow(mod, opts.geometry || null);
     windows.set(appId, win);
     persistOpenApps();
   }
@@ -95,13 +95,19 @@ function openApp(appId, params, opts){
   if (!opts.silent) navigateForApp(appId, params);
 }
 
-function createWindow(mod){
+function createWindow(mod, saved){
   const el = document.createElement('section');
-  el.className = 'window maximized';
+  // A window reopened from a saved desktop session resumes the same
+  // maximized/restored state and bounds it had before refresh, instead of
+  // always forcing maximized — otherwise "restore on refresh" only ever
+  // restored WHICH apps were open, never how the student had arranged them.
+  const startMaximized = saved ? !!saved.maximized : true;
+  el.className = 'window ' + (startMaximized ? 'maximized' : 'restored');
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-label', mod.meta.title);
 
-  const rect = maximizedRect();
+  const restoredGeometry = (saved && saved.w) ? { left: saved.left, top: saved.top, w: saved.w, h: saved.h } : centeredRect(mod.meta.defaultSize || { w: 900, h: 620 });
+  const rect = startMaximized ? maximizedRect() : restoredGeometry;
   Object.assign(el.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.w + 'px', height: rect.h + 'px' });
 
   el.innerHTML = `
@@ -112,7 +118,7 @@ function createWindow(mod){
       <span class="window-header-spacer"></span>
       <div class="window-controls">
         <button type="button" class="win-ctrl" data-act="minimize" aria-label="Minimize">${icon('minimize')}</button>
-        <button type="button" class="win-ctrl" data-act="toggle" aria-label="Restore">${icon('restore')}</button>
+        <button type="button" class="win-ctrl" data-act="toggle" aria-label="${startMaximized ? 'Restore' : 'Maximize'}">${icon(startMaximized ? 'restore' : 'maximize')}</button>
         <button type="button" class="win-ctrl close" data-act="close" aria-label="Close">${icon('close')}</button>
       </div>
     </header>
@@ -125,8 +131,8 @@ function createWindow(mod){
   const titleEl = el.querySelector('.window-title');
   const header = el.querySelector('.window-header');
 
-  const win = { el, meta: mod.meta, instance: null, maximized: true, minimized: false,
-    geometry: centeredRect(mod.meta.defaultSize || { w: 900, h: 620 }) };
+  const win = { el, meta: mod.meta, instance: null, maximized: startMaximized, minimized: false,
+    geometry: restoredGeometry };
 
   el.addEventListener('mousedown', () => focusWindow(mod.meta.id));
 
@@ -135,6 +141,7 @@ function createWindow(mod){
   el.querySelector('[data-act="toggle"]').addEventListener('click', (e) => { e.stopPropagation(); toggleMaximize(mod.meta.id); });
 
   makeDraggable(header, el, win);
+  observeManualResize(el, win);
 
   const ctx = {
     windowEl: body,
@@ -171,11 +178,29 @@ function makeDraggable(handle, el, win){
     win.geometry.left = left; win.geometry.top = top;
   }
   function onUp(){
+    if (!drag) return;
     drag = null;
     el.classList.remove('dragging');
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
+    persistOpenApps();
   }
+}
+
+/** Restored windows use native CSS `resize:both` (see .window.restored in
+ * portal.css) rather than a custom handle. win.geometry only tracked
+ * left/top from dragging — a manual corner-drag resize was applied to the
+ * element's style directly but never written back, so restoring from
+ * maximized silently reverted to the size at creation/last drag. This
+ * keeps win.geometry.w/h in sync with whatever size the user last set,
+ * while maximized (where geometry must stay the pre-maximize size). */
+function observeManualResize(el, win){
+  const ro = new ResizeObserver(() => {
+    if (win.maximized) return;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    if (w && h){ win.geometry.w = w; win.geometry.h = h; persistOpenApps(); }
+  });
+  ro.observe(el);
 }
 
 /* ---------------------------------------------------------- Window actions */
@@ -229,6 +254,7 @@ function toggleMaximize(appId){
     toggleBtn.setAttribute('aria-label', 'Maximize');
   }
   focusWindow(appId);
+  persistOpenApps();
 }
 
 /* ---------------------------------------------------------- Taskbar */
@@ -311,16 +337,30 @@ window.addEventListener('popstate', () => {
 });
 
 /* ---------------------------------------------------------- Persistence */
+// Stores each open app's full geometry (left/top/w/h/maximized), not just
+// which apps are open — otherwise every reopened window came back centered
+// at its default size, discarding any drag/resize/maximize the student did
+// before refreshing.
 function persistOpenApps(){
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(windows.keys())));
+    const state = {};
+    windows.forEach((win, id) => {
+      state[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized };
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) { /* storage unavailable — non-fatal */ }
 }
 
 function restoreOpenApps(){
-  let ids = [];
-  try { ids = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { ids = []; }
-  ids.filter((id) => REGISTRY[id]).forEach((id) => openApp(id, null, { silent: true }));
+  let state = {};
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    // Back-compat: older sessions stored a bare array of app IDs with no geometry.
+    state = Array.isArray(raw) ? raw.reduce((m, id) => { m[id] = null; return m; }, {}) : raw;
+  } catch (e) { state = {}; }
+  Object.keys(state).filter((id) => REGISTRY[id]).forEach((id) => {
+    openApp(id, null, { silent: true, geometry: state[id] });
+  });
 }
 
 /* ---------------------------------------------------------- Clock */
@@ -349,11 +389,23 @@ logoutBtnEl.addEventListener('click', async () => {
 });
 
 window.addEventListener('resize', () => {
+  const { w: lw, h: lh } = layerBounds();
   windows.forEach((win) => {
     if (win.maximized){
       const r = maximizedRect();
       Object.assign(win.el.style, { left: r.left + 'px', top: r.top + 'px', width: r.w + 'px', height: r.h + 'px' });
+      return;
     }
+    // Reclamp restored windows too — otherwise shrinking the viewport (or
+    // rotating a tablet) can strand a window's header entirely off-screen
+    // with no way to grab it back, since drag/resize bounds above were only
+    // ever checked against the viewport size at the time of that gesture.
+    const w = Math.min(win.geometry.w, Math.max(320, lw));
+    const h = Math.min(win.geometry.h, Math.max(220, lh));
+    const left = Math.max(0, Math.min(win.geometry.left, Math.max(0, lw - w)));
+    const top = Math.max(0, Math.min(win.geometry.top, Math.max(0, lh - h)));
+    win.geometry.w = w; win.geometry.h = h; win.geometry.left = left; win.geometry.top = top;
+    Object.assign(win.el.style, { left: left + 'px', top: top + 'px', width: w + 'px', height: h + 'px' });
   });
 });
 
@@ -367,12 +419,16 @@ async function showDesktop(){
 
   renderDesktopIcons();
 
+  // Always restore whatever was open last session first (with its saved
+  // geometry) — otherwise refreshing on a deep link like /learn or /account
+  // skipped this branch entirely and every window came back at its default
+  // maximized bounds, discarding position/size for THIS window even though
+  // the general case (refresh on the bare desktop) preserved it correctly.
+  restoreOpenApps();
   const initialRoute = routeFromPath(location.pathname);
   if (initialRoute){
     openApp(initialRoute.appId, initialRoute.params, { silent: true });
     history.replaceState({}, '', location.pathname);
-  } else {
-    restoreOpenApps();
   }
 }
 

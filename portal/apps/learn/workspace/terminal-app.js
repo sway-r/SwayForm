@@ -72,6 +72,9 @@ export function mount(bodyEl, winApi) {
       e.preventDefault();
       if (historyIndex < history.length - 1) { historyIndex += 1; inputEl.value = history[historyIndex] || ''; }
       else { historyIndex = history.length; inputEl.value = ''; }
+    } else if (e.ctrlKey && e.key === 'l') {
+      e.preventDefault();
+      scrollEl.innerHTML = '';
     }
   });
 

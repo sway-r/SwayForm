@@ -299,5 +299,100 @@ export const REFERENCE = {
         },
       ],
     },
+
+    {
+      id: "safety",
+      title: "Safety",
+      icon: "shield",
+      blocks: [
+        {
+          type: "lead",
+          text: "SwayForm is designed for classroom robotics learning, but it is still a physical robot. This is a quick-reference summary — the full protected motion-control architecture and layered emergency-stop system are documented on the public [Safety](https://swayform.net/safety) page and the [Robot Safety and Acceptable Use Policy](https://swayform.net/robot-safety). The in-portal [Safety First](https://learning.swayform.net/learn/activity/safety-first) activity covers this in lesson form.",
+        },
+        { type: "heading", level: 2, text: "Core safety checklist" },
+        {
+          type: "checklist",
+          items: [
+            "Keep hands clear while a demo or approved program is running.",
+            "Stop the running script before repositioning objects near the robot.",
+            "Do not force the robot's arms, hands, head, or base by hand.",
+            "Use safe joint limits instead of testing random servo angles.",
+            "Keep tabletop objects light and easy to move.",
+            "Make sure the robot is stable before running arm or base motions.",
+            "If a motion looks wrong, stop the script before trying again.",
+            "Know where the emergency stop / servo-power cutoff is before running any program.",
+            "Never run a program on the physical robot without an instructor or supervisor present.",
+          ],
+        },
+        {
+          type: "callout",
+          tone: "safety",
+          label: "Safety",
+          text: "The goal of every activity is controlled learning, not seeing how far the robot can be pushed. Every submission is validated and instructor-approved before it can move the robot — see How Submissions Work in Getting Started.",
+        },
+        { type: "heading", level: 2, text: "Working on the physical robot" },
+        {
+          type: "p",
+          text: "Repairs, part swaps, and anything involving wiring or an open enclosure follow the procedure in Repair, including powering off and disconnecting the robot first.",
+        },
+      ],
+    },
+
+    {
+      id: "keyboard-shortcuts",
+      title: "Keyboard Shortcuts",
+      icon: "info",
+      blocks: [
+        {
+          type: "lead",
+          text: "Shortcuts available inside an Activity Workspace (Notebook, Code Editor, Terminal) and the Curriculum Index.",
+        },
+        {
+          type: "table",
+          headers: ["Shortcut", "Action", "Where"],
+          rows: [
+            ["Ctrl / Cmd + S", "Save the active file", "Code Editor"],
+            ["Ctrl / Cmd + `", "Open and focus the Terminal", "Activity Workspace"],
+            ["Ctrl + L", "Clear the screen", "Terminal"],
+            ["↑ / ↓", "Previous / next command in history", "Terminal"],
+            ["Enter", "Run the typed command", "Terminal"],
+            ["Escape", "Close the Curriculum Index", "Curriculum Index drawer"],
+          ],
+        },
+        {
+          type: "callout",
+          tone: "note",
+          label: "Note",
+          text: "Files also autosave a short moment after you stop typing — Ctrl/Cmd+S is for saving immediately, not the only way your work is kept.",
+        },
+      ],
+    },
+
+    {
+      id: "getting-help",
+      title: "Getting Help",
+      icon: "help",
+      blocks: [
+        {
+          type: "lead",
+          text: "There's no live chat or support-ticket system inside the Learning Portal yet — here's what actually works today.",
+        },
+        { type: "heading", level: 2, text: "Stuck on a lab or demo" },
+        {
+          type: "steps",
+          items: [
+            "Re-read the Notebook's Expected Behavior for that step — most mismatches are a small, specific difference from what's described.",
+            "Check Troubleshooting for the symptom you're seeing.",
+            "Check Glossary if a term in the instructions is unfamiliar.",
+            "Ask your instructor — they can see your submitted code once it reaches the review queue (see How Submissions Work in Getting Started), and can help directly in the classroom before that.",
+          ],
+        },
+        { type: "heading", level: 2, text: "Something in the Learning Portal itself is broken" },
+        {
+          type: "p",
+          text: "Guest progress and workspace files are stored locally in your browser — clearing site data or switching browsers will lose them. For a bug in the portal itself (not your lab code), contact [SwayForm](https://swayform.net/contact).",
+        },
+      ],
+    },
   ],
 };

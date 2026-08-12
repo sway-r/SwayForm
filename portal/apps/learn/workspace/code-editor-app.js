@@ -16,6 +16,7 @@ export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 export function mount(bodyEl, winApi, opts) {
   const { activity, onRun } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null;
+  let saveTimer = null;
 
   bodyEl.innerHTML = `
     <div class="ce-root">
@@ -53,10 +54,14 @@ export function mount(bodyEl, winApi, opts) {
 
   editorSurfaceEl.innerHTML = '<div class="editor-loading">Loading editor…</div>';
   editor = new CodeEditor(editorSurfaceEl, {
+    // Debounced autosave: writing to localStorage + rebuilding the whole
+    // File Explorer tree on every single keystroke was real, unnecessary
+    // work and I/O. A short debounce also gives room for an honest
+    // Unsaved/Saved status instead of claiming to be saved before it is.
     onChange: (path, value) => {
-      fs.writeFile(path, value);
-      tabs.refreshDirtyState();
-      refreshExplorer();
+      if (tabs.activePath === path) toolbar.setFileStatus('Unsaved changes…');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => persist(path, value), 500);
     },
   });
   editorSurfaceEl.innerHTML = '';
@@ -124,29 +129,43 @@ export function mount(bodyEl, winApi, opts) {
     }
   }
 
+  // Shared by both the debounced autosave and the explicit Save button, so
+  // "Save" isn't a no-op that merely repeats work autosave already did —
+  // it flushes any pending debounce and gives the same honest Saved status.
+  function persist(path, value){
+    fs.writeFile(path, value);
+    tabs.refreshDirtyState();
+    refreshExplorer();
+    if (tabs.activePath === path){
+      toolbar.setFileStatus('Saved · ' + path.replace(/^ros2_ws\//, '~/ros2_ws/'));
+      setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/')); }, 1200);
+    }
+  }
+
   function saveActiveFile(){
     const path = tabs.activePath;
     if (!path) return;
-    fs.writeFile(path, editor.getValue());
-    tabs.refreshDirtyState();
-    refreshExplorer();
-    toolbar.setFileStatus('Saved locally · ' + path.replace(/^ros2_ws\//, '~/ros2_ws/'));
-    setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/')); }, 1800);
+    clearTimeout(saveTimer);
+    persist(path, editor.getValue());
   }
 
   function resetActiveFile(){
     const path = tabs.activePath;
     if (!path) return;
+    if (!window.confirm(`Reset ${path.split('/').pop()} to its starter version? Your changes to this file will be lost. This cannot be undone.`)) return;
+    clearTimeout(saveTimer);
     fs.resetFile(path);
     const original = fs.readFile(path);
     editor.setValue(path, original);
     tabs.refreshDirtyState();
     refreshExplorer();
+    toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/'));
   }
 
   return {
     openFile,
     insertCode(code){ if (editor) editor.insertAtCursor(code); },
-    dispose(){ if (editor) editor.dispose(); },
+    save: saveActiveFile,
+    dispose(){ clearTimeout(saveTimer); if (editor) editor.dispose(); },
   };
 }

@@ -31,6 +31,12 @@ async function render(container, ctx){
   const completed = await getCompletedActivities();
   const labs = labTotals(completed);
 
+  // NOTE: the non-guest branch below renders ACCOUNT_MOCK's fabricated
+  // identity (name/school/plan) as if it were real. It's unreachable today —
+  // loginWithCredentials() in auth-service.js always throws, so no session
+  // with mode !== 'guest' can exist yet — but if credential login is wired
+  // up before real account data replaces account-mock.js, this must not
+  // ship unlabeled as a genuine account.
   const displayName = isGuest ? 'Guest User' : a.studentName;
   const roleLine = isGuest ? 'Guest session · progress saved in this browser only' : `${a.role} · ${a.school}`;
 
@@ -52,7 +58,7 @@ async function render(container, ctx){
       <div class="acct-section">
         <div class="acct-section-title">Learning progress</div>
         <div class="acct-stats">
-          ${statRow('Labs complete (Foundation–Projects)', labs.complete, labs.total, 'checkCircle')}
+          ${statRow('Labs complete', labs.complete, labs.total, 'checkCircle')}
           ${perSection.map((l) => statRow(`${l.section.number}. ${l.section.title}`, l.complete, l.total, 'layers')).join('')}
         </div>
       </div>
@@ -82,6 +88,7 @@ async function render(container, ctx){
         <button type="button" class="p-btn ghost" disabled title="Not available yet">${icon('externalLink')}<span>Manage subscription</span></button>
         <button type="button" class="p-btn ghost" data-signout>${icon('logout')}<span>Logout</span></button>
       </div>
+      <a href="https://swayform.net/" target="_blank" rel="noopener noreferrer" class="acct-external-link">Visit swayform.net ${icon('externalLink')}</a>
     </div>`;
 
   container.querySelector('[data-signout]').addEventListener('click', async () => {
@@ -90,6 +97,7 @@ async function render(container, ctx){
     location.href = '/';
   });
   container.querySelector('[data-reset]').addEventListener('click', async () => {
+    if (!window.confirm('Reset all locally saved progress? Every activity will show as not started. This cannot be undone.')) return;
     await resetProgress();
     render(container, ctx);
   });

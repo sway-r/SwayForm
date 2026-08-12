@@ -25,8 +25,7 @@ window.SWAYFORM = {
   },
   pricing: {
     robotPrice: "Contact Sales",
-    premiumFreeMonthsIncluded: 6,
-    premiumAnnualPriceNote: "Annual premium curriculum pricing will be announced before commercial release."
+    premiumBundlingNote: "An introductory period of premium curriculum access is planned to be included with every robot purchase. Exact terms and annual pricing will be announced before commercial release."
   },
   timeline: {
     pilotStatus: "Pilot interest is currently open.",

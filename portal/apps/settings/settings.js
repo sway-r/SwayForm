@@ -89,8 +89,18 @@ export function mount(container, ctx){
     });
   });
 
-  container.querySelector('[data-reset-layout]').addEventListener('click', () => {
-    try { localStorage.removeItem('swayform.portal.workspace.layout'); } catch (e) { /* noop */ }
+  container.querySelector('[data-reset-layout]').addEventListener('click', (e) => {
+    try { localStorage.removeItem('swayform.portal.workspace.layout'); } catch (err) { /* noop */ }
+    // If an Activity Workspace is open in another window right now, tell its
+    // live WorkspaceWindowManager to reset immediately — otherwise this only
+    // took effect the NEXT time an activity was opened, with no feedback at
+    // all in the meantime (looked like the button did nothing).
+    window.dispatchEvent(new CustomEvent('swayform:workspace-layout-reset'));
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    btn.textContent = 'Layout reset';
+    btn.disabled = true;
+    setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 1500);
   });
 
   container.querySelector('[data-reset-fs]').addEventListener('click', async () => {

@@ -42,6 +42,10 @@ export function mount(container, ctx){
 
   const gridEl = container.querySelector('[data-grid]');
 
+  if (!MOCK_PROJECTS.length){
+    gridEl.innerHTML = `<div class="p-empty">${icon('projects')}<p>No projects yet. Start a lab or demo from Learn to create one.</p></div>`;
+  }
+
   MOCK_PROJECTS.forEach((p) => {
     const found = findItem(p.associatedActivityId);
     const activityLabel = found ? found.item.title : p.associatedActivityId;

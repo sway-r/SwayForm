@@ -102,7 +102,14 @@ export function mount(bodyEl, winApi, opts) {
         ? `<div class="nb-complete-concepts">${activity.completionSummary.conceptsUsed.map((c) => `<span class="nb-complete-chip">${c}</span>`).join('')}</div>` : ''}
       <div class="nb-complete-actions">
         <button type="button" class="p-btn primary" data-mark-complete>${icon('checkCircle')}<span>${done ? 'Completed' : 'Mark Activity Complete'}</span></button>
-        ${nextActivity ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button>` : ''}
+        ${nextActivity
+          ? nextActivity.kind === 'placeholder'
+            // The next real slot isn't written yet — say so up front rather
+            // than offering a button visually identical to "go to the next
+            // real lab" that only reveals it was unfinished after the click.
+            ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('clock')}<span>Coming Soon — ${nextActivity.title}</span></button>`
+            : `<button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
+          : ''}
       </div>`;
     completeBlock.querySelector('[data-mark-complete]').addEventListener('click', async () => {
       done = true;

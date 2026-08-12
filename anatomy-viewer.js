@@ -68,9 +68,12 @@
     overview_to_hand: 'transition/OverviewToHand.mp4',
     hand_to_overview: 'transition/HandToOverview.mp4',
     overview_to_base: 'transition/OverviewToBase.mp4',
-    base_to_overview: 'transition/BaseToOverview.mp4',
-    overview_to_electronics: 'transition/OverviewToElectronics.mp4', /* not yet on disk — falls back to fade */
-    electronics_to_overview: 'transition/ElectronicsToOverview.mp4'  /* not yet on disk — falls back to fade */
+    base_to_overview: 'transition/BaseToOverview.mp4'
+    /* No overview_to_electronics / electronics_to_overview entry — those
+     * files don't exist yet. playTransition() already fades to the still
+     * image when VIDEOS[key] is missing (see the `if (!path)` guard below),
+     * so leaving the key out entirely avoids preloadAssets() eagerly
+     * fetching two files that 404 on every page load for no visible benefit. */
   };
 
   /* ── Final still image per video group ── */

@@ -928,21 +928,22 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
   }
-  /* video sits in a rounded, shadowed card on the right — the card's own
-     aspect-ratio matches the source file (1024x576, 16:9) exactly, so the
-     holder is always the same shape as the video and nothing gets cropped
-     or letterboxed regardless of section height. */
+  /* video sits on the right — the box's own aspect-ratio matches the source
+     file (1024x576, 16:9) exactly, so it's never cropped or letterboxed.
+     The left edge is masked to a fade instead of a hard border, so it bleeds
+     into the section background rather than reading as a boxed-in card. */
   .dp-video-bg{
     position:absolute;
     top:50%;right:48px;
     transform:translateY(-50%);
-    width:64%;
+    width:44%;
     aspect-ratio:16/9;
     z-index:1;
-    border-radius:20px;
+    border-radius:0 20px 20px 0;
     overflow:hidden;
     box-shadow:0 20px 60px rgba(0,0,0,.16);
-    border:1px solid var(--line);
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, black 16%);
+    mask-image:linear-gradient(to right, transparent 0%, black 16%);
   }
   .dp-video-bg video{
     width:100%;height:100%;
@@ -985,6 +986,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       width:calc(100% - 40px);
       margin:0 20px;
       aspect-ratio:16/9;
+      border-radius:20px;
+      -webkit-mask-image:none;
+      mask-image:none;
       order:2; /* video below text on mobile */
     }
     .dp-content{

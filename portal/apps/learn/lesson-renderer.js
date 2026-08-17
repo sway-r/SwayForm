@@ -3,7 +3,12 @@
    portal/data/learning-path.js and portal/data/reference.js for the schema)
    into DOM nodes. No HTML strings are built from untrusted content — every
    text field is escaped, and only a small whitelist of inline markup
-   (**bold**, `code`, [label](url)) is turned into real elements. */
+   (**bold**, `code`, [label](url)) is turned into real elements.
+
+   'reveal' block: { type:'reveal', hint: string, solution?: { text?: string,
+   code?: {lang, filename, code} } } — hint is always visible, solution is
+   gated behind a Show Solution toggle (same accordion pattern as
+   'troubleshoot'). Used by Control lab "Need Help?" sections. */
 import { icon } from '../../icons.js';
 
 function el(tag, cls, html){
@@ -124,6 +129,27 @@ function renderBlock(block, ctx){
         item.querySelector('.cb-tr-hdr').addEventListener('click', () => item.classList.toggle('open'));
         wrap.appendChild(item);
       });
+      return wrap;
+    }
+
+    /* Hint always visible; Show Solution gated behind the same collapsible
+       accordion pattern as 'troubleshoot' — reuses its CSS/toggle classes. */
+    case 'reveal': {
+      const wrap = el('div', 'cb-reveal-item');
+      const hint = el('div', 'cb-reveal-hint');
+      hint.innerHTML = `<div class="cb-tr-lbl">Hint</div><p>${inlineHtml(block.hint || '')}</p>`;
+      wrap.appendChild(hint);
+
+      const btn = el('button', 'cb-tr-hdr');
+      btn.type = 'button';
+      btn.innerHTML = `<span class="cb-tr-symp">Show Solution</span><span class="cb-tr-plus">+</span>`;
+      const body = el('div', 'cb-tr-body');
+      if (block.solution && block.solution.text) body.appendChild(el('p', 'cb-p', inlineHtml(block.solution.text)));
+      if (block.solution && block.solution.code) body.appendChild(renderBlock({ type: 'code', ...block.solution.code }, ctx));
+      btn.addEventListener('click', () => wrap.classList.toggle('open'));
+
+      wrap.appendChild(btn);
+      wrap.appendChild(body);
       return wrap;
     }
 

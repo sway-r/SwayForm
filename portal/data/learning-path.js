@@ -26,7 +26,7 @@ export const LEARNING_PATH = {
     // ============================================================ LEVEL 1
     {
       id: 'foundations', number: 1, title: 'Foundations',
-      description: 'Get oriented, connect to your robot, and understand how classroom submissions work before you write any code.',
+      description: 'Get oriented, learn the safety rules, and understand the ROS 2 ideas behind SwayForm before you write any code.',
       sections: [
         {
           id: 'orientation', title: 'Orientation', difficulty: null, estimatedTime: '20 minutes',
@@ -79,120 +79,93 @@ export const LEARNING_PATH = {
                       "Run a finished demo before editing anything — see it work first, then change it.",
                       "Never test an untested angle or value directly on hardware — stay inside the ranges an activity gives you.",
                     ] },
-                    { type: 'callout', tone: 'safety', label: 'Next', text: 'Before you touch the robot, read Safety First — the next activity.' },
+                    { type: 'callout', tone: 'safety', label: 'Next', text: 'Before you touch the robot, read Safety and Ground Rules — the next lesson.' },
                   ],
                 },
               ],
               completionSummary: { text: 'You know what SwayForm teaches, how the Learning Path is organized, and how the workspace on the physical robot is laid out.', conceptsUsed: [] },
             },
             {
-              id: 'safety-first', title: 'Safety First', kind: 'reading', estimatedTime: '6 minutes',
-              summary: 'Why every submission is reviewed before the robot moves, and the core safety checklist.',
+              id: 'safety-first', title: 'Safety and Ground Rules', kind: 'reading', estimatedTime: '8 minutes',
+              summary: 'The one rule that matters most, what to do if something looks wrong, and the core safety checklist.',
               steps: [
                 {
                   id: 'a-physical-robot', title: 'A Physical Robot, Not a Simulation',
                   blocks: [
-                    { type: 'lead', text: 'SwayForm is designed for classroom robotics learning, but it is still a physical robot. Treat every moving part with care. For the full protected motion-control architecture and layered emergency-stop system, see the public Safety page and the Robot Safety and Acceptable Use Policy.' },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'The goal of every activity is controlled learning, not seeing how far the robot can be pushed.' },
+                    { type: 'lead', text: 'SwayForm is designed for classroom robotics learning, but it is still a physical robot with real motors. Treat every moving part with care. For the full protected motion-control architecture and layered emergency-stop system, see the public Safety page and the Robot Safety and Acceptable Use Policy.' },
+                    { type: 'callout', tone: 'safety', label: 'The one rule', text: 'Never touch SwayForm while it is powered, enabled, or moving.' },
+                  ],
+                },
+                {
+                  id: 'never-touch-a-moving-robot', title: 'Never Touch a Moving Robot',
+                  blocks: [
+                    { type: 'p', text: 'A servo holding a position or mid-motion is actively working to get where it was told to go. Pushing against it does not gently stop it — it fights back, and neither the servo nor your hand wins that.' },
+                    { type: 'checklist', items: [
+                      "Don't grab an arm or hold a moving finger still.",
+                      "Don't manually reposition a powered joint.",
+                      "Don't twist the head or the torso.",
+                      "Don't physically resist the servos, even lightly.",
+                      "Don't try to stop movement with your hands.",
+                    ] },
+                    { type: 'callout', tone: 'safety', label: 'If something goes wrong', text: 'Stop the program. Do not grab the robot.' },
+                    { type: 'p', text: 'Powered off is different — you may be shown how to gently move a joint by hand for setup, but only when specifically instructed, and never while the robot could power on unexpectedly.' },
                   ],
                 },
                 {
                   id: 'safety-checklist', title: 'The Core Safety Checklist',
                   blocks: [
-                    { type: 'p', text: 'These rules apply to every activity in the Learning Path, from your first motion command to the capstone.' },
+                    { type: 'p', text: 'These rules apply to every lesson and lab in the Learning Path, from your first motion command to the last Control lab.' },
                     { type: 'checklist', items: [
-                      'Keep hands clear while a demo or approved program is running.',
-                      'Stop the running script before repositioning objects near the robot.',
+                      'Keep hands clear while a program or demo is running.',
+                      'Stop the running program before repositioning objects near the robot.',
                       "Do not force the robot's arms, hands, head, or base by hand.",
-                      'Use safe joint limits instead of testing random servo angles.',
+                      'Trust the safe joint limits instead of testing values outside what a lesson gives you.',
                       'Keep tabletop objects light and easy to move.',
                       'Make sure the robot is stable before running arm or base motions.',
-                      'If a motion looks wrong, stop the script before trying again.',
-                      'Know where the emergency stop / servo-power cutoff is before running any program.',
+                      'If a motion looks wrong, stop the program before trying again.',
+                      'Know where the power/servo cutoff is before running any program.',
                       'Never run a program on the physical robot without an instructor or supervisor present.',
                     ] },
                   ],
                 },
-                {
-                  id: 'why-review-first', title: 'Why Review Happens Before Motion',
-                  blocks: [
-                    { type: 'p', text: 'Every program you write is validated and instructor-approved before it can move the robot — the next activity, How Submissions Work, covers that full path. That review step exists specifically so unsafe or malformed code is caught before it ever reaches a motor.' },
-                  ],
-                },
               ],
-              completionSummary: { text: 'You understand why every submission is reviewed before it reaches the robot.', conceptsUsed: [] },
+              completionSummary: { text: 'You know the one rule that matters most — never touch a powered or moving robot — and the checklist behind it.', conceptsUsed: [] },
             },
             {
-              id: 'how-submissions-work', title: 'How Submissions Work', kind: 'reading', estimatedTime: '10 minutes',
-              summary: 'The full path from writing code to an instructor-approved robot behavior.',
+              id: 'how-the-hub-works', title: 'How the Learning Hub Works', kind: 'reading', estimatedTime: '8 minutes',
+              summary: 'The loop you will use for every lesson, and why there is no submission or grading system.',
               steps: [
                 {
-                  id: 'the-full-sequence', title: 'The Full Submission Sequence',
+                  id: 'the-loop', title: 'The Loop',
                   blocks: [
-                    { type: 'lead', text: 'You write real ROS 2 code, but you never send commands straight to the motors. Every submission moves through the same protected path before the robot moves.' },
+                    { type: 'lead', text: 'Every lesson and lab in this portal follows the same loop, whether you are reading your first page or writing your tenth Control lab.' },
                     { type: 'steps', items: [
-                      'The instructor introduces the lesson or objective.',
-                      'You open the free Learning Portal.',
-                      'You follow the explanation and examples in an activity.',
-                      "You connect to the robot's Raspberry Pi through SSH using the shared student environment.",
-                      'You create a named ROS 2 project using the SwayForm project-creation tool.',
-                      'The tool generates the appropriate folder structure and starter files.',
-                      'You modify a partially completed starter file, or write your own program.',
-                      'You submit your program to the SwayForm execution queue.',
-                      'The system performs automated validation — syntax, build, and safety checks.',
-                      'The instructor reviews the program and its source code.',
-                      'The instructor approves or rejects the submission, with feedback if needed.',
-                      'An approved program sends requests through the protected motion-control system.',
-                      'The robot performs the approved behavior.',
-                      'You observe, debug, revise, and resubmit.',
+                      '**Learn** — read a short explanation before you see any code.',
+                      '**Write** — type a small, guided piece of a real program.',
+                      '**Run** — send it to the robot (or the simulated run experience, where a live connection is not available yet).',
+                      '**Observe** — watch what actually happens.',
+                      '**Modify** — change one thing on purpose.',
+                      '**Run Again** — see what changed, and why.',
                     ] },
+                    { type: 'p', text: 'Later lessons open the same three-pane workspace — your instructions on the left, a real code editor and terminal on the right — every time.' },
                   ],
                 },
                 {
-                  id: 'why-the-queue-exists', title: 'Why the Queue Exists',
+                  id: 'no-submission-system', title: 'There Is No Submission System',
                   blocks: [
-                    { type: 'p', text: 'Because the review step is real, instructors do not need to watch every keystroke. They review the source once, before it can move the robot, which keeps the classroom open for real experimentation without needing constant supervision of the code itself — physical supervision of the robot is still required, as covered in Safety First.' },
-                    { type: 'callout', tone: 'safety', label: 'What this is not', text: 'You do not press Run and immediately control the hardware. Nothing reaches a motor without passing through validation, the queue, and instructor approval first.' },
+                    { type: 'p', text: 'You will not submit assignments, upload work for grading, or wait for approval before you can try something. Marking a lesson complete just tracks where you are — it is not a submission, and nobody reviews it before you can move on.' },
+                    { type: 'callout', tone: 'note', label: 'Completion is not submission', text: 'Finishing a lesson means the portal remembers you have seen it. It does not send anything anywhere.' },
                   ],
                 },
                 {
-                  id: 'automated-checks', title: 'What Gets Checked Automatically',
+                  id: 'you-dont-need-to-memorize', title: 'You Do Not Need to Memorize Everything',
                   blocks: [
-                    { type: 'p', text: 'Before a submission reaches an instructor, it runs through automated checks. This list reflects planned architecture — some checks are further along than others, and none of this replaces instructor review.' },
-                    { type: 'list', items: [
-                      'Python syntax validation',
-                      'ROS 2 package build checks',
-                      'Required dependency validation',
-                      'Valid message structure',
-                      'Supported node configuration',
-                      'Valid joint names',
-                      'Joint-angle bounds',
-                      'Requested speed limits',
-                      'Command-duration limits',
-                      'Missing-file detection',
-                      'Unsupported hardware access',
-                      'Direct motor-controller access attempts',
-                    ] },
-                    { type: 'callout', tone: 'note', label: 'Honest note', text: 'These are planned checks, not a claim of complete behavioral simulation or a guarantee that every approved program is perfectly safe. Physical limits are still enforced by the protected motion-control node regardless of what the queue catches.' },
-                  ],
-                },
-                {
-                  id: 'instructor-review', title: 'Instructor Review',
-                  blocks: [
-                    { type: 'p', text: 'The queue is meant to give an instructor everything needed to make a fast, informed decision:' },
-                    { type: 'list', items: [
-                      'Student or team name and project name',
-                      'Requested program',
-                      'Submission time and queue position',
-                      'Build status and validation status',
-                      'Error messages, if any',
-                      'Instructor decision and current execution status',
-                    ] },
-                    { type: 'p', text: 'The instructor opens a queued submission, reads the source, checks the validation results, and approves or rejects it. A rejection can include feedback so you can fix the issue and resubmit. Only an approved submission can send requests through the protected motion-control system.' },
+                    { type: 'p', text: 'Every lesson explains an idea before showing you the code pattern behind it, then gives you a small piece to write yourself. If you get stuck, a hint is always available, and the full solution is always one click away after that — using it is not cheating, it is part of how the loop works.' },
+                    { type: 'callout', tone: 'tip', label: 'Key idea', text: "You are not expected to guess. You are expected to run things, watch what happens, and change them on purpose." },
                   ],
                 },
               ],
-              completionSummary: { text: 'You understand the full path from writing code to the robot performing an approved behavior.', conceptsUsed: [] },
+              completionSummary: { text: 'You know the Learn → Write → Run → Observe → Modify → Run Again loop, and that nothing here is submitted or graded.', conceptsUsed: [] },
             },
           ],
         },
@@ -201,104 +174,295 @@ export const LEARNING_PATH = {
           description: 'Get your laptop talking to the robot and set up your own student project.',
           activities: [
             {
-              id: 'vscode-ssh-setup', title: 'VS Code & SSH Setup', kind: 'reading', estimatedTime: '15 minutes',
-              summary: 'Connect to the robot from VS Code over SSH, run a demo, and stop motion safely.',
+              id: 'connect-to-your-robot', title: 'Connect to Your Robot', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'How your browser reaches the physical robot — no laptop setup required.',
               steps: [
                 {
-                  id: 'why-vscode-and-ssh', title: 'Why VS Code and SSH',
+                  id: 'the-path-to-the-robot', title: 'The Path to the Robot',
                   blocks: [
-                    { type: 'lead', text: 'You use VS Code and SSH so you can work with the robot like a real development system. Code runs on the robot, but you edit and launch it from your own laptop.' },
-                    { type: 'p', text: "SSH lets your laptop open a secure terminal session on the robot's Raspberry Pi. VS Code adds a familiar editor, file browser, and terminal on top of that connection, so you can open the robot workspace, inspect files, edit code, and run commands without switching tools constantly." },
+                    { type: 'lead', text: 'Everything you do happens in this browser. You never install anything or set up a terminal on your own laptop.' },
+                    { type: 'code', lang: 'text', filename: 'How a lesson reaches SwayForm', code: 'Your Browser\n     ↓\nSwayForm Learning Portal\n     ↓\nRobot Connection\n     ↓\nSwayForm' },
+                    { type: 'p', text: 'The Learning Portal is where you read lessons, write code, and see output. The Robot Connection is the bridge between the portal and the physical robot in your classroom.' },
                   ],
                 },
                 {
-                  id: 'student-vs-administrator', title: 'Shared Student Account vs. Administrator Account',
+                  id: 'robot-connection-status', title: 'Robot Connection — Coming Soon',
                   blocks: [
-                    { type: 'p', text: 'SwayForm uses two Linux access levels on the Raspberry Pi: a shared student account, and an administrator account for the instructor.' },
-                    { type: 'terminal', lines: ['ssh student@swayform.local'] },
-                    { type: 'p', text: 'You connect through a shared student SSH account. Instead of separate logins per student, everyone in a class reaches the same account and then creates a separately named project — see Create Your Student Project — using a guided command-line tool.' },
-                    { type: 'callout', tone: 'warn', label: 'What this is and is not', text: 'Because every student project lives under one shared Linux account, this does not provide true operating-system-level isolation between students. Project names and optional project passwords are a SwayForm classroom-organization feature — they discourage accidental modification and help you find your own work again. They are not a security boundary against a technically advanced student with access to the same shared filesystem.' },
-                    { type: 'p', text: 'The instructor holds a separate administrator account with elevated privileges — reviewing queued submissions, approving or rejecting them, and maintaining the robot.' },
+                    { type: 'callout', tone: 'note', label: 'Robot Connection — Coming Soon', text: 'The live browser-to-robot bridge is still being built. Until it is finished, Run shows a realistic simulated result instead of moving the physical robot, and demo/lab pages are clear about which one you are seeing.' },
+                    { type: 'p', text: 'Nothing about this page is faked to look like a working connection — when it is ready, this lesson (and the Run button across the portal) will be updated to match.' },
                   ],
                 },
                 {
-                  id: 'connecting', title: 'Connecting to the Robot',
+                  id: 'what-you-wont-need', title: "What You Won't Need",
                   blocks: [
-                    { type: 'p', text: 'Before you run anything:' },
-                    { type: 'steps', items: [
-                      '**Power on the robot.** Make sure it is stable. Do not place hands or objects near the arms while software is starting.',
-                      '**Connect to the correct network.** Laptop and robot need to be able to see each other.',
-                      '**Open VS Code** and use Remote-SSH to open a terminal and file browser on the robot.',
-                      '**Open the workspace** at `~/ros2_ws`, where demos, labs, and student projects live.',
-                      '**Run a safe demo first** — start with Wave, the simplest one.',
-                    ] },
-                    { type: 'terminal', lines: ['cd ~/ros2_ws', 'source install/setup.bash'] },
-                    { type: 'callout', tone: 'note', label: 'Note', text: 'These commands are example defaults. The exact hostname, username, or workspace path can be adjusted for your classroom image.' },
-                  ],
-                },
-                {
-                  id: 'running-a-demo', title: 'Running a Demo',
-                  blocks: [
-                    { type: 'terminal', lines: ['cd ~/ros2_ws', 'source install/setup.bash', 'ros2 run swayform_demos wave_demo'] },
-                    { type: 'p', text: 'Before running: confirm the robot is stable, the table area is clear, no one is holding an arm, the correct demo command is being used, and the previous behavior has fully stopped.' },
-                  ],
-                },
-                {
-                  id: 'stopping-motion-safely', title: 'Stopping Motion Safely',
-                  blocks: [
-                    { type: 'p', text: 'Know how to stop a behavior before you start changing code — a safe stop is part of the normal workflow, not an emergency-only action.' },
-                    { type: 'terminal', lines: ['Ctrl + C'] },
+                    { type: 'p', text: "You will not use SSH, VS Code's Remote-SSH, or any manual terminal login to reach the robot. Those are internal engineering tools, not part of how students work here." },
                     { type: 'checklist', items: [
-                      'Wait for the robot to finish or relax its current movement.',
-                      'Do not immediately grab the arm or hand.',
-                      'Check the terminal output for errors.',
-                      'Only restart the demo when the area is clear.',
+                      'No SSH client or terminal setup on your laptop.',
+                      'No VS Code installation or Remote-SSH configuration.',
+                      'No manually typed hostnames, usernames, or passwords for the robot.',
                     ] },
-                    { type: 'p', text: 'Ctrl+C is a normal software stop, not the full safety system — see the public Safety page for the physical emergency stop and protected motion architecture. If the robot does not move correctly, stop the script first, then check whether the correct file was edited, the workspace was sourced, and another behavior is not already controlling the robot.' },
                   ],
                 },
               ],
-              completionSummary: { text: 'You can connect to the robot from VS Code, run a demo, and stop motion safely.', conceptsUsed: [] },
+              completionSummary: { text: 'You understand how the portal reaches the robot, and that you never need SSH or VS Code to do it.', conceptsUsed: [] },
             },
             {
-              id: 'create-student-project', title: 'Create Your Student Project', kind: 'reading', estimatedTime: '10 minutes',
-              summary: 'Generate your own named project folder and start working inside it.',
+              id: 'your-project-and-updates', title: 'Your Project and Robot Updates', kind: 'reading', estimatedTime: '5 minutes',
+              summary: 'What your own work area will look like, and how the robot stays up to date.',
               steps: [
                 {
-                  id: 'creating-a-project', title: 'Creating a Project',
+                  id: 'your-own-work-area', title: 'Your Own Work Area',
                   blocks: [
-                    { type: 'lead', text: 'Instead of hand-building a ROS 2 package structure from scratch, you create a named project using the SwayForm project-creation tool, which generates the right folders and starter files automatically.' },
-                    { type: 'p', text: 'The command-line tool asks a short set of questions:' },
-                    { type: 'list', items: [
-                      'Project name',
-                      'Student or team identifier',
-                      'Optional project password',
-                      'Selected lab or starter template',
-                    ] },
-                    { type: 'code', lang: 'bash', filename: 'bash — example session', code: '$ swayform-new-project\nProject name: gesture-club-team3\nStudent or team ID: team3\nOptional project password: ********\nStarter template (blank / lab-01 / lab-03 / demo-wave): lab-03\n\nCreated ~/ros2_ws/src/gesture-club-team3/\n  ├── package.xml\n  ├── setup.py\n  ├── gesture_club_team3/\n  │   └── main.py\n  └── PROJECT_INFO.txt' },
+                    { type: 'lead', text: "As you move further through the Learning Path, you'll get your own project space tied to your account — a place your in-progress code and progress live between sessions." },
+                    { type: 'p', text: "Early lessons and Control labs work inside a shared, guided workspace. A fully open-ended project space — where you design something of your own from scratch — arrives later, in Create (Level 4)." },
                   ],
                 },
                 {
-                  id: 'what-gets-generated', title: 'What Gets Generated',
+                  id: 'keeping-things-up-to-date', title: 'Keeping Things Up to Date',
                   blocks: [
-                    { type: 'list', items: [
-                      'A standard ROS 2 package structure',
-                      'Starter Python files, matching the chosen template',
-                      'Partially completed exercises, comments, and instructions where the template is a lab',
-                      'Required configuration (package.xml, setup.py)',
-                      'Submission metadata used later by the validation queue',
-                    ] },
-                    { type: 'callout', tone: 'warn', label: 'About project passwords', text: 'An optional project password is a SwayForm classroom-organization feature that helps you or your team find and protect your own project and discourages accidental changes by someone else. Because every project lives on one shared Linux account, a password here is not a real security boundary — see VS Code & SSH Setup.' },
+                    { type: 'p', text: "SwayForm's software and this portal's lessons will both improve over time — new labs, fixes, and safety improvements. The website manages rolling those updates out; you don't need to manually update anything yourself." },
+                    { type: 'callout', tone: 'note', label: 'Note', text: 'If a lesson or lab changes after you have started it, your progress on the parts that stayed the same is kept — only the parts that actually changed reset.' },
                   ],
                 },
                 {
-                  id: 'working-in-your-project', title: 'Working in Your Project',
+                  id: 'for-now', title: 'For Now',
                   blocks: [
-                    { type: 'p', text: "Open your generated folder in VS Code, edit `main.py` (or the files listed in `PROJECT_INFO.txt`), and test locally before submitting. When ready, submit through the queue rather than running against the physical robot directly — see How Submissions Work." },
+                    { type: 'p', text: 'Focus on the guided lessons and labs ahead of you. When your own project space is ready, this page will be the place that explains how to use it.' },
                   ],
                 },
               ],
-              completionSummary: { text: 'You have your own named project folder, generated and ready to work in.', conceptsUsed: [] },
+              completionSummary: { text: 'You know that your own project space and robot updates are handled by the portal, and are coming later in the path.', conceptsUsed: [] },
+            },
+          ],
+        },
+        {
+          id: 'ros2-ideas', title: 'ROS 2 Ideas', difficulty: null, estimatedTime: '20 minutes',
+          description: 'The small set of ROS 2 ideas you need before writing robot code.',
+          activities: [
+            {
+              id: 'what-is-ros2', title: 'What Is ROS 2?', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'Python is what you write. ROS 2 is how different robot programs talk to each other.',
+              steps: [
+                {
+                  id: 'python-and-ros2', title: 'Python and ROS 2',
+                  blocks: [
+                    { type: 'lead', text: 'Almost everything you write in this portal is plain Python. ROS 2 is the layer underneath that lets separate robot programs — camera code, motion code, behavior code — send information to each other without being wired directly together.' },
+                    { type: 'p', text: "Without something like ROS 2, every program would need to know exactly how every other program works. With it, a program just sends data out under a name, and any other program that cares can listen for it." },
+                  ],
+                },
+                {
+                  id: 'a-visual-example', title: 'A Visual Example',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'Camera to behavior', code: 'Camera\n   ↓\nROS 2\n   ↓\nVision Program\n   ↓\nROS 2\n   ↓\nRobot Behavior' },
+                    { type: 'p', text: 'The camera program never talks to the behavior program directly — both talk through ROS 2. That separation is what lets you replace or restart one piece without breaking the others.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You know that Python is what you write, and ROS 2 is how robot programs talk to each other.', conceptsUsed: ['ROS 2'] },
+            },
+            {
+              id: 'nodes-topics-pubsub', title: 'Nodes, Topics, Publishers, Subscribers', kind: 'reading', estimatedTime: '8 minutes',
+              summary: 'The four ROS 2 ideas you actually need, and nothing more.',
+              steps: [
+                {
+                  id: 'the-four-ideas', title: 'The Four Ideas',
+                  blocks: [
+                    { type: 'lead', text: 'ROS 2 has a lot of vocabulary. You only need four words to get started.' },
+                    { type: 'terms', items: [
+                      { term: 'Node', def: 'One running robot program.' },
+                      { term: 'Topic', def: 'A named communication channel.' },
+                      { term: 'Publisher', def: 'Sends data onto a topic.' },
+                      { term: 'Subscriber', def: 'Receives, or listens for, data on a topic.' },
+                    ] },
+                    { type: 'callout', tone: 'tip', label: 'Key idea', text: 'You do not need to memorize this. You will learn it by using it.' },
+                  ],
+                },
+                {
+                  id: 'a-swayform-example', title: 'A SwayForm Example',
+                  blocks: [
+                    { type: 'p', text: 'When a lab tells the robot to wave, your program is a node. It publishes a motion request onto a topic. The motion controller — a separate node — subscribes to that same topic, receives the request, and moves the arm.' },
+                    { type: 'p', text: "Your program never touches a servo directly. It just publishes what it wants, and the right node picks it up." },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You know what a node, topic, publisher, and subscriber are.', conceptsUsed: ['Node', 'Topic', 'Publisher', 'Subscriber'] },
+            },
+            {
+              id: 'how-swayform-uses-ros2', title: 'How SwayForm Uses ROS 2', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'The real shape of communication between SwayForm’s camera, perception, and motion.',
+              steps: [
+                {
+                  id: 'the-big-picture', title: 'The Big Picture',
+                  blocks: [
+                    { type: 'lead', text: "SwayForm's own software follows the same camera-to-behavior shape you just saw, with real pieces in place of the generic labels." },
+                    { type: 'code', lang: 'text', filename: 'SwayForm’s perception-to-motion path', code: 'RealSense Camera\n   ↓\nROS 2\n   ↓\nPerception Node\n   ↓\nROS 2\n   ↓\nMotion Controller\n   ↓\nRobot' },
+                    { type: 'callout', tone: 'note', label: 'Honest note', text: "The exact node and topic names are part of the real robot software, and you will meet the ones that matter inside the labs that use them — not as a list to memorize now." },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You can picture how SwayForm’s camera, perception, and motion pieces talk to each other through ROS 2.', conceptsUsed: ['ROS 2', 'Nodes'] },
+            },
+          ],
+        },
+        {
+          id: 'working-in-the-hub', title: 'Working in the Hub', difficulty: null, estimatedTime: '18 minutes',
+          description: 'The practical loop for editing, running, and reading output inside a lesson.',
+          activities: [
+            {
+              id: 'editing-and-running-python', title: 'Editing and Running Programs', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'The website workflow for every lesson that involves code.',
+              steps: [
+                {
+                  id: 'the-workflow', title: 'The Workflow',
+                  blocks: [
+                    { type: 'lead', text: 'Every code-based lesson works the same way, entirely inside the browser.' },
+                    { type: 'steps', items: [
+                      '**Open the lab** from your Learning Path.',
+                      '**Edit the code** in the editor pane — usually just a small marked section.',
+                      '**Run it** using the Run button in the toolbar.',
+                      '**View the output** in the panel below.',
+                      '**Watch the robot respond** — live once Robot Connection is available, simulated until then.',
+                    ] },
+                  ],
+                },
+                {
+                  id: 'inside-a-lab', title: 'Inside a Lab',
+                  blocks: [
+                    { type: 'p', text: 'A lab opens a three-pane workspace: your instructions on the left, a file explorer and code editor in the middle, and a terminal/output panel on the right. Editable sections are clearly marked — you are never expected to write boilerplate you have not learned yet.' },
+                    { type: 'callout', tone: 'note', label: 'Note', text: 'The portal starts the program for you when you press Run. You do not need to write a launch file to get started.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You know the Open → Edit → Run → Output → Respond loop used by every lab.', conceptsUsed: ['Edit-run loop'] },
+            },
+            {
+              id: 'terminal-basics', title: 'Terminal Basics', kind: 'reading', estimatedTime: '5 minutes',
+              summary: 'The handful of terminal ideas you actually need inside the portal.',
+              steps: [
+                {
+                  id: 'what-youll-actually-use', title: "What You'll Actually Use",
+                  blocks: [
+                    { type: 'lead', text: 'The terminal panel is where a running program prints what it is doing. You need to recognize a few things, not master Linux.' },
+                    { type: 'list', items: [
+                      '**Run** starts your program and streams its output here.',
+                      '**Stop** (Ctrl+C, or the Stop button) ends a running program safely.',
+                      '**Output** is normal — lines telling you what the program is doing.',
+                      '**Errors** usually point at a line number and a short message.',
+                      '**Restart** just means Run again, after stopping the previous run.',
+                    ] },
+                  ],
+                },
+                {
+                  id: 'an-example', title: 'An Example',
+                  blocks: [
+                    { type: 'terminal', lines: ['[INFO] Starting lab_01_finger_curl', '[INFO] Moving to safe start pose', '[INFO] Curling finger…', '[INFO] Done. Returning to rest.'] },
+                    { type: 'callout', tone: 'note', label: 'Not a Linux course', text: 'You will never need file-system commands, permissions, or shell scripting to complete a lesson here.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You can read terminal output and know how to stop and restart a program.', conceptsUsed: ['Run', 'Stop', 'Output'] },
+            },
+            {
+              id: 'navigating-the-workspace', title: 'Navigating SwayForm', kind: 'reading', estimatedTime: '5 minutes',
+              summary: 'The main parts of the workspace you need to recognize — not the whole repository.',
+              steps: [
+                {
+                  id: 'the-parts-you-need', title: 'The Parts You Need',
+                  blocks: [
+                    { type: 'p', text: "You don't need to memorize SwayForm's entire codebase. Inside a lab, you only need to recognize three panels — the file explorer, the code editor, and the terminal — and two kinds of folders: finished demos you read, and lab starter files you edit." },
+                    { type: 'callout', tone: 'note', label: 'Note', text: "This page will be updated with the finalized workspace layout once it's published." },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You can find the file explorer, editor, and terminal inside a lab without help.', conceptsUsed: ['Workspace layout'] },
+            },
+          ],
+        },
+        {
+          id: 'robot-configuration', title: 'Robot Configuration and Safety', difficulty: null, estimatedTime: '20 minutes',
+          description: 'How SwayForm knows its own body, and how that keeps motion safe.',
+          activities: [
+            {
+              id: 'meet-robot-yaml', title: 'Meet robot.yaml', kind: 'reading', estimatedTime: '8 minutes',
+              summary: 'SwayForm’s map of its own body — where joint limits and centers live.',
+              steps: [
+                {
+                  id: 'a-map-of-the-body', title: 'A Map of the Body',
+                  blocks: [
+                    { type: 'lead', text: "SwayForm keeps a single configuration file that describes every joint on the robot — think of it as SwayForm's map of its own body." },
+                    { type: 'callout', tone: 'note', label: 'Illustrative example', text: "The example below shows the shape of a robot.yaml entry, not SwayForm's real calibration values." },
+                    { type: 'code', lang: 'yaml', filename: 'robot.yaml (illustrative example)', code: '# Example structure only — not real SwayForm values\njoints:\n  example_joint:\n    board: right_arm\n    channel: 3\n    home: 90\n    min: 40\n    max: 140' },
+                  ],
+                },
+                {
+                  id: 'reading-an-entry', title: 'Reading an Entry',
+                  blocks: [
+                    { type: 'terms', items: [
+                      { term: 'board', def: 'Which servo board controls this joint.' },
+                      { term: 'channel', def: 'Which connection on that board this joint uses.' },
+                      { term: 'home', def: 'The resting/center position for this joint.' },
+                      { term: 'min / max', def: 'How far the joint is allowed to move in either direction.' },
+                    ] },
+                    { type: 'code', lang: 'text', filename: 'From file to motion', code: 'robot.yaml\n    ↓\nneck_pitch\n    ↓\nWhich board? Which channel?\nWhere is center? How far can it move?' },
+                  ],
+                },
+                {
+                  id: 'not-yours-to-edit-yet', title: 'Not Yours to Edit Yet',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: "You are not editing robot calibration at this stage. robot.yaml is a read-only reference for understanding how the robot is set up, not something a lesson asks you to change." },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You know what robot.yaml describes, and that it stays read-only for now.', conceptsUsed: ['robot.yaml', 'Joint limits'] },
+            },
+            {
+              id: 'joint-commands-and-motion-safety', title: 'Joint Commands and Motion Safety', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'Why your program never talks to a servo directly.',
+              steps: [
+                {
+                  id: 'the-protected-path', title: 'The Protected Path',
+                  blocks: [
+                    { type: 'lead', text: 'A motion command you write passes through several protective layers before it ever reaches a motor.' },
+                    { type: 'code', lang: 'text', filename: 'From your code to the motor', code: 'Student Program\n      ↓\nSwayForm Control Interface\n      ↓\nSafety Checks\n      ↓\nrobot.yaml Limits\n      ↓\nRobot Hardware' },
+                  ],
+                },
+                {
+                  id: 'why-the-layers-exist', title: 'Why the Layers Exist',
+                  blocks: [
+                    { type: 'p', text: "Your beginner programs call safe, named motion functions — never PCA9685, I2C, raw PWM, or GPIO directly. That lower-level hardware layer exists specifically to protect the robot: a typo in your program should never be able to send a dangerous signal straight to a motor." },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Every joint command you send is checked against the limits in robot.yaml before it can move anything.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You know your programs move the robot through safe motion functions, not raw hardware access.', conceptsUsed: ['Motion safety', 'Hardware abstraction'] },
+            },
+            {
+              id: 'debugging-basics', title: 'Debugging Basics', kind: 'reading', estimatedTime: '6 minutes',
+              summary: 'A simple checklist for when a program doesn’t do what you expected.',
+              steps: [
+                {
+                  id: 'the-checklist', title: 'The Checklist',
+                  blocks: [
+                    { type: 'p', text: 'Most problems in a lab are answered by one of these questions.' },
+                    { type: 'checklist', items: [
+                      'Did my program actually run?',
+                      'Is there an error message?',
+                      'Did I type the name correctly?',
+                      'Did the robot reject the command?',
+                      'Is the movement outside its allowed range?',
+                      'Did I stop the previous program before running this one?',
+                    ] },
+                  ],
+                },
+                {
+                  id: 'reading-an-error', title: 'Reading an Error',
+                  blocks: [
+                    { type: 'terminal', lines: ['[ERROR] lab_02_nod_yes.py, line 14', "NameError: name 'HEAD_PITCH_UP' is not defined"] },
+                    { type: 'p', text: "An error almost always names a file, a line number, and a short reason. Start there — in this example, a variable name was typed differently than it was defined." },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You have a simple checklist to work through when a program doesn’t behave as expected.', conceptsUsed: ['Debugging'] },
             },
           ],
         },
@@ -468,42 +632,38 @@ export const LEARNING_PATH = {
               relatedConcepts: ['Joint targets', 'Timed motion', 'Motion lock'],
               steps: [
                 {
-                  id: 'what-youre-building', title: "What You're Building",
+                  id: 'what-it-does', title: 'What It Does',
                   blocks: [
                     { type: 'lead', text: "SwayForm raises one arm and waves the wrist side to side — a short, deliberate greeting gesture built from a handful of joint targets and a loop." },
-                    { type: 'heading', level: 3, text: 'Hardware used' },
-                    { type: 'list', items: ['Shoulder servo', 'Elbow servo', 'Wrist servo', 'Motion controller node'] },
-                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The robot raises its right arm to a safe height, waves the wrist left and right three times, then returns to idle. (Video preview coming with cloud simulation.)' },
                   ],
                 },
                 {
-                  id: 'open-the-file', title: 'Open the Starter File',
+                  id: 'what-to-watch', title: 'What to Watch',
                   blocks: [
-                    { type: 'p', text: "Wave is a finished, working demo — the whole point is to read real SwayForm code before you write your own. Open it now." },
+                    { type: 'heading', level: 3, text: 'Hardware used' },
+                    { type: 'list', items: ['Shoulder servo', 'Elbow servo', 'Wrist servo', 'Motion controller node'] },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The robot raises its right arm to a safe height, waves the wrist left and right three times, then returns to idle.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm while the demo is running.' },
+                  ],
+                },
+                {
+                  id: 'how-it-works', title: 'How It Works',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'idle\n  ↓\nraise arm to start pose\n  ↓\nwave wrist, repeat a few times\n  ↓\nreturn to idle' },
+                    { type: 'p', text: 'Starting from a known position (idle) before raising the arm means the wave always starts from the same safe place, no matter what the robot was doing before. A `for` loop then turns one small wrist motion into a recognizable gesture — define one step, repeat it.' },
+                    { type: 'p', text: '`motion.lock_behavior("wave_demo")` prevents another program from grabbing the same arm mid-wave, and the matching `unlock_behavior` in a `finally` block guarantees that lock always releases, even if something goes wrong.' },
+                  ],
+                },
+                {
+                  id: 'look-at-this-part', title: 'Look at This Part',
+                  blocks: [
                     { type: 'code', lang: 'python', filename: 'wave_demo.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef move_to_wave_start(motion): ...\ndef perform_wave(motion, cycles): ...\ndef return_to_idle(motion): ...', workspaceFile: 'ros2_ws/src/swayform_demos/wave_demo.py' },
                     { type: 'p', text: 'Three functions, in order: move into position, perform the wave, return to idle. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm program you will write.' },
                   ],
                 },
                 {
-                  id: 'the-start-pose', title: 'Understand the Start Pose',
+                  id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
-                    { type: 'p', text: '`move_to_wave_start` sends the robot to `idle` first, then raises the shoulder and elbow into `RIGHT_ARM_RAISED` — a dictionary of joint names to angles.' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`motion.move_joint_group(\"right_arm\", RIGHT_ARM_RAISED)` sends several joint targets to the motion controller node at once, as one coordinated group — instead of moving each joint separately and risking an awkward in-between pose.' },
-                    { type: 'p', text: 'Starting from a known position (idle) before raising the arm means the wave always starts from the same safe place, no matter what the robot was doing before.' },
-                  ],
-                },
-                {
-                  id: 'the-wave-loop', title: 'Understand the Wave Loop',
-                  blocks: [
-                    { type: 'p', text: '`perform_wave` repeats one motion — wrist left, pause, wrist right, pause — `WAVE_CYCLES` times.' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: 'A `for` loop turns one small motion into a recognizable gesture. This is the same pattern behind almost any repeated robot behavior: define one step, then repeat it.' },
-                    { type: 'p', text: '`motion.lock_behavior(\"wave_demo\")` in `main()` prevents another program from grabbing the same arm mid-wave — and `unlock_behavior` in the `finally` block guarantees that lock always releases, even if something goes wrong.' },
-                  ],
-                },
-                {
-                  id: 'try-changing-it', title: 'Try Changing It',
-                  blocks: [
-                    { type: 'p', text: 'Small, safe changes to try before you run it again:' },
                     { type: 'list', items: [
                       'Change `WAVE_CYCLES` to wave more or fewer times.',
                       'Change `WAVE_DELAY_SECONDS` to make the wave faster or slower.',
@@ -513,11 +673,17 @@ export const LEARNING_PATH = {
                   ],
                 },
                 {
-                  id: 'run-it', title: 'Run It',
+                  id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Run the demo from the toolbar above, or from a real terminal on the robot:' },
+                    { type: 'p', text: 'Change `WAVE_CYCLES` to 1, predict how the gesture will feel, then run it and see if you were right.' },
+                  ],
+                },
+                {
+                  id: 'full-code', title: 'Full Code',
+                  blocks: [
+                    { type: 'p', text: 'Run the demo from the toolbar above, or open the file to read the complete, real source.' },
                     { type: 'terminal', lines: ['ros2 run swayform_demos wave_demo'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
                   ],
                 },
               ],
@@ -676,51 +842,56 @@ export const LEARNING_PATH = {
               relatedConcepts: ['Presence detection', 'Timeouts', 'finally blocks'],
               steps: [
                 {
-                  id: 'what-youre-building', title: "What You're Building",
+                  id: 'what-it-does', title: 'What It Does',
                   blocks: [
                     { type: 'lead', text: 'SwayForm uses the RealSense camera to detect that a user is in front of it, moves its arm into a handshake pose, waits briefly, then returns to idle.' },
                     { type: 'callout', tone: 'note', label: 'Honest note', text: 'This is a vision-assisted classroom demo, not perfect hand detection or full human understanding. It uses simple user presence in an approximate interaction zone to trigger the behavior.' },
+                  ],
+                },
+                {
+                  id: 'what-to-watch', title: 'What to Watch',
+                  blocks: [
                     { type: 'heading', level: 3, text: 'Hardware used' },
                     { type: 'list', items: ['RealSense camera', 'Arm servos', 'Optional hand servo', 'Motion node'] },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm, and never grab it mid-motion — even during a handshake demo.' },
                   ],
                 },
                 {
-                  id: 'open-the-file', title: 'Open the Starter File',
+                  id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: 'Handshake is a finished, working demo. Open it now.' },
+                    { type: 'p', text: '`wait_for_user` polls `camera.user_in_interaction_zone()` every `0.1` seconds until it returns `True`, or until `DETECTION_TIMEOUT_SECONDS` (`10`) runs out. The robot should not wait forever — a timeout keeps the demo predictable: if no user is detected, `main()` prints a message and returns the robot to idle instead of hanging.' },
+                    { type: 'p', text: '`run_handshake` then moves the right arm into `HANDSHAKE_POSE` — a controlled position, not a fast reach — holds it for `HANDSHAKE_HOLD_SECONDS` (`2.0`), then calls `motion.safe_pose("idle")`.' },
+                  ],
+                },
+                {
+                  id: 'look-at-this-part', title: 'Look at This Part',
+                  blocks: [
                     { type: 'code', lang: 'python', filename: 'handshake_demo.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef wait_for_user(camera, timeout): ...\ndef run_handshake(motion): ...', workspaceFile: 'ros2_ws/src/swayform_demos/handshake_demo.py' },
-                  ],
-                },
-                {
-                  id: 'understand-the-timeout', title: 'Understand wait_for_user and the Timeout',
-                  blocks: [
-                    { type: 'p', text: '`wait_for_user` polls `camera.user_in_interaction_zone()` every `0.1` seconds until it returns `True`, or until `DETECTION_TIMEOUT_SECONDS` (`10`) runs out.' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: 'The robot should not wait forever. A timeout keeps the demo predictable: if no user is detected, `main()` prints a message and returns the robot to idle instead of hanging.' },
-                  ],
-                },
-                {
-                  id: 'understand-the-handshake-pose', title: 'Understand the Handshake Pose',
-                  blocks: [
-                    { type: 'p', text: '`run_handshake` moves the right arm into `HANDSHAKE_POSE` — a controlled position, not a fast reach — holds it for `HANDSHAKE_HOLD_SECONDS` (`2.0`), then calls `motion.safe_pose("idle")`.' },
                     { type: 'p', text: 'As in Wave, `motion.lock_behavior("handshake_demo")` and the matching `unlock_behavior` in the `finally` block guarantee the lock always releases, even if something interrupts the script.' },
                   ],
                 },
                 {
-                  id: 'try-changing-it', title: 'Try Changing It',
+                  id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
                     { type: 'list', items: [
                       'Change how long the robot holds the handshake pose.',
                       'Add a small head nod before the arm moves.',
-                      'Adjust the detection distance.',
+                      'Adjust the detection timeout.',
                     ] },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep the handshake motion slow and predictable. Do not make the arm snap toward the user.' },
                   ],
                 },
                 {
-                  id: 'run-it', title: 'Run It',
+                  id: 'try-it', title: 'Try It',
+                  blocks: [
+                    { type: 'p', text: 'Change `HANDSHAKE_HOLD_SECONDS` and predict whether a longer hold feels more natural or less — then run it and check.' },
+                  ],
+                },
+                {
+                  id: 'full-code', title: 'Full Code',
                   blocks: [
                     { type: 'terminal', lines: ['ros2 run swayform_demos handshake_demo'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
                   ],
                 },
               ],
@@ -1124,6 +1295,750 @@ export const LEARNING_PATH = {
                 },
               ],
               completionSummary: { text: 'You designed and built an original SwayForm behavior from scratch, using skills from every level before this one.', conceptsUsed: ['Project planning', 'Code reuse', 'Debugging'] },
+            },
+          ],
+        },
+      ],
+    },
+
+    // ============================================================ CONTROL — LEVEL 1
+    // Ten guided labs, in order: from moving one finger to combining
+    // keyboard input across the whole robot. Every angle/timing value below
+    // is an illustrative Python-level constant, in the same style already
+    // used by the demos above — not a real robot.yaml calibration value.
+    {
+      id: 'control-level-1', number: 8, title: 'Control — Level 1',
+      description: 'Ten guided labs: from moving one finger to combining keyboard input across the whole robot.',
+      sections: [
+        {
+          id: 'first-movements', title: 'First Movements', difficulty: 'beginner', estimatedTime: '20–30 minutes',
+          description: 'One joint, one sequence, one predictable motion at a time.',
+          activities: [
+            {
+              id: 'finger-curl', title: 'Finger Curl', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
+              summary: 'Your first robot-control program — curl one finger, then return it.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py',
+              relatedConcepts: ['Choosing a joint', 'Sending a movement', 'Waiting', 'Returning to start'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'A small program that curls one finger, holds it, then returns it to its starting position — the smallest possible robot-control program, and the shape every later lab builds on.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'A joint is just a name your program can send a target angle to. `time.sleep()` pauses your program so the servo has time to physically get there — Python can compute the next instruction almost instantly, but the arm cannot move instantly.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep your own fingers clear of the robot hand while this runs. Never hold a finger still while the program is moving it.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'Every joint-movement lab follows this shape', code: 'move to target angle\n  ↓\nwait for the servo to arrive\n  ↓\nmove back to the starting angle' },
+                    { type: 'p', text: 'Move → wait → return. You will see this exact shape again in almost every lab from here on.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_01_finger_curl.py', code: 'FINGER_JOINT = "right_index_finger"\nSTART_ANGLE = 10\nCURL_ANGLE = 80\nHOLD_SECONDS = 1.0\n\ndef curl_finger(motion):\n    motion.move_joint(FINGER_JOINT, CURL_ANGLE)\n    time.sleep(HOLD_SECONDS)\n    # TODO: move FINGER_JOINT back to START_ANGLE', workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` — send `FINGER_JOINT` back to `START_ANGLE` after the pause, using the same `motion.move_joint(...)` call you already saw above.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_01_finger_curl'] },
+                    { type: 'p', text: 'You should see the finger curl inward, pause for about a second, then straighten back out.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['HOLD_SECONDS', 'Yes', 'The finger holds its curl for a shorter or longer time.'],
+                      ['CURL_ANGLE', 'Yes, within the given range', 'The finger curls more or less.'],
+                      ['FINGER_JOINT', 'No, not yet', 'Picks a different physical joint — save this for later labs.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Curl a second finger right after the first one, using the same three-line pattern.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'The return move uses the exact same function call as the curl — just with `START_ANGLE` instead of `CURL_ANGLE`.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_01_finger_curl.py', code: 'def curl_finger(motion):\n    motion.move_joint(FINGER_JOINT, CURL_ANGLE)\n    time.sleep(HOLD_SECONDS)\n    motion.move_joint(FINGER_JOINT, START_ANGLE)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['A joint command is a name plus a target angle.', '`time.sleep()` gives hardware time to catch up with software.', 'Every motion has a shape: move, wait, return.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You sent your first real motion command and watched code become physical movement.', conceptsUsed: ['Joint commands', 'Timing', 'Safe return'] },
+            },
+            {
+              id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
+              summary: 'Make the head nod yes — a small sequence with two directions and a return to center.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py',
+              relatedConcepts: ['Sequences', 'Timing', 'Symmetric motion'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'A head-nod behavior: center, tilt down, tilt up, back to center — a short sequence instead of one single move.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'A sequence is just multiple joint commands run one after another, with a pause between each so every step is visible.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: "Don't touch or twist the head while this program is running, even to help it along." },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'The nod sequence', code: 'center\n  ↓\ntilt down\n  ↓\ntilt up\n  ↓\ncenter' },
+                    { type: 'p', text: 'Notice the shape is symmetric — the down and up angles are the same distance from center in opposite directions, which is what makes the motion read as a "nod" rather than a random head tilt.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_02_nod_yes.py', code: 'HEAD_PITCH = "head_pitch"\nCENTER = 0\nNOD_DOWN = -20\nNOD_UP = 20\nNOD_HOLD_SECONDS = 0.4\n\ndef nod_yes(motion):\n    motion.move_joint(HEAD_PITCH, NOD_DOWN)\n    time.sleep(NOD_HOLD_SECONDS)\n    # TODO: move HEAD_PITCH to NOD_UP, then wait NOD_HOLD_SECONDS\n    motion.move_joint(HEAD_PITCH, CENTER)', workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the middle step — move `HEAD_PITCH` to `NOD_UP` and wait `NOD_HOLD_SECONDS`, matching the pattern of the line above it.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_02_nod_yes'] },
+                    { type: 'p', text: 'You should see the head dip down, rise up past center, then settle back at center.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['NOD_HOLD_SECONDS', 'Yes', 'The nod feels slower or snappier.'],
+                      ['NOD_DOWN / NOD_UP', 'Yes, within the given range', 'The nod feels bigger or smaller.'],
+                      ['HEAD_PITCH', 'No, not yet', 'Targets a different joint entirely.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Wrap the whole nod in a loop so it nods twice in a row.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'Copy the line above it, then swap `NOD_DOWN` for `NOD_UP`.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_02_nod_yes.py', code: 'def nod_yes(motion):\n    motion.move_joint(HEAD_PITCH, NOD_DOWN)\n    time.sleep(NOD_HOLD_SECONDS)\n    motion.move_joint(HEAD_PITCH, NOD_UP)\n    time.sleep(NOD_HOLD_SECONDS)\n    motion.move_joint(HEAD_PITCH, CENTER)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['A sequence is several moves in a row, each given time to complete.', 'Symmetric angles around center make motion read as intentional.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You built a short sequence out of multiple joint commands.', conceptsUsed: ['Sequences', 'Timing'] },
+            },
+            {
+              id: 'timed-torso-rotation', title: 'Timed Torso Rotation', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
+              summary: 'Rotate the torso through a predictable center → right → left → center sequence.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_timed_torso_rotation.py',
+              relatedConcepts: ['Sequences', 'Pauses', 'Predictable motion'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'A torso rotation that always passes back through center: center, right, pause, left, pause, center.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'A pause between steps is not wasted time — it is what makes the motion readable instead of a blur.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Make sure the robot is stable and nothing is resting against the base before running any torso motion.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'The rotation sequence', code: 'center\n  ↓\nright\n  ↓  (pause)\nleft\n  ↓  (pause)\ncenter' },
+                    { type: 'p', text: "Going right → left directly, without returning through center, is a much bigger and less predictable jump — that's why every step in this lab returns through a known position first." },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_03_timed_torso_rotation.py', code: 'TORSO_YAW = "torso_yaw"\nCENTER = 0\nROTATE_RIGHT = 30\nROTATE_LEFT = -30\nPAUSE_SECONDS = 0.6\n\ndef rotate_torso(motion):\n    motion.move_joint(TORSO_YAW, ROTATE_RIGHT)\n    time.sleep(PAUSE_SECONDS)\n    motion.move_joint(TORSO_YAW, ROTATE_LEFT)\n    # TODO: wait PAUSE_SECONDS, then move TORSO_YAW back to CENTER', workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_timed_torso_rotation.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` — pause for `PAUSE_SECONDS`, then return `TORSO_YAW` to `CENTER`.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_03_timed_torso_rotation'] },
+                    { type: 'p', text: 'You should see the torso swing right, pause, swing left, pause, then settle back at center.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['PAUSE_SECONDS', 'Yes', 'Longer or shorter pause between turns.'],
+                      ['ROTATE_RIGHT / ROTATE_LEFT', 'Yes, within the given range', 'Bigger or smaller rotation.'],
+                      ['TORSO_YAW', 'No, not yet', 'Targets a different joint entirely.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Add a second full right-pause-left-pause-center cycle after the first.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'You already have a `time.sleep(PAUSE_SECONDS)` line elsewhere in the file — the ending needs the same shape.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_03_timed_torso_rotation.py', code: 'def rotate_torso(motion):\n    motion.move_joint(TORSO_YAW, ROTATE_RIGHT)\n    time.sleep(PAUSE_SECONDS)\n    motion.move_joint(TORSO_YAW, ROTATE_LEFT)\n    time.sleep(PAUSE_SECONDS)\n    motion.move_joint(TORSO_YAW, CENTER)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['Passing back through a known position keeps motion predictable.', 'Pauses are part of the design, not dead time.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You built a predictable rotation sequence that always returns through center.', conceptsUsed: ['Sequences', 'Pauses'] },
+            },
+          ],
+        },
+        {
+          id: 'combining-motion', title: 'Combining Motion and Input', difficulty: 'beginner', estimatedTime: '30–40 minutes',
+          description: 'Move more than one joint at once, then drive motion from the keyboard.',
+          activities: [
+            {
+              id: 'basic-handshake', title: 'Basic Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
+              summary: 'Combine two joints — bend the elbow and curl the fingers together.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_basic_handshake.py',
+              relatedConcepts: ['Combining joints', 'Hand poses'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'A partial handshake motion: the elbow bends, then the hand closes. Just those two moves — no camera, no waiting for a person, no arm-raise. Full Handshake, later in this level, builds the complete version.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: '`motion.set_hand_pose(hand, pose_name)` moves every finger at once into a named pose, the same call the Handshake and Wave demos use — a hand pose is just a joint command for several finger joints together.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: "Never place your own hand where the robot's hand is closing." },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'p', text: "The elbow moves into position first, and only then does the hand close — closing the hand before the elbow finishes moving could catch something on the way." },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_04_basic_handshake.py', code: 'RIGHT_ELBOW = "right_elbow"\nELBOW_BEND = 60\nELBOW_START = 0\nHOLD_SECONDS = 1.5\n\ndef basic_handshake(motion):\n    motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)\n    # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")\n    time.sleep(HOLD_SECONDS)\n    motion.set_hand_pose("right_hand", "open")\n    motion.move_joint(RIGHT_ELBOW, ELBOW_START)', workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_basic_handshake.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` — call `motion.set_hand_pose("right_hand", "gentle_close")` right after the elbow bends.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_04_basic_handshake'] },
+                    { type: 'p', text: 'You should see the elbow bend, the hand close, a short hold, then the hand open and the elbow return.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['HOLD_SECONDS', 'Yes', 'A shorter or longer handshake hold.'],
+                      ['ELBOW_BEND', 'Yes, within the given range', 'A more or less bent elbow.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Try a different comfortable ELBOW_BEND angle and see how it changes the feel.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'Same call the Handshake demo used — just moved one line earlier, right after the elbow bend.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_04_basic_handshake.py', code: 'def basic_handshake(motion):\n    motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)\n    motion.set_hand_pose("right_hand", "gentle_close")\n    time.sleep(HOLD_SECONDS)\n    motion.set_hand_pose("right_hand", "open")\n    motion.move_joint(RIGHT_ELBOW, ELBOW_START)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['Combining joints means calling more than one motion command in the right order.', 'Order matters — position first, then grip.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You combined two joints into one small, ordered behavior.', conceptsUsed: ['Combining joints', 'Hand poses'] },
+            },
+            {
+              id: 'keyboard-torso-control', title: 'Keyboard Torso Control', kind: 'activity', difficulty: 'intermediate', estimatedTime: '20–25 minutes',
+              summary: 'Drive the torso left and right from live keyboard input, safely clamped.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_keyboard_torso_control.py',
+              relatedConcepts: ['Keyboard input', 'Clamping', 'Safe limits'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'Press LEFT or RIGHT to rotate the torso a little each time, with the angle always kept inside a safe range no matter how many keys you press.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: '**Clamping** means forcing a number to stay between a minimum and a maximum: `max(min(value, MAX), MIN)`. It is the difference between a program that trusts its own math and one that trusts tested physical limits.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'This lab responds to your keypresses in real time — keep hands clear of the base while testing it.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'p', text: 'Every keypress nudges a stored `current_angle` by `TORSO_STEP`, in one direction or the other — the program never jumps straight to an arbitrary angle, only steps from where it already is.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_05_keyboard_torso_control.py', code: 'TORSO_YAW = "torso_yaw"\nTORSO_STEP = 10\nTORSO_MIN = -45\nTORSO_MAX = 45\nSTOP_KEY = "q"\n\ndef handle_key(motion, key, current_angle):\n    if key == "LEFT":\n        current_angle -= TORSO_STEP\n    elif key == "RIGHT":\n        current_angle += TORSO_STEP\n    # TODO: clamp current_angle between TORSO_MIN and TORSO_MAX\n    motion.move_joint(TORSO_YAW, current_angle)\n    return current_angle', workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_keyboard_torso_control.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` — clamp `current_angle` using `max(min(current_angle, TORSO_MAX), TORSO_MIN)` before it gets sent to the joint.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_05_keyboard_torso_control'] },
+                    { type: 'p', text: 'Press LEFT and RIGHT repeatedly. The torso should step further each time, then stop advancing once it hits the safe limit — instead of continuing past it. Press `q` to stop.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['TORSO_STEP', 'Yes', 'Bigger or smaller steps per keypress.'],
+                      ['TORSO_MIN / TORSO_MAX', 'No, not yet', 'Changes the safe range itself — this stays fixed for now.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Add a center key ("c") that resets `current_angle` straight back to 0.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: '`max(min(x, MAX), MIN)` — the inner `min` keeps it from going too high, the outer `max` keeps it from going too low.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_05_keyboard_torso_control.py', code: 'def handle_key(motion, key, current_angle):\n    if key == "LEFT":\n        current_angle -= TORSO_STEP\n    elif key == "RIGHT":\n        current_angle += TORSO_STEP\n    current_angle = max(min(current_angle, TORSO_MAX), TORSO_MIN)\n    motion.move_joint(TORSO_YAW, current_angle)\n    return current_angle' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['Live input drives motion one small step at a time, not one big jump.', 'Clamping keeps software-level mistakes from becoming physical ones.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You wired live keyboard input to torso motion, kept safely inside range by clamping.', conceptsUsed: ['Keyboard input', 'Clamping', 'Safe limits'] },
+            },
+            {
+              id: 'keyboard-head-control', title: 'Keyboard Head Control', kind: 'activity', difficulty: 'intermediate', estimatedTime: '20–25 minutes',
+              summary: 'Drive head pitch and yaw from the keyboard for Yes/No-style control.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py',
+              relatedConcepts: ['Keyboard input', 'Two independent axes'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'UP/DOWN tilts the head (pitch), LEFT/RIGHT turns it (yaw) — the same clamped-stepping idea as the last lab, applied to two joints instead of one.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'Pitch and yaw are two separate joints, so they need two separate current-angle variables — moving one should never reset the other.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: "Don't hold or twist the head while this program is responding to keys." },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'p', text: 'UP/DOWN only ever change `current_pitch`. LEFT/RIGHT only ever change `current_yaw`. Each is clamped and sent to its own joint independently.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_06_keyboard_head_control.py', code: 'HEAD_PITCH = "head_pitch"\nHEAD_YAW = "head_yaw"\nSTEP = 8\nPITCH_MIN, PITCH_MAX = -20, 20\nYAW_MIN, YAW_MAX = -35, 35\n\ndef handle_key(motion, key, current_pitch, current_yaw):\n    if key == "UP":\n        current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    elif key == "DOWN":\n        current_pitch = max(min(current_pitch - STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    # TODO: handle "LEFT" and "RIGHT" the same way, using current_yaw and HEAD_YAW\n    return current_pitch, current_yaw', workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` — add `elif` branches for `"LEFT"` and `"RIGHT"` that clamp and update `current_yaw`, mirroring the UP/DOWN branches above.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_06_keyboard_head_control'] },
+                    { type: 'p', text: 'UP/DOWN should tilt the head, LEFT/RIGHT should turn it — and moving one axis should not disturb the other.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['STEP', 'Yes', 'Bigger or smaller movement per keypress.'],
+                      ['PITCH_MIN/MAX, YAW_MIN/MAX', 'No, not yet', 'These stay fixed as the tested safe range.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Use a different STEP size for pitch than for yaw.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'Copy the UP/DOWN block, then swap `current_pitch`/`HEAD_PITCH`/`PITCH_MIN`/`PITCH_MAX` for their yaw equivalents.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_06_keyboard_head_control.py', code: 'def handle_key(motion, key, current_pitch, current_yaw):\n    if key == "UP":\n        current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    elif key == "DOWN":\n        current_pitch = max(min(current_pitch - STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    elif key == "LEFT":\n        current_yaw = max(min(current_yaw - STEP, YAW_MAX), YAW_MIN)\n        motion.move_joint(HEAD_YAW, current_yaw)\n    elif key == "RIGHT":\n        current_yaw = max(min(current_yaw + STEP, YAW_MAX), YAW_MIN)\n        motion.move_joint(HEAD_YAW, current_yaw)\n    return current_pitch, current_yaw' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['Independent joints need independent state.', 'The same clamped-stepping pattern scales to more than one axis.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You controlled two independent joints from the keyboard without them interfering with each other.', conceptsUsed: ['Keyboard input', 'Independent state'] },
+            },
+          ],
+        },
+        {
+          id: 'full-behaviors', title: 'Full Behaviors', difficulty: 'intermediate', estimatedTime: '35–45 minutes',
+          description: 'Command complete, recognizable behaviors directly through code — no camera yet.',
+          activities: [
+            {
+              id: 'full-handshake', title: 'Full Handshake', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
+              summary: 'Command the complete handshake behavior directly, no camera involved.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_full_handshake.py',
+              relatedConcepts: ['Setup → behavior → cleanup', 'finally blocks'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'The full handshake motion — raise the arm, bend the elbow, close the hand, hold, release, and return home — triggered directly by running your program, not by the camera.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'This is the same **setup → behavior → cleanup** shape you saw in the Wave demo, just with a bigger behavior in the middle.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm for the entire sequence, including the return-home step at the end.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'Setup → behavior → cleanup', code: 'raise arm\n  ↓\nclose hand, hold\n  ↓\nopen hand\n  ↓\nreturn arm home  ← always runs, even if something fails' },
+                    { type: 'p', text: "Putting the return-home step inside a `finally` block guarantees it runs even if an earlier step raises an error — the robot should never get stuck mid-reach." },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_07_full_handshake.py', code: 'RIGHT_ARM_RAISED = {"right_shoulder": 45, "right_elbow": 60}\nRIGHT_ARM_HOME = {"right_shoulder": 0, "right_elbow": 0}\nHOLD_SECONDS = 1.5\n\ndef full_handshake(motion):\n    try:\n        motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)\n        motion.set_hand_pose("right_hand", "gentle_close")\n        time.sleep(HOLD_SECONDS)\n        motion.set_hand_pose("right_hand", "open")\n    finally:\n        # TODO: return the arm home using motion.move_joint_group\n        pass', workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_full_handshake.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Replace `pass` in the `finally` block with `motion.move_joint_group("right_arm", RIGHT_ARM_HOME)`, so the arm always returns home — even if something above it fails.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_07_full_handshake'] },
+                    { type: 'p', text: 'You should see the full sequence: arm raises, hand closes, holds, opens, then the arm returns home.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['HOLD_SECONDS', 'Yes', 'A shorter or longer handshake hold.'],
+                      ['RIGHT_ARM_RAISED angles', 'Yes, within the given range', 'A different raised-arm pose.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Add a small head nod right after the hand opens, before the arm returns home.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'Remember why Wave\'s cleanup mattered — the same call you used to raise the arm works to lower it, just with RIGHT_ARM_HOME instead.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_07_full_handshake.py', code: 'def full_handshake(motion):\n    try:\n        motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)\n        motion.set_hand_pose("right_hand", "gentle_close")\n        time.sleep(HOLD_SECONDS)\n        motion.set_hand_pose("right_hand", "open")\n    finally:\n        motion.move_joint_group("right_arm", RIGHT_ARM_HOME)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['A `finally` block guarantees cleanup runs no matter what happens above it.', 'Bigger behaviors are still just the same setup → behavior → cleanup shape.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You commanded the full handshake behavior directly through code, with guaranteed cleanup.', conceptsUsed: ['Setup → behavior → cleanup', 'finally blocks'] },
+            },
+            {
+              id: 'wave-lab', title: 'Wave', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
+              summary: 'Write the repeating loop behind SwayForm’s wave yourself.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_wave.py',
+              relatedConcepts: ['Loops', 'Repetition'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'You studied the Wave demo earlier — now you write the loop that makes the wrist actually wave, yourself, directly through code.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: 'Repeating a motion by copy-pasting the same two lines several times works, but a `for` loop says the same thing once and repeats it exactly as many times as you ask.' },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm for the whole wave, not just the first cycle.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'The problem with copy-paste', code: 'wave_once()\nwave_once()\nwave_once()' },
+                    { type: 'code', lang: 'python', filename: 'The same thing, as a loop', code: 'for _ in range(WAVE_CYCLES):\n    wave_once()' },
+                    { type: 'p', text: 'Both do the same thing, but the loop version changes its behavior just by changing `WAVE_CYCLES` — nothing else in the program has to move.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_08_wave.py', code: 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3\n\ndef wave_once(motion):\n    motion.move_joint("right_wrist", -20)\n    time.sleep(WAVE_DELAY_SECONDS)\n    motion.move_joint("right_wrist", 20)\n    time.sleep(WAVE_DELAY_SECONDS)\n\ndef wave(motion):\n    # TODO: call wave_once() WAVE_CYCLES times, using a for loop\n    pass', workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_wave.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Replace `pass` in `wave()` with a `for` loop that calls `wave_once(motion)` `WAVE_CYCLES` times.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_08_wave'] },
+                    { type: 'p', text: 'The wrist should wave back and forth `WAVE_CYCLES` times, then stop.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['WAVE_CYCLES', 'Yes', 'More or fewer waves.'],
+                      ['WAVE_DELAY_SECONDS', 'Yes', 'A faster or slower wave.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Wave with the left arm instead of the right.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'This is the exact loop pattern from Understand the Pattern above — `for _ in range(WAVE_CYCLES):` then call `wave_once(motion)` on the indented line underneath.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_08_wave.py', code: 'def wave(motion):\n    for _ in range(WAVE_CYCLES):\n        wave_once(motion)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['A `for` loop repeats an action without repeating code.', 'Loops make behavior tunable through one variable instead of many copy-pasted lines.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You wrote the loop behind a wave gesture yourself.', conceptsUsed: ['Loops', 'Repetition'] },
+            },
+            {
+              id: 'rps-lab', title: 'Rock Paper Scissors', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
+              summary: 'A timed rock-paper-scissors reveal: ready, countdown, selected hand pose.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_rock_paper_scissors.py',
+              relatedConcepts: ['Timing', 'Randomness'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: 'A timed reveal: the robot counts down, then shows a randomly chosen rock, paper, or scissors hand pose — no camera, no scoring against a person.' },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: "`random.choice(a_list)` picks one item from a list at random — call it again and you may get a different answer, which is exactly what makes this feel like a real choice each run." },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands well clear of the robot hand as it moves into its chosen pose.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'The reveal sequence', code: 'ready\n  ↓\ncountdown (3, 2, 1)\n  ↓\nselected hand pose' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_09_rock_paper_scissors.py', code: 'CHOICES = ["rock", "paper", "scissors"]\nCOUNTDOWN_SECONDS = 1.0\n\ndef countdown():\n    for number in [3, 2, 1]:\n        print(number)\n        # TODO: pause COUNTDOWN_SECONDS after printing each number\n\ndef play(motion):\n    choice = random.choice(CHOICES)\n    countdown()\n    motion.set_hand_pose("right_hand", choice)\n    print(f"SwayForm chose: {choice}")', workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_rock_paper_scissors.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Fill in the `# TODO` inside `countdown()` — add `time.sleep(COUNTDOWN_SECONDS)` after each printed number.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_09_rock_paper_scissors'] },
+                    { type: 'p', text: 'You should see "3, 2, 1" print with a pause between each, then the hand move into a random pose.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['COUNTDOWN_SECONDS', 'Yes', 'A faster or slower countdown.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Run the program several times in a row and confirm the choice really does change.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: '`time.sleep(...)` is the same pause call you have used in every earlier lab — it belongs right after `print(number)`, still inside the loop.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_09_rock_paper_scissors.py', code: 'def countdown():\n    for number in [3, 2, 1]:\n        print(number)\n        time.sleep(COUNTDOWN_SECONDS)' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['random.choice() picks a different result from the same list each time you call it.', 'A countdown is just a loop with a pause inside it.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You built a timed random reveal using the same loop and pause ideas from earlier labs.', conceptsUsed: ['Timing', 'Randomness'] },
+            },
+          ],
+        },
+        {
+          id: 'capstone', title: 'Capstone', difficulty: 'advanced', estimatedTime: '25–35 minutes',
+          description: 'Combine everything from this level into one keyboard-driven behavior.',
+          activities: [
+            {
+              id: 'combined-keyboard-control', title: 'Combined Keyboard Control', kind: 'activity', difficulty: 'advanced', estimatedTime: '25–35 minutes',
+              summary: 'Control the head and torso from the keyboard at the same time — the Control Level 1 capstone.',
+              workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py',
+              relatedConcepts: ['Combining systems', 'Input routing'],
+              steps: [
+                {
+                  id: 'what-youre-building', title: "What You're Building",
+                  blocks: [
+                    { type: 'lead', text: "This is not a graded submission — it's a challenge that combines Keyboard Torso Control and Keyboard Head Control into one program: W A S D moves the head, arrow keys move the torso." },
+                    { type: 'heading', level: 3, text: 'What you need to know' },
+                    { type: 'p', text: "Earlier labs both used the arrow keys. Combining them means giving the head its own set of keys (WASD) so the two systems never fight over the same key." },
+                  ],
+                },
+                {
+                  id: 'safety-before-running', title: 'Safety Before Running',
+                  blocks: [
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Two joints can now move from the same session — keep hands clear of both the head and the base while testing.' },
+                  ],
+                },
+                {
+                  id: 'understand-the-pattern', title: 'Understand the Pattern',
+                  blocks: [
+                    { type: 'code', lang: 'text', filename: 'Two independent systems, one router', code: 'W A S D  →  HEAD\nARROW KEYS  →  TORSO' },
+                    { type: 'p', text: 'One function checks which set the pressed key belongs to, then hands it off to the matching handler — the head and torso code from the earlier labs barely change.' },
+                  ],
+                },
+                {
+                  id: 'build-it', title: 'Build It',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'lab_10_combined_keyboard_control.py', code: 'HEAD_KEYS = {"w", "a", "s", "d"}\nTORSO_KEYS = {"LEFT", "RIGHT"}\n\ndef handle_key(motion, key, state):\n    if key in HEAD_KEYS:\n        state["head"] = handle_head_key(motion, key, state["head"])\n    # TODO: add an elif for TORSO_KEYS that calls handle_torso_key(...)\n    return state', workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py' },
+                  ],
+                },
+                {
+                  id: 'your-turn', title: 'Your Turn',
+                  blocks: [
+                    { type: 'p', text: 'Add an `elif key in TORSO_KEYS:` branch that calls `handle_torso_key(motion, key, state["torso"])` and stores the result back into `state["torso"]`, mirroring the head branch above it.' },
+                  ],
+                },
+                {
+                  id: 'run-it', title: 'Run It',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_10_combined_keyboard_control'] },
+                    { type: 'p', text: 'WASD should move the head, arrow keys should move the torso, and using one should never disturb the other.' },
+                  ],
+                },
+                {
+                  id: 'try-changing-this', title: 'Try Changing This',
+                  blocks: [
+                    { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
+                      ['Step sizes in either handler', 'Yes', 'Faster or slower response per key.'],
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Challenge', text: 'Add a single "0" key that centers both the head and the torso at once.' },
+                  ],
+                },
+                {
+                  id: 'need-help', title: 'Need Help?',
+                  blocks: [
+                    { type: 'reveal', hint: 'You only need `if key in HEAD_KEYS:` / `elif key in TORSO_KEYS:` — checking a key against a set is enough, no long if/elif chain of individual keys required.', solution: { text: 'The completed function:', code: { lang: 'python', filename: 'lab_10_combined_keyboard_control.py', code: 'def handle_key(motion, key, state):\n    if key in HEAD_KEYS:\n        state["head"] = handle_head_key(motion, key, state["head"])\n    elif key in TORSO_KEYS:\n        state["torso"] = handle_torso_key(motion, key, state["torso"])\n    return state' } } },
+                  ],
+                },
+                {
+                  id: 'what-you-learned', title: 'What You Learned',
+                  blocks: [
+                    { type: 'list', items: ['Combining two working systems is mostly about routing input, not rewriting either one.', 'Giving each system its own keys avoids collisions on purpose, by design.', 'Every idea from this level — sequences, loops, clamping, hand poses, finally blocks — shows up again here.'] },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You combined independent keyboard-controlled systems into one program — the Control Level 1 capstone.', conceptsUsed: ['Combining systems', 'Input routing'] },
             },
           ],
         },

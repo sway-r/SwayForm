@@ -14,18 +14,14 @@
  * around that content is new.
  *
  * Seven sections:
- *   1. Getting Started   — orientation/setup reading (real content: 5 items)
- *   2. Essentials        — practical fundamentals (not authored yet: placeholders)
- *   3. Pre-Installed Demos — code walkthroughs of the real swayform_demos/ files
- *   4-7. Control / React / Perceive / Create — the 40-lab program, matching
- *        the canonical public curriculum at swayform.net/learning-path
- *        (4 levels of 10 labs). Level 1 — Control is fully built (the 10
- *        real labs in swayform_labs/lab_01..lab_10); Levels 2-4 are planned
- *        — Level 2's working titles are the real ones published on that
- *        page, Levels 3-4 are theme-only placeholders because no specific
- *        lab titles have been published for them yet. Do not resplit the
- *        Level 1 labs across levels or rename them beyond matching that
- *        page — swayform.net is the canonical source for this structure.
+ *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
+ *   2. Introduction to ROS 2 — the software ideas behind Control (9 items, active)
+ *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave and
+ *        Handshake are built; Hand Flex, Rock Paper Scissors, and Pick and
+ *        Place are honest Planned placeholders, not faked)
+ *   4. Control (Level 1)  — 10 guided labs, first joint to keyboard capstone (active)
+ *   5-7. React / Perceive / Create — Levels 2-4, all Planned, no lesson
+ *        content authored yet (working titles only for React).
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -76,42 +72,57 @@ function placeholder(id, sectionId, number, title, note) {
 const s1 = [
   real('welcome', 'getting-started', '1.1'),
   real('safety-first', 'getting-started', '1.2'),
-  real('how-submissions-work', 'getting-started', '1.3'),
-  real('vscode-ssh-setup', 'getting-started', '1.4'),
-  real('create-student-project', 'getting-started', '1.5'),
+  real('how-the-hub-works', 'getting-started', '1.3'),
+  real('connect-to-your-robot', 'getting-started', '1.4'),
+  real('your-project-and-updates', 'getting-started', '1.5'),
 ];
 
 const s2 = [
-  placeholder('navigating-the-workspace', 'essentials', '2.1', 'Navigating the SwayForm Workspace', 'A practical tour of the file explorer, editor, and terminal — finding your way around before writing code.'),
-  placeholder('editing-and-running-python', 'essentials', '2.2', 'Editing and Running Python', 'The practical edit → save → run loop you will use for every lab.'),
-  placeholder('terminal-basics', 'essentials', '2.3', 'Terminal Basics', 'Enough of the terminal to run programs and read their output with confidence.'),
-  placeholder('joint-commands-and-motion-safety', 'essentials', '2.4', 'Joint Commands & Motion Safety', 'How a joint command becomes physical motion, and why safe ranges matter before you touch a real lab.'),
-  placeholder('debugging-basics', 'essentials', '2.5', 'Debugging Basics', 'Reading an error, finding the line it points to, and fixing it — the practical loop behind every lab.'),
+  real('what-is-ros2', 'ros2-intro', '2.01'),
+  real('nodes-topics-pubsub', 'ros2-intro', '2.02'),
+  real('how-swayform-uses-ros2', 'ros2-intro', '2.03'),
+  real('editing-and-running-python', 'ros2-intro', '2.04'),
+  real('terminal-basics', 'ros2-intro', '2.05'),
+  real('meet-robot-yaml', 'ros2-intro', '2.06'),
+  real('joint-commands-and-motion-safety', 'ros2-intro', '2.07'),
+  real('debugging-basics', 'ros2-intro', '2.08'),
+  real('navigating-the-workspace', 'ros2-intro', '2.09'),
 ];
 
+// Only Wave and Handshake are confirmed working demos with authored pages.
+// Hand Flex, Rock Paper Scissors, and Pick and Place are marked Planned —
+// honest placeholders, not faked content — until their production robot
+// behavior is confirmed. Rock Paper Scissors / Pick and Place keep their
+// learning-path.js ids (content preserved, unlisted) in case they're
+// promoted back to full demos later; interactive-exchange is dropped from
+// this 5-item list entirely (content preserved, not deleted).
 const s3 = [
-  demo('wave', 'demos', '3.1'),
-  demo('handshake', 'demos', '3.2'),
-  demo('pick-and-place', 'demos', '3.3'),
-  demo('rock-paper-scissors', 'demos', '3.4'),
-  demo('interactive-exchange', 'demos', '3.5'),
+  placeholder('hand-flex', 'demos', '3.1', 'Hand Flex', 'A simple hand open/close/flex motion. Planned — not yet available.'),
+  demo('wave', 'demos', '3.2'),
+  demo('handshake', 'demos', '3.3'),
+  placeholder('rock-paper-scissors', 'demos', '3.4', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
+  placeholder('pick-and-place', 'demos', '3.5', 'Pick and Place', 'A full pick-and-place sequence. Planned — not yet available.'),
 ];
 
-// Level 1 — Control: all 10 currently-available labs, in the exact order,
-// titles, and difficulty published on swayform.net/learning-path (the
-// canonical public curriculum). Do not resplit these across levels or
-// rename them beyond matching that page — see file header.
+// Level 1 — Control: 10 guided labs, first-joint-to-capstone progression.
+// The 10 activities previously listed here (hello-robot-motion,
+// safe-joint-limits, gesture-sequence, head-tracking,
+// button-to-motion-control, realsense-detection-basics, hand-pose-timing,
+// base-rotation, behavior-priority-motion-locking, mini-demo-challenge)
+// were replaced by this curriculum pass — their content is preserved,
+// unlisted, in learning-path.js (recoverable via git history), several are
+// good future React/Perceive material.
 const s4 = [
-  real('hello-robot-motion', 'control', '4.01'),
-  real('safe-joint-limits', 'control', '4.02', { title: 'Servo Angles and Safe Limits' }),
-  real('gesture-sequence', 'control', '4.03'),
-  real('head-tracking', 'control', '4.04', { title: 'Head Tracking Basics', difficulty: 'intermediate' }),
-  real('button-to-motion-control', 'control', '4.05', { difficulty: 'intermediate' }),
-  real('realsense-detection-basics', 'control', '4.06'),
-  real('hand-pose-timing', 'control', '4.07'),
-  real('base-rotation', 'control', '4.08', { title: 'Base Rotation Basics' }),
-  real('behavior-priority-motion-locking', 'control', '4.09', { title: 'Behavior Priority and Motion Locking' }),
-  real('mini-demo-challenge', 'control', '4.10', { difficulty: 'advanced' }),
+  real('finger-curl', 'control', '4.01'),
+  real('nod-yes', 'control', '4.02'),
+  real('timed-torso-rotation', 'control', '4.03'),
+  real('basic-handshake', 'control', '4.04'),
+  real('keyboard-torso-control', 'control', '4.05'),
+  real('keyboard-head-control', 'control', '4.06'),
+  real('full-handshake', 'control', '4.07'),
+  real('wave-lab', 'control', '4.08', { title: 'Wave' }),
+  real('rps-lab', 'control', '4.09', { title: 'Rock Paper Scissors' }),
+  real('combined-keyboard-control', 'control', '4.10'),
 ];
 
 // Level 2 — React: not built yet. Titles below are the actual planned
@@ -151,12 +162,12 @@ export const CURRICULUM = {
   sections: [
     {
       id: 'getting-started', number: 1, title: 'Getting Started', type: 'reading', icon: 'target',
-      description: 'Orientation, setup, safety, and connecting to your robot.',
+      description: 'Orientation, safety, and getting ready to use SwayForm.',
       items: s1,
     },
     {
-      id: 'essentials', number: 2, title: 'Essentials', type: 'reading', icon: 'layers',
-      description: 'The practical tools required to begin programming SwayForm.',
+      id: 'ros2-intro', number: 2, title: 'Introduction to ROS 2', type: 'reading', icon: 'layers',
+      description: "Understand the software ideas you'll use to control SwayForm.",
       items: s2,
     },
     {
@@ -166,22 +177,22 @@ export const CURRICULUM = {
     },
     {
       id: 'control', number: 4, title: 'Control', type: 'lab', icon: 'terminal', levelLabel: 'Level 1',
-      description: 'Drive the hardware — SSH in, write joint commands, and author motion sequences. Available now.',
+      description: "Program SwayForm's movement and build your first robot behaviors.",
       items: s4,
     },
     {
       id: 'react', number: 5, title: 'React', type: 'lab', icon: 'search', levelLabel: 'Level 2',
-      description: 'Add sensors — build reactive behaviors that respond to distance, IMU, and face detection in real time. Planned.',
+      description: 'Add real-time reactions to the world around the robot. Planned.',
       items: s5,
     },
     {
       id: 'perceive', number: 6, title: 'Perceive', type: 'lab', icon: 'eye', levelLabel: 'Level 3',
-      description: 'Build vision systems — OpenCV pipelines, depth-based tracking, and state machine design. Planned; the project track begins here.',
+      description: 'Build perception and vision-based robot behaviors. Planned.',
       items: s6,
     },
     {
       id: 'create', number: 7, title: 'Create', type: 'lab', icon: 'projects', levelLabel: 'Level 4',
-      description: 'Author full systems — fully student-written programs, multi-node architecture, and a final showcase. Planned.',
+      description: 'Combine everything into complete robot projects. Planned.',
       items: s7,
     },
   ],

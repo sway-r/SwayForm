@@ -1193,4 +1193,621 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 `,
+
+  /* === Control — Level 1 (curriculum rewrite): lab_01_finger_curl.py through
+     lab_10_combined_keyboard_control.py. Distinct filenames from the older
+     lab_01_hello_motion.py..lab_10_mini_demo_challenge.py above, which are
+     preserved but no longer linked from any curriculum section. === */
+
+  "ros2_ws/src/swayform_labs/lab_01_finger_curl.py": `"""
+Lab 01: Finger Curl
+
+Goal:
+Curl one finger, hold it, then return it to its starting position —
+the smallest possible robot-control program.
+
+Concepts:
+- Choosing a joint
+- Sending a movement
+- Waiting for the servo to arrive
+- Returning to a safe starting position
+
+What to edit:
+Finish curl_finger() by sending FINGER_JOINT back to START_ANGLE.
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+FINGER_JOINT = "right_index_finger"
+START_ANGLE = 10
+CURL_ANGLE = 80
+HOLD_SECONDS = 1.0
+
+
+def curl_finger(motion: MotionClient) -> None:
+    """
+    Curl the finger, hold briefly, then return it to START_ANGLE.
+    """
+    motion.move_joint(FINGER_JOINT, CURL_ANGLE)
+    sleep(HOLD_SECONDS)
+
+    # TODO: move FINGER_JOINT back to START_ANGLE using motion.move_joint(...)
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_01_finger_curl")
+        curl_finger(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_01_finger_curl")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_02_nod_yes.py": `"""
+Lab 02: Nod Yes
+
+Goal:
+Move the head through a short center -> down -> up -> center sequence
+that reads as a "yes" nod.
+
+Concepts:
+- Sequences
+- Timing
+- Symmetric motion around a center position
+
+What to edit:
+Add the missing NOD_UP step in nod_yes(), matching the NOD_DOWN step above it.
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+HEAD_PITCH = "head_pitch"
+CENTER = 0
+NOD_DOWN = -20
+NOD_UP = 20
+NOD_HOLD_SECONDS = 0.4
+
+
+def nod_yes(motion: MotionClient) -> None:
+    """
+    Tilt the head down, then up, then return to center.
+    """
+    motion.move_joint(HEAD_PITCH, NOD_DOWN)
+    sleep(NOD_HOLD_SECONDS)
+
+    # TODO: move HEAD_PITCH to NOD_UP, then sleep(NOD_HOLD_SECONDS)
+
+    motion.move_joint(HEAD_PITCH, CENTER)
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_02_nod_yes")
+        nod_yes(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_02_nod_yes")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_03_timed_torso_rotation.py": `"""
+Lab 03: Timed Torso Rotation
+
+Goal:
+Rotate the torso through a predictable center -> right -> left -> center
+sequence, always passing back through a known position.
+
+Concepts:
+- Sequences
+- Pauses between steps
+- Predictable motion
+
+What to edit:
+Finish rotate_torso() by pausing, then returning TORSO_YAW to CENTER.
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+TORSO_YAW = "torso_yaw"
+CENTER = 0
+ROTATE_RIGHT = 30
+ROTATE_LEFT = -30
+PAUSE_SECONDS = 0.6
+
+
+def rotate_torso(motion: MotionClient) -> None:
+    """
+    Rotate right, pause, rotate left, pause, then return to center.
+    """
+    motion.move_joint(TORSO_YAW, ROTATE_RIGHT)
+    sleep(PAUSE_SECONDS)
+
+    motion.move_joint(TORSO_YAW, ROTATE_LEFT)
+
+    # TODO: sleep(PAUSE_SECONDS), then move TORSO_YAW back to CENTER
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_03_timed_torso_rotation")
+        rotate_torso(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_03_timed_torso_rotation")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_04_basic_handshake.py": `"""
+Lab 04: Basic Handshake
+
+Goal:
+Combine two joints — bend the elbow, then close the hand. Just those
+two moves, no camera, no waiting for a person.
+
+Concepts:
+- Combining joints
+- Hand poses
+- Order of operations
+
+What to edit:
+Add the hand-close call in basic_handshake(), right after the elbow bends.
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+RIGHT_ELBOW = "right_elbow"
+ELBOW_BEND = 60
+ELBOW_START = 0
+HOLD_SECONDS = 1.5
+
+
+def basic_handshake(motion: MotionClient) -> None:
+    """
+    Bend the elbow, close the hand, hold, then release and return.
+    """
+    motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)
+
+    # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")
+
+    sleep(HOLD_SECONDS)
+    motion.set_hand_pose("right_hand", "open")
+    motion.move_joint(RIGHT_ELBOW, ELBOW_START)
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_04_basic_handshake")
+        basic_handshake(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_04_basic_handshake")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_05_keyboard_torso_control.py": `"""
+Lab 05: Keyboard Torso Control
+
+Goal:
+Drive the torso left and right from live keyboard input, with the
+angle always clamped inside a safe range.
+
+Concepts:
+- Keyboard input
+- Clamping
+- Safe limits
+
+What to edit:
+Clamp current_angle between TORSO_MIN and TORSO_MAX in handle_key().
+"""
+
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+TORSO_YAW = "torso_yaw"
+TORSO_STEP = 10
+TORSO_MIN = -45
+TORSO_MAX = 45
+STOP_KEY = "q"
+
+
+def handle_key(motion: MotionClient, key: str, current_angle: int) -> int:
+    """
+    Step current_angle left or right, clamp it to a safe range, then move.
+    """
+    if key == "LEFT":
+        current_angle -= TORSO_STEP
+    elif key == "RIGHT":
+        current_angle += TORSO_STEP
+
+    # TODO: current_angle = max(min(current_angle, TORSO_MAX), TORSO_MIN)
+
+    motion.move_joint(TORSO_YAW, current_angle)
+    return current_angle
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+    current_angle = 0
+
+    try:
+        motion.lock_behavior("lab_05_keyboard_torso_control")
+        for key in motion.read_keys(stop_key=STOP_KEY):
+            current_angle = handle_key(motion, key, current_angle)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_05_keyboard_torso_control")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py": `"""
+Lab 06: Keyboard Head Control
+
+Goal:
+Drive head pitch and yaw from the keyboard — UP/DOWN tilts, LEFT/RIGHT
+turns — as two independent, clamped axes.
+
+Concepts:
+- Keyboard input
+- Two independent axes
+- Clamping
+
+What to edit:
+Add the LEFT/RIGHT branches in handle_key(), mirroring UP/DOWN.
+"""
+
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+HEAD_PITCH = "head_pitch"
+HEAD_YAW = "head_yaw"
+STEP = 8
+PITCH_MIN, PITCH_MAX = -20, 20
+YAW_MIN, YAW_MAX = -35, 35
+STOP_KEY = "q"
+
+
+def handle_key(motion: MotionClient, key: str, current_pitch: int, current_yaw: int):
+    """
+    Route UP/DOWN to pitch and LEFT/RIGHT to yaw, each clamped independently.
+    """
+    if key == "UP":
+        current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)
+        motion.move_joint(HEAD_PITCH, current_pitch)
+    elif key == "DOWN":
+        current_pitch = max(min(current_pitch - STEP, PITCH_MAX), PITCH_MIN)
+        motion.move_joint(HEAD_PITCH, current_pitch)
+    # TODO: handle "LEFT" and "RIGHT" the same way, using current_yaw and HEAD_YAW
+
+    return current_pitch, current_yaw
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+    current_pitch, current_yaw = 0, 0
+
+    try:
+        motion.lock_behavior("lab_06_keyboard_head_control")
+        for key in motion.read_keys(stop_key=STOP_KEY):
+            current_pitch, current_yaw = handle_key(motion, key, current_pitch, current_yaw)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_06_keyboard_head_control")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_07_full_handshake.py": `"""
+Lab 07: Full Handshake
+
+Goal:
+Command the complete handshake behavior directly through code —
+raise, close, hold, release, return home — no camera involved.
+
+Concepts:
+- Setup -> behavior -> cleanup
+- finally blocks
+
+What to edit:
+Return the arm home inside the finally block of full_handshake().
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+RIGHT_ARM_RAISED = {"right_shoulder": 45, "right_elbow": 60}
+RIGHT_ARM_HOME = {"right_shoulder": 0, "right_elbow": 0}
+HOLD_SECONDS = 1.5
+
+
+def full_handshake(motion: MotionClient) -> None:
+    """
+    Raise the arm, close the hand, hold, release — always return home.
+    """
+    try:
+        motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)
+        motion.set_hand_pose("right_hand", "gentle_close")
+        sleep(HOLD_SECONDS)
+        motion.set_hand_pose("right_hand", "open")
+    finally:
+        # TODO: motion.move_joint_group("right_arm", RIGHT_ARM_HOME)
+        pass
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_07_full_handshake")
+        full_handshake(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_07_full_handshake")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_08_wave.py": `"""
+Lab 08: Wave
+
+Goal:
+Write the repeating loop behind SwayForm's wave yourself, after
+studying the finished Wave demo.
+
+Concepts:
+- Loops
+- Repetition
+
+What to edit:
+Replace the "pass" in wave() with a for loop that calls wave_once()
+WAVE_CYCLES times.
+"""
+
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+WAVE_CYCLES = 3
+WAVE_DELAY_SECONDS = 0.3
+
+
+def wave_once(motion: MotionClient) -> None:
+    """
+    One wrist-left, wrist-right cycle.
+    """
+    motion.move_joint("right_wrist", -20)
+    sleep(WAVE_DELAY_SECONDS)
+    motion.move_joint("right_wrist", 20)
+    sleep(WAVE_DELAY_SECONDS)
+
+
+def wave(motion: MotionClient) -> None:
+    """
+    Repeat wave_once() WAVE_CYCLES times.
+    """
+    # TODO: for _ in range(WAVE_CYCLES): wave_once(motion)
+    pass
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_08_wave")
+        motion.move_joint_group("right_arm", {"right_shoulder": 42, "right_elbow": 70})
+        wave(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_08_wave")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_09_rock_paper_scissors.py": `"""
+Lab 09: Rock Paper Scissors
+
+Goal:
+A timed reveal: ready, countdown, then a randomly chosen hand pose.
+No camera, no scoring against a person — that's the Demos version.
+
+Concepts:
+- Timing
+- Randomness
+
+What to edit:
+Pause COUNTDOWN_SECONDS after each printed number in countdown().
+"""
+
+import random
+from time import sleep
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+CHOICES = ["rock", "paper", "scissors"]
+COUNTDOWN_SECONDS = 1.0
+
+
+def countdown() -> None:
+    """
+    Print 3, 2, 1 with a pause between each number.
+    """
+    for number in (3, 2, 1):
+        print(number)
+        # TODO: sleep(COUNTDOWN_SECONDS)
+
+
+def play(motion: MotionClient) -> None:
+    """
+    Choose randomly, count down, then show the chosen hand pose.
+    """
+    choice = random.choice(CHOICES)
+    countdown()
+    motion.set_hand_pose("right_hand", choice)
+    print(f"SwayForm chose: {choice}")
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+
+    try:
+        motion.lock_behavior("lab_09_rock_paper_scissors")
+        play(motion)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_09_rock_paper_scissors")
+
+
+if __name__ == "__main__":
+    main()
+`,
+
+  "ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py": `"""
+Lab 10: Combined Keyboard Control (Control Level 1 capstone)
+
+Goal:
+Control the head and torso from the keyboard at the same time —
+W A S D moves the head, arrow keys move the torso. A challenge,
+not a graded submission.
+
+Concepts:
+- Combining independent systems
+- Input routing
+
+What to edit:
+Add the TORSO_KEYS branch in handle_key(), mirroring the HEAD_KEYS branch.
+"""
+
+from swayform.motion import MotionClient
+
+
+# -----------------------------
+# Student-adjustable settings
+# -----------------------------
+
+HEAD_KEYS = {"w", "a", "s", "d"}
+TORSO_KEYS = {"LEFT", "RIGHT"}
+STOP_KEY = "q"
+
+
+def handle_head_key(motion: MotionClient, key: str, current_pitch_yaw):
+    # Reuses the same idea as Lab 06 — left as an exercise to extend.
+    return current_pitch_yaw
+
+
+def handle_torso_key(motion: MotionClient, key: str, current_angle: int) -> int:
+    # Reuses the same idea as Lab 05 — left as an exercise to extend.
+    return current_angle
+
+
+def handle_key(motion: MotionClient, key: str, state: dict) -> dict:
+    """
+    Route a keypress to the head or torso handler, based on which set it's in.
+    """
+    if key in HEAD_KEYS:
+        state["head"] = handle_head_key(motion, key, state["head"])
+    # TODO: elif key in TORSO_KEYS: state["torso"] = handle_torso_key(motion, key, state["torso"])
+
+    return state
+
+
+def main() -> None:
+    motion = MotionClient()
+    motion.safe_pose("idle")
+    state = {"head": (0, 0), "torso": 0}
+
+    try:
+        motion.lock_behavior("lab_10_combined_keyboard_control")
+        for key in motion.read_keys(stop_key=STOP_KEY):
+            state = handle_key(motion, key, state)
+    finally:
+        motion.safe_pose("idle")
+        motion.unlock_behavior("lab_10_combined_keyboard_control")
+
+
+if __name__ == "__main__":
+    main()
+`,
 };

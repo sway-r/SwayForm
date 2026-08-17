@@ -2,44 +2,46 @@
    Entirely fictional / mocked: there is no backend, no real student, and no
    real submission history behind this data. Dates are relative to "today" =
    2026-08-05 and spread across the preceding ~3 weeks.
-   `associatedActivityId` must match an activity id in portal/data/learning-path.js —
-   opening a project resolves directly into that activity's workspace. */
+   `associatedActivityId` must match an item id currently listed in
+   portal/data/curriculum.js (projects.js resolves it via findItem, not the
+   raw learning-path.js content store) — opening a project resolves directly
+   into that item's workspace. */
 
 export const MOCK_PROJECTS = [
   {
     id: "joint-control-basics",
     title: "Joint Control Basics",
     lastEdited: "2026-08-03T16:10:00",
-    associatedActivityId: "hello-robot-motion",
+    associatedActivityId: "finger-curl",
     status: "in-progress",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_01_hello_motion.py",
+    workspaceFile: "ros2_ws/src/swayform_labs/lab_01_finger_curl.py",
     summary: "Commands individual servo joints to safe positions using the motion client's basic pose interface.",
   },
   {
-    id: "sensor-reading-lab",
-    title: "Sensor Reading Lab",
+    id: "keyboard-head-practice",
+    title: "Keyboard Head Control Practice",
     lastEdited: "2026-07-30T11:05:00",
-    associatedActivityId: "realsense-detection-basics",
+    associatedActivityId: "keyboard-head-control",
     status: "submitted",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_06_realsense_detection.py",
-    summary: "Reads RealSense depth data to detect whether an object is inside a defined target zone.",
+    workspaceFile: "ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py",
+    summary: "Drives head pitch and yaw from live keyboard input, clamped inside a safe range on both axes.",
   },
   {
     id: "custom-robot-motion",
     title: "Custom Robot Motion",
     lastEdited: "2026-07-24T09:40:00",
-    associatedActivityId: "gesture-sequence",
+    associatedActivityId: "full-handshake",
     status: "needs-changes",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_03_gesture_sequence.py",
-    summary: "Builds a custom multi-step arm gesture sequence beyond the built-in demo poses.",
+    workspaceFile: "ros2_ws/src/swayform_labs/lab_07_full_handshake.py",
+    summary: "Builds a custom multi-step arm sequence — raise, grip, hold, release, return — beyond the built-in demo poses.",
   },
   {
-    id: "behavior-state-machine",
-    title: "Behavior State Machine",
+    id: "combined-control-prototype",
+    title: "Combined Control Prototype",
     lastEdited: "2026-07-19T15:00:00",
-    associatedActivityId: "behavior-priority-motion-locking",
+    associatedActivityId: "combined-keyboard-control",
     status: "draft",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_09_motion_locking.py",
-    summary: "Tests how a motion lock protects a running behavior from a competing command.",
+    workspaceFile: "ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py",
+    summary: "Routes keyboard input to either the head or torso handler, combining two independent control systems into one program.",
   },
 ];

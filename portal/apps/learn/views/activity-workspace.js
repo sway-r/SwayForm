@@ -6,7 +6,15 @@ import * as CodeEditorApp from '../workspace/code-editor-app.js';
 import * as TerminalApp from '../workspace/terminal-app.js';
 import { markComplete, setCurrentActivity, getCurrentActivity, isActivityComplete } from '../../../services/progress-service.js';
 
-const LAYOUT_STORAGE_KEY = 'swayform.portal.workspace.layout';
+// Per-activity, not a single shared key — the layout was previously stored
+// under one constant key for every activity, so customizing one lab's
+// windows (e.g. the "Code Focus" preset, which maximizes Code Editor)
+// silently carried over into the next, unrelated activity you opened,
+// making it look like activities randomly opened with Code Editor alone.
+// Scoping the key per activity.id means a brand-new activity always starts
+// from DEFAULT_LAYOUT, while returning to an activity you've already
+// customized still remembers your arrangement for that activity specifically.
+const LAYOUT_STORAGE_PREFIX = 'swayform.portal.workspace.layout';
 
 // Default tiled workstation: Notebook fills the left column at full height;
 // Code Editor and Terminal stack on the right (Code taller than Terminal).
@@ -15,8 +23,8 @@ const LAYOUT_STORAGE_KEY = 'swayform.portal.workspace.layout';
 // screens and cramped on others.
 const DEFAULT_LAYOUT = {
   notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
-  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 66 },
-  terminal:   { xPct: 37.6, yPct: 66.9, wPct: 62.1, hPct: 32.6 },
+  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 68 },
+  terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6 },
 };
 
 // "Learn + Code" preset: the old two-pane arrangement, Terminal minimized.
@@ -25,7 +33,7 @@ const DEFAULT_LAYOUT = {
 const LEARN_CODE_LAYOUT = {
   notebook:   { xPct: 3,  yPct: 4,  wPct: 38, hPct: 90 },
   codeEditor: { xPct: 43, yPct: 4,  wPct: 54, hPct: 90 },
-  terminal:   { xPct: 37.6, yPct: 66.9, wPct: 62.1, hPct: 32.6, minimized: true },
+  terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6, minimized: true },
 };
 
 const READING_DEFAULT_LAYOUT = {
@@ -44,7 +52,7 @@ export function mount(container, params, nav, ctx){
   const found = findItem(params.activityId);
   if (!found){ nav.home(); return { unmount(){} }; }
   const { section, item: activity } = found;
-  // Reading (orientation/essentials) and not-yet-written placeholders are
+  // Reading (orientation/ROS 2 intro) and not-yet-written placeholders are
   // Notebook-only — there's no code to run. Demos and labs get the full
   // three-window workstation; a demo is still real, runnable code, just
   // framed as "study this" rather than "write this from scratch".
@@ -76,7 +84,7 @@ export function mount(container, params, nav, ctx){
   const nextActivity = nextItem(activity.id);
 
   const wm = new WorkspaceWindowManager(desktopEl, {
-    storageKey: LAYOUT_STORAGE_KEY,
+    storageKey: LAYOUT_STORAGE_PREFIX + '.' + activity.id,
     defaultLayout: isReading ? READING_DEFAULT_LAYOUT : DEFAULT_LAYOUT,
   });
 

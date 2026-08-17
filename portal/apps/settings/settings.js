@@ -10,7 +10,7 @@ export const meta = {
 };
 
 const PREFS_KEY = 'swayform.portal.notificationPrefs';
-const DEFAULT_PREFS = { queueUpdates: true, labUnlocked: true, weeklyDigest: false };
+const DEFAULT_PREFS = { robotUpdates: true, labUnlocked: true, weeklyDigest: false };
 
 function loadPrefs(){
   try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') }; }
@@ -49,7 +49,7 @@ export function mount(container, ctx){
       <div class="set-section">
         <div class="set-section-title">Notifications <span class="set-mock-badge">Mocked — no backend yet</span></div>
         <div class="set-card">
-          ${toggleRow('pref-queue', 'Queue updates', 'Notify when a submission is approved or needs changes.', prefs.queueUpdates)}
+          ${toggleRow('pref-robot', 'Robot updates', 'Notify when SwayForm software or a lesson you\'re using gets updated.', prefs.robotUpdates)}
           ${toggleRow('pref-lab', 'New lab unlocked', 'Notify when a new lab becomes available.', prefs.labUnlocked)}
           ${toggleRow('pref-digest', 'Weekly digest', 'A short weekly summary of classroom activity.', prefs.weeklyDigest)}
         </div>
@@ -83,18 +83,20 @@ export function mount(container, ctx){
 
   container.querySelectorAll('.set-switch input').forEach((input) => {
     input.addEventListener('change', () => {
-      const map = { 'pref-queue': 'queueUpdates', 'pref-lab': 'labUnlocked', 'pref-digest': 'weeklyDigest' };
+      const map = { 'pref-robot': 'robotUpdates', 'pref-lab': 'labUnlocked', 'pref-digest': 'weeklyDigest' };
       prefs[map[input.id]] = input.checked;
       savePrefs(prefs);
     });
   });
 
   container.querySelector('[data-reset-layout]').addEventListener('click', (e) => {
-    try { localStorage.removeItem('swayform.portal.workspace.layout'); } catch (err) { /* noop */ }
-    // If an Activity Workspace is open in another window right now, tell its
-    // live WorkspaceWindowManager to reset immediately — otherwise this only
-    // took effect the NEXT time an activity was opened, with no feedback at
-    // all in the meantime (looked like the button did nothing).
+    // Workspace layout is stored per-activity now (see activity-workspace.js),
+    // so there's no single key to clear from here — instead, tell whichever
+    // Activity Workspace is currently open (a separate window) to reset its
+    // own live WorkspaceWindowManager immediately. If none is open, there's
+    // nothing to visibly reset — the next activity opened starts from the
+    // default layout regardless, since only activities you've customized
+    // have a saved key at all.
     window.dispatchEvent(new CustomEvent('swayform:workspace-layout-reset'));
     const btn = e.currentTarget;
     const original = btn.textContent;

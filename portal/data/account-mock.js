@@ -1,10 +1,10 @@
 /* SwayForm Learning Portal — mock seed data for the frontend-only Account app.
-   Entirely fictional / mocked: no real auth, no real student record. Progress
-   totals are chosen to stay internally consistent with the Learning Hub
-   curriculum as ported: 3 Start Here lessons (Getting Started, Classroom
-   Workflow, Safety Notes) + 4 Setup lessons (VS Code, SSH, Student Projects,
-   Validation & Queue) + 5 Demos = 12 pre-lab lessons total, and 10 available
-   Student Labs (Level 1 — Control), matching swayform_labs' package.xml. */
+   Entirely fictional / mocked: no real auth, no real student record. The
+   `progress` block below is NOT read anywhere — account.js computes real
+   progress live from labTotals()/sectionProgress() in curriculum.js — but is
+   kept internally consistent with that curriculum for readability: 5 Getting
+   Started + 9 Introduction to ROS 2 lessons, 5 Pre-Installed Demos, and 10
+   Control (Level 1) labs. */
 
 export const ACCOUNT_MOCK = {
   studentName: "Jordan Alvarez",
@@ -14,11 +14,11 @@ export const ACCOUNT_MOCK = {
   plan: "Learning Hub — Free",
   memberSince: "2026-02-10",
   progress: {
-    lessonsCompleted: 7,
-    totalLessons: 12,
+    lessonsCompleted: 9,
+    totalLessons: 14,
     labsCompleted: 3,
     totalLabs: 10,
-    demosViewed: 5,
+    demosViewed: 2,
     totalDemos: 5,
   },
   comingSoon: [
@@ -28,7 +28,7 @@ export const ACCOUNT_MOCK = {
     },
     {
       label: "Instructor Review",
-      description: "Get structured feedback from a teacher on submitted labs, coming with school accounts.",
+      description: "Get structured feedback from a teacher on your labs, coming with school accounts.",
     },
     {
       label: "Google Sign-In",

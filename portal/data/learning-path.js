@@ -1397,7 +1397,7 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'lead', text: 'A head-nod behavior: center, tilt down, tilt up, back to center — a short sequence instead of one single move.' },
                     { type: 'heading', level: 3, text: 'What you need to know' },
-                    { type: 'p', text: 'A sequence is just multiple joint commands run one after another, with a pause between each so every step is visible.' }
+                    { type: 'p', text: 'A sequence is just multiple joint commands run one after another, with a pause between each so every step is visible.' },
                   ],
                 },
                 {

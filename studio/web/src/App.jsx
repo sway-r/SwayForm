@@ -29,6 +29,7 @@ export default function App() {
   useSyncExternalStore(subscribe, () => store.revision + ':' + store.changeCount + ':' + store.toasts.length + ':' + store.loading);
   const [view, setView] = useState({ page: 'curriculum', params: {} });
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => { refreshState().catch((e) => { store.error = e.message; }); }, []);
 
@@ -58,8 +59,12 @@ export default function App() {
 
   const page = view.page;
   return (
-    <div className="app">
+    <div className={`app${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <div className="topbar">
+        <button className="tb-btn" onClick={() => setSidebarCollapsed((v) => !v)}
+          title={sidebarCollapsed ? 'Show sidebar' : 'Collapse sidebar — more room for the lesson'}>
+          <Icon name="menu" className="icn" />
+        </button>
         <div className="brand"><span><span className="s">S</span>wayForm</span><span className="sub">Studio</span></div>
         <div className="topbar-search" onClick={() => setPaletteOpen(true)}>
           <Icon name="search" className="icn" />

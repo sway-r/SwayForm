@@ -1,23 +1,23 @@
-/* Lesson editor: Notebook (block editor) / Starter Code / Workspace config /
- * Metadata tabs, with the live student preview beside the editor.
- * EDIT and PREVIEW are simultaneous — the preview iframe is the real portal
- * rendering the current draft, reloading on every committed change.
+/* Lesson editor: Notebook / Starter Code / Workspace config / Metadata tabs.
+ *
+ * The Notebook tab IS the live student lesson (LiveNotebook.jsx — an iframe
+ * onto the real portal with an in-page editing overlay), with an instant
+ * Edit <-> Preview switch. The other tabs stay form-based, which the brief
+ * explicitly allows for metadata/advanced settings.
  */
-import React, { useMemo, useState } from 'react';
-import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { store, sendOp } from '../api.js';
 import { Icon, Field, CommitInput } from '../common.jsx';
-import { BlockPreview, BlockForm, BLOCK_TYPES, defaultBlock } from './blocks.jsx';
+import LiveNotebook from './LiveNotebook.jsx';
 import PreviewPane from './PreviewPane.jsx';
 
 export default function LessonEditor({ nav, params }) {
   const model = store.content;
   const activity = model.activities[params.activityId];
   const [tab, setTab] = useState(params.tab || 'notebook');
-  const [showPreview, setShowPreview] = useState(true);
+  const [mode, setMode] = useState('edit'); // 'edit' | 'preview' — Notebook tab only
+  const [showPreview, setShowPreview] = useState(false); // side pane — other tabs only
 
   if (!activity) {
     return <div className="empty">Lesson “{params.activityId}” not found (it may have been deleted in this draft). <button className="btn" onClick={() => nav.setView({ page: 'curriculum', params: {} })}>Back to curriculum</button></div>;
@@ -43,155 +43,27 @@ export default function LessonEditor({ nav, params }) {
           ))}
         </div>
         <div style={{ flex: 1 }} />
-        <button className={`btn${showPreview ? ' primary' : ''}`} onClick={() => setShowPreview(!showPreview)}>
-          <Icon name="eye" size={13} /> Preview as Student
-        </button>
+        {tab === 'notebook' ? (
+          <div className="edit-preview-toggle">
+            <button className={mode === 'edit' ? 'active' : ''} onClick={() => setMode('edit')}><Icon name="edit" size={12} /> Edit</button>
+            <button className={mode === 'preview' ? 'active' : ''} onClick={() => setMode('preview')}><Icon name="eye" size={12} /> Preview</button>
+          </div>
+        ) : (
+          <button className={`btn${showPreview ? ' primary' : ''}`} onClick={() => setShowPreview(!showPreview)}>
+            <Icon name="eye" size={13} /> Preview as Student
+          </button>
+        )}
       </div>
       <div className="lesson-body">
         <div className="lesson-main">
-          {tab === 'notebook' && <NotebookEditor activity={activity} focus={params.focus} />}
+          {tab === 'notebook' && <LiveNotebook activity={activity} mode={mode} focus={params.focus} />}
           {tab === 'code' && <StarterCodeTab activity={activity} />}
           {tab === 'workspace' && <WorkspaceTab activity={activity} />}
           {tab === 'meta' && <MetadataTab activity={activity} listing={listing} />}
         </div>
-        {showPreview && (
+        {tab !== 'notebook' && showPreview && (
           <PreviewPane path={`/learn/activity/${activity.id}`} width={540} onClose={() => setShowPreview(false)} />
         )}
-      </div>
-    </div>
-  );
-}
-
-/* ================================================================ notebook */
-
-function SortableBlockRow({ id, block, editing, onEdit, onChange, onDone, onRemove, onDuplicate }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  return (
-    <div ref={setNodeRef} className={`block-row${editing ? ' editing' : ''}${isDragging ? ' dragging' : ''}`}
-      style={{ transform: CSS.Transform.toString(transform), transition }}>
-      <div className="block-side">
-        <span className="grip" {...attributes} {...listeners}><Icon name="grip" size={13} /></span>
-        <span className="block-type-tag">{block.type}</span>
-      </div>
-      <div className="block-content" onClick={() => !editing && onEdit()}>
-        {editing ? (
-          <div className="block-form">
-            <BlockForm block={block} onChange={onChange} />
-            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-              <button className="btn primary" onClick={onDone}><Icon name="check" size={12} /> Done</button>
-            </div>
-          </div>
-        ) : (
-          <BlockPreview block={block} />
-        )}
-      </div>
-      <div className="block-actions">
-        <button className="btn" title="Duplicate block" onClick={onDuplicate}><Icon name="copy" size={11} /></button>
-        <button className="btn danger" title="Remove block" onClick={onRemove}><Icon name="trash" size={11} /></button>
-      </div>
-    </div>
-  );
-}
-
-function NotebookEditor({ activity, focus }) {
-  const [editing, setEditing] = useState(focus && typeof focus.stepIndex === 'number'
-    ? { step: focus.stepIndex, block: focus.blockIndex ?? null } : null);
-  const [draftBlock, setDraftBlock] = useState(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-
-  const commitDraft = async () => {
-    if (editing && draftBlock) {
-      await sendOp({ type: 'block.set', activityId: activity.id, stepIndex: editing.step, blockIndex: editing.block, block: draftBlock });
-    }
-    setEditing(null);
-    setDraftBlock(null);
-  };
-
-  return (
-    <div className="nb-editor">
-      {activity.steps.map((step, si) => (
-        <div className="step-card" key={step.id}>
-          <div className="step-head">
-            <span className="num">{si + 1}</span>
-            <CommitInput value={step.title}
-              onCommit={(title) => sendOp({ type: 'step.rename', activityId: activity.id, stepIndex: si, title })} />
-            <button className="btn ghost btn-icon" disabled={si === 0} title="Move step up"
-              onClick={() => sendOp({ type: 'step.reorder', activityId: activity.id, order: arrayMove(activity.steps.map((s) => s.id), si, si - 1) })}>↑</button>
-            <button className="btn ghost btn-icon" disabled={si === activity.steps.length - 1} title="Move step down"
-              onClick={() => sendOp({ type: 'step.reorder', activityId: activity.id, order: arrayMove(activity.steps.map((s) => s.id), si, si + 1) })}>↓</button>
-            <button className="btn ghost btn-icon danger" disabled={activity.steps.length <= 1} title="Delete step"
-              onClick={() => {
-                if (window.confirm(`Delete step "${step.title}" and its ${step.blocks.length} block(s)?`)) {
-                  sendOp({ type: 'step.remove', activityId: activity.id, stepIndex: si });
-                }
-              }}><Icon name="trash" size={12} /></button>
-          </div>
-          <div className="step-blocks">
-            <DndContext sensors={sensors} collisionDetection={closestCenter}
-              onDragEnd={({ active, over }) => {
-                if (!over || active.id === over.id) return;
-                const from = Number(String(active.id).split(':')[1]);
-                const to = Number(String(over.id).split(':')[1]);
-                sendOp({ type: 'block.move', activityId: activity.id, stepIndex: si, fromIndex: from, toIndex: to });
-              }}>
-              <SortableContext items={step.blocks.map((_, bi) => `${si}:${bi}`)} strategy={verticalListSortingStrategy}>
-                {step.blocks.map((block, bi) => {
-                  const isEditing = editing && editing.step === si && editing.block === bi;
-                  return (
-                    <SortableBlockRow key={`${si}:${bi}:${block.type}`} id={`${si}:${bi}`}
-                      block={isEditing && draftBlock ? draftBlock : block}
-                      editing={isEditing}
-                      onEdit={() => { commitDraft(); setEditing({ step: si, block: bi }); setDraftBlock(block); }}
-                      onChange={setDraftBlock}
-                      onDone={commitDraft}
-                      onDuplicate={() => sendOp({ type: 'block.insert', activityId: activity.id, stepIndex: si, blockIndex: bi + 1, block })}
-                      onRemove={() => {
-                        if (window.confirm(`Remove this ${block.type} block?`)) {
-                          if (editing && editing.step === si && editing.block === bi) { setEditing(null); setDraftBlock(null); }
-                          sendOp({ type: 'block.remove', activityId: activity.id, stepIndex: si, blockIndex: bi });
-                        }
-                      }} />
-                  );
-                })}
-              </SortableContext>
-            </DndContext>
-            <div className="add-block-bar">
-              <span className="lbl">Add</span>
-              {BLOCK_TYPES.map((bt) => (
-                <button key={bt.type} className="btn" onClick={async () => {
-                  const block = defaultBlock(bt.type);
-                  if (await sendOp({ type: 'block.insert', activityId: activity.id, stepIndex: si, block })) {
-                    setEditing({ step: si, block: step.blocks.length });
-                    setDraftBlock(block);
-                  }
-                }}>{bt.label}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
-      <button className="btn" onClick={() => sendOp({ type: 'step.add', activityId: activity.id, step: { title: 'New Step' } })}>
-        <Icon name="plus" size={12} /> Add step
-      </button>
-
-      <div style={{ marginTop: 24 }}>
-        <div className="view-sub" style={{ marginBottom: 6 }}>Completion summary (shown when the student finishes)</div>
-        <CommitInput textarea rows={2} style={{ width: '100%' }} className="field-input"
-          value={activity.completionSummary?.text || ''}
-          onCommit={(text) => sendOp({
-            type: 'activity.setCompletion', activityId: activity.id,
-            completionSummary: text ? { ...activity.completionSummary, text } : undefined,
-          })} />
-        <div className="small muted" style={{ marginTop: 6 }}>Concept chips (comma-separated)</div>
-        <CommitInput style={{ width: '100%' }}
-          value={(activity.completionSummary?.conceptsUsed || []).join(', ')}
-          onCommit={(v) => sendOp({
-            type: 'activity.setCompletion', activityId: activity.id,
-            completionSummary: {
-              ...(activity.completionSummary || { text: '' }),
-              conceptsUsed: v.split(',').map((s) => s.trim()).filter(Boolean),
-            },
-          })} />
       </div>
     </div>
   );
@@ -361,6 +233,25 @@ function MetadataTab({ activity, listing }) {
       <Field label="Related concepts (comma-separated)" hint="Used by search and the completion screen.">
         <CommitInput value={(activity.relatedConcepts || []).join(', ')}
           onCommit={(v) => meta({ relatedConcepts: v ? v.split(',').map((s) => s.trim()).filter(Boolean) : null })} />
+      </Field>
+
+      <div className="view-head" style={{ marginTop: 16 }}><div className="view-title" style={{ fontSize: 14 }}>Completion screen</div></div>
+      <Field label="Summary shown when the student finishes">
+        <CommitInput textarea value={activity.completionSummary?.text || ''}
+          onCommit={(text) => sendOp({
+            type: 'activity.setCompletion', activityId: activity.id,
+            completionSummary: text ? { ...activity.completionSummary, text } : undefined,
+          })} />
+      </Field>
+      <Field label="Concept chips (comma-separated)">
+        <CommitInput value={(activity.completionSummary?.conceptsUsed || []).join(', ')}
+          onCommit={(v) => sendOp({
+            type: 'activity.setCompletion', activityId: activity.id,
+            completionSummary: {
+              ...(activity.completionSummary || { text: '' }),
+              conceptsUsed: v.split(',').map((s) => s.trim()).filter(Boolean),
+            },
+          })} />
       </Field>
 
       {listing && listing.item.form !== 'placeholder' && (

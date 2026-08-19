@@ -16,7 +16,6 @@ references Studio.
 
 ```
 cd studio
-npm install     # first time only
 npm run studio
 ```
 
@@ -35,7 +34,7 @@ written to a temp dir, never the repo).
 | Page | Edits |
 |---|---|
 | **Curriculum** | Sections and items in `curriculum.js`: rename/describe/icon, reorder (buttons for sections, drag & drop for items — including across sections), hide (unlist, content preserved — the file's existing pattern), restore, duplicate, permanent delete, **+ New Lesson** wizard, add/remove sections, placeholders |
-| **Lesson editor** | Opens from any item. **Notebook**: block-based editor over the renderer's real schema (lead/heading/p/list/steps/checklist/callout/divider/terminal/table/terms/troubleshoot/reveal/image/code) with drag-reorder, duplicate, the portal's inline formatting (`**bold**`, `` `code` ``, `[link](url)`), and per-code-block controls (language, filename, Open-file target, insertable). **Starter Code**: Monaco on the lesson's workspace file. **Workspace**: starter file, default-open file, per-lesson terminal bounds, read-only files. **Metadata**: title/summary/kind/difficulty/time/concepts, listing form (real/demo), display-title override |
+| **Lesson editor** | Opens from any item. **Notebook**: the lesson *is* the editor — an iframe onto the real portal (real components, CSS, renderer) with an in-page editing overlay, instantly switchable between **Edit** and **Preview**. Click text to edit it in place with a floating format toolbar; hover a block for drag/duplicate/delete; use the gap `+` or the `☰` in the notebook's own top bar to insert (lead/heading/p/list/steps/checklist/callout/divider/terminal/table/terms/troubleshoot/reveal/image/**video**/code); click a block to open a Figma-style right-hand inspector for its structured fields (code language/filename/height/line-numbers/copy button/Open-in-Editor, image width/align/corners/lightbox, video source/ratio/caption, …). Preview Mode strips every Studio affordance — pixel-identical to the student view. **Starter Code**: Monaco on the lesson's workspace file. **Workspace**: starter file, default-open file, per-lesson terminal bounds, read-only files. **Metadata**: title/summary/kind/difficulty/time/concepts, listing form (real/demo), display-title override, completion screen |
 | **Workspace Files** | The students' virtual ROS 2 filesystem (`workspace-files.js`): IDE tree, Monaco, add/rename/delete. Renames retarget every lesson and notebook block referencing the file; deletes are refused while referenced |
 | **Portal Home** | The post-login desktop: drag icons to reorder, rename, pick icons from the portal set, default window sizes, hide/show icons (hidden apps stay reachable by URL — routes never break) |
 | **Assets** | `/images`: upload, replace, reference-guarded delete, per-asset usage (lessons + site files) |
@@ -65,7 +64,26 @@ studio/server/
   validate.mjs       SwayForm structural checks (unique ids, references,
                      numbering, block schemas, terminal bounds, images).
   save.mjs           The Save pipeline (below).
+
+studio/preview/
+  edit-overlay.js    Injected into the preview server's HTML only (never
+                     the deployable portal). Dormant until the Studio UI
+                     posts studio:init — decorates the REAL rendered
+                     notebook DOM with hover/click/drag affordances and
+                     posts studio:op / studio:insert / studio:selected
+                     back to the parent. It never writes source itself;
+                     every change still goes through sendOp -> draft ->
+                     adapters, same as every other Studio view.
 ```
+
+The Notebook tab (`studio/web/src/views/LiveNotebook.jsx`) is a thin
+postMessage bridge over that overlay: it forwards ops to the same draft
+API everything else uses, pushes the fresh draft-merged activity back into
+the iframe after each change, and renders a narrow inspector panel
+(reusing the same `BlockForm` component the old block-list editor used)
+when a block is selected. Preview Mode just flips `editMode:false`, which
+the overlay uses to hide every one of its own DOM nodes — the rendered
+page is then byte-for-byte what `renderBlocks()` produces for a student.
 
 The content model mirrors the real architecture: `curriculum.js` is a
 listing layer over `learning-path.js`'s content store, and Studio keeps
@@ -111,8 +129,8 @@ why, and where. Failure UIs offer "Return to editing" — the draft is kept.
 - **New desktop apps** are code, not content — Studio edits the five
   existing apps' presentation, not app creation.
 - **Block types are the renderer's real set** — Studio deliberately cannot
-  invent block types (e.g. video) the portal can't render; add renderer
-  support first, then extend `blocks.jsx` + `validate.mjs`.
+  invent block types the portal can't render; the video block was added to
+  BOTH `lesson-renderer.js` and Studio together for exactly this reason.
 - **"Claude review" step** is implemented as deterministic heuristics; an
   LLM review pass would need an API key and is intentionally out of scope.
 - **reference.js (Help app)** and login-page copy are not yet exposed;

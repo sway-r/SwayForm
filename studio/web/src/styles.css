@@ -43,8 +43,12 @@ code, pre, .mono { font-family: var(--mono); }
 /* ---------------------------------------------------------------- layout */
 .app { display: grid; grid-template-rows: 46px 1fr; grid-template-columns: 208px 1fr; height: 100%; }
 .topbar { grid-column: 1 / 3; display: flex; align-items: center; gap: 10px; padding: 0 12px; background: var(--bg-raised); border-bottom: 1px solid var(--border); }
-.sidebar { border-right: 1px solid var(--border); background: var(--bg-raised); display: flex; flex-direction: column; overflow-y: auto; }
-.main { overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+/* Explicit grid placement (not auto-placement): when .sidebar goes
+   display:none for the collapsed state, auto-placement would otherwise
+   remove it from the grid entirely and slide .main into its now-vacant
+   0-width column instead of the 1fr one. */
+.sidebar { grid-column: 1; grid-row: 2; border-right: 1px solid var(--border); background: var(--bg-raised); display: flex; flex-direction: column; overflow-y: auto; }
+.main { grid-column: 2; grid-row: 2; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
 
 .brand { display: flex; align-items: baseline; gap: 6px; font-weight: 700; font-size: 14px; letter-spacing: -0.02em; margin-right: 8px; }
 .brand .s { color: var(--accent); }
@@ -320,4 +324,29 @@ code, pre, .mono { font-family: var(--mono); }
 .divider-v { width: 1px; align-self: stretch; background: var(--border); margin: 4px 2px; }
 .muted { color: var(--muted); }
 .small { font-size: 11.5px; }
+
+/* ---------------------------------------------------------------- collapsible sidebar (App shell) */
+.app.sidebar-collapsed { grid-template-columns: 0 1fr; }
+.app.sidebar-collapsed .sidebar { display: none; }
+
+/* ---------------------------------------------------------------- live notebook (real portal in an iframe) */
+/* height:100% (not flex:1) because .lesson-main is a plain overflow:auto
+   block, not a flex container — flex:1 here is inert and the iframe was
+   silently collapsing to the browser's ~150px default iframe height. */
+.live-nb-wrap { height: 100%; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.steps-bar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg-raised); flex-shrink: 0; }
+.steps-bar-chip { display: flex; align-items: center; gap: 1px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; padding: 2px; }
+.steps-bar-jump { font-size: 11.5px; font-weight: 600; color: var(--soft); padding: 4px 8px; border-radius: 4px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.steps-bar-jump:hover { background: var(--bg-hover); color: var(--ink); }
+.steps-bar .btn-icon { width: 20px; height: 20px; }
+.live-nb-body { flex: 1; display: flex; min-height: 0; }
+.live-nb-frame { flex: 1; width: 100%; height: 100%; border: none; background: #fff; }
+.inspector-panel { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); background: var(--bg-raised); display: flex; flex-direction: column; }
+.inspector-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.inspector-body { flex: 1; overflow-y: auto; padding: 12px; }
+.inspector-foot { padding: 10px 12px; border-top: 1px solid var(--border); }
+.edit-preview-toggle { display: flex; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 7px; padding: 2px; gap: 2px; }
+.edit-preview-toggle button { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 5px; color: var(--muted); }
+.edit-preview-toggle button:hover { color: var(--ink); }
+.edit-preview-toggle button.active { background: var(--accent); color: #fff; }
 .ro-file-row { display: flex !important; gap: 8px; align-items: center; font-family: var(--mono); font-size: 11.5px !important; color: var(--soft) !important; margin: 0 !important; font-weight: 400 !important; }

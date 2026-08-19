@@ -142,6 +142,12 @@ api.post('/assets/upload', wrap(async (req, res) => {
   res.json(uploadAsset(name, dataBase64, { overwrite: !!overwrite }));
 }));
 
+/* Raw-binary upload (videos and large images — avoids base64+JSON bloat). */
+api.post('/assets/upload-bin', express.raw({ type: () => true, limit: '210mb' }), wrap(async (req, res) => {
+  const name = String(req.query.name || '');
+  res.json(uploadAsset(name, Buffer.from(req.body).toString('base64'), { overwrite: req.query.overwrite === '1' }));
+}));
+
 api.post('/assets/delete', wrap(async (req, res) => {
   res.json(deleteAsset(draft.merged(), req.body.name));
 }));
@@ -180,7 +186,8 @@ try {
     }));
   }
 } catch (e) {}
-</script>`;
+</script>
+<script type="module" src="/__studio__/edit-overlay.js"></script>`;
 
 const SPA_ROUTES = [/^\/$/, /^\/login$/, /^\/learn(\/.*)?$/, /^\/project(\/.*)?$/, /^\/account$/, /^\/help(\/.*)?$/, /^\/settings$/];
 
@@ -190,6 +197,13 @@ function buildPreviewApp() {
   preview.use((req, res, next) => {
     res.set('Cache-Control', 'no-store');
     next();
+  });
+
+  // Studio's editing overlay — served from studio/, never from the repo's
+  // deployable tree. Dormant unless the page is embedded in the Studio UI.
+  preview.get('/__studio__/edit-overlay.js', (req, res) => {
+    res.type('application/javascript')
+      .send(fs.readFileSync(path.join(REPO_ROOT, 'studio', 'preview', 'edit-overlay.js'), 'utf8'));
   });
 
   // Draft-applied data modules (and any other Studio-writable file).

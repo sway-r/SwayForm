@@ -114,6 +114,13 @@ export class CodeEditor {
     return this.textarea ? this.textarea.value : '';
   }
 
+  /** Read-only is per-open-file (workspace-config.js decides which), so it's
+   *  set on every openFile rather than once at construction. */
+  setReadOnly(readOnly){
+    if (this.mode === 'monaco' && this.editor) this.editor.updateOptions({ readOnly: !!readOnly });
+    else if (this.textarea) this.textarea.readOnly = !!readOnly;
+  }
+
   insertAtCursor(text){
     if (this.mode === 'monaco' && this.editor){
       const sel = this.editor.getSelection();

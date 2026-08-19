@@ -139,7 +139,9 @@ export function mount(container, params, nav, ctx){
 
     wm.registerApp('terminal', {
       title: TerminalApp.meta.title, icon: TerminalApp.meta.icon, minWidth: 320, minHeight: 200,
-      render: (bodyEl, winApi) => TerminalApp.mount(bodyEl, winApi),
+      // activity is passed so per-lesson terminal bounds in
+      // workspace-config.js (Studio-managed) can apply.
+      render: (bodyEl, winApi) => TerminalApp.mount(bodyEl, winApi, { activity }),
     });
   }
 

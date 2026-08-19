@@ -1,7 +1,39 @@
 /* ============================================================
    Terminal app — real shell look: scrollback + prompt input.
+   Multiple independent tabs (own scrollback/history/cwd per tab) —
+   compact professional pills, not browser-style tabs.
 ============================================================ */
 .term-app{height:100%;display:flex;flex-direction:column;background:#0b0d12;font-family:var(--mono);font-size:12.5px}
+
+/* Namespaced .term-shell-tab*, NOT .term-tab — the Code Editor's Output
+ * Panel (portal/apps/learn/editor/terminal-panel.js) already uses the bare
+ * .term-tab / .term-tab.active class names for its Output/Problems toggle
+ * (styled in learn.css). Both stylesheets load on every activity page, so
+ * reusing that name here would silently reskin an unrelated component. */
+.term-shell-tabbar{flex-shrink:0;display:flex;align-items:center;gap:3px;padding:6px 7px;background:#0e1015;border-bottom:1px solid var(--p-border)}
+.term-shell-tab{
+  display:flex;align-items:center;gap:5px;height:23px;padding:0 8px;border-radius:5px;
+  font-size:10.5px;font-weight:600;color:var(--p-muted);cursor:pointer;max-width:130px;
+  background:transparent;border:1px solid transparent;transition:background .12s,color .12s;
+}
+.term-shell-tab:hover{color:var(--p-soft);background:rgba(255,255,255,.045)}
+.term-shell-tab.active{color:var(--p-ink);background:rgba(255,255,255,.07);border-color:var(--p-border)}
+.term-shell-tab-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.term-shell-tab-close{width:14px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit;opacity:.55}
+.term-shell-tab-close:hover{opacity:1;background:rgba(255,255,255,.16)}
+.term-shell-tab-close svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:2.2}
+.term-shell-tab-add{
+  width:23px;height:23px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--p-faint);background:transparent;border:1px solid transparent;transition:background .12s,color .12s;
+}
+.term-shell-tab-add:hover:not(:disabled){color:var(--p-ink);background:rgba(255,255,255,.06)}
+.term-shell-tab-add:disabled{opacity:.3;cursor:default}
+.term-shell-tab-add svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.2}
+
+.term-shell-panes{flex:1;min-height:0;position:relative}
+.term-shell-pane{position:absolute;inset:0;display:none;flex-direction:column}
+.term-shell-pane.active{display:flex}
+
 .term-app-scroll{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 6px}
 .term-app-line{color:#9fb0c9;line-height:1.8;white-space:pre-wrap;word-break:break-word}
 .term-app-line.term-app-banner{color:var(--p-faint);margin-bottom:6px}

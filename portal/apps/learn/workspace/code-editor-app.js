@@ -10,6 +10,7 @@ import { EditorTabs } from '../editor/editor-tabs.js';
 import { OutputPanel } from '../editor/terminal-panel.js';
 import { WorkspaceToolbar } from '../editor/workspace-toolbar.js';
 import * as fs from '../editor/mock-fs.js';
+import { isReadOnlyFile, defaultOpenFileFor } from '../../../data/workspace-config.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -68,7 +69,12 @@ export function mount(bodyEl, winApi, opts) {
   editor.mount().then(() => {
     editorReady = true;
     if (pendingOpenPath) { const p = pendingOpenPath; pendingOpenPath = null; openFile(p); }
-    else if (activity.workspaceFile) openFile(activity.workspaceFile);
+    else {
+      // workspace-config.js may override which file opens first for this
+      // lesson; the activity's own starter file stays the fallback.
+      const first = defaultOpenFileFor(activity.id) || activity.workspaceFile;
+      if (first) openFile(first);
+    }
   });
 
   refreshExplorer();
@@ -84,10 +90,12 @@ export function mount(bodyEl, winApi, opts) {
     if (content === null) return;
     if (!editorReady){ pendingOpenPath = path; tabs.open(path); refreshExplorer(); return; }
     editor.openFile(path, content, fs.languageForPath(path));
+    const readOnly = isReadOnlyFile(activity.id, path);
+    editor.setReadOnly(readOnly);
     if (!fileOpts.fromTab) tabs.open(path);
     tabs.setActive(path);
     explorer.setActive(path);
-    toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/'));
+    toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/') + (readOnly ? '  ·  read-only' : ''));
     winApi.setTitle(path.split('/').pop());
   }
 

@@ -8,7 +8,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from 
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Editor from '@monaco-editor/react';
-import { store, sendOp, sendOps, toast } from '../api.js';
+import { store, sendOp } from '../api.js';
 import { Icon, Field, CommitInput } from '../common.jsx';
 import { BlockPreview, BlockForm, BLOCK_TYPES, defaultBlock } from './blocks.jsx';
 import PreviewPane from './PreviewPane.jsx';

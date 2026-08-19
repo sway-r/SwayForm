@@ -16,7 +16,9 @@ export function parse(source) {
 }
 
 export function print(ast) {
-  return recast.print(ast, { lineTerminator: '\n', quote: 'single', tabWidth: 2 }).code;
+  // trailingComma matches the repo's house style — without it, any reprinted
+  // array/object gets a one-line spurious diff at its final element.
+  return recast.print(ast, { lineTerminator: '\n', quote: 'single', tabWidth: 2, trailingComma: true }).code;
 }
 
 /** Parse-check a candidate source (throws on syntax error). */

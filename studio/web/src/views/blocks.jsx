@@ -24,6 +24,7 @@ export const BLOCK_TYPES = [
   { type: 'troubleshoot', label: 'Troubleshoot' },
   { type: 'reveal', label: 'Hint/Solution' },
   { type: 'image', label: 'Image' },
+  { type: 'video', label: 'Video' },
   { type: 'divider', label: 'Divider' },
 ];
 
@@ -43,6 +44,7 @@ export function defaultBlock(type) {
     case 'troubleshoot': return { type, items: [{ symptom: 'Something looks wrong', cause: '', fix: 'How to fix it' }] };
     case 'reveal': return { type, hint: 'A nudge in the right direction.', solution: { text: '' } };
     case 'image': return { type, src: '/images/RobotOverview.png', alt: '', caption: '' };
+    case 'video': return { type, src: '/videos/demo-video.mp4', caption: '' };
     case 'divider': return { type };
     default: return { type: 'p', text: '' };
   }
@@ -130,7 +132,16 @@ export function BlockPreview({ block }) {
     );
     case 'image': return (
       <div>
-        <img src={b.src} alt={b.alt || ''} />
+        <img src={b.src} alt={b.alt || ''} style={b.width ? { width: `${b.width}%` } : undefined} />
+        {b.caption && <div className="small muted" dangerouslySetInnerHTML={{ __html: inline(b.caption) }} />}
+      </div>
+    );
+    case 'video': return (
+      <div>
+        <div className="small mono muted">
+          <Icon name="play" size={12} /> {b.youtubeId ? `YouTube: ${b.youtubeId}` : (b.src || 'no source')}
+          {b.ratio && b.ratio !== '16:9' ? ` · ${b.ratio}` : ''}
+        </div>
         {b.caption && <div className="small muted" dangerouslySetInnerHTML={{ __html: inline(b.caption) }} />}
       </div>
     );
@@ -290,6 +301,26 @@ export function BlockForm({ block, onChange }) {
               </select>
             </Field>
           </div>
+          <div className="field-row">
+            <Field label="Copy button">
+              <select value={block.copy === false ? '0' : '1'} onChange={(e) => set({ copy: e.target.value === '0' ? false : undefined })}>
+                <option value="1">Shown (default)</option>
+                <option value="0">Hidden (type-it-yourself)</option>
+              </select>
+            </Field>
+            <Field label="Line numbers">
+              <select value={block.lineNumbers ? '1' : ''} onChange={(e) => set({ lineNumbers: e.target.value ? true : undefined })}>
+                <option value="">Off (default)</option>
+                <option value="1">On</option>
+              </select>
+            </Field>
+            <Field label="Height" hint="Auto grows with the code; or cap at N visible lines (scrolls).">
+              <select value={block.lines || ''} onChange={(e) => set({ lines: e.target.value ? Number(e.target.value) : undefined })}>
+                <option value="">Auto</option>
+                {[6, 10, 14, 20, 30].map((n) => <option key={n} value={n}>{n} lines</option>)}
+              </select>
+            </Field>
+          </div>
         </div>
       );
     case 'table':
@@ -354,13 +385,87 @@ export function BlockForm({ block, onChange }) {
       void assets;
       return (
         <div>
-          <Field label="Image path" hint="Site-absolute, e.g. /images/RobotOverview.png — manage files in Assets.">
+          <Field label="Image path" hint="Site-absolute, e.g. /images/RobotOverview.png — upload new files in Assets.">
             <input className="mono" list="studio-image-list" value={block.src || ''} onChange={(e) => set({ src: e.target.value })} />
           </Field>
           <div className="field-row">
             <Field label="Alt text"><input value={block.alt || ''} onChange={(e) => set({ alt: e.target.value })} /></Field>
             <Field label="Caption (optional)"><input value={block.caption || ''} onChange={(e) => set({ caption: e.target.value || undefined })} /></Field>
           </div>
+          <div className="field-row">
+            <Field label="Width">
+              <select value={block.width || ''} onChange={(e) => {
+                const width = e.target.value ? Number(e.target.value) : undefined;
+                set({ width, align: width ? block.align : undefined });
+              }}>
+                <option value="">Full column</option>
+                {[25, 40, 50, 60, 75].map((n) => <option key={n} value={n}>{n}%</option>)}
+              </select>
+            </Field>
+            <Field label="Alignment">
+              <select value={block.align || 'left'} disabled={!block.width}
+                onChange={(e) => set({ align: e.target.value === 'center' ? 'center' : undefined })}>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+              </select>
+            </Field>
+            <Field label="Corners">
+              <select value={block.rounded === false ? '0' : '1'} onChange={(e) => set({ rounded: e.target.value === '0' ? false : undefined })}>
+                <option value="1">Rounded (default)</option>
+                <option value="0">Square</option>
+              </select>
+            </Field>
+            <Field label="Click to expand">
+              <select value={block.expand ? '1' : ''} onChange={(e) => set({ expand: e.target.value ? true : undefined })}>
+                <option value="">Off</option>
+                <option value="1">On (lightbox)</option>
+              </select>
+            </Field>
+          </div>
+        </div>
+      );
+    }
+    case 'video': {
+      const mode = block.youtubeId !== undefined ? 'youtube' : 'file';
+      return (
+        <div>
+          <Field label="Source type">
+            <select value={mode} onChange={(e) => {
+              if (e.target.value === 'youtube') set({ youtubeId: '', src: undefined, poster: undefined });
+              else set({ youtubeId: undefined, src: block.src || '/videos/demo-video.mp4' });
+            }}>
+              <option value="file">Video file (local /videos or https URL)</option>
+              <option value="youtube">YouTube embed (privacy-enhanced)</option>
+            </select>
+          </Field>
+          {mode === 'youtube' ? (
+            <Field label="YouTube video ID" hint="The 11-character id from the watch URL, e.g. dQw4w9WgXcQ.">
+              <input className="mono" value={block.youtubeId || ''} onChange={(e) => set({ youtubeId: e.target.value.trim() })} />
+            </Field>
+          ) : (
+            <>
+              <Field label="Video path or URL" hint="Upload .mp4/.webm files in Assets; they land in /videos.">
+                <input className="mono" value={block.src || ''} onChange={(e) => set({ src: e.target.value })} />
+              </Field>
+              <Field label="Poster image (optional)" hint="Shown before playback starts.">
+                <input className="mono" value={block.poster || ''} placeholder="/images/…"
+                  onChange={(e) => set({ poster: e.target.value || undefined })} />
+              </Field>
+            </>
+          )}
+          <div className="field-row">
+            <Field label="Aspect ratio">
+              <select value={block.ratio || '16:9'} onChange={(e) => set({ ratio: e.target.value === '16:9' ? undefined : e.target.value })}>
+                <option value="16:9">16:9 (default)</option>
+                <option value="4:3">4:3</option>
+                <option value="1:1">1:1</option>
+              </select>
+            </Field>
+            <Field label="Caption (optional)">
+              <input value={block.caption || ''} onChange={(e) => set({ caption: e.target.value || undefined })} />
+            </Field>
+          </div>
+          <div className="small muted">Controls are always on; autoplay is always off.</div>
         </div>
       );
     }

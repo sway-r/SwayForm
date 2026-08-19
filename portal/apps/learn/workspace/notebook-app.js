@@ -68,6 +68,7 @@ export function mount(bodyEl, winApi, opts) {
     hdr.innerHTML = `<span class="nb-section-num">${i + 1}</span><h2 class="nb-section-title">${step.title}</h2>`;
     sec.appendChild(hdr);
     const blocksEl = document.createElement('div');
+    blocksEl.className = 'nb-blocks';
     sec.appendChild(blocksEl);
     renderBlocks(blocksEl, step.blocks, lessonCtx);
     doc.appendChild(sec);

@@ -284,13 +284,21 @@ export function listIconNames() {
 }
 
 export function listImageAssets() {
-  const dir = absPath('images');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir)
-    .filter((f) => /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(f))
+  return listAssetsIn('images', /\.(png|jpg|jpeg|gif|svg|webp)$/i, 'image');
+}
+
+export function listVideoAssets() {
+  return listAssetsIn('videos', /\.(mp4|webm|m4v|mov)$/i, 'video');
+}
+
+function listAssetsIn(dir, extRe, kind) {
+  const abs = absPath(dir);
+  if (!fs.existsSync(abs)) return [];
+  return fs.readdirSync(abs)
+    .filter((f) => extRe.test(f))
     .map((f) => {
-      const st = fs.statSync(absPath('images/' + f));
-      return { name: f, path: 'images/' + f, size: st.size, mtime: st.mtimeMs };
+      const st = fs.statSync(absPath(dir + '/' + f));
+      return { name: f, path: dir + '/' + f, size: st.size, mtime: st.mtimeMs, kind };
     });
 }
 

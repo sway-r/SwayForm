@@ -498,6 +498,22 @@ const OPS = {
     },
   },
 
+  /* Drag a block from one step into another (the visual editor's cross-step
+   * drop). Within-step moves stay block.move so summaries read naturally. */
+  'block.transfer': {
+    apply(model, op) {
+      const from = step(model, op.activityId, op.fromStepIndex);
+      const to = step(model, op.activityId, op.toStepIndex);
+      if (op.fromStepIndex === op.toStepIndex) throw new Error('block.transfer: same step — use block.move');
+      if (op.fromIndex < 0 || op.fromIndex >= from.blocks.length) throw new Error('block.transfer: from index out of range');
+      const [blk] = from.blocks.splice(op.fromIndex, 1);
+      const idx = Math.max(0, Math.min(op.toIndex ?? to.blocks.length, to.blocks.length));
+      to.blocks.splice(idx, 0, blk);
+      const a = findActivity(model, op.activityId);
+      return { text: `Moved ${blk.type} block from "${from.title}" to "${to.title}" in "${a.title}"` };
+    },
+  },
+
   /* ---------------- workspace files ---------------- */
 
   'file.set': {

@@ -23,13 +23,28 @@ function escapeHtml(s){
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-/* Turns escaped text containing **bold**, `code`, [label](url) into HTML. */
+/* Turns escaped text containing **bold**, *italic*, `code`, ==highlight==,
+   [label](url) into HTML. Bold runs before italic so ** is never read as
+   two italic markers. */
 function inlineHtml(raw){
   let s = escapeHtml(raw);
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  s = s.replace(/==([^=\n]+)==/g, '<mark class="cb-hl">$1</mark>');
   return s;
+}
+
+/* Click-to-expand for images: a minimal lightbox, one at a time. */
+function openLightbox(src, alt){
+  const overlay = el('div', 'cb-lightbox');
+  overlay.innerHTML = `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt || '')}">`;
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
 }
 
 function renderBlock(block, ctx){
@@ -154,28 +169,72 @@ function renderBlock(block, ctx){
     }
 
     case 'image': {
+      /* Optional presentation fields (all default to today's look):
+         width: 25–100 (% of the notebook column) · align: 'center'|'left'
+         rounded: false to square the corners · expand: true for lightbox */
       const wrap = el('figure', 'cb-image');
+      if (block.rounded === false) wrap.classList.add('square');
+      const w = Number(block.width);
+      if (w >= 25 && w < 100){
+        wrap.style.width = w + '%';
+        if (block.align === 'center') wrap.classList.add('centered');
+      }
       wrap.innerHTML = `<img src="${escapeHtml(block.src)}" alt="${escapeHtml(block.alt || '')}" loading="lazy">${block.caption ? `<figcaption class="cb-image-caption">${inlineHtml(block.caption)}</figcaption>` : ''}`;
+      if (block.expand){
+        wrap.classList.add('expandable');
+        wrap.querySelector('img').addEventListener('click', () => openLightbox(block.src, block.alt));
+      }
+      return wrap;
+    }
+
+    /* { type:'video', src?: '/videos/x.mp4' | url, youtubeId?: string,
+        caption?, poster?, ratio?: '16:9'|'4:3'|'1:1' } — controls on,
+        autoplay never. YouTube goes through the privacy-enhanced host. */
+    case 'video': {
+      const wrap = el('figure', 'cb-video');
+      const ratio = block.ratio === '4:3' ? '4 / 3' : block.ratio === '1:1' ? '1 / 1' : '16 / 9';
+      const frame = el('div', 'cb-video-frame');
+      frame.style.aspectRatio = ratio;
+      if (block.youtubeId && /^[A-Za-z0-9_-]{6,20}$/.test(block.youtubeId)){
+        frame.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${block.youtubeId}" title="${escapeHtml(block.caption || 'Video')}" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+      } else if (block.src){
+        const video = document.createElement('video');
+        video.controls = true;
+        video.preload = 'metadata';
+        video.playsInline = true;
+        if (block.poster) video.poster = block.poster;
+        video.src = block.src;
+        frame.appendChild(video);
+      } else {
+        frame.innerHTML = `<div class="cb-video-empty">${icon('play')}<span>No video source set</span></div>`;
+      }
+      wrap.appendChild(frame);
+      if (block.caption) wrap.appendChild(el('figcaption', 'cb-image-caption', inlineHtml(block.caption)));
       return wrap;
     }
 
     case 'code': {
+      /* Optional presentation fields: copy:false hides the Copy button ·
+         lineNumbers:true adds a gutter · lines:N caps visible height at N
+         lines (scrolls beyond). Defaults match today's rendering. */
       const wrap = el('div', 'cb-code');
       const hdr = el('div', 'cb-code-hdr');
       hdr.innerHTML = `<span class="cb-code-lang">${escapeHtml(block.filename || block.lang || 'code')}</span>`;
       const actions = el('div', 'cb-code-actions');
 
-      const copyBtn = el('button', 'cb-code-btn');
-      copyBtn.type = 'button';
-      copyBtn.innerHTML = `${icon('file')}<span>Copy</span>`;
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(block.code || '').then(() => {
-          copyBtn.classList.add('ok');
-          copyBtn.querySelector('span').textContent = 'Copied';
-          setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
+      if (block.copy !== false){
+        const copyBtn = el('button', 'cb-code-btn');
+        copyBtn.type = 'button';
+        copyBtn.innerHTML = `${icon('file')}<span>Copy</span>`;
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(block.code || '').then(() => {
+            copyBtn.classList.add('ok');
+            copyBtn.querySelector('span').textContent = 'Copied';
+            setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
+          });
         });
-      });
-      actions.appendChild(copyBtn);
+        actions.appendChild(copyBtn);
+      }
 
       if (block.workspaceFile && ctx && ctx.openFile){
         const openBtn = el('button', 'cb-code-btn');
@@ -196,6 +255,19 @@ function renderBlock(block, ctx){
       const pre = el('pre');
       const codeEl = el('code');
       codeEl.textContent = block.code || '';
+      const visibleLines = Number(block.lines);
+      if (visibleLines >= 3){
+        // 1.7 line-height at 12px ≈ 20.4px/line, plus pre padding.
+        pre.style.maxHeight = Math.round(visibleLines * 20.4 + 28) + 'px';
+        pre.style.overflowY = 'auto';
+      }
+      if (block.lineNumbers){
+        pre.classList.add('ln');
+        const total = (block.code || '').split('\n').length;
+        const gutter = el('div', 'cb-code-gutter');
+        gutter.textContent = Array.from({ length: total }, (_, i) => i + 1).join('\n');
+        pre.appendChild(gutter);
+      }
       pre.appendChild(codeEl);
       wrap.appendChild(hdr);
       wrap.appendChild(pre);
@@ -208,8 +280,14 @@ function renderBlock(block, ctx){
 }
 
 /** Renders `blocks` into `container` (cleared first). `ctx` is optional:
- *  { openFile(path), insertCode(code) } — omit to render read-only (Help app). */
+ *  { openFile(path), insertCode(code) } — omit to render read-only (Help app).
+ *  Each block root carries data-cb-i (its index in `blocks`) — inert in
+ *  production; the Studio editing overlay uses it to map DOM to content. */
 export function renderBlocks(container, blocks, ctx){
   container.innerHTML = '';
-  (blocks || []).forEach((b) => container.appendChild(renderBlock(b, ctx)));
+  (blocks || []).forEach((b, i) => {
+    const node = renderBlock(b, ctx);
+    node.dataset.cbI = String(i);
+    container.appendChild(node);
+  });
 }

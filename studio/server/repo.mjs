@@ -24,6 +24,7 @@ export const WRITABLE_FILES = [
 
 /** Directory Studio may add image assets into. */
 export const ASSET_DIR = 'images';
+export const VIDEO_DIR = 'videos';
 
 export function absPath(rel) {
   return path.join(REPO_ROOT, ...rel.split('/'));
@@ -53,26 +54,45 @@ export function writeRepoFile(rel, content) {
   fs.writeFileSync(absPath(rel), content, 'utf8');
 }
 
-/** Validates an asset filename for upload: plain basename, image extension,
- * no traversal. Returns the repo-relative path. */
+/* Asset uploads land in a directory chosen by extension: images -> /images,
+ * videos -> /videos. Both are static dirs served as-is on both hosts. */
+const IMAGE_EXT_RE = /\.(png|jpg|jpeg|gif|svg|webp)$/i;
+const VIDEO_EXT_RE = /\.(mp4|webm|m4v|mov)$/i;
+const BASENAME_RE = /^[A-Za-z0-9_][A-Za-z0-9_\-. ]*$/;
+
+export function assetKindFor(filename) {
+  if (IMAGE_EXT_RE.test(filename)) return 'image';
+  if (VIDEO_EXT_RE.test(filename)) return 'video';
+  return null;
+}
+
+/** Validates an asset filename for upload: plain basename, known image or
+ * video extension, no traversal. Returns the repo-relative path. */
 export function assetPathFor(filename) {
   const base = path.basename(filename);
-  if (base !== filename || !/^[A-Za-z0-9_][A-Za-z0-9_\-. ]*\.(png|jpg|jpeg|gif|svg|webp)$/i.test(base)) {
+  const kind = assetKindFor(base);
+  if (base !== filename || !BASENAME_RE.test(base) || !kind) {
     throw new Error(`Invalid asset filename: "${filename}"`);
   }
-  return `${ASSET_DIR}/${base}`;
+  return `${kind === 'video' ? VIDEO_DIR : ASSET_DIR}/${base}`;
+}
+
+function assertAssetRel(rel) {
+  const inImages = rel.startsWith(ASSET_DIR + '/');
+  const inVideos = rel.startsWith(VIDEO_DIR + '/');
+  if (!inImages && !inVideos) throw new Error(`Asset paths must stay inside /${ASSET_DIR} or /${VIDEO_DIR}`);
+  // Re-validate the basename — never trust a caller-supplied path.
+  const base = rel.slice(rel.indexOf('/') + 1);
+  if (assetPathFor(base) !== rel) throw new Error(`Asset path/extension mismatch: "${rel}"`);
 }
 
 export function writeAssetFile(rel, buffer) {
-  if (!rel.startsWith(ASSET_DIR + '/')) throw new Error(`Asset writes must stay inside /${ASSET_DIR}`);
-  // Re-validate the basename — never trust a caller-supplied path.
-  assetPathFor(rel.slice(ASSET_DIR.length + 1));
+  assertAssetRel(rel);
   fs.writeFileSync(absPath(rel), buffer);
 }
 
 export function deleteAssetFile(rel) {
-  if (!rel.startsWith(ASSET_DIR + '/')) throw new Error(`Asset deletes must stay inside /${ASSET_DIR}`);
-  assetPathFor(rel.slice(ASSET_DIR.length + 1));
+  assertAssetRel(rel);
   fs.unlinkSync(absPath(rel));
 }
 

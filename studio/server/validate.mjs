@@ -6,7 +6,7 @@ import { repoFileExists } from './repo.mjs';
 
 const BLOCK_TYPES = new Set([
   'lead', 'heading', 'p', 'list', 'steps', 'checklist', 'callout', 'divider',
-  'terminal', 'table', 'terms', 'troubleshoot', 'reveal', 'image', 'code',
+  'terminal', 'table', 'terms', 'troubleshoot', 'reveal', 'image', 'code', 'video',
 ]);
 const CALLOUT_TONES = new Set(['note', 'tip', 'warn', 'safety']);
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
@@ -151,6 +151,27 @@ function validateBlock(blk, where, model, err, warn) {
     if (blk.workspaceFile && model.workspaceFiles[blk.workspaceFile] === undefined) {
       err(where, `code block "Open file" target "${blk.workspaceFile}" does not exist`);
     }
+    if (blk.lines !== undefined && !(Number.isInteger(blk.lines) && blk.lines >= 3 && blk.lines <= 80)) {
+      err(where, `code block visible lines must be an integer 3–80 (got ${blk.lines})`);
+    }
+  }
+  if (blk.type === 'video') {
+    if (!blk.src && !blk.youtubeId) err(where, 'video block needs a src or a youtubeId');
+    if (blk.youtubeId && !/^[A-Za-z0-9_-]{6,20}$/.test(blk.youtubeId)) {
+      err(where, `invalid YouTube video id "${blk.youtubeId}"`);
+    }
+    if (blk.src && blk.src.startsWith('/') && !repoFileExists(blk.src.slice(1))) {
+      err(where, `video "${blk.src}" not found in repo`);
+    }
+    if (blk.src && !blk.src.startsWith('/') && !/^https:\/\//.test(blk.src)) {
+      err(where, 'external video src must be https');
+    }
+    if (blk.poster && blk.poster.startsWith('/') && !repoFileExists(blk.poster.slice(1))) {
+      err(where, `poster image "${blk.poster}" not found in repo`);
+    }
+    if (blk.ratio !== undefined && !['16:9', '4:3', '1:1'].includes(blk.ratio)) {
+      err(where, `video ratio must be 16:9, 4:3 or 1:1 (got "${blk.ratio}")`);
+    }
   }
   if (blk.type === 'terminal' && (!Array.isArray(blk.lines) || !blk.lines.length)) {
     err(where, 'terminal block has no lines');
@@ -173,6 +194,12 @@ function validateBlock(blk, where, model, err, warn) {
     else if (blk.src.startsWith('/')) {
       const rel = blk.src.slice(1);
       if (!repoFileExists(rel)) err(where, `image "${blk.src}" not found in repo`);
+    }
+    if (blk.width !== undefined && !(Number.isFinite(blk.width) && blk.width >= 25 && blk.width <= 100)) {
+      err(where, `image width must be 25–100 percent (got ${blk.width})`);
+    }
+    if (blk.align !== undefined && !['left', 'center'].includes(blk.align)) {
+      err(where, `image align must be left or center (got "${blk.align}")`);
     }
   }
 }

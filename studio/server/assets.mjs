@@ -5,8 +5,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { REPO_ROOT, absPath, assetPathFor, writeAssetFile, deleteAssetFile } from './repo.mjs';
-import { listImageAssets } from './content-load.mjs';
+import { REPO_ROOT, absPath, assetPathFor, assetKindFor, writeAssetFile, deleteAssetFile } from './repo.mjs';
+import { listImageAssets, listVideoAssets } from './content-load.mjs';
 
 function* walkStaticFiles() {
   const roots = ['.', 'portal'];
@@ -30,11 +30,17 @@ export function assetUsage(model) {
     (usage[file] ||= []).push(ref);
   };
 
-  // Content model image blocks.
+  // Content model image/video blocks (src + poster references).
   for (const [id, a] of Object.entries(model.activities)) {
     a.steps.forEach((st) => st.blocks.forEach((blk) => {
-      if (blk.type === 'image' && blk.src) {
-        const m = /\/?images\/([^/?#]+)/.exec(blk.src);
+      const refs = [];
+      if (blk.type === 'image' && blk.src) refs.push(blk.src);
+      if (blk.type === 'video') {
+        if (blk.src) refs.push(blk.src);
+        if (blk.poster) refs.push(blk.poster);
+      }
+      for (const ref of refs) {
+        const m = /\/?(?:images|videos)\/([^/?#]+)/.exec(ref);
         if (m) note(m[1], { kind: 'lesson', activityId: id, title: `${a.title} · ${st.title}` });
       }
     }));
@@ -45,7 +51,7 @@ export function assetUsage(model) {
     let text;
     try { text = fs.readFileSync(file, 'utf8'); } catch { continue; }
     const rel = path.relative(REPO_ROOT, file).replace(/\\/g, '/');
-    const re = /images\/([A-Za-z0-9_\-. ]+\.(?:png|jpe?g|gif|svg|webp))/gi;
+    const re = /(?:images|videos)\/([A-Za-z0-9_\-. ]+\.(?:png|jpe?g|gif|svg|webp|mp4|webm|m4v|mov))/gi;
     const seen = new Set();
     let m;
     while ((m = re.exec(text))) {
@@ -60,18 +66,20 @@ export function assetUsage(model) {
 
 export function listAssetsWithUsage(model) {
   const usage = assetUsage(model);
-  return listImageAssets().map((a) => ({ ...a, usedBy: usage[a.name] || [] }));
+  return [...listImageAssets(), ...listVideoAssets()].map((a) => ({ ...a, usedBy: usage[a.name] || [] }));
 }
 
 export function uploadAsset(name, base64, { overwrite = false } = {}) {
   const rel = assetPathFor(name);
+  const kind = assetKindFor(name);
   const exists = fs.existsSync(absPath(rel));
   if (exists && !overwrite) throw new Error(`"${name}" already exists — use replace to overwrite it.`);
   const buffer = Buffer.from(base64, 'base64');
   if (!buffer.length) throw new Error('Empty upload');
-  if (buffer.length > 20 * 1024 * 1024) throw new Error('Image larger than 20 MB');
+  const cap = kind === 'video' ? 200 : 20;
+  if (buffer.length > cap * 1024 * 1024) throw new Error(`${kind === 'video' ? 'Video' : 'Image'} larger than ${cap} MB`);
   writeAssetFile(rel, buffer);
-  return { path: rel, size: buffer.length, replaced: exists };
+  return { path: rel, size: buffer.length, replaced: exists, kind };
 }
 
 export function deleteAsset(model, name) {

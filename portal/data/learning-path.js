@@ -1387,7 +1387,7 @@ export const LEARNING_PATH = {
               completionSummary: { text: 'You sent your first real motion command and watched code become physical movement.', conceptsUsed: ['Joint commands', 'Timing', 'Safe return'] },
             },
             {
-              id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '15�20 minutes',
+              id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
               summary: 'Make the head nod yes — a small sequence with two directions and a return to center.',
               workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py',
               relatedConcepts: ['Sequences', 'Timing', 'Symmetric motion'],

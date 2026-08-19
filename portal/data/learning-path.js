@@ -1387,7 +1387,7 @@ export const LEARNING_PATH = {
               completionSummary: { text: 'You sent your first real motion command and watched code become physical movement.', conceptsUsed: ['Joint commands', 'Timing', 'Safe return'] },
             },
             {
-              id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
+              id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '20-25 minutes',
               summary: 'Make the head nod yes — a small sequence with two directions and a return to center.',
               workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py',
               relatedConcepts: ['Sequences', 'Timing', 'Symmetric motion'],
@@ -1398,6 +1398,12 @@ export const LEARNING_PATH = {
                     { type: 'lead', text: 'A head-nod behavior: center, tilt down, tilt up, back to center — a short sequence instead of one single move.' },
                     { type: 'heading', level: 3, text: 'What you need to know' },
                     { type: 'p', text: 'A sequence is just multiple joint commands run one after another, with a pause between each so every step is visible.' },
+                    {
+                      type: 'callout',
+                      tone: 'tip',
+                      label: 'Studio test',
+                      text: 'This block was added by the Studio save-pipeline verification and will be reverted.'
+                    }
                   ],
                 },
                 {

@@ -26,14 +26,7 @@ export const WORKSPACE_CONFIG = {
     namePrefix: 'Shell',
   },
   readOnlyFiles: [],
-  perActivity: {
-    'combined-keyboard-control': {
-      terminals: {
-        default: 4,
-        max: 5,
-      },
-    },
-  },
+  perActivity: {},
 };
 
 /** Effective terminal config for an activity (global defaults + override). */

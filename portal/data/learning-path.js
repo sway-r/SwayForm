@@ -469,153 +469,6 @@ export const LEARNING_PATH = {
       ],
     },
 
-    // ============================================================ LEVEL 2
-    {
-      id: 'basic-motion', number: 2, title: 'Basic Motion',
-      description: 'Move a single joint, understand why safe limits exist, and rotate the robot base.',
-      sections: [
-        {
-          id: 'single-joint-control', title: 'Single Joint Control', difficulty: 'beginner', estimatedTime: '45–65 minutes',
-          description: 'Send your first motion command and learn why joints only move inside tested ranges.',
-          activities: [
-            {
-              id: 'hello-robot-motion', title: 'Hello Robot Motion', kind: 'activity', difficulty: 'beginner', estimatedTime: '20–30 minutes',
-              summary: 'Send your first motion command and watch code become physical movement.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_hello_motion.py',
-              relatedConcepts: ['Motion commands', 'Neutral pose', 'Safe movement'],
-              steps: [
-                {
-                  id: 'understand-the-goal', title: 'Understand the Goal',
-                  blocks: [
-                    { type: 'lead', text: 'Run your first safe robot motion and understand that code sends target positions to robot joints.' },
-                    { type: 'p', text: "You are not expected to write this from scratch. `lab_01_hello_motion.py` already runs — your job is to run it once unedited, watch what moves, then change a small value and see how the physical result changes." },
-                  ],
-                },
-                {
-                  id: 'open-the-file', title: 'Open lab_01_hello_motion.py',
-                  blocks: [
-                    { type: 'p', text: 'Open the starter file now.' },
-                    { type: 'code', lang: 'python', filename: 'lab_01_hello_motion.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef move_to_raised_pose(motion): ...\ndef return_to_idle(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_hello_motion.py' },
-                    { type: 'p', text: '`move_to_raised_pose` sends the robot to `idle` first, then moves the right arm into `RIGHT_ARM_RAISED` and holds it for `HOLD_SECONDS`. `return_to_idle` always runs afterward, in the `finally` block of `main()`, so the robot ends every run in a known safe pose.' },
-                  ],
-                },
-                {
-                  id: 'change-one-value', title: 'Change One Value',
-                  blocks: [
-                    { type: 'p', text: 'Near the top of the file you will find this comment:' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Change HOLD_SECONDS to make the raised pose last longer or shorter.` — `HOLD_SECONDS` is currently `1.5`. That single number controls how long the arm stays raised before `return_to_idle` runs.' },
-                    { type: 'p', text: "Change `HOLD_SECONDS` to a different value — try something clearly shorter or longer, like `0.5` or `3.0` — so the difference is obvious when you run it again." },
-                  ],
-                },
-                {
-                  id: 'run-it', title: 'Run It',
-                  blocks: [
-                    { type: 'p', text: 'Run the lab from the toolbar above, or from a real terminal on the robot:' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_01_hello_motion'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
-                  ],
-                },
-                {
-                  id: 'reflect', title: 'Reflect',
-                  blocks: [
-                    { type: 'p', text: 'What changed physically when you changed the code value?' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Add a second safe motion after the first one, then return the robot to idle.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You sent your first motion command and watched code become physical movement.', conceptsUsed: ['Motion commands', 'Neutral pose', 'Terminal commands'] },
-            },
-            {
-              id: 'safe-joint-limits', title: 'Safe Joint Limits', kind: 'activity', difficulty: 'beginner', estimatedTime: '25–35 minutes',
-              summary: 'Understand why joints only move inside tested, safe ranges.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_servo_limits.py',
-              relatedConcepts: ['Servo range', 'Joint limits', 'Mechanical safety'],
-              steps: [
-                {
-                  id: 'why-limits-exist', title: 'Understand Why Limits Exist',
-                  blocks: [
-                    { type: 'lead', text: 'Understand that each joint has safe angle limits, and that robot motion should stay inside tested ranges.' },
-                    { type: 'p', text: 'A servo will physically try to reach whatever angle you send it. Nothing about the hardware stops a program from asking for an unsafe value — the software has to be the thing that says no.' },
-                  ],
-                },
-                {
-                  id: 'open-the-file', title: 'Open lab_02_servo_limits.py',
-                  blocks: [
-                    { type: 'p', text: 'Open the starter file now.' },
-                    { type: 'code', lang: 'python', filename: 'lab_02_servo_limits.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef clamp_to_safe_range(value, minimum, maximum): ...\ndef move_shoulder(motion, pitch): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_servo_limits.py' },
-                    { type: 'p', text: '`SHOULDER_PITCH_MIN` (0) and `SHOULDER_PITCH_MAX` (60) define the safe, tested range for this joint. `TARGET_SHOULDER_PITCH` is currently `40` — inside that range. Try a few different values inside `[0, 60]` and compare the result before changing anything else.' },
-                  ],
-                },
-                {
-                  id: 'finish-clamp-to-safe-range', title: 'Finish clamp_to_safe_range()',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: "`clamp_to_safe_range()` currently has a TODO: it returns `value` completely unchanged, which means nothing actually stops an out-of-range angle from reaching the servo. `move_shoulder()` already calls it and trusts its result — the function just doesn't do its job yet." },
-                    { type: 'p', text: 'Replace the placeholder `return value` with real clamping logic: if `value` is below `minimum`, return `minimum`; if it is above `maximum`, return `maximum`; otherwise return `value` unchanged. A safe robot program should never trust a raw value — it should guarantee the value it sends.' },
-                  ],
-                },
-                {
-                  id: 'run-and-compare', title: 'Run and Compare',
-                  blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_02_servo_limits'] },
-                    { type: 'p', text: 'Run it once with `TARGET_SHOULDER_PITCH` inside the safe range, then try a value outside `[0, 60]` and confirm your finished `clamp_to_safe_range()` actually stops it from reaching the joint. Compare a small change to a larger change.' },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Use safe joint limits instead of testing random servo angles directly on hardware.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You saw why a robot program should always clamp values instead of trusting them.', conceptsUsed: ['Safe limits', 'Defensive code'] },
-            },
-          ],
-        },
-        {
-          id: 'moving-the-base', title: 'Moving the Base', difficulty: 'intermediate', estimatedTime: '30–45 minutes',
-          description: 'Command the robot’s rotating base with a clear stop condition.',
-          activities: [
-            {
-              id: 'base-rotation', title: 'Base Rotation', kind: 'activity', difficulty: 'intermediate', estimatedTime: '30–45 minutes',
-              summary: 'Command the rotating base with a clear, safe stop condition.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_base_rotation.py',
-              relatedConcepts: ['Base yaw', 'Motor control', 'Stop conditions'],
-              steps: [
-                {
-                  id: 'clear-the-area', title: 'Clear the Area',
-                  blocks: [
-                    { type: 'lead', text: "Command the robot's rotating base to turn left or right, safely." },
-                    { type: 'checklist', items: [
-                      'Make sure the robot base area is clear before running anything.',
-                    ] },
-                    { type: 'p', text: 'A rotating base sweeps a wider area than an arm — check the full radius, not just what is directly in front of the robot.' },
-                  ],
-                },
-                {
-                  id: 'run-the-starter-rotation', title: 'Run the Starter Rotation',
-                  blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_08_base_rotation.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef rotate_base(motion, direction, angle): ...\ndef stop_base(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_base_rotation.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_08_base_rotation'] },
-                    { type: 'p', text: 'Run it unedited first and observe the direction and stopping behavior.' },
-                  ],
-                },
-                {
-                  id: 'change-direction-and-duration', title: 'Change Direction and Duration',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Try "left" and "right", and a smaller or larger ROTATION_ANGLE within the safe range above.` `ROTATION_DIRECTION` is currently `"left"` and `ROTATION_ANGLE` is `30`. `rotate_base()` converts direction and angle into a signed value, then clamps it with `max(BASE_YAW_MIN, min(BASE_YAW_MAX, signed_angle))` so it can never exceed `[-45, 45]`.' },
-                    { type: 'p', text: 'Change `ROTATION_DIRECTION` to `"right"`, or change `ROTATION_ANGLE` to a smaller or larger value still inside the safe range, then run the lab again.' },
-                  ],
-                },
-                {
-                  id: 'always-send-a-stop-command', title: 'Always Send a Stop Command',
-                  blocks: [
-                    { type: 'p', text: '`stop_base()` moves the base back to a centered, stopped position at `0`. It runs inside the `finally` block of `main()`, alongside `motion.unlock_behavior(...)`, so the base always returns to center even if something goes wrong mid-rotation.' },
-                    { type: 'p', text: 'Why should base motion always include a clear stop condition?' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You commanded a full robot motor with a clear, safe stop condition.', conceptsUsed: ['Direction', 'Speed', 'Stop command'] },
-            },
-          ],
-        },
-      ],
-    },
-
     // ============================================================ LEVEL 3
     {
       id: 'basic-gestures', number: 3, title: 'Basic Gestures',
@@ -641,7 +494,10 @@ export const LEARNING_PATH = {
                   id: 'what-to-watch', title: 'What to Watch',
                   blocks: [
                     { type: 'heading', level: 3, text: 'Hardware used' },
-                    { type: 'list', items: ['Shoulder servo', 'Elbow servo', 'Wrist servo', 'Motion controller node'] },
+                    {
+                      type: 'list',
+                      items: ['Shoulder servos', 'Elbow servo', 'Wrist servo', 'Motion controller node'],
+                    },
                     { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The robot raises its right arm to a safe height, waves the wrist left and right three times, then returns to idle.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm while the demo is running.' },
                   ],
@@ -689,95 +545,6 @@ export const LEARNING_PATH = {
               ],
               completionSummary: { text: 'You just read a real coordinated gesture and saw how a loop turns one small motion into something a person recognizes.', conceptsUsed: ['Joint targets', 'Joint groups', 'Timed motion', 'Motion lock'] },
             },
-            {
-              id: 'gesture-sequence', title: 'Build a Gesture Sequence', kind: 'activity', difficulty: 'beginner', estimatedTime: '30–40 minutes',
-              summary: 'Build your own custom gesture out of poses and timing delays.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_gesture_sequence.py',
-              relatedConcepts: ['Sequences', 'Timing', 'Reusable functions'],
-              steps: [
-                {
-                  id: 'run-the-starter-gesture', title: 'Run the Starter Gesture',
-                  blocks: [
-                    { type: 'lead', text: 'Create a small gesture by combining multiple safe poses with timing delays — the same idea Wave used, but this time you build the sequence.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_03_gesture_sequence'] },
-                    { type: 'p', text: 'Run the unedited starter gesture first and watch how it moves through three poses in a row.' },
-                  ],
-                },
-                {
-                  id: 'identify-each-pose', title: 'Identify Each Pose',
-                  blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_03_gesture_sequence.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\nSAFE_POSES = { "greet_raise": {...}, "greet_hold": {...}, "greet_lower": {...} }\ndef run_sequence(motion, sequence): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_gesture_sequence.py' },
-                    { type: 'p', text: '`SAFE_POSES` is a dictionary of named poses (`greet_raise`, `greet_hold`, `greet_lower`), and `GESTURE_SEQUENCE` is just a list of those names in order: `["greet_raise", "greet_hold", "greet_lower"]`. `run_sequence()` loops over that list and moves through each pose, pausing `POSE_DELAY_SECONDS` between them.' },
-                  ],
-                },
-                {
-                  id: 'change-a-delay', title: 'Change a Delay',
-                  blocks: [
-                    { type: 'p', text: 'Change `POSE_DELAY_SECONDS` (currently `0.6`) to make the sequence feel slower or snappier, then run the lab again to feel the difference.' },
-                  ],
-                },
-                {
-                  id: 'add-a-new-pose', title: 'Add a New Pose',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Add one more pose to GESTURE_SEQUENCE below, using a pose from SAFE_POSES or one you define in the same shape.`' },
-                    { type: 'p', text: 'Add a new entry to `SAFE_POSES` — a dictionary of joint names to angles, matching the shape of the existing poses — or reuse one already defined, and insert its name into `GESTURE_SEQUENCE` wherever you want it to play.' },
-                  ],
-                },
-                {
-                  id: 'run-again-and-compare', title: 'Run Again and Compare',
-                  blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_03_gesture_sequence'] },
-                    { type: 'p', text: 'Check whether the gesture still looks smooth with your new pose in place. How does timing change the way a robot gesture feels to a person watching it?' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Create two versions of the same gesture: one that looks calm and one that looks excited.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You built a custom gesture out of the same building blocks Wave used.', conceptsUsed: ['Sequences', 'Timing', 'Poses'] },
-            },
-          ],
-        },
-        {
-          id: 'expressive-timing', title: 'Expressive Timing', difficulty: 'intermediate', estimatedTime: '30–45 minutes',
-          description: 'Small timing changes make the same final pose feel completely different.',
-          activities: [
-            {
-              id: 'hand-pose-timing', title: 'Hand Pose Timing', kind: 'activity', difficulty: 'intermediate', estimatedTime: '30–45 minutes',
-              summary: 'See how timing alone changes how a gesture feels.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_hand_pose_timing.py',
-              relatedConcepts: ['Finger poses', 'Timing', 'Gesture realism'],
-              steps: [
-                {
-                  id: 'run-the-starter-hand-pose', title: 'Run the Starter Hand Pose',
-                  blocks: [
-                    { type: 'lead', text: 'Adjust hand and finger timing to understand how small delays affect a robot gesture, even when the final pose never changes.' },
-                    { type: 'code', lang: 'python', filename: 'lab_07_hand_pose_timing.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef close_hand(motion): ...\ndef release_hand(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_hand_pose_timing.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_07_hand_pose_timing'] },
-                    { type: 'p', text: 'Run it unedited and watch how quickly the fingers move from `open` to `gentle_close`.' },
-                  ],
-                },
-                {
-                  id: 'change-a-timing-delay', title: 'Change a Timing Delay',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Change this delay and re-run to feel the difference between a snappy grip and a slow, deliberate one.` `OPEN_TO_CLOSE_DELAY_SECONDS` (currently `0.5`) is the pause inside `close_hand()` between `motion.set_hand_pose("right_hand", "open")` and `motion.set_hand_pose("right_hand", "gentle_close")`.' },
-                    { type: 'p', text: 'Change `OPEN_TO_CLOSE_DELAY_SECONDS` to a smaller or larger value and run the lab again.' },
-                  ],
-                },
-                {
-                  id: 'reorder-two-movements', title: 'Reorder Two Movements',
-                  blocks: [
-                    { type: 'p', text: '`close_hand()` and `release_hand()` are two separate, small functions — `close_hand` moves open → gentle_close and holds for `HOLD_CLOSED_SECONDS`, while `release_hand` returns the hand to `relaxed`. Try changing `HOLD_CLOSED_SECONDS` or the order the two functions are called in `main()` and see how it changes the feel of the gesture.' },
-                  ],
-                },
-                {
-                  id: 'compare-which-feels-natural', title: 'Compare Which Feels More Natural',
-                  blocks: [
-                    { type: 'p', text: 'Why can timing make a robot motion feel more natural even if the final pose is the same?' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Create a small hand gesture that looks like a count-in or signal.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You saw how timing alone can make a motion feel more natural, even with the same final pose.', conceptsUsed: ['Timing', 'Grip and release'] },
-            },
           ],
         },
       ],
@@ -792,49 +559,6 @@ export const LEARNING_PATH = {
           id: 'responding-to-people', title: 'Responding to People', difficulty: 'beginner', estimatedTime: '45–60 minutes',
           description: 'Move toward a target and greet a person the robot detects.',
           activities: [
-            {
-              id: 'head-tracking', title: 'Head Tracking', kind: 'activity', difficulty: 'beginner', estimatedTime: '30–45 minutes',
-              summary: 'Map a detected position to a head-motion target.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_head_tracking.py',
-              relatedConcepts: ['Neck yaw/pitch', 'Mapping input to motion'],
-              steps: [
-                {
-                  id: 'run-the-starter-tracking-script', title: 'Run the Starter Tracking Script',
-                  blocks: [
-                    { type: 'lead', text: 'Move the robot head left, center, or right based on a simple target position from the camera.' },
-                    { type: 'code', lang: 'python', filename: 'lab_04_head_tracking.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef zone_for_position(position): ...\ndef yaw_for_zone(zone): ...\ndef track_target(motion, camera): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_head_tracking.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_04_head_tracking'] },
-                  ],
-                },
-                {
-                  id: 'move-the-target-zone', title: 'Move the Target Zone',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`camera.target_zone()` returns a horizontal position from `0.0` (far left) to `1.0` (far right). `# TODO: camera.target_zone() is a stand-in for the real perception call — replace with the actual RealSenseInput method once available.`' },
-                    { type: 'p', text: '`zone_for_position()` turns that raw number into one of three zones — `"left"`, `"center"`, or `"right"` — before anything moves. Detecting *where* something is and deciding *how far the robot should move* are two separate steps on purpose.' },
-                  ],
-                },
-                {
-                  id: 'change-a-threshold', title: 'Change a Threshold',
-                  blocks: [
-                    { type: 'p', text: '`# TODO: Adjust these thresholds if the head reacts too early or too late.` `LEFT_ZONE_MAX` (`0.35`) and `RIGHT_ZONE_MIN` (`0.65`) are the boundaries `zone_for_position()` checks. Try narrowing or widening the center zone and observe how it changes when the head reacts.' },
-                  ],
-                },
-                {
-                  id: 'change-a-yaw-value', title: 'Change a Yaw Value',
-                  blocks: [
-                    { type: 'p', text: '`yaw_for_zone()` maps each zone name to a safe head yaw angle: `HEAD_YAW_LEFT` (`-30`), `HEAD_YAW_CENTER` (`0`), `HEAD_YAW_RIGHT` (`30`). Change one of these values within a safe range and run the script again.' },
-                  ],
-                },
-                {
-                  id: 'return-to-center', title: 'Return to Center',
-                  blocks: [
-                    { type: 'p', text: 'The `finally` block in `main()` always sends `motion.move_joint("neck_yaw", HEAD_YAW_CENTER)` before unlocking the behavior, so the head returns to center no matter what happened during tracking.' },
-                    { type: 'p', text: 'What is the difference between detecting where something is and deciding how far the robot should move? This mapping — position in, motion target out — is the core idea behind every perception-driven behavior you will build from here on.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You mapped a detected position to a motion target — the core idea behind every perception-driven behavior.', conceptsUsed: ['Camera target position', 'Mapping input to motion'] },
-            },
             {
               id: 'handshake', title: 'Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
               summary: 'A conservative, camera-triggered greeting with a safe timeout.',
@@ -899,55 +623,6 @@ export const LEARNING_PATH = {
             },
           ],
         },
-        {
-          id: 'manual-control', title: 'Manual Control', difficulty: 'beginner', estimatedTime: '25–40 minutes',
-          description: 'Connect a keyboard input to a safe robot action.',
-          activities: [
-            {
-              id: 'button-to-motion-control', title: 'Button-to-Motion Control', kind: 'activity', difficulty: 'beginner', estimatedTime: '25–40 minutes',
-              summary: 'Wire a keyboard input to a safe robot action.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_button_motion.py',
-              relatedConcepts: ['Input handling', 'Safety stop'],
-              steps: [
-                {
-                  id: 'run-the-starter-script', title: 'Run the Starter Script',
-                  blocks: [
-                    { type: 'lead', text: 'Connect a keyboard input to a safe robot action.' },
-                    { type: 'code', lang: 'python', filename: 'lab_05_button_motion.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef handle_input(motion, key): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_button_motion.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_05_button_motion'] },
-                  ],
-                },
-                {
-                  id: 'trigger-the-provided-key', title: 'Trigger the Provided Key',
-                  blocks: [
-                    { type: 'p', text: '`INPUT_TO_POSE` currently maps one key to one pose: `{"1": "greeting_raise"}`. `handle_input()` looks up the pressed key in that dictionary and calls `motion.safe_pose(pose_name)` if it finds a match. Press `1` and confirm the mapped pose runs.' },
-                  ],
-                },
-                {
-                  id: 'add-a-second-input', title: 'Add a Second Input',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Add a second entry to INPUT_TO_POSE (for example key "2") mapped to a different safe pose name.`' },
-                    { type: 'p', text: 'Add a new `"2": "some_other_pose_name"` entry to `INPUT_TO_POSE`, using a safe pose name from another lab or demo you have already seen.' },
-                  ],
-                },
-                {
-                  id: 'test-both-inputs', title: 'Test Both Inputs',
-                  blocks: [
-                    { type: 'p', text: 'Run the lab again and press both keys, confirming each one triggers the correct pose.' },
-                  ],
-                },
-                {
-                  id: 'use-the-stop-key', title: 'Use the Stop Key',
-                  blocks: [
-                    { type: 'p', text: '`STOP_KEY` is `"q"`. `handle_input()` returns `False` when it sees the stop key, which tells the `while running:` loop in `main()` to end — always finish a run this way rather than closing the terminal.' },
-                    { type: 'p', text: 'Why is it useful to separate input handling from the actual robot motion function?' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You separated input handling from the motion it triggers — a pattern you’ll reuse constantly.', conceptsUsed: ['Events', 'Input handling', 'Safety stop'] },
-            },
-          ],
-        },
       ],
     },
 
@@ -960,43 +635,6 @@ export const LEARNING_PATH = {
           id: 'camera-triggered-behavior', title: 'Camera-Triggered Behavior', difficulty: 'intermediate', estimatedTime: '55–75 minutes',
           description: 'Turn RealSense zone data into a conservative, predictable behavior.',
           activities: [
-            {
-              id: 'realsense-detection-basics', title: 'RealSense Detection Basics', kind: 'activity', difficulty: 'intermediate', estimatedTime: '35–45 minutes',
-              summary: 'Turn camera zone data into a conservative, predictable trigger.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_realsense_detection.py',
-              relatedConcepts: ['Detection zones', 'Depth and distance', 'False positives'],
-              steps: [
-                {
-                  id: 'start-the-camera-based-lab', title: 'Start the Camera-Based Lab',
-                  blocks: [
-                    { type: 'lead', text: 'Use RealSense camera data as a trigger for a simple robot behavior.' },
-                    { type: 'code', lang: 'python', filename: 'lab_06_realsense_detection.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef wait_for_object(camera, zone, timeout): ...\ndef respond(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_realsense_detection.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_06_realsense_detection'] },
-                  ],
-                },
-                {
-                  id: 'place-a-target', title: 'Place a Target',
-                  blocks: [
-                    { type: 'p', text: '`wait_for_object()` polls `camera.object_in_zone(zone)` every `0.1` seconds until something is detected in `DETECTION_ZONE` (`"interaction_zone"`), or `DETECTION_TIMEOUT_SECONDS` (`8`) runs out. If nothing is detected, the robot prints a message and returns to idle instead of running `respond()`.' },
-                  ],
-                },
-                {
-                  id: 'adjust-the-zone-or-distance', title: 'Adjust the Zone or Distance',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Try a narrower or wider zone name / timeout and compare how reliably the robot triggers.`' },
-                    { type: 'p', text: 'Change `DETECTION_ZONE` or `DETECTION_TIMEOUT_SECONDS` and run the lab again, placing yourself or an object inside and outside the zone to see how it affects triggering.' },
-                  ],
-                },
-                {
-                  id: 'compare-reliable-vs-unreliable', title: 'Compare Reliable vs. Unreliable Triggers',
-                  blocks: [
-                    { type: 'p', text: 'Why should camera-based triggers be conservative when the robot is near people?' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Add a timeout so the robot returns to idle if the target disappears.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You tuned a perception trigger to be conservative around people, on purpose.', conceptsUsed: ['Detection zones', 'Perception-triggered motion'] },
-            },
             {
               id: 'pick-and-place', title: 'Pick and Place', kind: 'activity', difficulty: 'intermediate', estimatedTime: '10–15 minutes',
               summary: 'A full pick-and-place sequence built from four named poses.',
@@ -1131,51 +769,6 @@ export const LEARNING_PATH = {
           description: 'One behavior should never interrupt another at the wrong moment.',
           activities: [
             {
-              id: 'behavior-priority-motion-locking', title: 'Behavior Priority & Motion Locking', kind: 'activity', difficulty: 'advanced', estimatedTime: '35–45 minutes',
-              summary: 'Protect a running behavior from being interrupted mid-motion.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_motion_locking.py',
-              relatedConcepts: ['Motion lock', 'Behavior priority', 'State control'],
-              steps: [
-                {
-                  id: 'run-the-starter-behavior', title: 'Run the Starter Behavior',
-                  blocks: [
-                    { type: 'lead', text: 'Understand why one robot behavior should not interrupt another motion at the wrong time.' },
-                    { type: 'code', lang: 'python', filename: 'lab_09_motion_locking.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef run_primary_behavior(motion): ...\ndef try_low_priority_behavior(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_motion_locking.py' },
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_09_motion_locking'] },
-                  ],
-                },
-                {
-                  id: 'trigger-a-second-behavior-mid-motion', title: 'Trigger a Second Behavior Mid-Motion',
-                  blocks: [
-                    { type: 'p', text: '`main()` calls `run_primary_behavior()` then `try_low_priority_behavior()` right after. In the starter version, `try_low_priority_behavior` always runs a small neck movement — it does not yet check whether the arm is still busy.' },
-                  ],
-                },
-                {
-                  id: 'find-the-lock', title: 'Find the Lock',
-                  blocks: [
-                    { type: 'p', text: '`run_primary_behavior` calls `motion.lock_behavior(HIGH_PRIORITY_NAME)` before moving, and `motion.unlock_behavior(HIGH_PRIORITY_NAME)` in its `finally` block afterward. That lock is what should stop a competing behavior from moving the same joints mid-motion.' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: 'A motion lock is a flag one behavior sets before it starts moving, and clears when it finishes — anything that checks the flag first can tell whether it is safe to move.' },
-                  ],
-                },
-                {
-                  id: 'change-the-priority-check', title: 'Change the Priority Check',
-                  blocks: [
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Check whether a higher-priority behavior is currently locked before calling motion.lock_behavior(LOW_PRIORITY_NAME) here, and skip this behavior if it is.`' },
-                    { type: 'p', text: 'Update `try_low_priority_behavior()` so it checks whether `HIGH_PRIORITY_NAME` is currently locked before calling `motion.lock_behavior(LOW_PRIORITY_NAME)`, and skips the low-priority motion entirely if the primary behavior is still running.' },
-                  ],
-                },
-                {
-                  id: 'run-again', title: 'Run Again',
-                  blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_09_motion_locking'] },
-                    { type: 'p', text: 'What could go wrong if two scripts tried to control the same arm at the same time? Confirm the low-priority behavior now waits for — or skips past — the primary one instead of always running.' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Add a low-priority idle behavior that pauses when a higher-priority demo starts.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You protected a running behavior from being interrupted by a competing command.', conceptsUsed: ['Motion lock', 'Behavior priority', 'Safe cancellation'] },
-            },
-            {
               id: 'interactive-exchange', title: 'Interactive Exchange', kind: 'activity', difficulty: 'advanced', estimatedTime: '10–15 minutes',
               summary: 'A full state-machine interaction: accept, set aside, and hand back.',
               workspaceFile: 'ros2_ws/src/swayform_demos/interactive_exchange.py',
@@ -1232,69 +825,6 @@ export const LEARNING_PATH = {
                 },
               ],
               completionSummary: { text: 'You read a full state-machine behavior, the same pattern behind most multi-step robot interactions.', conceptsUsed: ['State machines', 'enum.Enum', 'Timeouts'] },
-            },
-          ],
-        },
-      ],
-    },
-
-    // ============================================================ LEVEL 7
-    {
-      id: 'build-your-own', number: 7, title: 'Build Your Own',
-      description: 'Combine everything into a behavior you design yourself.',
-      sections: [
-        {
-          id: 'capstone', title: 'Capstone', difficulty: 'challenge', estimatedTime: '40–60 minutes',
-          description: 'One open-ended challenge combining motion, timing, and optionally perception.',
-          activities: [
-            {
-              id: 'mini-demo-challenge', title: 'Mini Demo Challenge', kind: 'activity', difficulty: 'challenge', estimatedTime: '40–60 minutes',
-              summary: 'Design and build an original SwayForm behavior from scratch.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_mini_demo_challenge.py',
-              relatedConcepts: ['Project planning', 'Code reuse', 'Debugging'],
-              steps: [
-                {
-                  id: 'choose-a-demo-idea', title: 'Choose a Demo Idea',
-                  blocks: [
-                    { type: 'lead', text: 'Combine motion, timing, and optionally perception into a small custom robot demo — your own idea, built from everything you have learned so far.' },
-                    { type: 'p', text: 'Sketch a short idea before opening the file: a greeting, a small game, a reaction to presence. Reuse at least one pattern from an earlier demo or lab — a pose sequence, a camera trigger, a countdown.' },
-                  ],
-                },
-                {
-                  id: 'pick-robot-parts', title: 'Pick Robot Parts',
-                  blocks: [
-                    { type: 'p', text: 'Decide which robot parts your demo will move — one arm, the head, the hand, the base — and keep the first version to the smallest set that tells your idea.' },
-                  ],
-                },
-                {
-                  id: 'start-from-the-safe-template', title: 'Start From the Safe Template',
-                  blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_10_mini_demo_challenge.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\nMY_DEMO_SEQUENCE = [ ("right_arm", {...}), ("right_arm", {...}) ]\ndef build_my_demo(motion): ...', workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_mini_demo_challenge.py' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: '`# TODO: Replace this starter sequence with your own two-or-more-step demo idea. Reuse a pose pattern from an earlier lab if you\'d like.` `build_my_demo()` loops over `MY_DEMO_SEQUENCE`, where each entry is a `(joint_group, pose_dict)` tuple, and calls `motion.move_joint_group` on each one in turn.' },
-                  ],
-                },
-                {
-                  id: 'add-steps-and-timing', title: 'Add Steps and Timing',
-                  blocks: [
-                    { type: 'p', text: 'Replace `MY_DEMO_SEQUENCE` with your own list of `(joint_group, pose)` steps, and adjust `STEP_HOLD_SECONDS` — or vary the delay between individual steps — so the timing matches what you are trying to express.' },
-                  ],
-                },
-                {
-                  id: 'test-incrementally', title: 'Test Incrementally',
-                  blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_labs lab_10_mini_demo_challenge'] },
-                    { type: 'p', text: 'Test one part of your sequence at a time rather than writing the whole thing before running anything — it is much faster to find which single step is wrong.' },
-                  ],
-                },
-                {
-                  id: 'prepare-an-explanation', title: 'Prepare an Explanation',
-                  blocks: [
-                    { type: 'p', text: 'What part of your demo was easiest to control, and what part needed the most debugging?' },
-                    { type: 'callout', tone: 'tip', label: 'Extension challenge', text: 'Add camera input or user input to trigger the demo.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You designed and built an original SwayForm behavior from scratch, using skills from every level before this one.', conceptsUsed: ['Project planning', 'Code reuse', 'Debugging'] },
             },
           ],
         },

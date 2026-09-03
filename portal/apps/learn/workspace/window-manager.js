@@ -335,7 +335,20 @@ export class WorkspaceWindowManager {
     w.el.querySelectorAll('.ww-resize').forEach((h) => { h.style.display = w.maximized ? 'none' : ''; });
   }
 
+  /** The single place bounds actually reach the DOM — floors w/h at this
+   *  window's minW/minH (and re-clamps x/y to stay on-desktop) no matter
+   *  where the bounds came from. Without this, a too-small width restored
+   *  from a *persisted* ("customized"/non-pristine) layout — saved before
+   *  this floor existed, or from any future bug — would render exactly as
+   *  undersized as whatever got saved; only the default-layout calculation
+   *  itself was floored before. */
   _applyBounds(w) {
+    const { w: dw, h: dh } = this._desktopBounds();
+    const minW = w.minW || MIN_W, minH = w.minH || MIN_H;
+    w.w = Math.min(dw, Math.max(minW, w.w));
+    w.h = Math.min(dh, Math.max(minH, w.h));
+    w.x = clamp(w.x, 0, Math.max(0, dw - w.w));
+    w.y = clamp(w.y, 0, Math.max(0, dh - w.h));
     Object.assign(w.el.style, { left: w.x + 'px', top: w.y + 'px', width: w.w + 'px', height: w.h + 'px' });
     this._syncVisibility(w);
   }

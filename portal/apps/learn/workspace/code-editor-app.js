@@ -95,7 +95,7 @@ export function mount(bodyEl, winApi, opts) {
     if (!fileOpts.fromTab) tabs.open(path);
     tabs.setActive(path);
     explorer.setActive(path);
-    toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/') + (readOnly ? '  ·  read-only' : ''));
+    toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/') + (readOnly ? '  ·  read-only' : ''));
     winApi.setTitle(path.split('/').pop());
   }
 
@@ -145,8 +145,8 @@ export function mount(bodyEl, winApi, opts) {
     tabs.refreshDirtyState();
     refreshExplorer();
     if (tabs.activePath === path){
-      toolbar.setFileStatus('Saved · ' + path.replace(/^ros2_ws\//, '~/ros2_ws/'));
-      setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/')); }, 1200);
+      toolbar.setFileStatus('Saved · ' + path.replace(/^swayform_ws\//, '~/swayform_ws/'));
+      setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/')); }, 1200);
     }
   }
 
@@ -167,7 +167,7 @@ export function mount(bodyEl, winApi, opts) {
     editor.setValue(path, original);
     tabs.refreshDirtyState();
     refreshExplorer();
-    toolbar.setFileStatus(path.replace(/^ros2_ws\//, '~/ros2_ws/'));
+    toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/'));
   }
 
   return {

@@ -6,14 +6,14 @@
  * — one workspace, not a second fake copy. */
 import * as fs from '../editor/mock-fs.js';
 
-const ROOT = 'ros2_ws';
+const ROOT = 'swayform_ws';
 
 export function createShellState() {
   return { cwd: ROOT };
 }
 
 export function promptFor(state) {
-  return `swayform@learning:~/${state.cwd.replace(/^ros2_ws/, 'ros2_ws')}$`;
+  return `swayform@learning:~/${state.cwd}$`;
 }
 
 function normalizePath(cwd, arg) {
@@ -40,13 +40,35 @@ function findNode(tree, path) {
   return node || null;
 }
 
+/** Finds `<file>.py` inside a package's folder, searching subfolders too —
+ *  packages like swayform_robot nest executables under behaviors/, hardware/,
+ *  not flat under the package root, so `ros2 run <pkg> <file>` needs to look
+ *  a level or two deeper than a plain child lookup. */
+function findExecutableFile(pkg, file) {
+  const flatPath = `${ROOT}/src/${pkg}/${file}.py`;
+  if (fs.readFile(flatPath) !== null) return flatPath;
+
+  const pkgNode = findNode(fs.buildTree(), `${ROOT}/src/${pkg}`);
+  if (!pkgNode || pkgNode.type !== 'folder') return null;
+  const target = `${file}.py`;
+  const search = (node) => {
+    if (node.type === 'file') return node.name === target ? node.path : null;
+    for (const child of node.children) {
+      const found = search(child);
+      if (found) return found;
+    }
+    return null;
+  };
+  return search(pkgNode);
+}
+
 /** The same staged mocked run sequence used by both `ros2 run` / `python3`
  *  in the Terminal and the Code Editor's Run button — one source of truth. */
 export function buildRunSequence(pkg, file, content) {
   const hasTodo = /#\s*TODO/i.test(content || '');
   return [
     { t: 200, text: `$ ros2 run ${pkg} ${file}`, cls: 'term-cmd' },
-    { t: 500, text: 'Sourcing ~/ros2_ws/install/setup.bash', cls: '' },
+    { t: 500, text: 'Sourcing ~/swayform_ws/install/setup.bash', cls: '' },
     { t: 700, text: `Building ${pkg}... done`, cls: 'term-ok' },
     { t: 950, text: `[INFO] [${file}]: node started`, cls: '' },
     { t: 1250, text: '[INFO] Connecting to motion controller (mock)…', cls: '' },
@@ -122,11 +144,13 @@ export function execute(input, state) {
       return {
         lines: [{ text: '$ colcon build', cls: 'term-cmd' }],
         stream: [
-          { t: 250, text: 'Starting >>> swayform_demos', cls: '' },
+          { t: 250, text: 'Starting >>> swayform_robot', cls: '' },
+          { t: 300, text: 'Starting >>> swayform_demos', cls: '' },
           { t: 450, text: 'Starting >>> swayform_labs', cls: '' },
+          { t: 850, text: 'Finished <<< swayform_robot [0.6s]', cls: 'term-ok' },
           { t: 900, text: 'Finished <<< swayform_demos [0.6s]', cls: 'term-ok' },
           { t: 1050, text: 'Finished <<< swayform_labs [0.7s]', cls: 'term-ok' },
-          { t: 1150, text: 'Summary: 2 packages finished [0.9s]', cls: 'term-accent' },
+          { t: 1150, text: 'Summary: 3 packages finished [0.9s]', cls: 'term-accent' },
         ],
       };
     }
@@ -145,7 +169,10 @@ export function execute(input, state) {
           return { lines: [{ text: 'usage: ros2 run <package> <executable>', cls: 'term-warn' }] };
         }
         pkg = args[1]; file = args[2];
-        path = `${ROOT}/src/${pkg}/${file}.py`;
+        path = findExecutableFile(pkg, file);
+        if (!path) {
+          return { lines: [{ text: `No executable found named '${file}' in package '${pkg}'`, cls: 'term-warn' }] };
+        }
       }
       const content = fs.readFile(path);
       if (content === null) {

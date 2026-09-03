@@ -66,9 +66,10 @@ export const LEARNING_PATH = {
                   id: 'your-workspace', title: 'Your ROS 2 Workspace',
                   blocks: [
                     { type: 'p', text: 'Every activity that involves code works inside a real SwayForm ROS 2 workspace layout — the same structure you will use when programming the physical robot later.' },
-                    { type: 'code', lang: 'bash', filename: 'Finished reference demos', code: '~/ros2_ws/src/swayform_demos/\n├── wave_demo.py\n├── handshake_demo.py\n├── pick_and_place.py\n├── rock_paper_scissors.py\n└── interactive_exchange.py' },
-                    { type: 'code', lang: 'bash', filename: 'Guided activity starter files', code: '~/ros2_ws/src/swayform_labs/\n├── lab_01_hello_motion.py\n├── lab_02_servo_limits.py\n├── lab_03_gesture_sequence.py\n└── … (one file per hands-on activity)' },
-                    { type: 'p', text: 'Finished demos are read-first, run-second — a complete, working behavior to study before you build your own. Activity starter files are partly finished on purpose: you will fill in the parts that teach you something.' },
+                    { type: 'code', lang: 'bash', filename: 'The real robot (synced from the robot itself)', code: '~/swayform_ws/src/swayform_robot/swayform_robot/\n├── behaviors/\n│   ├── wave.py\n│   ├── handshake.py\n│   ├── idle.py\n│   └── finger_wave.py\n├── config/\n│   └── robot.yaml\n└── hardware/\n    ├── servo_control.py\n    └── torso_motor.py' },
+                    { type: 'code', lang: 'bash', filename: 'Planned demos (not real yet)', code: '~/swayform_ws/src/swayform_demos/\n├── pick_and_place.py\n├── rock_paper_scissors.py\n└── interactive_exchange.py' },
+                    { type: 'code', lang: 'bash', filename: 'Guided activity starter files', code: '~/swayform_ws/src/swayform_labs/\n├── lab_01_finger_curl.py\n├── lab_02_nod_yes.py\n├── lab_03_timed_torso_rotation.py\n└── … (one file per hands-on activity)' },
+                    { type: 'p', text: 'swayform_robot/ is the actual, running source for Wave, Handshake, Idle, and the finger wave — read-first, run-second: study a real behavior before you build your own. Activity starter files are partly finished on purpose: you will fill in the parts that teach you something.' },
                   ],
                 },
                 {
@@ -480,14 +481,14 @@ export const LEARNING_PATH = {
           activities: [
             {
               id: 'wave', title: 'Wave', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
-              summary: 'Study a finished greeting gesture built from joint targets and a timed loop.',
-              workspaceFile: 'ros2_ws/src/swayform_demos/wave_demo.py',
-              relatedConcepts: ['Joint targets', 'Timed motion', 'Motion lock'],
+              summary: 'Study SwayForm\'s actual wave behavior — the real source, synced straight from the robot.',
+              workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py',
+              relatedConcepts: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Threading'],
               steps: [
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: "SwayForm raises one arm and waves the wrist side to side — a short, deliberate greeting gesture built from a handful of joint targets and a loop." },
+                    { type: 'lead', text: "SwayForm raises its right arm and waves the elbow open and closed while its fingers ripple in a rolling wave — a greeting gesture built directly from PCA9685 servo channels, no simplified motion layer in between." },
                   ],
                 },
                 {
@@ -496,25 +497,25 @@ export const LEARNING_PATH = {
                     { type: 'heading', level: 3, text: 'Hardware used' },
                     {
                       type: 'list',
-                      items: ['Shoulder servos', 'Elbow servo', 'Wrist servo', 'Motion controller node'],
+                      items: ['Shoulder pitch + roll servos', 'Elbow servo', 'Wrist servo', 'Four finger servos (ripple)', 'Two PCA9685 boards (right_arm_pca, reach_pca)'],
                     },
-                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The robot raises its right arm to a safe height, waves the wrist left and right three times, then returns to idle.' },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The robot centers, opens its hand, lifts into the wave-ready pose, oscillates its elbow (fingers rippling the whole time), then returns to center.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm while the demo is running.' },
                   ],
                 },
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'idle\n  ↓\nraise arm to start pose\n  ↓\nwave wrist, repeat a few times\n  ↓\nreturn to idle' },
-                    { type: 'p', text: 'Starting from a known position (idle) before raising the arm means the wave always starts from the same safe place, no matter what the robot was doing before. A `for` loop then turns one small wrist motion into a recognizable gesture — define one step, repeat it.' },
-                    { type: 'p', text: '`motion.lock_behavior("wave_demo")` prevents another program from grabbing the same arm mid-wave, and the matching `unlock_behavior` in a `finally` block guarantees that lock always releases, even if something goes wrong.' },
+                    { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'center\n  ↓\nopen hand\n  ↓\nwave-ready pose\n  ↓\nelbow_wave() — elbow oscillates, fingers ripple on a separate thread\n  ↓\ncenter' },
+                    { type: 'p', text: 'The finger ripple runs on its own background thread for the whole gesture — each finger follows a sine curve staggered a quarter cycle behind the next, so the motion rolls down the hand while the elbow keeps waving independently.' },
+                    { type: 'p', text: '`with sc.hardware_lock():` is a cross-process lock — it guarantees nothing else (handshake, idle, another wave) can move the same servo boards while this sequence is running, and a `finally` block always closes the PCA9685 handles, even on error.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'wave_demo.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef move_to_wave_start(motion): ...\ndef perform_wave(motion, cycles): ...\ndef return_to_idle(motion): ...', workspaceFile: 'ros2_ws/src/swayform_demos/wave_demo.py' },
-                    { type: 'p', text: 'Three functions, in order: move into position, perform the wave, return to idle. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm program you will write.' },
+                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...\ndef open_hand(ctrl): ...\ndef wave_ready_pose(ctrl): ...\ndef elbow_wave(ctrl, cycles): ...\ndef perform_wave(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py' },
+                    { type: 'p', text: 'Five functions, in order: center, open the hand, move into the wave-ready pose, wave the elbow, and the top-level `perform_wave()` that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
                   ],
                 },
                 {
@@ -522,10 +523,10 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'list', items: [
                       'Change `WAVE_CYCLES` to wave more or fewer times.',
-                      'Change `WAVE_DELAY_SECONDS` to make the wave faster or slower.',
-                      'Try the left arm instead of the right arm.',
+                      'Change `SPEED_SCALE` to make the elbow wave faster or slower.',
+                      'Change `RIPPLE_SPEED` to make the finger ripple faster or slower.',
                     ] },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside the provided pose — stay inside tested ranges.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
                   ],
                 },
                 {
@@ -538,7 +539,7 @@ export const LEARNING_PATH = {
                   id: 'full-code', title: 'Full Code',
                   blocks: [
                     { type: 'p', text: 'Run the demo from the toolbar above, or open the file to read the complete, real source.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_demos wave_demo'] },
+                    { type: 'terminal', lines: ['ros2 run swayform_robot wave'] },
                     { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
                   ],
                 },
@@ -561,65 +562,67 @@ export const LEARNING_PATH = {
           activities: [
             {
               id: 'handshake', title: 'Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
-              summary: 'A conservative, camera-triggered greeting with a safe timeout.',
-              workspaceFile: 'ros2_ws/src/swayform_demos/handshake_demo.py',
-              relatedConcepts: ['Presence detection', 'Timeouts', 'finally blocks'],
+              summary: 'Study SwayForm\'s actual handshake behavior — the real source, synced straight from the robot.',
+              workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py',
+              relatedConcepts: ['Joint targets', 'Timed motion', 'Cross-process locking'],
               steps: [
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: 'SwayForm uses the RealSense camera to detect that a user is in front of it, moves its arm into a handshake pose, waits briefly, then returns to idle.' },
-                    { type: 'callout', tone: 'note', label: 'Honest note', text: 'This is a vision-assisted classroom demo, not perfect hand detection or full human understanding. It uses simple user presence in an approximate interaction zone to trigger the behavior.' },
+                    { type: 'lead', text: 'SwayForm extends its right arm forward and opens its hand, shakes for a moment, then returns home — a short, deliberate choreography built directly from PCA9685 servo channels.' },
+                    { type: 'callout', tone: 'note', label: 'Honest note', text: 'This behavior is a fixed choreography, not vision-triggered — it runs the same way every time it is called, whether from the terminal, a launch file, or another program. It does not detect whether anyone is actually there to shake.' },
                   ],
                 },
                 {
                   id: 'what-to-watch', title: 'What to Watch',
                   blocks: [
                     { type: 'heading', level: 3, text: 'Hardware used' },
-                    { type: 'list', items: ['RealSense camera', 'Arm servos', 'Optional hand servo', 'Motion node'] },
+                    { type: 'list', items: ['Shoulder pitch servo (reach_pca)', 'Elbow servo', 'Shoulder roll servo', 'Wrist servo', 'Four finger servos'] },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The arm extends forward and the hand opens together (2.5s), the shoulder pitch shakes back and forth five times (quick), then everything returns to center (2.0s).' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm, and never grab it mid-motion — even during a handshake demo.' },
                   ],
                 },
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: '`wait_for_user` polls `camera.user_in_interaction_zone()` every `0.1` seconds until it returns `True`, or until `DETECTION_TIMEOUT_SECONDS` (`10`) runs out. The robot should not wait forever — a timeout keeps the demo predictable: if no user is detected, `main()` prints a message and returns the robot to idle instead of hanging.' },
-                    { type: 'p', text: '`run_handshake` then moves the right arm into `HANDSHAKE_POSE` — a controlled position, not a fast reach — holds it for `HANDSHAKE_HOLD_SECONDS` (`2.0`), then calls `motion.safe_pose("idle")`.' },
+                    { type: 'p', text: '`extend_and_open` moves the shoulder, elbow, wrist, and all four fingers together over 2.5 seconds — one `run_threads()` call, every joint arriving at the same time instead of one after another.' },
+                    { type: 'p', text: '`shake` then oscillates just the shoulder pitch through five short, fast moves — `(155, 0.35), (145, 0.35), (155, 0.30), (145, 0.30), (150, 0.30)` — before `return_home` brings every joint back to center over 2.0 seconds.' },
+                    { type: 'p', text: 'As in Wave, `with sc.hardware_lock():` guarantees nothing else can move the same servo boards mid-handshake, and a `finally` block always closes the PCA9685 handles, even on error.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'handshake_demo.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef wait_for_user(camera, timeout): ...\ndef run_handshake(motion): ...', workspaceFile: 'ros2_ws/src/swayform_demos/handshake_demo.py' },
-                    { type: 'p', text: 'As in Wave, `motion.lock_behavior("handshake_demo")` and the matching `unlock_behavior` in the `finally` block guarantee the lock always releases, even if something interrupts the script.' },
+                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef extend_and_open(ctrl): ...\ndef shake(ctrl): ...\ndef return_home(ctrl): ...\ndef perform_handshake(mock=True): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py' },
+                    { type: 'p', text: 'Three functions, in order, plus the `perform_handshake()` that calls them: extend and open, shake, return home. The same **setup → behavior → cleanup** shape as Wave.' },
                   ],
                 },
                 {
                   id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
                     { type: 'list', items: [
-                      'Change how long the robot holds the handshake pose.',
-                      'Add a small head nod before the arm moves.',
-                      'Adjust the detection timeout.',
+                      'Change the durations passed to `extend_and_open` and `return_home` to make the approach slower or faster.',
+                      'Add or remove `(target, duration)` pairs in `shake` to change how many times it shakes.',
+                      'Change the shake targets slightly to make the motion wider or narrower.',
                     ] },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep the handshake motion slow and predictable. Do not make the arm snap toward the user.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep the handshake motion slow and predictable. Stay inside the ranges already defined in `LIMITS` — do not push a target outside them.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Change `HANDSHAKE_HOLD_SECONDS` and predict whether a longer hold feels more natural or less — then run it and check.' },
+                    { type: 'p', text: 'Remove one pair from the `shake` list and predict whether a shorter shake feels more natural or less — then run it and check.' },
                   ],
                 },
                 {
                   id: 'full-code', title: 'Full Code',
                   blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_demos handshake_demo'] },
+                    { type: 'terminal', lines: ['ros2 run swayform_robot handshake'] },
                     { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
                   ],
                 },
               ],
-              completionSummary: { text: 'You saw how a robot behavior waits for a person, but never waits forever.', conceptsUsed: ['RealSense presence detection', 'Timeouts', 'finally blocks'] },
+              completionSummary: { text: 'You saw a real choreographed behavior — timed joint targets, run in sequence, protected by a cross-process lock.', conceptsUsed: ['Joint targets', 'Timed motion', 'Cross-process locking'] },
             },
           ],
         },
@@ -638,7 +641,7 @@ export const LEARNING_PATH = {
             {
               id: 'pick-and-place', title: 'Pick and Place', kind: 'activity', difficulty: 'intermediate', estimatedTime: '10–15 minutes',
               summary: 'A full pick-and-place sequence built from four named poses.',
-              workspaceFile: 'ros2_ws/src/swayform_demos/pick_and_place.py',
+              workspaceFile: 'swayform_ws/src/swayform_demos/pick_and_place.py',
               relatedConcepts: ['Named poses', 'Grasp as a hand pose'],
               steps: [
                 {
@@ -654,7 +657,7 @@ export const LEARNING_PATH = {
                   id: 'open-the-file', title: 'Open the Starter File',
                   blocks: [
                     { type: 'p', text: 'Pick and Place is a finished, working demo. Open it now.' },
-                    { type: 'code', lang: 'python', filename: 'pick_and_place.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef approach_object(motion): ...\ndef grasp_object(motion): ...\ndef lift_and_transport(motion): ...\ndef release_object(motion): ...', workspaceFile: 'ros2_ws/src/swayform_demos/pick_and_place.py' },
+                    { type: 'code', lang: 'python', filename: 'pick_and_place.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef approach_object(motion): ...\ndef grasp_object(motion): ...\ndef lift_and_transport(motion): ...\ndef release_object(motion): ...', workspaceFile: 'swayform_ws/src/swayform_demos/pick_and_place.py' },
                     { type: 'p', text: 'Four named poses — `PICKUP_APPROACH`, `PICKUP_GRASP`, `LIFT_POSE`, `PLACE_APPROACH` — drive the whole sequence. You can tune one pose without breaking the rest.' },
                   ],
                 },
@@ -701,7 +704,7 @@ export const LEARNING_PATH = {
             {
               id: 'rock-paper-scissors', title: 'Rock Paper Scissors', kind: 'activity', difficulty: 'intermediate', estimatedTime: '10–15 minutes',
               summary: 'A complete multi-round interaction loop against a human opponent.',
-              workspaceFile: 'ros2_ws/src/swayform_demos/rock_paper_scissors.py',
+              workspaceFile: 'swayform_ws/src/swayform_demos/rock_paper_scissors.py',
               relatedConcepts: ['Game loops', 'Random choice'],
               steps: [
                 {
@@ -717,7 +720,7 @@ export const LEARNING_PATH = {
                   id: 'open-the-file', title: 'Open the Starter File',
                   blocks: [
                     { type: 'p', text: 'Rock Paper Scissors is a finished, working demo. Open it now.' },
-                    { type: 'code', lang: 'python', filename: 'rock_paper_scissors.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef countdown(audio): ...\ndef get_user_choice(): ...\ndef judge(robot, user): ...\ndef play_round(motion, audio): ...', workspaceFile: 'ros2_ws/src/swayform_demos/rock_paper_scissors.py' },
+                    { type: 'code', lang: 'python', filename: 'rock_paper_scissors.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef countdown(audio): ...\ndef get_user_choice(): ...\ndef judge(robot, user): ...\ndef play_round(motion, audio): ...', workspaceFile: 'swayform_ws/src/swayform_demos/rock_paper_scissors.py' },
                   ],
                 },
                 {
@@ -771,7 +774,7 @@ export const LEARNING_PATH = {
             {
               id: 'interactive-exchange', title: 'Interactive Exchange', kind: 'activity', difficulty: 'advanced', estimatedTime: '10–15 minutes',
               summary: 'A full state-machine interaction: accept, set aside, and hand back.',
-              workspaceFile: 'ros2_ws/src/swayform_demos/interactive_exchange.py',
+              workspaceFile: 'swayform_ws/src/swayform_demos/interactive_exchange.py',
               relatedConcepts: ['State machines', 'enum.Enum'],
               steps: [
                 {
@@ -788,7 +791,7 @@ export const LEARNING_PATH = {
                   id: 'open-the-file', title: 'Open the Starter File',
                   blocks: [
                     { type: 'p', text: 'Interactive Exchange is a finished, working demo. Open it now.' },
-                    { type: 'code', lang: 'python', filename: 'interactive_exchange.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\nclass ExchangeState(enum.Enum): ...\ndef wait_for_item(camera, timeout): ...\ndef run_exchange(motion, audio): ...', workspaceFile: 'ros2_ws/src/swayform_demos/interactive_exchange.py' },
+                    { type: 'code', lang: 'python', filename: 'interactive_exchange.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\nclass ExchangeState(enum.Enum): ...\ndef wait_for_item(camera, timeout): ...\ndef run_exchange(motion, audio): ...', workspaceFile: 'swayform_ws/src/swayform_demos/interactive_exchange.py' },
                   ],
                 },
                 {
@@ -847,7 +850,7 @@ export const LEARNING_PATH = {
             {
               id: 'finger-curl', title: 'Finger Curl', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
               summary: 'Your first robot-control program — curl one finger, then return it.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_01_finger_curl.py',
               relatedConcepts: ['Choosing a joint', 'Sending a movement', 'Waiting', 'Returning to start'],
               steps: [
                 {
@@ -874,7 +877,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_01_finger_curl.py', code: 'FINGER_JOINT = "right_index_finger"\nSTART_ANGLE = 10\nCURL_ANGLE = 80\nHOLD_SECONDS = 1.0\n\ndef curl_finger(motion):\n    motion.move_joint(FINGER_JOINT, CURL_ANGLE)\n    time.sleep(HOLD_SECONDS)\n    # TODO: move FINGER_JOINT back to START_ANGLE', workspaceFile: 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_01_finger_curl.py', code: 'FINGER_JOINT = "right_index_finger"\nSTART_ANGLE = 10\nCURL_ANGLE = 80\nHOLD_SECONDS = 1.0\n\ndef curl_finger(motion):\n    motion.move_joint(FINGER_JOINT, CURL_ANGLE)\n    time.sleep(HOLD_SECONDS)\n    # TODO: move FINGER_JOINT back to START_ANGLE', workspaceFile: 'swayform_ws/src/swayform_labs/lab_01_finger_curl.py' },
                   ],
                 },
                 {
@@ -919,7 +922,7 @@ export const LEARNING_PATH = {
             {
               id: 'nod-yes', title: 'Nod Yes', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
               summary: 'Make the head nod yes — a small sequence with two directions and a return to center.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_02_nod_yes.py',
               relatedConcepts: ['Sequences', 'Timing', 'Symmetric motion'],
               steps: [
                 {
@@ -946,7 +949,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_02_nod_yes.py', code: 'HEAD_PITCH = "head_pitch"\nCENTER = 0\nNOD_DOWN = -20\nNOD_UP = 20\nNOD_HOLD_SECONDS = 0.4\n\ndef nod_yes(motion):\n    motion.move_joint(HEAD_PITCH, NOD_DOWN)\n    time.sleep(NOD_HOLD_SECONDS)\n    # TODO: move HEAD_PITCH to NOD_UP, then wait NOD_HOLD_SECONDS\n    motion.move_joint(HEAD_PITCH, CENTER)', workspaceFile: 'ros2_ws/src/swayform_labs/lab_02_nod_yes.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_02_nod_yes.py', code: 'HEAD_PITCH = "head_pitch"\nCENTER = 0\nNOD_DOWN = -20\nNOD_UP = 20\nNOD_HOLD_SECONDS = 0.4\n\ndef nod_yes(motion):\n    motion.move_joint(HEAD_PITCH, NOD_DOWN)\n    time.sleep(NOD_HOLD_SECONDS)\n    # TODO: move HEAD_PITCH to NOD_UP, then wait NOD_HOLD_SECONDS\n    motion.move_joint(HEAD_PITCH, CENTER)', workspaceFile: 'swayform_ws/src/swayform_labs/lab_02_nod_yes.py' },
                   ],
                 },
                 {
@@ -991,7 +994,7 @@ export const LEARNING_PATH = {
             {
               id: 'timed-torso-rotation', title: 'Timed Torso Rotation', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
               summary: 'Rotate the torso through a predictable center → right → left → center sequence.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_timed_torso_rotation.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_03_timed_torso_rotation.py',
               relatedConcepts: ['Sequences', 'Pauses', 'Predictable motion'],
               steps: [
                 {
@@ -1018,7 +1021,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_03_timed_torso_rotation.py', code: 'TORSO_YAW = "torso_yaw"\nCENTER = 0\nROTATE_RIGHT = 30\nROTATE_LEFT = -30\nPAUSE_SECONDS = 0.6\n\ndef rotate_torso(motion):\n    motion.move_joint(TORSO_YAW, ROTATE_RIGHT)\n    time.sleep(PAUSE_SECONDS)\n    motion.move_joint(TORSO_YAW, ROTATE_LEFT)\n    # TODO: wait PAUSE_SECONDS, then move TORSO_YAW back to CENTER', workspaceFile: 'ros2_ws/src/swayform_labs/lab_03_timed_torso_rotation.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_03_timed_torso_rotation.py', code: 'TORSO_YAW = "torso_yaw"\nCENTER = 0\nROTATE_RIGHT = 30\nROTATE_LEFT = -30\nPAUSE_SECONDS = 0.6\n\ndef rotate_torso(motion):\n    motion.move_joint(TORSO_YAW, ROTATE_RIGHT)\n    time.sleep(PAUSE_SECONDS)\n    motion.move_joint(TORSO_YAW, ROTATE_LEFT)\n    # TODO: wait PAUSE_SECONDS, then move TORSO_YAW back to CENTER', workspaceFile: 'swayform_ws/src/swayform_labs/lab_03_timed_torso_rotation.py' },
                   ],
                 },
                 {
@@ -1069,7 +1072,7 @@ export const LEARNING_PATH = {
             {
               id: 'basic-handshake', title: 'Basic Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '15–20 minutes',
               summary: 'Combine two joints — bend the elbow and curl the fingers together.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_basic_handshake.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_04_basic_handshake.py',
               relatedConcepts: ['Combining joints', 'Hand poses'],
               steps: [
                 {
@@ -1095,7 +1098,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_04_basic_handshake.py', code: 'RIGHT_ELBOW = "right_elbow"\nELBOW_BEND = 60\nELBOW_START = 0\nHOLD_SECONDS = 1.5\n\ndef basic_handshake(motion):\n    motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)\n    # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")\n    time.sleep(HOLD_SECONDS)\n    motion.set_hand_pose("right_hand", "open")\n    motion.move_joint(RIGHT_ELBOW, ELBOW_START)', workspaceFile: 'ros2_ws/src/swayform_labs/lab_04_basic_handshake.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_04_basic_handshake.py', code: 'RIGHT_ELBOW = "right_elbow"\nELBOW_BEND = 60\nELBOW_START = 0\nHOLD_SECONDS = 1.5\n\ndef basic_handshake(motion):\n    motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)\n    # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")\n    time.sleep(HOLD_SECONDS)\n    motion.set_hand_pose("right_hand", "open")\n    motion.move_joint(RIGHT_ELBOW, ELBOW_START)', workspaceFile: 'swayform_ws/src/swayform_labs/lab_04_basic_handshake.py' },
                   ],
                 },
                 {
@@ -1139,7 +1142,7 @@ export const LEARNING_PATH = {
             {
               id: 'keyboard-torso-control', title: 'Keyboard Torso Control', kind: 'activity', difficulty: 'intermediate', estimatedTime: '20–25 minutes',
               summary: 'Drive the torso left and right from live keyboard input, safely clamped.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_keyboard_torso_control.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_05_keyboard_torso_control.py',
               relatedConcepts: ['Keyboard input', 'Clamping', 'Safe limits'],
               steps: [
                 {
@@ -1165,7 +1168,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_05_keyboard_torso_control.py', code: 'TORSO_YAW = "torso_yaw"\nTORSO_STEP = 10\nTORSO_MIN = -45\nTORSO_MAX = 45\nSTOP_KEY = "q"\n\ndef handle_key(motion, key, current_angle):\n    if key == "LEFT":\n        current_angle -= TORSO_STEP\n    elif key == "RIGHT":\n        current_angle += TORSO_STEP\n    # TODO: clamp current_angle between TORSO_MIN and TORSO_MAX\n    motion.move_joint(TORSO_YAW, current_angle)\n    return current_angle', workspaceFile: 'ros2_ws/src/swayform_labs/lab_05_keyboard_torso_control.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_05_keyboard_torso_control.py', code: 'TORSO_YAW = "torso_yaw"\nTORSO_STEP = 10\nTORSO_MIN = -45\nTORSO_MAX = 45\nSTOP_KEY = "q"\n\ndef handle_key(motion, key, current_angle):\n    if key == "LEFT":\n        current_angle -= TORSO_STEP\n    elif key == "RIGHT":\n        current_angle += TORSO_STEP\n    # TODO: clamp current_angle between TORSO_MIN and TORSO_MAX\n    motion.move_joint(TORSO_YAW, current_angle)\n    return current_angle', workspaceFile: 'swayform_ws/src/swayform_labs/lab_05_keyboard_torso_control.py' },
                   ],
                 },
                 {
@@ -1209,7 +1212,7 @@ export const LEARNING_PATH = {
             {
               id: 'keyboard-head-control', title: 'Keyboard Head Control', kind: 'activity', difficulty: 'intermediate', estimatedTime: '20–25 minutes',
               summary: 'Drive head pitch and yaw from the keyboard for Yes/No-style control.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_06_keyboard_head_control.py',
               relatedConcepts: ['Keyboard input', 'Two independent axes'],
               steps: [
                 {
@@ -1235,7 +1238,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_06_keyboard_head_control.py', code: 'HEAD_PITCH = "head_pitch"\nHEAD_YAW = "head_yaw"\nSTEP = 8\nPITCH_MIN, PITCH_MAX = -20, 20\nYAW_MIN, YAW_MAX = -35, 35\n\ndef handle_key(motion, key, current_pitch, current_yaw):\n    if key == "UP":\n        current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    elif key == "DOWN":\n        current_pitch = max(min(current_pitch - STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    # TODO: handle "LEFT" and "RIGHT" the same way, using current_yaw and HEAD_YAW\n    return current_pitch, current_yaw', workspaceFile: 'ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_06_keyboard_head_control.py', code: 'HEAD_PITCH = "head_pitch"\nHEAD_YAW = "head_yaw"\nSTEP = 8\nPITCH_MIN, PITCH_MAX = -20, 20\nYAW_MIN, YAW_MAX = -35, 35\n\ndef handle_key(motion, key, current_pitch, current_yaw):\n    if key == "UP":\n        current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    elif key == "DOWN":\n        current_pitch = max(min(current_pitch - STEP, PITCH_MAX), PITCH_MIN)\n        motion.move_joint(HEAD_PITCH, current_pitch)\n    # TODO: handle "LEFT" and "RIGHT" the same way, using current_yaw and HEAD_YAW\n    return current_pitch, current_yaw', workspaceFile: 'swayform_ws/src/swayform_labs/lab_06_keyboard_head_control.py' },
                   ],
                 },
                 {
@@ -1285,7 +1288,7 @@ export const LEARNING_PATH = {
             {
               id: 'full-handshake', title: 'Full Handshake', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
               summary: 'Command the complete handshake behavior directly, no camera involved.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_full_handshake.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_07_full_handshake.py',
               relatedConcepts: ['Setup → behavior → cleanup', 'finally blocks'],
               steps: [
                 {
@@ -1312,7 +1315,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_07_full_handshake.py', code: 'RIGHT_ARM_RAISED = {"right_shoulder": 45, "right_elbow": 60}\nRIGHT_ARM_HOME = {"right_shoulder": 0, "right_elbow": 0}\nHOLD_SECONDS = 1.5\n\ndef full_handshake(motion):\n    try:\n        motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)\n        motion.set_hand_pose("right_hand", "gentle_close")\n        time.sleep(HOLD_SECONDS)\n        motion.set_hand_pose("right_hand", "open")\n    finally:\n        # TODO: return the arm home using motion.move_joint_group\n        pass', workspaceFile: 'ros2_ws/src/swayform_labs/lab_07_full_handshake.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_07_full_handshake.py', code: 'RIGHT_ARM_RAISED = {"right_shoulder": 45, "right_elbow": 60}\nRIGHT_ARM_HOME = {"right_shoulder": 0, "right_elbow": 0}\nHOLD_SECONDS = 1.5\n\ndef full_handshake(motion):\n    try:\n        motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)\n        motion.set_hand_pose("right_hand", "gentle_close")\n        time.sleep(HOLD_SECONDS)\n        motion.set_hand_pose("right_hand", "open")\n    finally:\n        # TODO: return the arm home using motion.move_joint_group\n        pass', workspaceFile: 'swayform_ws/src/swayform_labs/lab_07_full_handshake.py' },
                   ],
                 },
                 {
@@ -1356,7 +1359,7 @@ export const LEARNING_PATH = {
             {
               id: 'wave-lab', title: 'Wave', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
               summary: 'Write the repeating loop behind SwayForm’s wave yourself.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_wave.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_08_wave.py',
               relatedConcepts: ['Loops', 'Repetition'],
               steps: [
                 {
@@ -1384,7 +1387,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_08_wave.py', code: 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3\n\ndef wave_once(motion):\n    motion.move_joint("right_wrist", -20)\n    time.sleep(WAVE_DELAY_SECONDS)\n    motion.move_joint("right_wrist", 20)\n    time.sleep(WAVE_DELAY_SECONDS)\n\ndef wave(motion):\n    # TODO: call wave_once() WAVE_CYCLES times, using a for loop\n    pass', workspaceFile: 'ros2_ws/src/swayform_labs/lab_08_wave.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_08_wave.py', code: 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3\n\ndef wave_once(motion):\n    motion.move_joint("right_wrist", -20)\n    time.sleep(WAVE_DELAY_SECONDS)\n    motion.move_joint("right_wrist", 20)\n    time.sleep(WAVE_DELAY_SECONDS)\n\ndef wave(motion):\n    # TODO: call wave_once() WAVE_CYCLES times, using a for loop\n    pass', workspaceFile: 'swayform_ws/src/swayform_labs/lab_08_wave.py' },
                   ],
                 },
                 {
@@ -1428,7 +1431,7 @@ export const LEARNING_PATH = {
             {
               id: 'rps-lab', title: 'Rock Paper Scissors', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
               summary: 'A timed rock-paper-scissors reveal: ready, countdown, selected hand pose.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_rock_paper_scissors.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_09_rock_paper_scissors.py',
               relatedConcepts: ['Timing', 'Randomness'],
               steps: [
                 {
@@ -1454,7 +1457,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_09_rock_paper_scissors.py', code: 'CHOICES = ["rock", "paper", "scissors"]\nCOUNTDOWN_SECONDS = 1.0\n\ndef countdown():\n    for number in [3, 2, 1]:\n        print(number)\n        # TODO: pause COUNTDOWN_SECONDS after printing each number\n\ndef play(motion):\n    choice = random.choice(CHOICES)\n    countdown()\n    motion.set_hand_pose("right_hand", choice)\n    print(f"SwayForm chose: {choice}")', workspaceFile: 'ros2_ws/src/swayform_labs/lab_09_rock_paper_scissors.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_09_rock_paper_scissors.py', code: 'CHOICES = ["rock", "paper", "scissors"]\nCOUNTDOWN_SECONDS = 1.0\n\ndef countdown():\n    for number in [3, 2, 1]:\n        print(number)\n        # TODO: pause COUNTDOWN_SECONDS after printing each number\n\ndef play(motion):\n    choice = random.choice(CHOICES)\n    countdown()\n    motion.set_hand_pose("right_hand", choice)\n    print(f"SwayForm chose: {choice}")', workspaceFile: 'swayform_ws/src/swayform_labs/lab_09_rock_paper_scissors.py' },
                   ],
                 },
                 {
@@ -1503,7 +1506,7 @@ export const LEARNING_PATH = {
             {
               id: 'combined-keyboard-control', title: 'Combined Keyboard Control', kind: 'activity', difficulty: 'advanced', estimatedTime: '25–35 minutes',
               summary: 'Control the head and torso from the keyboard at the same time — the Control Level 1 capstone.',
-              workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py',
+              workspaceFile: 'swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py',
               relatedConcepts: ['Combining systems', 'Input routing'],
               steps: [
                 {
@@ -1530,7 +1533,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'build-it', title: 'Build It',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'lab_10_combined_keyboard_control.py', code: 'HEAD_KEYS = {"w", "a", "s", "d"}\nTORSO_KEYS = {"LEFT", "RIGHT"}\n\ndef handle_key(motion, key, state):\n    if key in HEAD_KEYS:\n        state["head"] = handle_head_key(motion, key, state["head"])\n    # TODO: add an elif for TORSO_KEYS that calls handle_torso_key(...)\n    return state', workspaceFile: 'ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py' },
+                    { type: 'code', lang: 'python', filename: 'lab_10_combined_keyboard_control.py', code: 'HEAD_KEYS = {"w", "a", "s", "d"}\nTORSO_KEYS = {"LEFT", "RIGHT"}\n\ndef handle_key(motion, key, state):\n    if key in HEAD_KEYS:\n        state["head"] = handle_head_key(motion, key, state["head"])\n    # TODO: add an elif for TORSO_KEYS that calls handle_torso_key(...)\n    return state', workspaceFile: 'swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py' },
                   ],
                 },
                 {

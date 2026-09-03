@@ -46,8 +46,8 @@ export function resetAll(){
 /** Builds a nested tree from the flat path list for the file explorer.
  *  { type:'folder', name, path, children:[...] } | { type:'file', name, path } */
 export function buildTree(){
-  const root = { type: 'folder', name: 'ros2_ws', path: 'ros2_ws', children: [] };
-  const folders = { 'ros2_ws': root };
+  const root = { type: 'folder', name: 'swayform_ws', path: 'swayform_ws', children: [] };
+  const folders = { 'swayform_ws': root };
 
   listPaths().forEach((path) => {
     const parts = path.split('/');

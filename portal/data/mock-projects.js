@@ -14,7 +14,7 @@ export const MOCK_PROJECTS = [
     lastEdited: "2026-08-03T16:10:00",
     associatedActivityId: "finger-curl",
     status: "in-progress",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_01_finger_curl.py",
+    workspaceFile: "swayform_ws/src/swayform_labs/lab_01_finger_curl.py",
     summary: "Commands individual servo joints to safe positions using the motion client's basic pose interface.",
   },
   {
@@ -23,7 +23,7 @@ export const MOCK_PROJECTS = [
     lastEdited: "2026-07-30T11:05:00",
     associatedActivityId: "keyboard-head-control",
     status: "submitted",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_06_keyboard_head_control.py",
+    workspaceFile: "swayform_ws/src/swayform_labs/lab_06_keyboard_head_control.py",
     summary: "Drives head pitch and yaw from live keyboard input, clamped inside a safe range on both axes.",
   },
   {
@@ -32,7 +32,7 @@ export const MOCK_PROJECTS = [
     lastEdited: "2026-07-24T09:40:00",
     associatedActivityId: "full-handshake",
     status: "needs-changes",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_07_full_handshake.py",
+    workspaceFile: "swayform_ws/src/swayform_labs/lab_07_full_handshake.py",
     summary: "Builds a custom multi-step arm sequence — raise, grip, hold, release, return — beyond the built-in demo poses.",
   },
   {
@@ -41,7 +41,7 @@ export const MOCK_PROJECTS = [
     lastEdited: "2026-07-19T15:00:00",
     associatedActivityId: "combined-keyboard-control",
     status: "draft",
-    workspaceFile: "ros2_ws/src/swayform_labs/lab_10_combined_keyboard_control.py",
+    workspaceFile: "swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py",
     summary: "Routes keyboard input to either the head or torso handler, combining two independent control systems into one program.",
   },
 ];

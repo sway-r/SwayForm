@@ -5,8 +5,18 @@
  *
  * One instance manages one "desktop" element (here: the Activity Workspace's
  * body). Apps are registered lazily — nothing mounts until first `open()`.
- * Layout (position/size/minimized/maximized/open) persists to localStorage,
- * shared across activities by design (see workspace-layout-service below).
+ * Layout (position/size/minimized/maximized/open) persists to localStorage
+ * under a caller-supplied storageKey — activity-workspace.js scopes that key
+ * per activity.id, so each activity remembers its own arrangement.
+ *
+ * A window that's never been dragged/resized/snapped stays "pristine": its
+ * bounds are always re-derived from the percentage-based defaultLayout
+ * against the CURRENT desktop size (on open and on every resize), rather
+ * than trusting whatever pixel bounds got persisted last time — otherwise
+ * reopening on a differently-sized desktop (portal window not maximized,
+ * a different monitor, a fullscreen toggle) reapplies stale pixels sized
+ * for a different viewport. The moment a window is actually customized,
+ * `pristine` flips to false and its saved bounds are respected as-is.
  */
 import { icon } from '../../../icons.js';
 
@@ -71,19 +81,23 @@ export class WorkspaceWindowManager {
   }
 
   _defaultBoundsFor(id) {
-    return this._boundsFromPct(this.defaultLayout[id] || {});
+    const cfg = this.apps.get(id) || {};
+    return this._boundsFromPct(this.defaultLayout[id] || {}, cfg.minWidth, cfg.minHeight);
   }
 
-  _boundsFromPct(d) {
-    const { w, h } = this._desktopBounds();
-    return {
-      x: Math.round((d.xPct != null ? d.xPct : 4) / 100 * w),
-      y: Math.round((d.yPct != null ? d.yPct : 4) / 100 * h),
-      w: Math.round((d.wPct != null ? d.wPct : 40) / 100 * w),
-      h: Math.round((d.hPct != null ? d.hPct : 80) / 100 * h),
-      minimized: !!d.minimized,
-      maximized: !!d.maximized,
-    };
+  /** minW/minH floor the computed size at each app's registered minWidth/
+   *  minHeight (falling back to the global MIN_W/MIN_H) — without this, a
+   *  percentage of a narrow desktop can land well under what the app can
+   *  actually render (e.g. the Notebook shrinking to ~160px and going
+   *  effectively blank). x/y are then clamped so a floored window never
+   *  hangs off the right/bottom edge. */
+  _boundsFromPct(d, minW, minH) {
+    const { w: dw, h: dh } = this._desktopBounds();
+    const w = Math.min(dw, Math.max(minW || MIN_W, Math.round((d.wPct != null ? d.wPct : 40) / 100 * dw)));
+    const h = Math.min(dh, Math.max(minH || MIN_H, Math.round((d.hPct != null ? d.hPct : 80) / 100 * dh)));
+    const x = clamp(Math.round((d.xPct != null ? d.xPct : 4) / 100 * dw), 0, Math.max(0, dw - w));
+    const y = clamp(Math.round((d.yPct != null ? d.yPct : 4) / 100 * dh), 0, Math.max(0, dh - h));
+    return { x, y, w, h, minimized: !!d.minimized, maximized: !!d.maximized };
   }
 
   /** Apply an explicit named layout (e.g. a preset) — same shape as
@@ -93,10 +107,14 @@ export class WorkspaceWindowManager {
     this.apps.forEach((cfg, id) => {
       const d = layoutMap[id];
       if (!d) { this.close(id); return; }
-      const bounds = this._boundsFromPct(d);
+      const bounds = this._boundsFromPct(d, cfg.minWidth, cfg.minHeight);
       const w = this.open(id, { silent: true });
       w.maximized = false;
       w.x = bounds.x; w.y = bounds.y; w.w = bounds.w; w.h = bounds.h;
+      // An explicit preset (e.g. "Learn + Code") is a deliberate non-default
+      // arrangement — mark it customized so a later desktop resize clamps
+      // it in place instead of snapping it back to the tiled default.
+      w.pristine = false;
       this._applyBounds(w);
       if (d.minimized) this.minimize(id);
     });
@@ -117,7 +135,7 @@ export class WorkspaceWindowManager {
     // that hasn't been open()'d yet (e.g. mid-boot-sequence), before its own
     // open() call gets a chance to read it back.
     this.windows.forEach((w, id) => {
-      this._layout[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: w.minimized, maximized: w.maximized, open: w.open, prevBounds: w.prevBounds };
+      this._layout[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: w.minimized, maximized: w.maximized, open: w.open, prevBounds: w.prevBounds, pristine: w.pristine };
     });
     try { localStorage.setItem(this.storageKey, JSON.stringify(this._layout)); } catch (e) { /* noop */ }
   }
@@ -151,16 +169,40 @@ export class WorkspaceWindowManager {
     let w = this.windows.get(id);
     if (!w) {
       const persisted = this._layout[id];
-      const base = persisted && (persisted.w || persisted.x != null) ? persisted : this._defaultBoundsFor(id);
+      // Only trust persisted pixel bounds once the student has actually
+      // dragged/resized/snapped this window ("pristine" is false). A window
+      // that's never been touched re-derives its bounds fresh from the
+      // percentage-based default every time, against the CURRENT desktop
+      // size — otherwise reopening an activity on a differently-sized
+      // desktop (portal window not maximized this time, a different
+      // monitor, browser fullscreen toggled) reapplied stale pixel bounds
+      // computed for whatever size the desktop happened to be the last
+      // time this activity was opened, which is what made the tiled
+      // default layout look broken/overlapping until "Workspace" (which
+      // resets and clears persisted bounds entirely) was clicked.
+      const customized = persisted && persisted.pristine === false;
+      const base = customized ? persisted : this._defaultBoundsFor(id);
       w = {
         id, title: cfg.title,
         x: base.x, y: base.y, w: base.w, h: base.h,
         minimized: false, maximized: !!base.maximized, open: true,
         prevBounds: base.prevBounds || null,
+        pristine: !customized,
+        minW: cfg.minWidth || MIN_W, minH: cfg.minHeight || MIN_H,
         el: null, bodyEl: null, instance: null,
       };
       this.windows.set(id, w);
       this._createEl(w, cfg);
+    }
+    // A maximized window's stored x/y/w/h are a snapshot of the desktop size
+    // at the moment it was maximized — reopening it (e.g. after a reload,
+    // or a viewport resize since it was closed) must refit to the CURRENT
+    // desktop, matching what _reclampAll already does on a live resize.
+    // Otherwise it renders "maximized" at stale dimensions with its resize
+    // handles hidden and dragging disabled — a stuck window.
+    if (w.maximized) {
+      const { w: dw, h: dh } = this._desktopBounds();
+      w.x = 0; w.y = 0; w.w = dw; w.h = dh;
     }
     w.open = true;
     w.minimized = false;
@@ -180,7 +222,7 @@ export class WorkspaceWindowManager {
     this.windows.delete(id);
     if (this.activeId === id) this.activeId = null;
     // Keep a "closed" record so geometry is remembered if reopened this session.
-    this._layout[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: false, maximized: w.maximized, open: false, prevBounds: w.prevBounds };
+    this._layout[id] = { x: w.x, y: w.y, w: w.w, h: w.h, minimized: false, maximized: w.maximized, open: false, prevBounds: w.prevBounds, pristine: w.pristine };
     try { localStorage.setItem(this.storageKey, JSON.stringify(this._layout)); } catch (e) { /* noop */ }
     this._notify();
   }
@@ -302,11 +344,24 @@ export class WorkspaceWindowManager {
     const { w: dw, h: dh } = this._desktopBounds();
     this.windows.forEach((w) => {
       if (w.maximized) { w.x = 0; w.y = 0; w.w = dw; w.h = dh; this._applyBounds(w); return; }
+      if (w.pristine) {
+        // Never dragged/resized/snapped — always re-derive from the
+        // percentage default against the CURRENT desktop size instead of
+        // clamping stale pixels. Clamping each tiled window independently
+        // doesn't preserve their relationship to each other, so a viewport
+        // change (fullscreen toggle, browser resize, a narrower/taller
+        // window) could leave the default tiled layout overlapping even
+        // though every individual window was still technically "in bounds".
+        const b = this._defaultBoundsFor(w.id);
+        w.x = b.x; w.y = b.y; w.w = b.w; w.h = b.h;
+        this._applyBounds(w);
+        return;
+      }
       // Full containment on an automatic reclamp (viewport resize) — unlike
       // the interactive drag clamp, a window must never end up with its
       // title bar controls hanging off the edge after the browser resizes.
-      w.w = Math.min(w.w, Math.max(MIN_W, dw));
-      w.h = Math.min(w.h, Math.max(MIN_H, dh));
+      w.w = Math.min(w.w, Math.max(w.minW || MIN_W, dw));
+      w.h = Math.min(w.h, Math.max(w.minH || MIN_H, dh));
       w.x = clamp(w.x, 0, Math.max(0, dw - w.w));
       w.y = clamp(w.y, 0, Math.max(0, dh - w.h));
       this._applyBounds(w);
@@ -320,7 +375,6 @@ export class WorkspaceWindowManager {
     let drag = null;
     handle.addEventListener('mousedown', (e) => {
       if (e.target.closest('.ww-ctrl')) return;
-      if (w.maximized) return;
       drag = { sx: e.clientX, sy: e.clientY, x0: w.x, y0: w.y, moved: false };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -331,6 +385,19 @@ export class WorkspaceWindowManager {
         const dist = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy);
         if (dist < DRAG_THRESHOLD) return;
         drag.moved = true;
+        if (w.maximized) {
+          // Dragging a maximized window's titlebar restores it first (standard
+          // desktop-OS convention) instead of doing nothing, keeping the cursor
+          // at the same relative x-offset on the titlebar it grabbed so the
+          // window doesn't jump out from underneath it.
+          const grabFrac = (drag.sx - w.x) / w.w;
+          const p = w.prevBounds || this._defaultBoundsFor(w.id);
+          w.maximized = false;
+          w.w = p.w; w.h = p.h;
+          w.x = drag.sx - grabFrac * w.w;
+          w.y = 0;
+          drag.x0 = w.x; drag.y0 = w.y;
+        }
         w.el.classList.add('ww-dragging');
         document.body.classList.add('ww-no-select');
       }
@@ -350,6 +417,7 @@ export class WorkspaceWindowManager {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       if (!moved) return; // plain click (or the first half of a dblclick) — not a drag, nothing to snap/persist
+      w.pristine = false;
       w.el.classList.remove('ww-dragging');
       document.body.classList.remove('ww-no-select');
       const zone = this._snapZoneFor(e);
@@ -384,6 +452,7 @@ export class WorkspaceWindowManager {
 
   _applySnap(w, zone) {
     const { w: dw, h: dh } = this._desktopBounds();
+    w.pristine = false;
     if (w.maximized) { w.maximized = false; }
     if (zone === 'full') { w.prevBounds = { x: w.x, y: w.y, w: w.w, h: w.h }; w.x = 0; w.y = 0; w.w = dw; w.h = dh; w.maximized = true; }
     else if (zone === 'left') { w.x = 0; w.y = 0; w.w = dw / 2; w.h = dh; }
@@ -409,15 +478,17 @@ export class WorkspaceWindowManager {
       const { w: dw, h: dh } = this._desktopBounds();
       const dx = e.clientX - start.sx, dy = e.clientY - start.sy;
       let { x, y, w: ww, h: hh } = start;
-      if (dir.includes('e')) ww = clamp(start.w + dx, MIN_W, dw - x);
-      if (dir.includes('s')) hh = clamp(start.h + dy, MIN_H, dh - y);
-      if (dir.includes('w')) { const newW = clamp(start.w - dx, MIN_W, start.x + start.w); x = start.x + start.w - newW; ww = newW; }
-      if (dir.includes('n')) { const newH = clamp(start.h - dy, MIN_H, start.y + start.h); y = start.y + start.h - newH; hh = newH; }
+      const minW = w.minW || MIN_W, minH = w.minH || MIN_H;
+      if (dir.includes('e')) ww = clamp(start.w + dx, minW, dw - x);
+      if (dir.includes('s')) hh = clamp(start.h + dy, minH, dh - y);
+      if (dir.includes('w')) { const newW = clamp(start.w - dx, minW, start.x + start.w); x = start.x + start.w - newW; ww = newW; }
+      if (dir.includes('n')) { const newH = clamp(start.h - dy, minH, start.y + start.h); y = start.y + start.h - newH; hh = newH; }
       w.x = x; w.y = y; w.w = ww; w.h = hh;
       this._applyBounds(w);
     };
     const onUp = () => {
       start = null;
+      w.pristine = false;
       document.body.className = document.body.className.replace(/ww-resizing-cursor-\S+/g, '').replace('ww-no-select', '');
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);

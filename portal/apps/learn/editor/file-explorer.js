@@ -35,10 +35,18 @@ export class FileExplorer {
     });
   }
 
-  _expandDefaults(node, depth = 0){
+  // Expand every folder by default — the workspace tree is a small, curated
+  // set of files (a couple dozen across 3 packages), not a real large repo,
+  // so there's no depth past which auto-expanding stops being worth it. A
+  // fixed depth cutoff previously hid real content: swayform_robot's actual
+  // behavior/hardware source lives nested a package dir deep (ROS 2's
+  // src/<pkg>/<pkg>/ convention), which put behaviors/, config/, hardware/
+  // (and everything in them — wave.py, handshake.py, servo_control.py...)
+  // past the cutoff, collapsed and effectively invisible on first open.
+  _expandDefaults(node){
     if (node.type !== 'folder') return;
-    if (depth < 3) this.expanded.add(node.path);
-    node.children.forEach((c) => this._expandDefaults(c, depth + 1));
+    this.expanded.add(node.path);
+    node.children.forEach((c) => this._expandDefaults(c));
   }
 
   _renderNode(node, depth){

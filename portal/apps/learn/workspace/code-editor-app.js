@@ -19,6 +19,11 @@ export function mount(bodyEl, winApi, opts) {
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
 
+  // Scope the explorer to just this activity's own file — a student working
+  // through the Wave demo (or any one lab) doesn't need every other demo/lab
+  // in the workspace competing for attention in the tree.
+  const explorerScope = activity.workspaceFile ? [activity.workspaceFile] : null;
+
   bodyEl.innerHTML = `
     <div class="ce-root">
       <div class="learn-toolbar" data-toolbar></div>
@@ -81,7 +86,7 @@ export function mount(bodyEl, winApi, opts) {
   toolbar.setFileStatus('No file open');
 
   function refreshExplorer(){
-    explorer.render(fs.buildTree(), tabs.activePath);
+    explorer.render(fs.buildTree(explorerScope), tabs.activePath);
   }
 
   function openFile(path, fileOpts){

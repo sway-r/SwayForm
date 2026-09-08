@@ -47,8 +47,8 @@ export const WORKSPACE_FILES = {
      public-src branch, src/swayform_robot/swayform_robot/): this is the
      actual code running on the robot for wave/handshake/idle/finger_wave —
      not a teaching simplification. See swayform_demos/ below for the
-     planned-but-not-yet-real demos (pick and place, rock paper scissors,
-     interactive exchange), which stay separate until they're real too. === */
+     planned-but-not-yet-real demos (pick and place, rock paper scissors),
+     which stay separate until they're real too. === */
 
   "swayform_ws/src/swayform_robot/package.xml": `<?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
@@ -430,8 +430,9 @@ if __name__ == "__main__":
   "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""
 handshake.py
 
-Handshake behavior — direct PCA9685 control. Extends the arm, opens the
-hand, shakes, then returns to center.
+Handshake behavior — direct PCA9685 control. Reaches forward, grips,
+shakes by pumping the shoulder pitch up and down, then opens the hand and
+returns to center.
 
 Run:
     ros2 run swayform_robot handshake                                 # mock by default
@@ -446,10 +447,14 @@ Or import and trigger it programmatically:
 Importing this module never touches hardware — all I2C/PCA9685 setup
 happens inside perform_handshake() itself.
 
-Choreography and joint values are ported 1:1 from the pre-2026-08-12
-version of this file (retargeted to that recalibration) — see
-docs/legacy/handshake_reference.md for how the original (pre-recalibration)
-choreography was preserved before its old joint values were retired.
+Sequence: reach (shoulder pitch forward, elbow bent in, hand open) -> hold
+2s -> grip (fingers + thumb curl in over 2s) -> shake (elbow pumps ±5°, 3
+cycles — shoulder pitch stays put) -> open hand and return everything to
+center.
+
+CENTERS/LIMITS/SERVO_RANGES below match robot.yaml's current calibration
+(re-verified on real hardware 2026-08-14 — same values wave.py uses), not
+the pre-recalibration numbers this file carried before.
 
 This module is both the real implementation (perform_handshake, the
 function anything else calls) and the ROS2 node (HandshakeNode/main()) that
@@ -472,7 +477,7 @@ FINGERS = [1, 2, 3, 4]
 WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
-SHOULDER_REACH = 1  # on PCA_REACH
+SHOULDER_PITCH = 1  # on PCA_REACH
 
 CENTERS = {
     (PCA_HAND, THUMB): 50,
@@ -481,9 +486,9 @@ CENTERS = {
     (PCA_HAND, 3): 135,
     (PCA_HAND, 4): 135,
     (PCA_HAND, WRIST): 100,
-    (PCA_HAND, ELBOW): 90,
-    (PCA_HAND, SHOULDER_ROLL): 110,
-    (PCA_REACH, SHOULDER_REACH): 115,
+    (PCA_HAND, ELBOW): 130,
+    (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_REACH, SHOULDER_PITCH): 170,
 }
 
 LIMITS = {
@@ -493,20 +498,37 @@ LIMITS = {
     (PCA_HAND, 3): (50, 135),
     (PCA_HAND, 4): (50, 135),
     (PCA_HAND, WRIST): (60, 160),
-    (PCA_HAND, ELBOW): (20, 110),
-    (PCA_HAND, SHOULDER_ROLL): (50, 120),
-    (PCA_REACH, SHOULDER_REACH): (80, 160),
+    (PCA_HAND, ELBOW): (40, 140),
+    (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
-# ELBOW and SHOULDER_ROLL/SHOULDER_REACH are 270 ROM servos (elbow: 60kgcm
+# ELBOW and SHOULDER_ROLL/SHOULDER_PITCH are 270 ROM servos (elbow: 60kgcm
 # replacement; both shoulder axes: 270 from the start) — see robot.yaml.
-# CENTERS/LIMITS above are UNVERIFIED against this mapping and need
-# re-testing on real hardware.
+# CENTERS/LIMITS above match the mapping re-tested on real hardware
+# 2026-08-14 (same values as wave.py).
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
-    (PCA_REACH, SHOULDER_REACH): 270.0,
+    (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
+
+# Reach pose: shoulder pitch swings forward from center by this many degrees
+# (elbow's "bent all the way in" target is LIMITS[ELBOW][0] — the inward limit).
+REACH_PITCH_OFFSET = 50
+ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # backed off 20° from the full-bend limit
+
+# Shake: shoulder pitch pumps this many degrees above/below the reach
+# position, this many up-down cycles.
+SHAKE_OFFSET = 5
+SHAKE_CYCLES = 3
+
+REACH_DURATION = 1.5
+HOLD_BEFORE_GRIP = 2.0  # pause at the reach pose before closing the hand
+GRIP_DURATION = 2.0
+FINGER_CURL_AMOUNT = 40  # degrees fingers curl in from open — thumb still curls all the way
+SHAKE_STEP_DURATION = 0.3
+RETURN_DURATION = 2.0
 
 TICK_DELAY = 0.02  # matches the old motion_server's ~20ms interpolation tick
 
@@ -518,44 +540,54 @@ def _mv(addr, ch, target, duration):
             "servo_range": SERVO_RANGES.get((addr, ch), 180.0)}
 
 
-def extend_and_open(ctrl):
-    """Extend arm forward and open hand together (2.5s)."""
+def reach_forward(ctrl):
+    """Shoulder pitch swings forward, elbow bends all the way in, hand
+    stays open (thumb + fingers held at their open positions)."""
+    reach_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + REACH_PITCH_OFFSET
     ctrl.run_threads([
-        _mv(PCA_REACH, SHOULDER_REACH, 150.0, 2.5),
-        _mv(PCA_HAND, ELBOW, 110.0, 2.5),
-        _mv(PCA_HAND, SHOULDER_ROLL, 75.0, 2.5),
-        _mv(PCA_HAND, WRIST, 110.0, 2.5),
-        _mv(PCA_HAND, THUMB, 50.0, 2.5),
-        _mv(PCA_HAND, 1, 135.0, 2.5),
-        _mv(PCA_HAND, 2, 135.0, 2.5),
-        _mv(PCA_HAND, 3, 135.0, 2.5),
-        _mv(PCA_HAND, 4, 135.0, 2.5),
+        _mv(PCA_REACH, SHOULDER_PITCH, reach_target, REACH_DURATION),
+        _mv(PCA_HAND, ELBOW, ELBOW_BENT_IN, REACH_DURATION),
+        _mv(PCA_HAND, SHOULDER_ROLL, CENTERS[(PCA_HAND, SHOULDER_ROLL)], REACH_DURATION),
+        _mv(PCA_HAND, WRIST, CENTERS[(PCA_HAND, WRIST)], REACH_DURATION),
+        _mv(PCA_HAND, THUMB, CENTERS[(PCA_HAND, THUMB)], REACH_DURATION),
+        _mv(PCA_HAND, 1, CENTERS[(PCA_HAND, 1)], REACH_DURATION),
+        _mv(PCA_HAND, 2, CENTERS[(PCA_HAND, 2)], REACH_DURATION),
+        _mv(PCA_HAND, 3, CENTERS[(PCA_HAND, 3)], REACH_DURATION),
+        _mv(PCA_HAND, 4, CENTERS[(PCA_HAND, 4)], REACH_DURATION),
     ])
 
 
-def shake(ctrl):
-    """Shake oscillation — shoulder_reach only, fast."""
-    for target, duration in [(155.0, 0.35), (145.0, 0.35), (155.0, 0.30), (145.0, 0.30), (150.0, 0.30)]:
-        ctrl.run_threads([_mv(PCA_REACH, SHOULDER_REACH, target, duration)])
-
-
-def return_home(ctrl):
-    """Hand open, arm centered (2.0s)."""
+def grip(ctrl):
+    """Thumb curls in as far as its limit allows; fingers curl in only
+    FINGER_CURL_AMOUNT degrees from open (a light grip, not a full fist),
+    over GRIP_DURATION seconds."""
     ctrl.run_threads([
-        _mv(PCA_REACH, SHOULDER_REACH, 110.0, 2.0),
-        _mv(PCA_HAND, ELBOW, 90.0, 2.0),
-        _mv(PCA_HAND, SHOULDER_ROLL, 75.0, 2.0),
-        _mv(PCA_HAND, WRIST, 110.0, 2.0),
-        _mv(PCA_HAND, THUMB, 50.0, 2.0),
-        _mv(PCA_HAND, 1, 135.0, 2.0),
-        _mv(PCA_HAND, 2, 135.0, 2.0),
-        _mv(PCA_HAND, 3, 135.0, 2.0),
-        _mv(PCA_HAND, 4, 135.0, 2.0),
+        _mv(PCA_HAND, THUMB, LIMITS[(PCA_HAND, THUMB)][1], GRIP_DURATION),
+        _mv(PCA_HAND, 1, CENTERS[(PCA_HAND, 1)] - FINGER_CURL_AMOUNT, GRIP_DURATION),
+        _mv(PCA_HAND, 2, CENTERS[(PCA_HAND, 2)] - FINGER_CURL_AMOUNT, GRIP_DURATION),
+        _mv(PCA_HAND, 3, CENTERS[(PCA_HAND, 3)] - FINGER_CURL_AMOUNT, GRIP_DURATION),
+        _mv(PCA_HAND, 4, CENTERS[(PCA_HAND, 4)] - FINGER_CURL_AMOUNT, GRIP_DURATION),
     ])
+
+
+def shake(ctrl, elbow_base):
+    """Pump the elbow ±SHAKE_OFFSET degrees around \`elbow_base\`,
+    SHAKE_CYCLES up-down cycles, then settle back on elbow_base. Shoulder
+    pitch stays put — this is elbow-only."""
+    for _ in range(SHAKE_CYCLES):
+        ctrl.run_threads([_mv(PCA_HAND, ELBOW, elbow_base + SHAKE_OFFSET, SHAKE_STEP_DURATION)])
+        ctrl.run_threads([_mv(PCA_HAND, ELBOW, elbow_base - SHAKE_OFFSET, SHAKE_STEP_DURATION)])
+    ctrl.run_threads([_mv(PCA_HAND, ELBOW, elbow_base, SHAKE_STEP_DURATION)])
+
+
+def open_and_return(ctrl):
+    """Open the hand and bring every joint back to CENTERS."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
 
 
 def perform_handshake(mock=True):
-    """Run the full handshake sequence: extend+open -> shake -> return home.
+    """Run the full handshake sequence: reach forward -> hold -> grip ->
+    shake -> open hand and return to center.
 
     Holds the cross-process hardware_lock() for the whole sequence, and
     always closes its PCA9685 handles before returning, even on error.
@@ -564,16 +596,20 @@ def perform_handshake(mock=True):
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
         try:
-            print("Extending arm and opening hand...")
-            extend_and_open(ctrl)
+            print("Reaching forward...")
+            reach_forward(ctrl)
+            time.sleep(HOLD_BEFORE_GRIP)
+
+            print("Gripping...")
+            grip(ctrl)
             time.sleep(0.1)
 
             print("Shaking...")
-            shake(ctrl)
+            shake(ctrl, ELBOW_BENT_IN)
             time.sleep(0.1)
 
-            print("Returning home...")
-            return_home(ctrl)
+            print("Opening hand and returning to center...")
+            open_and_return(ctrl)
 
         finally:
             ctrl.close()
@@ -1761,7 +1797,7 @@ if __name__ == "__main__":
   /* === PLANNED DEMOS (not yet real — no production robot behavior exists
      for these). Kept separate from swayform_robot/ above; promote a demo
      here into swayform_robot/behaviors/ once it has real source to sync. === */
-  "swayform_ws/src/swayform_demos/package.xml": PACKAGE_XML("swayform_demos", "Planned demos: Pick and Place, Rock Paper Scissors, Interactive Exchange. Wave and Handshake moved to swayform_robot/ — see the real source there."),
+  "swayform_ws/src/swayform_demos/package.xml": PACKAGE_XML("swayform_demos", "Planned demos: Pick and Place, Rock Paper Scissors. Wave and Handshake moved to swayform_robot/ — see the real source there."),
   "swayform_ws/src/swayform_demos/setup.py": SETUP_PY("swayform_demos"),
 
   "swayform_ws/src/swayform_demos/pick_and_place.py": `"""
@@ -1929,111 +1965,6 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 `,
-
-  "swayform_ws/src/swayform_demos/interactive_exchange.py": `"""
-Demo: Interactive Exchange
-
-Purpose:
-A classroom interaction demo where the user gives the robot an item,
-the robot accepts it, sets it aside, then presents a different item
-in return. The reference example uses a $1 bill exchanged for a snack.
-
-Important:
-This is not real payment processing or currency validation.
-The robot assumes every received bill is a $1 bill.
-This demo is for supervised classroom interaction only.
-"""
-
-import enum
-from time import sleep, time
-from swayform.motion import MotionClient
-from swayform.vision import RealSenseInput
-from swayform.audio import AudioPrompt
-
-
-ITEM_WAIT_TIMEOUT = 15.0
-ITEM_HOLD_SECONDS = 0.6
-HANDOFF_HOLD_SECONDS = 1.5
-
-
-class ExchangeState(enum.Enum):
-    WAIT_FOR_ITEM      = "wait_for_item"
-    ACCEPT_ITEM        = "accept_item"
-    PLACE_ITEM_ASIDE   = "place_item_aside"
-    PICK_GIVE_ITEM     = "pick_give_item"
-    HAND_ITEM_TO_USER  = "hand_item_to_user"
-    RETURN_HOME        = "return_home"
-
-
-def wait_for_item(camera: RealSenseInput, timeout: float) -> bool:
-    """Poll until an item is detected in the exchange area, or timeout."""
-    start = time()
-    while time() - start < timeout:
-        if camera.object_in_zone("exchange_area"):
-            return True
-        sleep(0.1)
-    return False
-
-
-def run_exchange(motion: MotionClient, audio: AudioPrompt) -> None:
-    state = ExchangeState.ACCEPT_ITEM
-
-    while state != ExchangeState.RETURN_HOME:
-        print(f"State: {state.value}")
-
-        if state == ExchangeState.ACCEPT_ITEM:
-            motion.safe_pose("item_pickup")
-            motion.set_hand_pose("right_hand", "gentle_close")
-            sleep(ITEM_HOLD_SECONDS)
-            state = ExchangeState.PLACE_ITEM_ASIDE
-
-        elif state == ExchangeState.PLACE_ITEM_ASIDE:
-            motion.safe_pose("item_side_drop")
-            motion.set_hand_pose("right_hand", "open")
-            sleep(0.3)
-            state = ExchangeState.PICK_GIVE_ITEM
-
-        elif state == ExchangeState.PICK_GIVE_ITEM:
-            motion.safe_pose("give_item_pickup")
-            sleep(0.4)
-            state = ExchangeState.HAND_ITEM_TO_USER
-
-        elif state == ExchangeState.HAND_ITEM_TO_USER:
-            motion.safe_pose("give_item_handoff")
-            audio.say("Here you go.")
-            sleep(HANDOFF_HOLD_SECONDS)
-            state = ExchangeState.RETURN_HOME
-
-    motion.safe_pose("idle")
-
-
-def main() -> None:
-    motion = MotionClient()
-    camera = RealSenseInput()
-    audio  = AudioPrompt()
-
-    motion.safe_pose("idle")
-    audio.say("Ready. Place your item on the table.")
-
-    item_detected = wait_for_item(camera, ITEM_WAIT_TIMEOUT)
-
-    if not item_detected:
-        audio.say("No item detected. Returning to idle.")
-        motion.safe_pose("idle")
-        return
-
-    try:
-        motion.lock_behavior("interactive_exchange")
-        run_exchange(motion, audio)
-    finally:
-        motion.unlock_behavior("interactive_exchange")
-        motion.safe_pose("idle")
-
-
-if __name__ == "__main__":
-    main()
-`,
-
   "swayform_ws/src/swayform_labs/package.xml": PACKAGE_XML("swayform_labs", "The 10 available student labs, Level 1 — Control."),
   "swayform_ws/src/swayform_labs/setup.py": SETUP_PY("swayform_labs"),
 

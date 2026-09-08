@@ -17,7 +17,7 @@
  *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
  *   2. Introduction to ROS 2 — the software ideas behind Control (9 items, active)
  *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave and
- *        Handshake are built; Hand Flex, Rock Paper Scissors, and Pick and
+ *        Handshake are built; Hand Mimic, Rock Paper Scissors, and Pick and
  *        Place are honest Planned placeholders, not faked)
  *   4. Control (Level 1)  — 10 guided labs, first joint to keyboard capstone (active)
  *   5-7. React / Perceive / Create — Levels 2-4, all Planned, no lesson
@@ -70,11 +70,11 @@ function placeholder(id, sectionId, number, title, note) {
 }
 
 const s1 = [
-  real('welcome', 'getting-started', '1.1'),
-  real('safety-first', 'getting-started', '1.2'),
-  real('how-the-hub-works', 'getting-started', '1.3'),
-  real('connect-to-your-robot', 'getting-started', '1.4'),
-  real('your-project-and-updates', 'getting-started', '1.5'),
+  real('welcome', 'getting-started', '1.01'),
+  real('safety-first', 'getting-started', '1.02'),
+  real('how-the-hub-works', 'getting-started', '1.03'),
+  real('connect-to-your-robot', 'getting-started', '1.04'),
+  real('your-project-and-updates', 'getting-started', '1.05'),
 ];
 
 const s2 = [
@@ -90,18 +90,18 @@ const s2 = [
 ];
 
 // Only Wave and Handshake are confirmed working demos with authored pages.
-// Hand Flex, Rock Paper Scissors, and Pick and Place are marked Planned —
+// Hand Mimic, Rock Paper Scissors, and Pick and Place are marked Planned —
 // honest placeholders, not faked content — until their production robot
 // behavior is confirmed. Rock Paper Scissors / Pick and Place keep their
 // learning-path.js ids (content preserved, unlisted) in case they're
-// promoted back to full demos later; interactive-exchange is dropped from
-// this 5-item list entirely (content preserved, not deleted).
+// promoted back to full demos later; interactive-exchange was removed
+// entirely (it's not one of the 5 demos and had no content worth keeping).
 const s3 = [
-  placeholder('hand-flex', 'demos', '3.1', 'Hand Flex', 'A simple hand open/close/flex motion. Planned — not yet available.'),
-  demo('wave', 'demos', '3.2'),
-  demo('handshake', 'demos', '3.3'),
-  placeholder('rock-paper-scissors', 'demos', '3.4', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
-  placeholder('pick-and-place', 'demos', '3.5', 'Pick and Place', 'A full pick-and-place sequence. Planned — not yet available.'),
+  placeholder('hand-mimic', 'demos', '3.01', 'Hand Mimic', 'A hand open/curl mimic motion. Planned — not yet available.'),
+  demo('wave', 'demos', '3.02'),
+  demo('handshake', 'demos', '3.03'),
+  placeholder('rock-paper-scissors', 'demos', '3.04', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
+  placeholder('pick-and-place', 'demos', '3.05', 'Pick and Place', 'A full pick-and-place sequence. Planned — not yet available.'),
 ];
 
 // Level 1 — Control: 10 guided labs, first-joint-to-capstone progression.
@@ -120,8 +120,8 @@ const s4 = [
   real('keyboard-torso-control', 'control', '4.05'),
   real('keyboard-head-control', 'control', '4.06'),
   real('full-handshake', 'control', '4.07'),
-  real('wave-lab', 'control', '4.08', { title: 'Wave' }),
-  real('rps-lab', 'control', '4.09', { title: 'Rock Paper Scissors' }),
+  real('wave-lab', 'control', '4.08', { title: 'Wave Gesture' }),
+  real('rps-lab', 'control', '4.09', { title: 'Rock Paper Scissors Game' }),
   real('combined-keyboard-control', 'control', '4.10'),
 ];
 

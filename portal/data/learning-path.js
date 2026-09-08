@@ -67,7 +67,7 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'p', text: 'Every activity that involves code works inside a real SwayForm ROS 2 workspace layout — the same structure you will use when programming the physical robot later.' },
                     { type: 'code', lang: 'bash', filename: 'The real robot (synced from the robot itself)', code: '~/swayform_ws/src/swayform_robot/swayform_robot/\n├── behaviors/\n│   ├── wave.py\n│   ├── handshake.py\n│   ├── idle.py\n│   └── finger_wave.py\n├── config/\n│   └── robot.yaml\n└── hardware/\n    ├── servo_control.py\n    └── torso_motor.py' },
-                    { type: 'code', lang: 'bash', filename: 'Planned demos (not real yet)', code: '~/swayform_ws/src/swayform_demos/\n├── pick_and_place.py\n├── rock_paper_scissors.py\n└── interactive_exchange.py' },
+                    { type: 'code', lang: 'bash', filename: 'Planned demos (not real yet)', code: '~/swayform_ws/src/swayform_demos/\n├── pick_and_place.py\n└── rock_paper_scissors.py' },
                     { type: 'code', lang: 'bash', filename: 'Guided activity starter files', code: '~/swayform_ws/src/swayform_labs/\n├── lab_01_finger_curl.py\n├── lab_02_nod_yes.py\n├── lab_03_timed_torso_rotation.py\n└── … (one file per hands-on activity)' },
                     { type: 'p', text: 'swayform_robot/ is the actual, running source for Wave, Handshake, Idle, and the finger wave — read-first, run-second: study a real behavior before you build your own. Activity starter files are partly finished on purpose: you will fill in the parts that teach you something.' },
                   ],
@@ -241,25 +241,179 @@ export const LEARNING_PATH = {
           description: 'The small set of ROS 2 ideas you need before writing robot code.',
           activities: [
             {
-              id: 'what-is-ros2', title: 'What Is ROS 2?', kind: 'reading', estimatedTime: '6 minutes',
-              summary: 'Python is what you write. ROS 2 is how different robot programs talk to each other.',
+              id: 'what-is-ros2', title: 'What Is ROS 2?', kind: 'reading', estimatedTime: '12–15 minutes',
+              summary: 'Why a robot needs something like ROS 2, and the small set of ideas — nodes, topics, messages, packages — that make it work.',
               steps: [
                 {
-                  id: 'python-and-ros2', title: 'Python and ROS 2',
+                  id: 'before-we-start', title: 'Before We Start',
                   blocks: [
-                    { type: 'lead', text: 'Almost everything you write in this portal is plain Python. ROS 2 is the layer underneath that lets separate robot programs — camera code, motion code, behavior code — send information to each other without being wired directly together.' },
-                    { type: 'p', text: "Without something like ROS 2, every program would need to know exactly how every other program works. With it, a program just sends data out under a name, and any other program that cares can listen for it." },
+                    { type: 'lead', text: 'Imagine you are building a robot. It has arms. A camera. Motors. Hands. Sensors. Maybe a microphone. Maybe something that recognizes people. It needs software to control all of those things.' },
+                    { type: 'p', text: 'You could write one enormous program that does everything. That program would need to:' },
+                    { type: 'list', items: [
+                      'read every sensor',
+                      'control every motor',
+                      'process camera images',
+                      'decide what the robot should do',
+                      'keep track of its position',
+                      'handle errors',
+                      'communicate with other computers',
+                      'run behaviors such as waving or grabbing objects',
+                    ] },
+                    { type: 'p', text: 'That would become very difficult to understand very quickly.' },
+                    { type: 'p', text: 'Modern robots usually solve this problem by splitting their software into smaller pieces that work together. That is where ROS 2 comes in.' },
                   ],
                 },
                 {
-                  id: 'a-visual-example', title: 'A Visual Example',
+                  id: 'what-does-ros-mean', title: 'What Does ROS Mean?',
                   blocks: [
-                    { type: 'code', lang: 'text', filename: 'Camera to behavior', code: 'Camera\n   ↓\nROS 2\n   ↓\nVision Program\n   ↓\nROS 2\n   ↓\nRobot Behavior' },
-                    { type: 'p', text: 'The camera program never talks to the behavior program directly — both talk through ROS 2. That separation is what lets you replace or restart one piece without breaking the others.' },
+                    { type: 'lead', text: 'ROS stands for: Robot Operating System.' },
+                    { type: 'p', text: 'The name is slightly confusing because ROS is not an operating system in the same way that Windows, macOS, or Ubuntu are. Your robot still needs a real operating system underneath it.' },
+                    { type: 'p', text: 'For example, the SwayForm Model S1 runs:' },
+                    { type: 'code', lang: 'text', filename: 'Software stack', code: 'Ubuntu 24.04\n   ↓\nROS 2 Jazzy\n   ↓\nSwayForm software' },
+                    { type: 'p', text: 'Think of it like layers:' },
+                    { type: 'code', lang: 'text', filename: 'Layers', code: 'SwayForm programs\n   ↓\nROS 2\n   ↓\nUbuntu Linux\n   ↓\nRobot computer + hardware' },
+                    { type: 'p', text: 'Ubuntu handles normal computer jobs such as files, programs, memory, networking, and hardware access. ROS 2 adds tools specifically designed for building robots.' },
+                    { type: 'callout', tone: 'note', label: 'From the ROS docs', text: 'The official ROS documentation describes ROS as a collection of software libraries and tools that help developers build robotic applications.' },
+                  ],
+                },
+                {
+                  id: 'why-robots-need-ros2', title: 'Why Do Robots Need Something Like ROS 2?',
+                  blocks: [
+                    { type: 'p', text: 'A robot is usually not one program doing one thing. It is many systems operating at the same time.' },
+                    { type: 'p', text: 'Imagine a humanoid robot sees someone wave. Several things might happen:' },
+                    { type: 'code', lang: 'text', filename: 'Wave detection to motion', code: 'Camera\n   ↓\nVision program\n   ↓\nWave detected\n   ↓\nBehavior program\n   ↓\nMotion controller\n   ↓\nArm motors move' },
+                    { type: 'p', text: 'Each piece has a different job. The camera system does not need to understand exactly how every servo motor works.' },
+                    { type: 'p', text: 'The vision system only needs to say: "I detected a wave." Another part of the robot can decide what to do with that information.' },
+                    { type: 'p', text: 'This separation makes robot software much easier to build, test, replace, and debug.' },
+                    { type: 'callout', tone: 'note', label: 'The ROS graph', text: 'ROS 2 is designed around this idea of many modular pieces working together. Official ROS documentation calls the complete network of these communicating pieces the ROS graph.' },
+                  ],
+                },
+                {
+                  id: 'the-most-important-idea', title: 'The Most Important ROS 2 Idea',
+                  blocks: [
+                    { type: 'lead', text: 'ROS 2 helps separate a robot into small programs that can communicate with each other. Those small programs are usually called nodes.' },
+                    { type: 'p', text: 'For example, a robot might have:' },
+                    { type: 'list', items: ['camera_node', 'vision_node', 'motion_node', 'hand_node', 'speech_node'] },
+                    { type: 'p', text: 'Instead of one giant program, each node focuses on a particular responsibility.' },
+                    { type: 'callout', tone: 'tip', label: 'ROS convention', text: 'ROS recommends that nodes have a focused, modular purpose. You will learn much more about nodes in the next lesson.' },
+                  ],
+                },
+                {
+                  id: 'how-programs-talk', title: 'How Do the Programs Talk to Each Other?',
+                  blocks: [
+                    { type: 'p', text: 'ROS 2 gives these programs standard ways to communicate. One of the most common is called a topic.' },
+                    { type: 'p', text: 'Imagine a radio station. The station broadcasts information on a particular channel. Anyone interested in that channel can listen. ROS 2 topics work in a similar way.' },
+                    { type: 'p', text: 'A program can publish information:' },
+                    { type: 'code', lang: 'text', filename: 'Publisher', code: 'vision_node\n\npublishes:\n\n"person detected"' },
+                    { type: 'p', text: 'Another program can subscribe to that information:' },
+                    { type: 'code', lang: 'text', filename: 'Subscriber', code: 'behavior_node\n\nsubscribes to:\n\n"person detected"' },
+                    { type: 'p', text: 'The publisher does not need to know exactly who is listening. The subscriber simply listens for the information it needs.' },
+                    { type: 'callout', tone: 'note', label: 'Publish / subscribe', text: 'ROS 2 calls this the publish/subscribe pattern, and topics are intended especially for streams of information such as sensor data and robot state.' },
+                    { type: 'p', text: 'We will explore publishers, subscribers, nodes, and topics properly in 2.02.' },
+                  ],
+                },
+                {
+                  id: 'ros2-messages', title: 'ROS 2 Messages',
+                  blocks: [
+                    { type: 'p', text: 'Programs need an agreed way to describe the information they send. ROS 2 does this using messages.' },
+                    { type: 'p', text: 'A message might contain something extremely simple:' },
+                    { type: 'code', lang: 'text', filename: 'A simple message', code: 'true\n\nor:\n\n42\n\nor:\n\n"wave detected"' },
+                    { type: 'p', text: 'But messages can also contain several pieces of information. For example, a camera system might send:' },
+                    { type: 'code', lang: 'text', filename: 'A structured message', code: 'person_detected: true\nx_position: 340\ny_position: 205\nconfidence: 0.94' },
+                    { type: 'callout', tone: 'note', label: 'Message types', text: 'ROS 2 uses defined message types so both sides know what kind of information they are sending and receiving. ROS interfaces define the structure of data exchanged between ROS programs.' },
+                  ],
+                },
+                {
+                  id: 'ros2-packages', title: 'ROS 2 Packages',
+                  blocks: [
+                    { type: 'p', text: 'Another word you will see constantly is package. A package is basically a container for related robot software.' },
+                    { type: 'p', text: 'For example, imagine this simplified project:' },
+                    { type: 'code', lang: 'text', filename: 'robot_workspace/', code: 'robot_workspace/\n└── src/\n    ├── camera_package/\n    ├── vision_package/\n    ├── motion_package/\n    └── behaviors_package/' },
+                    { type: 'p', text: 'A package can contain things such as:' },
+                    { type: 'list', items: ['Python programs', 'C++ programs', 'configuration files', 'launch files', 'message definitions', 'libraries', 'other resources'] },
+                    { type: 'p', text: 'Packages help keep large robotics projects organized. You do not need to memorize package structure yet.' },
+                    { type: 'code', lang: 'text', filename: 'The hierarchy', code: 'Workspace\n   ↓\nPackages\n   ↓\nPrograms\n   ↓\nNodes' },
+                    { type: 'p', text: 'We will come back to this throughout the course.' },
+                  ],
+                },
+                {
+                  id: 'ros2-tools', title: 'ROS 2 Is Also a Set of Tools',
+                  blocks: [
+                    { type: 'p', text: 'ROS 2 is not only communication between programs. It gives developers commands for looking inside a running robot. For example:' },
+                    { type: 'list', items: [
+                      '`ros2 node list` can show the ROS nodes currently running.',
+                      '`ros2 topic list` can show the active topics.',
+                      '`ros2 topic echo /some_topic` can let you watch messages being published to a topic.',
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Why this matters', text: "These tools are extremely useful because robots often have many programs running simultaneously. ROS 2's command-line tools allow developers to inspect the running ROS graph and understand what nodes and topics are doing." },
+                    { type: 'p', text: 'Do not worry about memorizing these commands yet. You will use them later.' },
+                  ],
+                },
+                {
+                  id: 'ros2-vs-ros1', title: 'Why ROS 2 Instead of ROS 1?',
+                  blocks: [
+                    { type: 'p', text: 'You may see tutorials online that simply say ROS or ROS 1. ROS 2 is the newer generation of ROS.' },
+                    { type: 'p', text: 'It was created to keep many of the useful ideas from ROS 1 while improving the system for modern robotics.' },
+                    { type: 'p', text: 'ROS 2 supports features important for real robots, including distributed communication and configurable communication behavior through Quality of Service, or QoS.' },
+                    { type: 'callout', tone: 'tip', label: 'This course', text: 'You are learning ROS 2 Jazzy. If you search for help online, pay attention to whether a tutorial is for ROS 1 or ROS 2 — commands and code are sometimes different.' },
+                  ],
+                },
+                {
+                  id: 'how-this-relates-to-swayform', title: 'How This Relates to SwayForm',
+                  blocks: [
+                    { type: 'p', text: 'The Model S1 uses ROS 2 to keep different parts of the robot separated instead of putting everything into one giant program.' },
+                    { type: 'p', text: 'A simplified way to picture the system is:' },
+                    { type: 'code', lang: 'text', filename: 'Student code to hardware', code: 'Student / Behavior Code\n          ↓\n     ROS 2 messages\n          ↓\n   SwayForm Motion System\n          ↓\n     Hardware Drivers\n          ↓\n Servos + Torso Motor\n          ↓\n       Model S1' },
+                    { type: 'p', text: 'This matters for safety too. Student programs should not need to directly control electrical hardware.' },
+                    { type: 'p', text: "Instead, they can request movements through the robot's software system. For example, eventually you might write something that means: move right elbow." },
+                    { type: 'p', text: "Your program sends that request through ROS 2. The robot's motion software can then handle the actual hardware movement." },
+                    { type: 'callout', tone: 'note', label: 'Key idea', text: 'That separation is one of the most important ideas you will see throughout SwayForm.' },
+                  ],
+                },
+                {
+                  id: 'ros2-runs-many-things', title: 'ROS 2 Runs Many Things at Once',
+                  blocks: [
+                    { type: 'p', text: 'A real robot may have many ROS nodes running simultaneously.' },
+                    { type: 'p', text: 'Imagine Model S1 eventually has these systems active:' },
+                    { type: 'code', lang: 'text', filename: 'One active pipeline', code: 'Camera\n      ↓\nVision Node\n      ↓\nBehavior Node\n      ↓\nMotion Node\n      ↓\nHardware' },
+                    { type: 'p', text: 'At the same time another part of the robot might be doing:' },
+                    { type: 'code', lang: 'text', filename: 'Running alongside it', code: 'Joint State Node\n      ↓\nRobot State\n      ↓\nMonitoring System' },
+                    { type: 'p', text: 'And another system might be processing commands from the learning portal.' },
+                    { type: 'p', text: 'ROS 2 provides the communication system that allows all these pieces to work together.' },
+                  ],
+                },
+                {
+                  id: 'a-simple-analogy', title: 'A Simple Analogy',
+                  blocks: [
+                    { type: 'p', text: 'Think about a school. The school is the entire robot. Different people have different jobs:' },
+                    { type: 'list', items: ['Teacher', 'Student', 'Principal', 'Security', 'Office staff', 'Bus driver'] },
+                    { type: 'p', text: 'Nobody does everything. Instead, they communicate. ROS 2 works similarly.' },
+                    { type: 'terms', items: [
+                      { term: 'Robot', def: 'School' },
+                      { term: 'Nodes', def: 'People with different jobs' },
+                      { term: 'Topics', def: 'Communication channels' },
+                      { term: 'Messages', def: 'Information being communicated' },
+                      { term: 'Packages', def: 'Groups of related tools and programs' },
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Not a perfect analogy', text: 'That analogy is not technically perfect, but it is a useful way to begin thinking about ROS 2.' },
+                  ],
+                },
+                {
+                  id: 'what-you-should-remember', title: 'What You Should Remember',
+                  blocks: [
+                    { type: 'lead', text: 'You do not need to understand every part of ROS 2 yet. If you understand these five ideas, you are ready to continue:' },
+                    { type: 'list', items: [
+                      'ROS 2 helps us build robot software.',
+                      'A robot can be divided into many smaller programs instead of one giant program.',
+                      'Those programs can run as ROS 2 nodes.',
+                      'Nodes can exchange information using things such as topics and messages.',
+                      'SwayForm uses ROS 2 to connect student code, robot behaviors, motion control, and hardware in an organized way.',
+                    ] },
+                    { type: 'p', text: 'In the next lesson, we will open up the most important part of that system and learn exactly what nodes, topics, publishers, and subscribers are.' },
                   ],
                 },
               ],
-              completionSummary: { text: 'You know that Python is what you write, and ROS 2 is how robot programs talk to each other.', conceptsUsed: ['ROS 2'] },
+              completionSummary: { text: 'You understand why robots need something like ROS 2, and the core ideas — nodes, topics, messages, and packages — that make it work.', conceptsUsed: ['ROS 2', 'Nodes', 'Topics', 'Messages', 'Packages'] },
             },
             {
               id: 'nodes-topics-pubsub', title: 'Nodes, Topics, Publishers, Subscribers', kind: 'reading', estimatedTime: '8 minutes',
@@ -569,7 +723,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: 'SwayForm extends its right arm forward and opens its hand, shakes for a moment, then returns home — a short, deliberate choreography built directly from PCA9685 servo channels.' },
+                    { type: 'lead', text: 'SwayForm reaches its arm forward with its hand open, grips as if shaking hands, pumps its elbow up and down a few times, then opens its hand and returns home — a short, deliberate choreography built directly from PCA9685 servo channels.' },
                     { type: 'callout', tone: 'note', label: 'Honest note', text: 'This behavior is a fixed choreography, not vision-triggered — it runs the same way every time it is called, whether from the terminal, a launch file, or another program. It does not detect whether anyone is actually there to shake.' },
                   ],
                 },
@@ -577,33 +731,33 @@ export const LEARNING_PATH = {
                   id: 'what-to-watch', title: 'What to Watch',
                   blocks: [
                     { type: 'heading', level: 3, text: 'Hardware used' },
-                    { type: 'list', items: ['Shoulder pitch servo (reach_pca)', 'Elbow servo', 'Shoulder roll servo', 'Wrist servo', 'Four finger servos'] },
-                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The arm extends forward and the hand opens together (2.5s), the shoulder pitch shakes back and forth five times (quick), then everything returns to center (2.0s).' },
+                    { type: 'list', items: ['Shoulder pitch servo (reach_pca)', 'Elbow servo', 'Shoulder roll servo', 'Wrist servo', 'Thumb and four finger servos'] },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The arm reaches forward with the hand open (1.5s), holds for 2s, the hand grips inward (2s), the elbow pumps up and down 3 times to shake, then the hand opens and everything returns to center (2s).' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands clear of the arm, and never grab it mid-motion — even during a handshake demo.' },
                   ],
                 },
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: '`extend_and_open` moves the shoulder, elbow, wrist, and all four fingers together over 2.5 seconds — one `run_threads()` call, every joint arriving at the same time instead of one after another.' },
-                    { type: 'p', text: '`shake` then oscillates just the shoulder pitch through five short, fast moves — `(155, 0.35), (145, 0.35), (155, 0.30), (145, 0.30), (150, 0.30)` — before `return_home` brings every joint back to center over 2.0 seconds.' },
+                    { type: 'p', text: '`reach_forward` swings the shoulder pitch forward and bends the elbow in while keeping the hand open, over `REACH_DURATION` (1.5s) — one `run_threads()` call, every joint arriving together. After a `HOLD_BEFORE_GRIP` pause (2s), `grip` curls the thumb to its limit and each finger in by `FINGER_CURL_AMOUNT` degrees (2s) — a light grip, not a full fist.' },
+                    { type: 'p', text: '`shake` then pumps just the elbow ±`SHAKE_OFFSET` degrees around the reach position for `SHAKE_CYCLES` (3) up-down cycles — shoulder pitch stays put, this is elbow-only. `open_and_return` finally opens the hand and brings every joint back to `CENTERS` over `RETURN_DURATION` (2s).' },
                     { type: 'p', text: 'As in Wave, `with sc.hardware_lock():` guarantees nothing else can move the same servo boards mid-handshake, and a `finally` block always closes the PCA9685 handles, even on error.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef extend_and_open(ctrl): ...\ndef shake(ctrl): ...\ndef return_home(ctrl): ...\ndef perform_handshake(mock=True): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py' },
-                    { type: 'p', text: 'Three functions, in order, plus the `perform_handshake()` that calls them: extend and open, shake, return home. The same **setup → behavior → cleanup** shape as Wave.' },
+                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...\ndef grip(ctrl): ...\ndef shake(ctrl, elbow_base): ...\ndef open_and_return(ctrl): ...\ndef perform_handshake(mock=True): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py' },
+                    { type: 'p', text: 'Four functions, in order, plus the `perform_handshake()` that calls them: reach forward, grip, shake, open and return. The same **setup → behavior → cleanup** shape as Wave.' },
                   ],
                 },
                 {
                   id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
                     { type: 'list', items: [
-                      'Change the durations passed to `extend_and_open` and `return_home` to make the approach slower or faster.',
-                      'Add or remove `(target, duration)` pairs in `shake` to change how many times it shakes.',
-                      'Change the shake targets slightly to make the motion wider or narrower.',
+                      'Change `REACH_DURATION`, `GRIP_DURATION`, or `RETURN_DURATION` to make each phase slower or faster.',
+                      'Change `SHAKE_CYCLES` to make the elbow shake more or fewer times.',
+                      'Change `FINGER_CURL_AMOUNT` for a lighter or firmer-looking grip.',
                     ] },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep the handshake motion slow and predictable. Stay inside the ranges already defined in `LIMITS` — do not push a target outside them.' },
                   ],
@@ -611,7 +765,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Remove one pair from the `shake` list and predict whether a shorter shake feels more natural or less — then run it and check.' },
+                    { type: 'p', text: 'Change `SHAKE_CYCLES` from 3 to 1 and predict whether a single pump feels more natural or less — then run it and check.' },
                   ],
                 },
                 {
@@ -756,78 +910,6 @@ export const LEARNING_PATH = {
                 },
               ],
               completionSummary: { text: 'You saw a complete multi-round interaction loop, from user input to a scored result.', conceptsUsed: ['Game loops', 'Random choice', 'Hand poses'] },
-            },
-          ],
-        },
-      ],
-    },
-
-    // ============================================================ LEVEL 6
-    {
-      id: 'advanced-behaviors', number: 6, title: 'Advanced Behaviors',
-      description: 'Manage competing behaviors safely and build a full state-machine interaction.',
-      sections: [
-        {
-          id: 'managing-multiple-behaviors', title: 'Managing Multiple Behaviors', difficulty: 'advanced', estimatedTime: '45–60 minutes',
-          description: 'One behavior should never interrupt another at the wrong moment.',
-          activities: [
-            {
-              id: 'interactive-exchange', title: 'Interactive Exchange', kind: 'activity', difficulty: 'advanced', estimatedTime: '10–15 minutes',
-              summary: 'A full state-machine interaction: accept, set aside, and hand back.',
-              workspaceFile: 'swayform_ws/src/swayform_demos/interactive_exchange.py',
-              relatedConcepts: ['State machines', 'enum.Enum'],
-              steps: [
-                {
-                  id: 'what-youre-building', title: "What You're Building",
-                  blocks: [
-                    { type: 'lead', text: 'SwayForm accepts an item from you and gives another item back. The reference implementation uses a dollar-bill-to-snack example: you place a bill near the robot, it sets the bill aside, then presents a small snack item.' },
-                    { type: 'callout', tone: 'safety', label: 'Classroom demo only', text: 'This demo assumes any received bill is a $1 bill and is only for supervised classroom interaction. It is not real payment processing or currency validation.' },
-                    { type: 'p', text: 'The same state machine works for any give-one-item, get-one-item exchange — a token, a card, or a classroom object — the bill and snack are simply the reference example.' },
-                    { type: 'heading', level: 3, text: 'Hardware used' },
-                    { type: 'list', items: ['RealSense camera', 'Arm servos', 'Hand servos', 'Small tabletop object', 'Optional speaker'] },
-                  ],
-                },
-                {
-                  id: 'open-the-file', title: 'Open the Starter File',
-                  blocks: [
-                    { type: 'p', text: 'Interactive Exchange is a finished, working demo. Open it now.' },
-                    { type: 'code', lang: 'python', filename: 'interactive_exchange.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\nclass ExchangeState(enum.Enum): ...\ndef wait_for_item(camera, timeout): ...\ndef run_exchange(motion, audio): ...', workspaceFile: 'swayform_ws/src/swayform_demos/interactive_exchange.py' },
-                  ],
-                },
-                {
-                  id: 'understand-the-exchangestate-enum', title: 'Understand the ExchangeState Enum',
-                  blocks: [
-                    { type: 'p', text: '`ExchangeState` names every stage of the interaction: `WAIT_FOR_ITEM`, `ACCEPT_ITEM`, `PLACE_ITEM_ASIDE`, `PICK_GIVE_ITEM`, `HAND_ITEM_TO_USER`, `RETURN_HOME`.' },
-                    { type: 'callout', tone: 'note', label: "What's happening here?", text: 'Using `enum.Enum` instead of plain strings prevents typos and lets you see the full sequence of states before the code ever runs.' },
-                  ],
-                },
-                {
-                  id: 'understand-the-state-machine-loop', title: 'Understand the while-Loop State Machine',
-                  blocks: [
-                    { type: 'p', text: '`run_exchange` drives a `while state != ExchangeState.RETURN_HOME:` loop. Each iteration handles one state — moving to a pose, setting a hand pose, an `audio.say(...)` checkpoint — then advances `state` to the next one. `print(f"State: {state.value}")` shows the state machine running live.' },
-                    { type: 'p', text: 'As in Handshake, the `finally` block in `main()` releases the motion lock and returns the robot to idle even if an error interrupts mid-sequence — never leave a behavior lock open.' },
-                  ],
-                },
-                {
-                  id: 'try-changing-it', title: 'Try Changing It',
-                  blocks: [
-                    { type: 'list', items: [
-                      'Change the given-back item.',
-                      'Add a thank-you sound after `HAND_ITEM_TO_USER`.',
-                      'Change `ITEM_WAIT_TIMEOUT` if no item is detected.',
-                    ] },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Use only light tabletop objects. This demo is for supervised classroom interaction, not real vending, payment, or unattended operation.' },
-                  ],
-                },
-                {
-                  id: 'run-it', title: 'Run It',
-                  blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_demos interactive_exchange'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
-                  ],
-                },
-              ],
-              completionSummary: { text: 'You read a full state-machine behavior, the same pattern behind most multi-step robot interactions.', conceptsUsed: ['State machines', 'enum.Enum', 'Timeouts'] },
             },
           ],
         },

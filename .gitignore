@@ -1,0 +1,5 @@
+node_modules/
+.vercel
+.env
+.env.local
+db/seed.local.sql

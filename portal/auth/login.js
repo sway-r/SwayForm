@@ -1,5 +1,7 @@
 import { icon } from '../icons.js';
-import { loginGuest, loginWithCredentials } from '../services/auth-service.js';
+import { loginGuest, loginWithCredentials, loginWithGoogle } from '../services/auth-service.js';
+
+const GOOGLE_CLIENT_ID = '214694324547-cdpd0h6rdcdharusaiain5d7fmgpdjtr.apps.googleusercontent.com';
 
 export function mount(container, { onAuthenticated }){
   container.innerHTML = `
@@ -57,10 +59,35 @@ export function mount(container, { onAuthenticated }){
     try { await loginWithCredentials(); }
     catch (err){ note.textContent = err.message; note.classList.add('visible'); }
   });
-  container.querySelector('[data-google]').addEventListener('click', () => {
-    note.textContent = "Google sign-in isn't connected yet — use Continue as Guest below.";
-    note.classList.add('visible');
-  });
+  // The GIS script tag loads with `async defer`, so it may not be ready yet
+  // when this screen mounts (e.g. on a cold page load). Poll briefly rather
+  // than deciding once at mount time, so the button still works once it lands.
+  const googleBtn = container.querySelector('[data-google]');
+  function initGoogleButton(){
+    if (!(window.google && window.google.accounts && window.google.accounts.id)) return false;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: async ({ credential }) => {
+        try {
+          await loginWithGoogle(credential);
+          onAuthenticated();
+        } catch (err){
+          note.textContent = err.message;
+          note.classList.add('visible');
+        }
+      },
+    });
+    googleBtn.onclick = () => window.google.accounts.id.prompt();
+    return true;
+  }
+  if (!initGoogleButton()){
+    googleBtn.onclick = () => {
+      note.textContent = 'Google sign-in is still loading — please wait a moment and try again.';
+      note.classList.add('visible');
+    };
+    const retry = setInterval(() => { if (initGoogleButton()) clearInterval(retry); }, 200);
+    setTimeout(() => clearInterval(retry), 8000);
+  }
   container.querySelector('[data-forgot]').addEventListener('click', (e) => {
     e.preventDefault();
     note.textContent = "Password reset isn't connected yet — use Continue as Guest below.";

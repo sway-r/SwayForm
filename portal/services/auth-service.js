@@ -1,13 +1,14 @@
-/* Auth abstraction. Backed by localStorage for now — every method is shaped
-   as if it could hit a real API later (callers use `await`), so swapping in
-   real authentication is a one-file change with no call-site rewrites. */
+/* Auth abstraction. Guest sessions are backed by localStorage; real Google
+   sessions are backed by an httpOnly cookie set by /api/auth/*, which is why
+   getSession() has to ask the server — it deliberately can't read that
+   cookie itself. */
 const SESSION_KEY = 'swayform.portal.session';
 
-function readSession(){
+function readGuestSession(){
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
   catch (e) { return null; }
 }
-function writeSession(session){
+function writeGuestSession(session){
   try {
     if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     else localStorage.removeItem(SESSION_KEY);
@@ -15,17 +16,41 @@ function writeSession(session){
 }
 
 export async function getSession(){
-  return readSession();
+  const guest = readGuestSession();
+  if (guest) return guest;
+
+  try {
+    const res = await fetch('/api/auth/session');
+    const { session } = await res.json();
+    return session || null;
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function isAuthenticated(){
-  return !!readSession();
+  return !!(await getSession());
 }
 
 export async function loginGuest(){
   const session = { mode: 'guest', displayName: 'Guest User', startedAt: new Date().toISOString() };
-  writeSession(session);
+  writeGuestSession(session);
   return session;
+}
+
+/** Verifies a Google ID token with the backend and, on success, starts a real session. */
+export async function loginWithGoogle(credential){
+  const res = await fetch('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  });
+  const data = await res.json();
+
+  if (!res.ok){
+    throw new Error(data.message || 'Google sign-in failed. Please try again.');
+  }
+  return data.session;
 }
 
 /** Present for shape-compatibility with a future real login; not implemented yet. */
@@ -34,9 +59,12 @@ export async function loginWithCredentials(){
 }
 
 export async function logout(){
-  writeSession(null);
+  writeGuestSession(null);
+  try { await fetch('/api/auth/logout', { method: 'POST' }); }
+  catch (e) { /* best-effort; cookie will just expire */ }
 }
 
+/** Guest-only: an httpOnly session cookie is deliberately invisible to JS. */
 export function isAuthenticatedSync(){
-  return !!readSession();
+  return !!readGuestSession();
 }

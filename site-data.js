@@ -17,7 +17,7 @@ window.SWAYFORM = {
   },
   demos: {
     count: 5,
-    names: ["Wave", "Handshake", "Pick and Place", "Rock Paper Scissors", "Interactive Exchange"]
+    names: ["Handshake", "Wave", "Hand Mimic", "Rock Paper Scissors", "Pick and Place"]
   },
   robot: {
     degreesOfFreedom: 21,

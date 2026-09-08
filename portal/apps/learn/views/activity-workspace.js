@@ -28,11 +28,14 @@ const DEFAULT_LAYOUT = {
 };
 
 // "Learn + Code" preset: the old two-pane arrangement, Terminal minimized.
-// Its stored bounds (used if the student un-minimizes it without dragging)
-// match the tiled default's bottom-right tile, not a centered float.
+// Same tight edge gaps as DEFAULT_LAYOUT (full-bleed, not a centered float
+// with margins) so the two panes use all the space they can instead of
+// leaving visible borders around them. Its stored bounds (used if the
+// student un-minimizes it without dragging) match the tiled default's
+// bottom-right tile, not a centered float.
 const LEARN_CODE_LAYOUT = {
-  notebook:   { xPct: 3,  yPct: 4,  wPct: 38, hPct: 90 },
-  codeEditor: { xPct: 43, yPct: 4,  wPct: 54, hPct: 90 },
+  notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
+  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 99 },
   terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6, minimized: true },
 };
 

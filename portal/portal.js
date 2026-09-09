@@ -50,12 +50,13 @@ function renderDesktopIcons(session){
   });
 }
 
-// The Robot icon only shows up once an admin or student is actually linked
-// to a physical robot — everyone else (any signed-in Google account with no
-// robot yet) sees the rest of the desktop without it.
+// The Robot icon shows for any real (non-guest) account — robot.js itself
+// branches on whether a robot is actually linked, since "not linked yet" is
+// a real, honest state worth showing (with a path to simulation access),
+// not a reason to hide the icon entirely.
 function REGISTRY_ORDER(session){
   const apps = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
-  if (session && session.robotId) apps.splice(1, 0, RobotApp);
+  if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
   return apps;
 }
 

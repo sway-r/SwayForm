@@ -53,8 +53,8 @@ test('per-activity override that violates bounds is caught', () => {
 test('generated workspace-config source is valid JS with intact helpers', async () => {
   const src = generateWorkspaceConfig({
     terminals: { min: 1, default: 3, max: 5, allowCreate: true, namePrefix: 'Term' },
-    readOnlyFiles: ['ros2_ws/src/swayform_demos/setup.py'],
-    perActivity: { 'finger-curl': { terminals: { default: 2 }, defaultOpenFile: 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py' } },
+    readOnlyFiles: ['swayform_ws/src/swayform_demos/setup.py'],
+    perActivity: { 'finger-curl': { terminals: { default: 2 }, defaultOpenFile: 'swayform_ws/src/swayform_labs/lab_01_finger_curl.py' } },
   });
   const { materializeDataDir } = await import('./_helpers.mjs');
   const { importData, cleanup } = materializeDataDir({ 'portal/data/workspace-config.js': src });
@@ -63,8 +63,8 @@ test('generated workspace-config source is valid JS with intact helpers', async 
     assert.equal(mod.WORKSPACE_CONFIG.terminals.default, 3);
     assert.equal(mod.terminalConfigFor('finger-curl').default, 2);
     assert.equal(mod.terminalConfigFor('anything-else').default, 3);
-    assert.equal(mod.isReadOnlyFile('x', 'ros2_ws/src/swayform_demos/setup.py'), true);
-    assert.equal(mod.defaultOpenFileFor('finger-curl'), 'ros2_ws/src/swayform_labs/lab_01_finger_curl.py');
+    assert.equal(mod.isReadOnlyFile('x', 'swayform_ws/src/swayform_demos/setup.py'), true);
+    assert.equal(mod.defaultOpenFileFor('finger-curl'), 'swayform_ws/src/swayform_labs/lab_01_finger_curl.py');
     // Clamping: nonsense bounds normalize instead of crashing the portal.
     const clamped = mod.terminalConfigFor('finger-curl');
     assert.ok(clamped.min >= 1 && clamped.default >= clamped.min && clamped.default <= clamped.max);

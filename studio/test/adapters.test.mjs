@@ -188,10 +188,10 @@ test('duplicate lesson copies steps and workspace file', async () => {
 });
 
 test('workspace file edit/add/rename round-trip; unrelated entries untouched', async () => {
-  const somePath = 'ros2_ws/src/swayform_demos/wave_demo.py';
+  const somePath = 'swayform_ws/src/swayform_demos/pick_and_place.py';
   const final = applied([
     { type: 'file.set', path: somePath, content: base.workspaceFiles[somePath] + '\n# studio test\n' },
-    { type: 'file.add', path: 'ros2_ws/src/swayform_labs/studio_test.py', content: 'print("hi")\n' },
+    { type: 'file.add', path: 'swayform_ws/src/swayform_labs/studio_test.py', content: 'print("hi")\n' },
   ]);
   const changes = generateChanges(base, final);
   assert.deepEqual(changes.map((c) => c.path), ['portal/data/workspace-files.js']);
@@ -202,14 +202,14 @@ test('workspace file edit/add/rename round-trip; unrelated entries untouched', a
   try {
     const wf = await importData('workspace-files.js');
     assert.ok(wf.WORKSPACE_FILES[somePath].endsWith('# studio test\n'));
-    assert.equal(wf.WORKSPACE_FILES['ros2_ws/src/swayform_labs/studio_test.py'], 'print("hi")\n');
+    assert.equal(wf.WORKSPACE_FILES['swayform_ws/src/swayform_labs/studio_test.py'], 'print("hi")\n');
     assert.equal(Object.keys(wf.WORKSPACE_FILES).length, Object.keys(base.workspaceFiles).length + 1);
   } finally { cleanup(); }
 });
 
 test('validation catches broken references and bad terminal bounds', () => {
   const broken = structuredClone(base);
-  broken.activities['finger-curl'].workspaceFile = 'ros2_ws/src/missing.py';
+  broken.activities['finger-curl'].workspaceFile = 'swayform_ws/src/missing.py';
   broken.workspaceConfig.terminals = { min: 0, default: 9, max: 5, allowCreate: true, namePrefix: 'Shell' };
   const { errors } = validateModel(broken);
   assert.ok(errors.some((e) => e.msg.includes('missing.py')));

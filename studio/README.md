@@ -145,7 +145,7 @@ why, and where. Failure UIs offer "Return to editing" — the draft is kept.
 - All writes go through a hard **allowlist** of ten content files
   (`repo.mjs WRITABLE_FILES`) — adapters cannot write anywhere else.
 - IDs are validated as kebab-case slugs; workspace paths must match
-  `ros2_ws/...` with no traversal; asset uploads are basename-validated
+  `swayform_ws/...` with no traversal; asset uploads are basename-validated
   image files capped at 20 MB.
 - Git runs via `execFile` argument arrays (no shell interpolation), always
   pathspec-scoped.

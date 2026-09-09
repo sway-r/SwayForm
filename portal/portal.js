@@ -37,7 +37,7 @@ let activeAppId = null;
 // progress widgets, no dashboard — just shortcuts, like a real desktop.
 function renderDesktopIcons(session){
   desktopIconsEl.innerHTML = '';
-  REGISTRY_ORDER(session).forEach(mod => {
+  visibleApps(session).forEach(mod => {
     const btn = document.createElement('button');
     btn.className = 'desktop-icon';
     btn.type = 'button';
@@ -51,16 +51,30 @@ function renderDesktopIcons(session){
   });
 }
 
-// The Robot icon shows for any real (non-guest) account — robot.js itself
-// branches on whether a robot is actually linked, since "not linked yet" is
-// a real, honest state worth showing (with a path to simulation access),
-// not a reason to hide the icon entirely.
+// Studio (studio/server/content-load.mjs + adapters/portal-home-writer.mjs)
+// statically AST-parses this exact function for its desktop-icon editor —
+// it must stay a plain `return [Ident, ...]` with no logic, or Studio's
+// parser silently falls through to "every imported app" and its writer
+// throws when saving. Keep any conditional/session-based app visibility out
+// of this function; put it in visibleApps() below instead.
+//
 // Projects is hidden for now — it's 100% fake data (mock-projects.js) with
-// no real backend behind it yet. Still registered (so /project/:id routing
-// and restoreOpenApps() keep working if anything reaches it directly), just
-// not offered as a desktop icon until it's real.
-function REGISTRY_ORDER(session){
-  const apps = [LearnApp, AccountApp, HelpApp, SettingsApp];
+// no real backend behind it yet. Still imported/registered (so /project/:id
+// routing and restoreOpenApps() keep working if anything reaches it
+// directly), just not offered as a desktop icon until it's real.
+function REGISTRY_ORDER(){
+  return [LearnApp, AccountApp, HelpApp, SettingsApp];
+}
+
+// Session-gated apps (Robot, Admin) are spliced in here rather than in
+// REGISTRY_ORDER() itself — their visibility is role-based access, not a
+// content-editorial on/off toggle, so it's deliberately outside what
+// Studio's desktop-icon editor manages. robot.js itself further branches on
+// whether a robot is actually linked, since "not linked yet" is a real,
+// honest state worth showing (with a path to simulation access), not a
+// reason to hide the icon entirely.
+function visibleApps(session){
+  const apps = REGISTRY_ORDER();
   if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
   if (session && session.mode === 'admin') apps.splice(1, 0, AdminApp);
   return apps;

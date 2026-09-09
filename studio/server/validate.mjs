@@ -84,7 +84,7 @@ export function validateModel(model) {
 
   /* ---- workspace files ---- */
   for (const p of Object.keys(model.workspaceFiles)) {
-    if (!/^ros2_ws\//.test(p) || p.includes('..')) err(`workspace file "${p}"`, 'invalid path');
+    if (!/^swayform_ws\//.test(p) || p.includes('..')) err(`workspace file "${p}"`, 'invalid path');
     if (typeof model.workspaceFiles[p] !== 'string') err(`workspace file "${p}"`, 'content is not a string');
   }
 

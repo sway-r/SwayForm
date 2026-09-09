@@ -103,7 +103,7 @@ export function assertSlug(id, what) {
   }
 }
 
-const WS_PATH_RE = /^ros2_ws\/[A-Za-z0-9_\-.]+(\/[A-Za-z0-9_\-.]+)*$/;
+const WS_PATH_RE = /^swayform_ws\/[A-Za-z0-9_\-.]+(\/[A-Za-z0-9_\-.]+)*$/;
 export function assertWorkspacePath(p) {
   if (typeof p !== 'string' || !WS_PATH_RE.test(p) || p.includes('..')) {
     throw new Error(`Invalid workspace file path: "${p}"`);

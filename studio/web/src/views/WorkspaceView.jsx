@@ -122,7 +122,7 @@ export default function WorkspaceView({ nav, params }) {
       </div>
 
       {modal?.type === 'add' && (
-        <PathModal title="New workspace file" initial="ros2_ws/src/swayform_labs/" cta="Create"
+        <PathModal title="New workspace file" initial="swayform_ws/src/swayform_labs/" cta="Create"
           onClose={() => setModal(null)}
           onSubmit={async (p) => {
             if (await sendOp({ type: 'file.add', path: p, content: '' })) { setActive(p); setDirty(null); return true; }
@@ -151,7 +151,7 @@ function PathModal({ title, initial, cta, hint, onClose, onSubmit }) {
         <button className="btn primary" onClick={async () => { if (await onSubmit(path)) onClose(); }}>{cta}</button>
       </>
     }>
-      <Field label="Path" hint={hint || 'Must stay inside ros2_ws/.'}>
+      <Field label="Path" hint={hint || 'Must stay inside swayform_ws/.'}>
         <input className="mono" value={path} onChange={(e) => setPath(e.target.value)} autoFocus
           onKeyDown={async (e) => { if (e.key === 'Enter' && await onSubmit(path)) onClose(); }} />
       </Field>

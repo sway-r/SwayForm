@@ -336,7 +336,7 @@ function NewLessonModal({ onClose, nav }) {
           const ops = [];
           let workspaceFile;
           if (kind === 'activity' && starter === 'new') {
-            workspaceFile = `ros2_ws/src/swayform_labs/${finalId.replace(/-/g, '_')}.py`;
+            workspaceFile = `swayform_ws/src/swayform_labs/${finalId.replace(/-/g, '_')}.py`;
             if (model.workspaceFiles[workspaceFile] !== undefined) {
               toast(`Workspace file ${workspaceFile} already exists`, 'error');
               return;

@@ -123,6 +123,12 @@ const APP_MODULES = {
   account: 'portal/apps/account/account.js',
   help: 'portal/apps/help/help.js',
   settings: 'portal/apps/settings/settings.js',
+  // robot/admin are role-gated at runtime (see visibleApps() in portal.js),
+  // not part of REGISTRY_ORDER()'s static array — registered here only so
+  // liveImport() below doesn't crash on them; Studio's order/visibility
+  // editor doesn't meaningfully control whether they show for a session.
+  robot: 'portal/apps/robot/robot.js',
+  admin: 'portal/apps/admin/admin.js',
 };
 
 export const DEFAULT_WORKSPACE_CONFIG = {

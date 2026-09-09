@@ -19,10 +19,33 @@ export function mount(bodyEl, winApi, opts) {
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
 
-  // Scope the explorer to just this activity's own file — a student working
+  // Scope the explorer to this activity's own file — a student working
   // through the Wave demo (or any one lab) doesn't need every other demo/lab
-  // in the workspace competing for attention in the tree.
-  const explorerScope = activity.workspaceFile ? [activity.workspaceFile] : null;
+  // in the workspace competing for attention in the tree. But swayform_robot's
+  // real behavior files (wave.py, handshake.py, ...) actually `import` from
+  // its config/ and hardware/ folders — scoping those out hid files the open
+  // code depends on. swayform_labs/swayform_demos files use the separate,
+  // simplified swayform.motion.MotionClient API and never touch config/
+  // hardware, so they don't get the same expansion.
+  const explorerScope = computeExplorerScope(activity.workspaceFile);
+
+  function computeExplorerScope(workspaceFile){
+    if (!workspaceFile) return null;
+    const scope = [workspaceFile];
+
+    const robotPkgSrcRoot = 'swayform_ws/src/swayform_robot/';
+    if (workspaceFile.startsWith(robotPkgSrcRoot)){
+      const robotPkgRoot = robotPkgSrcRoot + 'swayform_robot/';
+      fs.listPaths().forEach((path) => {
+        if (path.startsWith(robotPkgRoot + 'config/') || path.startsWith(robotPkgRoot + 'hardware/')){
+          scope.push(path);
+        }
+      });
+      scope.push(robotPkgSrcRoot + 'setup.py');
+    }
+
+    return scope;
+  }
 
   bodyEl.innerHTML = `
     <div class="ce-root">

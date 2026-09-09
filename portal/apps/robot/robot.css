@@ -1,0 +1,6 @@
+.robot-hero{max-width:420px;margin:48px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.robot-hero-icon{width:56px;height:56px;color:var(--la-muted)}
+.robot-hero-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.robot-hero-title{font-size:18px;font-weight:800;color:var(--la-ink);margin:0}
+.robot-status-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--la-faint);background:rgba(20,26,44,.05);border:1px solid var(--la-border);padding:3px 10px;border-radius:20px}
+.robot-hero-note{font-size:12.5px;color:var(--la-muted);line-height:1.6;margin:0}

@@ -6,10 +6,11 @@ import * as ProjectsApp from './apps/projects/projects.js';
 import * as AccountApp from './apps/account/account.js';
 import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
+import * as RobotApp from './apps/robot/robot.js';
 import * as Login from './auth/login.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 
-const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp]
+const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -32,9 +33,9 @@ let activeAppId = null;
 /* -------------------------------------------------------- Desktop icons */
 // The entire purpose of Home: a place to launch applications. No hero, no
 // progress widgets, no dashboard — just shortcuts, like a real desktop.
-function renderDesktopIcons(){
+function renderDesktopIcons(session){
   desktopIconsEl.innerHTML = '';
-  REGISTRY_ORDER().forEach(mod => {
+  REGISTRY_ORDER(session).forEach(mod => {
     const btn = document.createElement('button');
     btn.className = 'desktop-icon';
     btn.type = 'button';
@@ -48,8 +49,13 @@ function renderDesktopIcons(){
   });
 }
 
-function REGISTRY_ORDER(){
-  return [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
+// The Robot icon only shows up once an admin or student is actually linked
+// to a physical robot — everyone else (any signed-in Google account with no
+// robot yet) sees the rest of the desktop without it.
+function REGISTRY_ORDER(session){
+  const apps = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
+  if (session && session.robotId) apps.splice(1, 0, RobotApp);
+  return apps;
 }
 
 /* ---------------------------------------------------------- Window geometry */
@@ -292,6 +298,7 @@ const ROUTES = {
   account: { app: 'account', parse: () => ({}) },
   help: { app: 'help', parse: (p) => ({ topic: p[0] }) },
   settings: { app: 'settings', parse: () => ({}) },
+  'my-robot': { app: 'robot', parse: () => ({}) },
 };
 
 function routeFromPath(pathname){
@@ -313,6 +320,7 @@ function pathForApp(appId, params){
     case 'account': return '/account';
     case 'help': return '/help' + (params.topic ? '/' + params.topic : '');
     case 'settings': return '/settings';
+    case 'robot': return '/my-robot';
     default: return '/';
   }
 }
@@ -417,7 +425,7 @@ async function showDesktop(){
   const session = await getSession();
   guestBadgeEl.hidden = !(session && session.mode === 'guest');
 
-  renderDesktopIcons();
+  renderDesktopIcons(session);
 
   // Always restore whatever was open last session first (with its saved
   // geometry) — otherwise refreshing on a deep link like /learn or /account

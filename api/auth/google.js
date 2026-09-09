@@ -33,22 +33,18 @@ export default async function handler(req, res){
     return;
   }
 
+  // Any verified Google account may sign in. If it's linked to a robot
+  // (admin or student), the session carries that binding; otherwise it's a
+  // plain 'member' session — simulations only, no Robot desktop icon.
   const match = await findRoleForEmail(payload.email);
-  if (!match){
-    res.status(403).json({
-      error: 'not_authorized',
-      message: "This Google account isn't linked to a SwayForm robot yet. Ask your admin to add you, or continue as a guest below.",
-    });
-    return;
-  }
 
   const session = {
-    mode: match.role,
+    mode: match ? match.role : 'member',
     email: payload.email.trim().toLowerCase(),
     name: payload.name || payload.email,
     picture: payload.picture || null,
-    robotId: match.robotId,
-    robotSerial: match.robotSerial,
+    robotId: match ? match.robotId : null,
+    robotSerial: match ? match.robotSerial : null,
   };
 
   const cookie = await createSessionCookie(session);

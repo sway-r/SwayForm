@@ -34,7 +34,7 @@ const PATHS = {
   book:         '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/>',
   clock:        '<circle cx="12" cy="12" r="8.2"/><polyline points="12 7.2 12 12 15.6 14"/>',
   user:         '<circle cx="12" cy="8.2" r="3.4"/><path d="M4.8 20c1-3.6 4-5.6 7.2-5.6s6.2 2 7.2 5.6"/>',
-  building:     '<rect x="5" y="3.5" width="14" height="17" rx="1"/><line x1="9" y1="7.5" x2="9" y2="7.5"/><line x1="12" y1="7.5" x2="12" y2="7.5"/><line x1="15" y1="7.5" x2="15" y2="7.5"/><path d="M9 7.5h.01M12 7.5h.01M15 7.5h.01M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01"/><path d="M10 20.5V17h4v3.5"/>',
+  building:     '<rect x="5" y="3.5" width="14" height="17" rx="1"/><path stroke-linecap="round" d="M9 7.5h.01M12 7.5h.01M15 7.5h.01M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01"/><path d="M10 20.5V17h4v3.5"/>',
   externalLink: '<path d="M9 6H5.5A1.5 1.5 0 0 0 4 7.5v11A1.5 1.5 0 0 0 5.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/><polyline points="14 4 20 4 20 10"/><line x1="20" y1="4" x2="11" y2="13"/>',
   bell:         '<path d="M6 10.5a6 6 0 1 1 12 0c0 4.5 1.5 5.5 1.5 5.5h-15S6 15 6 10.5Z"/><path d="M10 19a2 2 0 0 0 4 0"/>',
   sun:          '<circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/><line x1="5" y1="5" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19" y2="19"/><line x1="19" y1="5" x2="17.2" y2="6.8"/><line x1="6.8" y1="17.2" x2="5" y2="19"/>',
@@ -45,6 +45,7 @@ const PATHS = {
   menu:         '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
   logout:       '<path d="M9 4H6a1.5 1.5 0 0 0-1.5 1.5v13A1.5 1.5 0 0 0 6 20h3"/><line x1="20" y1="12" x2="10.5" y2="12"/><polyline points="16 7.5 20.5 12 16 16.5"/>',
   eye:          '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3.2"/>',
+  robot:        '<rect x="6" y="8.5" width="12" height="10" rx="2"/><line x1="12" y1="8.5" x2="12" y2="5"/><circle cx="12" cy="4" r="1" fill="currentColor" stroke="none"/><circle cx="9.5" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13.5" r="1" fill="currentColor" stroke="none"/><line x1="9" y1="17" x2="15" y2="17"/>',
 };
 
 export function icon(name, cls){

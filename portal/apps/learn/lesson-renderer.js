@@ -10,17 +10,13 @@
    gated behind a Show Solution toggle (same accordion pattern as
    'troubleshoot'). Used by Control lab "Need Help?" sections. */
 import { icon } from '../../icons.js';
+import { escapeHtml } from '../../utils.js';
 
 function el(tag, cls, html){
   const e = document.createElement(tag);
   if (cls) e.className = cls;
   if (html !== undefined) e.innerHTML = html;
   return e;
-}
-
-function escapeHtml(s){
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /* Turns escaped text containing **bold**, *italic*, `code`, ==highlight==,

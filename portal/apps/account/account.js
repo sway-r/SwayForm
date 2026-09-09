@@ -2,6 +2,7 @@ import { icon } from '../../icons.js';
 import { CURRICULUM, labTotals, sectionProgress } from '../../data/curriculum.js';
 import { getSession, logout } from '../../services/auth-service.js';
 import { getCompletedActivities, resetProgress } from '../../services/progress-service.js';
+import { escapeHtml } from '../../utils.js';
 
 export const meta = {
   id: 'account',
@@ -29,11 +30,6 @@ const COMING_SOON = [
   },
 ];
 
-function escapeHtml(s){
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
 function initials(name){
   return name.split(' ').filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
 }
@@ -49,7 +45,20 @@ function statRow(label, done, total, iconName){
 
 async function render(container, ctx){
   const session = await getSession();
-  const isGuest = session && session.mode === 'guest';
+
+  // getSession() can transiently return null (a network/DB hiccup, not an
+  // actual logout — portal.js's boot()/showDesktop() already confirmed a
+  // real session exists before this window could even open) — show a
+  // recoverable message instead of crashing on session.displayName below.
+  if (!session){
+    container.innerHTML = `
+      <div class="acct-root p-scroll la-surface">
+        <p class="acct-error">Couldn't load your account right now. Try closing and reopening this window.</p>
+      </div>`;
+    return;
+  }
+
+  const isGuest = session.mode === 'guest';
   const completed = await getCompletedActivities();
   const labs = labTotals(completed);
 
@@ -106,7 +115,7 @@ async function render(container, ctx){
       </div>
 
       <div class="acct-actions">
-        <button type="button" class="p-btn ghost" data-reset>${icon('refresh')}<span>Reset local progress</span></button>
+        <button type="button" class="p-btn ghost" data-reset>${icon('refresh')}<span>${isGuest ? 'Reset local progress' : 'Reset my progress'}</span></button>
         <button type="button" class="p-btn ghost" disabled title="Not available yet">${icon('externalLink')}<span>Manage subscription</span></button>
         <button type="button" class="p-btn ghost" data-signout>${icon('logout')}<span>Logout</span></button>
       </div>
@@ -119,7 +128,10 @@ async function render(container, ctx){
     location.href = '/';
   });
   container.querySelector('[data-reset]').addEventListener('click', async () => {
-    if (!window.confirm('Reset all locally saved progress? Every activity will show as not started. This cannot be undone.')) return;
+    const confirmMsg = isGuest
+      ? 'Reset all locally saved progress? Every activity will show as not started. This cannot be undone.'
+      : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
+    if (!window.confirm(confirmMsg)) return;
     await resetProgress();
     render(container, ctx);
   });

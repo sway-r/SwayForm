@@ -1,3 +1,6 @@
+import { invalidateSessionCache } from '../services/auth-service.js';
+import { escapeHtml } from '../utils.js';
+
 export function mount(container, { session, onComplete }){
   container.innerHTML = `
     <div class="login-form-side">
@@ -43,7 +46,7 @@ export function mount(container, { session, onComplete }){
     .then((res) => res.json())
     .then(({ schools }) => {
       schoolSelect.innerHTML = '<option value="">Select your school…</option>' +
-        (schools || []).map((s) => `<option value="${s.replace(/"/g, '&quot;')}">${s}</option>`).join('');
+        (schools || []).map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
     })
     .catch(() => {
       schoolSelect.innerHTML = '<option value="">Couldn\'t load schools</option>';
@@ -72,6 +75,7 @@ export function mount(container, { session, onComplete }){
         body: JSON.stringify({ displayName, schoolName }),
       });
       if (!res.ok) throw new Error('Something went wrong saving your profile. Please try again.');
+      invalidateSessionCache();
       onComplete();
     } catch (err){
       note.textContent = err.message;

@@ -1,5 +1,6 @@
 import { icon } from '../../icons.js';
 import { getTheme, setTheme } from '../../theme.js';
+import { getSession } from '../../services/auth-service.js';
 import { resetProgress } from '../../services/progress-service.js';
 
 export const meta = {
@@ -110,9 +111,18 @@ export function mount(container, ctx){
     const fs = await import('../learn/editor/mock-fs.js');
     fs.resetAll();
   });
-  container.querySelector('[data-reset-progress]').addEventListener('click', () => {
-    if (!window.confirm('Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.')) return;
+  container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {
+    const session = await getSession();
+    const confirmMsg = (!session || session.mode === 'guest')
+      ? 'Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.'
+      : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
+    if (!window.confirm(confirmMsg)) return;
     resetProgress();
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    btn.textContent = 'Progress reset';
+    btn.disabled = true;
+    setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 1500);
   });
 
   ctx.setAppTitle && ctx.setAppTitle('Settings');

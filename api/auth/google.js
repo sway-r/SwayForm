@@ -1,14 +1,11 @@
 import { OAuth2Client } from 'google-auth-library';
 import { findRoleForEmail, enrichSessionWithProfile } from '../_lib/db.js';
-import { createSessionCookie } from '../_lib/session.js';
+import { createSessionCookie, requireMethod } from '../_lib/session.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export default async function handler(req, res){
-  if (req.method !== 'POST'){
-    res.status(405).json({ error: 'method_not_allowed' });
-    return;
-  }
+  if (!requireMethod(req, res, 'POST')) return;
 
   const { credential } = req.body || {};
   if (!credential){

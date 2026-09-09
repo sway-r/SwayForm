@@ -15,17 +15,30 @@ function writeGuestSession(session){
   } catch (e) { /* storage unavailable */ }
 }
 
+// Cached as the in-flight/resolved promise itself so several components
+// mounting in the same tick (a common case: boot() + several restored
+// windows each calling getSession()) share one network request instead of
+// each firing their own. Must be cleared by anything that actually changes
+// server-side session state (login, logout, completing onboarding) — see
+// invalidateSessionCache() — or callers would keep seeing stale state right
+// after one of those events.
+let sessionFetchPromise = null;
+
+export function invalidateSessionCache(){
+  sessionFetchPromise = null;
+}
+
 export async function getSession(){
   const guest = readGuestSession();
   if (guest) return guest;
 
-  try {
-    const res = await fetch('/api/auth/session');
-    const { session } = await res.json();
-    return session || null;
-  } catch (e) {
-    return null;
+  if (!sessionFetchPromise){
+    sessionFetchPromise = fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => data.session || null)
+      .catch(() => null);
   }
+  return sessionFetchPromise;
 }
 
 export async function isAuthenticated(){
@@ -35,6 +48,7 @@ export async function isAuthenticated(){
 export async function loginGuest(){
   const session = { mode: 'guest', displayName: 'Guest User', startedAt: new Date().toISOString() };
   writeGuestSession(session);
+  invalidateSessionCache();
   return session;
 }
 
@@ -50,6 +64,7 @@ export async function loginWithGoogle(credential){
   if (!res.ok){
     throw new Error(data.message || 'Google sign-in failed. Please try again.');
   }
+  invalidateSessionCache();
   return data.session;
 }
 
@@ -60,6 +75,7 @@ export async function loginWithCredentials(){
 
 export async function logout(){
   writeGuestSession(null);
+  invalidateSessionCache();
   try { await fetch('/api/auth/logout', { method: 'POST' }); }
   catch (e) { /* best-effort; cookie will just expire */ }
 }

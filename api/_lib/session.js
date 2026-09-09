@@ -51,3 +51,22 @@ export async function readSessionFromRequest(req){
     return null;
   }
 }
+
+/** Rejects with 405 and returns false unless req.method matches. */
+export function requireMethod(req, res, method){
+  if (req.method !== method){
+    res.status(405).json({ error: 'method_not_allowed' });
+    return false;
+  }
+  return true;
+}
+
+/** Reads the session cookie, rejecting with 401 if there isn't a valid one. */
+export async function requireSession(req, res){
+  const session = await readSessionFromRequest(req);
+  if (!session){
+    res.status(401).json({ error: 'not_authenticated' });
+    return null;
+  }
+  return session;
+}

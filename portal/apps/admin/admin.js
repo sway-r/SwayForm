@@ -1,3 +1,5 @@
+import { escapeHtml } from '../../utils.js';
+
 export const meta = {
   id: 'admin',
   title: 'Admin',
@@ -5,9 +7,11 @@ export const meta = {
   defaultSize: { w: 640, h: 640 },
 };
 
-function escapeHtml(s){
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+// The server (api/_lib/limits.js) is the actual source of truth and
+// enforcement point for these — mirrored here only for display, since a
+// browser module can't import server-only code. Keep in sync by hand.
+const MAX_ACTIVE_SEATS = 15;
+const MAX_TOTAL_STUDENTS = 40;
 
 async function fetchState(){
   const res = await fetch('/api/admin');
@@ -90,7 +94,7 @@ async function render(container, ctx){
   const archivedStudents = state.students.filter((s) => s.status === 'archived');
   const seatMap = new Map(activeStudents.map((s) => [s.seatNumber, s]));
   const seatRows = [];
-  for (let n = 1; n <= 15; n++) seatRows.push(seatRow(n, seatMap.get(n)));
+  for (let n = 1; n <= MAX_ACTIVE_SEATS; n++) seatRows.push(seatRow(n, seatMap.get(n)));
 
   container.innerHTML = `
     <div class="adm-root p-scroll la-surface">
@@ -110,13 +114,13 @@ async function render(container, ctx){
       </div>
 
       <div class="set-section">
-        <div class="set-section-title">Student seats <span class="set-mock-badge">${activeStudents.length} / 15 active</span></div>
+        <div class="set-section-title">Student seats <span class="set-mock-badge">${activeStudents.length} / ${MAX_ACTIVE_SEATS} active</span></div>
         <div class="set-card">${seatRows.join('')}</div>
       </div>
 
       ${archivedStudents.length ? `
         <div class="set-section">
-          <div class="set-section-title">Archived students <span class="set-mock-badge">${state.students.length} / 40 total</span></div>
+          <div class="set-section-title">Archived students <span class="set-mock-badge">${state.students.length} / ${MAX_TOTAL_STUDENTS} total</span></div>
           <div class="set-card">${archivedStudents.map(archivedRow).join('')}</div>
         </div>` : ''}
 

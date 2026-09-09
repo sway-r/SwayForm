@@ -66,6 +66,7 @@
     { "source": "/help/:path*",              "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/settings",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/my-robot",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
+    { "source": "/admin",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/",                         "destination": "/home.html" },
     { "source": "/sitemap.xml",              "destination": "/main-sitemap.xml" },
     { "source": "/robots.txt",               "destination": "/main-robots.txt" },

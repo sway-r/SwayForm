@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS admin_emails (
 -- one of 15 seats and can log in; 'archived' students were removed by the
 -- admin but their row (and progress) is kept until the admin permanently
 -- deletes it. Max 15 active + max 40 total (active+archived) per robot,
--- enforced by the Phase 2 admin API, not the DB.
+-- enforced by the admin API, not the DB.
 CREATE TABLE IF NOT EXISTS students (
   id SERIAL PRIMARY KEY,
   robot_id INTEGER NOT NULL REFERENCES robots(id) ON DELETE CASCADE,
@@ -42,23 +42,6 @@ CREATE TABLE IF NOT EXISTS students (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_students_active_seat
   ON students (robot_id, seat_number) WHERE status = 'active';
 
--- Phase 2 stubs, mirroring progress-service.js's two localStorage keys.
--- Keyed by student_id (not email) so a permanent delete (admin's "forget
--- this student forever" action) cascades and removes progress automatically.
-CREATE TABLE IF NOT EXISTS progress_completed (
-  student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-  activity_id TEXT NOT NULL,
-  completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (student_id, activity_id)
-);
-
-CREATE TABLE IF NOT EXISTS progress_current (
-  student_id INTEGER PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
-  activity_id TEXT,
-  step_index INTEGER NOT NULL DEFAULT 0,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
 -- One row per Google account that has completed onboarding. Collected once,
 -- right after a user's first real login, so the portal never shows
 -- fabricated identity data (name/school) for a real account.
@@ -67,5 +50,26 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   display_name TEXT NOT NULL,
   school_name TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Learning progress, mirroring progress-service.js's two localStorage keys.
+-- Keyed by email (any real account — admin/student/member all get a
+-- user_profiles row via onboarding), not student_id, since simulation
+-- progress belongs to the person, not to a specific robot seat. Cascades
+-- automatically when a user_profiles row is deleted (the admin panel's
+-- "delete this student's data forever" action deletes user_profiles, which
+-- takes progress with it for free via this foreign key).
+CREATE TABLE IF NOT EXISTS progress_completed (
+  email TEXT NOT NULL REFERENCES user_profiles(email) ON DELETE CASCADE,
+  activity_id TEXT NOT NULL,
+  completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (email, activity_id)
+);
+
+CREATE TABLE IF NOT EXISTS progress_current (
+  email TEXT PRIMARY KEY REFERENCES user_profiles(email) ON DELETE CASCADE,
+  activity_id TEXT,
+  step_index INTEGER NOT NULL DEFAULT 0,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

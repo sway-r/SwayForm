@@ -7,11 +7,12 @@ import * as AccountApp from './apps/account/account.js';
 import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
 import * as RobotApp from './apps/robot/robot.js';
+import * as AdminApp from './apps/admin/admin.js';
 import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 
-const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp]
+const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -57,6 +58,7 @@ function renderDesktopIcons(session){
 function REGISTRY_ORDER(session){
   const apps = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
   if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
+  if (session && session.mode === 'admin') apps.splice(1, 0, AdminApp);
   return apps;
 }
 
@@ -301,6 +303,7 @@ const ROUTES = {
   help: { app: 'help', parse: (p) => ({ topic: p[0] }) },
   settings: { app: 'settings', parse: () => ({}) },
   'my-robot': { app: 'robot', parse: () => ({}) },
+  admin: { app: 'admin', parse: () => ({}) },
 };
 
 function routeFromPath(pathname){
@@ -323,6 +326,7 @@ function pathForApp(appId, params){
     case 'help': return '/help' + (params.topic ? '/' + params.topic : '');
     case 'settings': return '/settings';
     case 'robot': return '/my-robot';
+    case 'admin': return '/admin';
     default: return '/';
   }
 }

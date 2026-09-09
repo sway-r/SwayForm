@@ -51,8 +51,16 @@
 }
 .login-btn:hover{background:var(--la-bg2);border-color:rgba(20,26,44,.18)}
 .login-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
-.login-btn.google{background:#fff;color:#1a1f2e;border-color:var(--la-border)}
-.login-btn.google:hover{background:var(--la-bg2)}
+
+/* Google's own rendered Sign-In button lives in [data-google] (an iframe
+   Google controls — can't be restyled by us beyond renderButton's options).
+   This is just the loading placeholder shown until GIS finishes loading. */
+.login-google-slot{
+  width:100%;padding:12px 16px;border-radius:8px;font-size:13px;text-align:center;
+  border:1px solid var(--la-border);background:var(--la-bg2);color:var(--la-faint);
+  margin-bottom:10px;
+}
+[data-google]{margin-bottom:10px}
 
 .login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--la-faint);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
 .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--la-border)}

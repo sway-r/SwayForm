@@ -40,10 +40,8 @@ export function mount(container, { onAuthenticated }){
           <div class="login-note" data-auth-note>Authentication isn't connected yet — use Continue as Guest below.</div>
           <button type="submit" class="login-btn">${icon('lock')}<span>Sign In</span></button>
         </form>
-        <button type="button" class="login-btn google" data-google>
-          <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M23 12.27c0-.8-.07-1.57-.2-2.32H12v4.4h6.2a5.3 5.3 0 0 1-2.3 3.48v2.9h3.7c2.17-2 3.4-4.94 3.4-8.46Z"/><path fill="#34A853" d="M12 23c3.1 0 5.7-1.02 7.6-2.77l-3.7-2.9c-1.03.7-2.35 1.1-3.9 1.1-3 0-5.54-2.02-6.45-4.75H1.7v2.98A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.55 13.68A6.6 6.6 0 0 1 5.2 12c0-.58.1-1.15.34-1.68V7.34H1.7A11 11 0 0 0 .5 12c0 1.77.43 3.45 1.2 4.66l3.85-2.98Z"/><path fill="#EA4335" d="M12 5.58c1.68 0 3.19.58 4.38 1.7l3.28-3.28C17.7 2.18 15.1 1 12 1a11 11 0 0 0-9.8 6.34l3.85 2.98C6.46 7.6 9 5.58 12 5.58Z"/></svg>
-          <span>Continue with Google</span>
-        </button>
+        <div class="login-google-slot" data-google-loading>Loading Google sign-in…</div>
+        <div data-google></div>
 
         <div class="login-divider">or</div>
 
@@ -61,10 +59,17 @@ export function mount(container, { onAuthenticated }){
   });
   // The GIS script tag loads with `async defer`, so it may not be ready yet
   // when this screen mounts (e.g. on a cold page load, or a slow school
-  // network). Disable the button and poll — indefinitely, not on a timeout
-  // — rather than giving up and leaving a clickable button that shows a
-  // stale "still loading" error forever after some arbitrary deadline.
-  const googleBtn = container.querySelector('[data-google]');
+  // network) — poll indefinitely rather than giving up on a timeout.
+  //
+  // This renders Google's own Sign-In button (google.accounts.id.renderButton)
+  // instead of a custom button that calls prompt() (One Tap) — prompt() is
+  // meant to appear automatically, not be triggered by a manual click, and
+  // is unreliable exactly like this on mobile (Safari blocks the
+  // third-party cookies it needs, and Google silently suppresses it after a
+  // few dismissals) — it can silently do nothing, with no error at all.
+  // renderButton is the actual supported click/tap sign-in entry point.
+  const googleSlot = container.querySelector('[data-google]');
+  const loadingNote = container.querySelector('[data-google-loading]');
   function initGoogleButton(){
     if (!(window.google && window.google.accounts && window.google.accounts.id)) return false;
     window.google.accounts.id.initialize({
@@ -79,19 +84,19 @@ export function mount(container, { onAuthenticated }){
         }
       },
     });
-    googleBtn.disabled = false;
-    googleBtn.removeAttribute('aria-busy');
-    googleBtn.onclick = () => window.google.accounts.id.prompt();
+    loadingNote.hidden = true;
+    const width = Math.round(googleSlot.getBoundingClientRect().width) || 328;
+    window.google.accounts.id.renderButton(googleSlot, {
+      theme: 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', logo_alignment: 'left', width,
+    });
     return true;
   }
   if (!initGoogleButton()){
-    googleBtn.disabled = true;
-    googleBtn.setAttribute('aria-busy', 'true');
     // No giving-up timeout — but do stop once this screen is gone (e.g. the
     // user logged in as guest while GIS was still loading), or this would
     // poll forever in the background for the rest of the page's life.
     const retry = setInterval(() => {
-      if (!googleBtn.isConnected){ clearInterval(retry); return; }
+      if (!googleSlot.isConnected){ clearInterval(retry); return; }
       if (initGoogleButton()) clearInterval(retry);
     }, 200);
   }

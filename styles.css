@@ -855,5 +855,18 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .roadmap-col.roadmap-current .roadmap-items li::before{content:'✓';position:absolute;left:0;color:#00804a;font-weight:800;font-size:11px;top:1px}
 .roadmap-col.roadmap-indev .roadmap-items li::before{content:'◌';position:absolute;left:0;color:#b35d00;font-size:13px;top:0}
 .roadmap-col.roadmap-planned .roadmap-items li::before{content:'○';position:absolute;left:0;color:var(--faint);font-size:13px;top:0}
+
+/* ── STICKY MOBILE CTA ── */
+#sticky-cta{display:none}
+@media(max-width:768px){
+  #sticky-cta{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:890;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(0,0,0,.08);
+  }
+  #sticky-cta .btn{flex:1;justify-content:center;text-align:center}
+  body{padding-bottom:70px}
+}
 @media(max-width:860px){.roadmap-grid{grid-template-columns:1fr}}
 </style>

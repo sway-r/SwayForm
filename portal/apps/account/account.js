@@ -1,5 +1,4 @@
 import { icon } from '../../icons.js';
-import { ACCOUNT_MOCK } from '../../data/account-mock.js';
 import { CURRICULUM, labTotals, sectionProgress } from '../../data/curriculum.js';
 import { getSession, logout } from '../../services/auth-service.js';
 import { getCompletedActivities, resetProgress } from '../../services/progress-service.js';
@@ -10,6 +9,30 @@ export const meta = {
   icon: 'account',
   defaultSize: { w: 760, h: 640 },
 };
+
+const ROLE_LABELS = { admin: 'Admin', student: 'Student', member: 'Member' };
+
+// Still genuinely true — features SwayForm hasn't built yet, not fabricated
+// data about this account.
+const COMING_SOON = [
+  {
+    label: 'School Organization',
+    description: "Join your class or school's account to share progress with an instructor, coming with school accounts.",
+  },
+  {
+    label: 'Instructor Review',
+    description: 'Get structured feedback from a teacher on your labs, coming with school accounts.',
+  },
+  {
+    label: 'Subscription & Billing',
+    description: 'Manage a paid Learning Hub plan and billing details once commercial plans are available.',
+  },
+];
+
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 function initials(name){
   return name.split(' ').filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
@@ -25,32 +48,31 @@ function statRow(label, done, total, iconName){
 }
 
 async function render(container, ctx){
-  const a = ACCOUNT_MOCK;
   const session = await getSession();
   const isGuest = session && session.mode === 'guest';
   const completed = await getCompletedActivities();
   const labs = labTotals(completed);
 
-  // NOTE: the non-guest branch below renders ACCOUNT_MOCK's fabricated
-  // identity (name/school/plan) as if it were real. It's unreachable today —
-  // loginWithCredentials() in auth-service.js always throws, so no session
-  // with mode !== 'guest' can exist yet — but if credential login is wired
-  // up before real account data replaces account-mock.js, this must not
-  // ship unlabeled as a genuine account.
-  const displayName = isGuest ? 'Guest User' : a.studentName;
-  const roleLine = isGuest ? 'Guest session · progress saved in this browser only' : `${a.role} · ${a.school}`;
+  const displayName = isGuest ? 'Guest User' : (session.displayName || session.name || 'Signed in');
+  const roleLine = isGuest
+    ? 'Guest session · progress saved in this browser only'
+    : `${ROLE_LABELS[session.mode] || 'Member'} · ${session.schoolName || 'No school on file'}`;
+
+  const avatar = (!isGuest && session.picture)
+    ? `<img class="acct-avatar" src="${escapeHtml(session.picture)}" alt="">`
+    : `<div class="acct-avatar">${initials(displayName)}</div>`;
 
   const perSection = CURRICULUM.sections.map((section) => ({ section, ...sectionProgress(section.id, completed) }));
 
   container.innerHTML = `
     <div class="acct-root p-scroll la-surface">
       <div class="acct-hero">
-        <div class="acct-avatar">${initials(displayName)}</div>
+        ${avatar}
         <div class="acct-hero-info">
-          <div class="acct-name">${displayName}</div>
-          <div class="acct-role">${roleLine}</div>
+          <div class="acct-name">${escapeHtml(displayName)}</div>
+          <div class="acct-role">${escapeHtml(roleLine)}</div>
           <div class="acct-badges">
-            ${isGuest ? '<span class="acct-badge plan">Guest Mode</span>' : `<span class="acct-badge plan">${a.plan}</span><span class="acct-badge id">${a.accountId}</span>`}
+            ${isGuest ? '<span class="acct-badge plan">Guest Mode</span>' : ''}
           </div>
         </div>
       </div>
@@ -70,16 +92,16 @@ async function render(container, ctx){
             ? `<div class="acct-row"><span>Mode</span><span>Guest</span></div>
                <div class="acct-row"><span>Progress</span><span>Local to this browser</span></div>
                <div class="acct-row"><span>Session started</span><span>${session.startedAt ? new Date(session.startedAt).toLocaleString(undefined, { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}</span></div>`
-            : `<div class="acct-row"><span>Member since</span><span>${new Date(a.memberSince).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span></div>
-               <div class="acct-row"><span>School / organization</span><span>${a.school}</span></div>
-               <div class="acct-row"><span>Plan</span><span>${a.plan}</span></div>`}
+            : `<div class="acct-row"><span>Member since</span><span>${session.profileCreatedAt ? new Date(session.profileCreatedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}</span></div>
+               <div class="acct-row"><span>School / organization</span><span>${escapeHtml(session.schoolName || '—')}</span></div>
+               <div class="acct-row"><span>Email</span><span>${escapeHtml(session.email || '—')}</span></div>`}
         </div>
       </div>
 
       <div class="acct-section">
-        <div class="acct-section-title">Coming with school accounts</div>
+        <div class="acct-section-title">Coming soon</div>
         <div class="acct-coming">
-          ${a.comingSoon.map((c) => `<div class="acct-coming-item"><div class="acct-coming-label">${c.label}</div><div class="acct-coming-desc">${c.description}</div></div>`).join('')}
+          ${COMING_SOON.map((c) => `<div class="acct-coming-item"><div class="acct-coming-label">${c.label}</div><div class="acct-coming-desc">${c.description}</div></div>`).join('')}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { findRoleForEmail } from '../_lib/db.js';
+import { findRoleForEmail, enrichSessionWithProfile } from '../_lib/db.js';
 import { createSessionCookie } from '../_lib/session.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -49,5 +49,5 @@ export default async function handler(req, res){
 
   const cookie = await createSessionCookie(session);
   res.setHeader('Set-Cookie', cookie);
-  res.status(200).json({ session });
+  res.status(200).json({ session: await enrichSessionWithProfile(session) });
 }

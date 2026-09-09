@@ -8,6 +8,7 @@ import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
 import * as RobotApp from './apps/robot/robot.js';
 import * as Login from './auth/login.js';
+import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 
 const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp]
@@ -419,10 +420,20 @@ window.addEventListener('resize', () => {
 
 /* ---------------------------------------------------------- Boot / auth gate */
 async function showDesktop(){
+  const session = await getSession();
+
+  // Every path into the desktop (boot, Google login, guest login) funnels
+  // through here — so this is the one place a first-time real login gets
+  // routed to onboarding instead, before anything renders fabricated-looking
+  // fallback state for a profile that doesn't exist yet.
+  if (session && session.mode !== 'guest' && session.hasProfile === false){
+    showOnboarding(session);
+    return;
+  }
+
   loginRootEl.hidden = true;
   desktopEl.hidden = false;
 
-  const session = await getSession();
   guestBadgeEl.hidden = !(session && session.mode === 'guest');
 
   renderDesktopIcons(session);
@@ -446,6 +457,12 @@ function showLogin(){
   Login.mount(loginRootEl, {
     onAuthenticated: () => { showDesktop(); },
   });
+}
+
+function showOnboarding(session){
+  desktopEl.hidden = true;
+  loginRootEl.hidden = false;
+  Onboarding.mount(loginRootEl, { session, onComplete: () => showDesktop() });
 }
 
 async function boot(){

@@ -58,3 +58,14 @@ CREATE TABLE IF NOT EXISTS progress_current (
   step_index INTEGER NOT NULL DEFAULT 0,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- One row per Google account that has completed onboarding. Collected once,
+-- right after a user's first real login, so the portal never shows
+-- fabricated identity data (name/school) for a real account.
+CREATE TABLE IF NOT EXISTS user_profiles (
+  email TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  school_name TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

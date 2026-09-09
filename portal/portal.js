@@ -55,8 +55,12 @@ function renderDesktopIcons(session){
 // branches on whether a robot is actually linked, since "not linked yet" is
 // a real, honest state worth showing (with a path to simulation access),
 // not a reason to hide the icon entirely.
+// Projects is hidden for now — it's 100% fake data (mock-projects.js) with
+// no real backend behind it yet. Still registered (so /project/:id routing
+// and restoreOpenApps() keep working if anything reaches it directly), just
+// not offered as a desktop icon until it's real.
 function REGISTRY_ORDER(session){
-  const apps = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp];
+  const apps = [LearnApp, AccountApp, HelpApp, SettingsApp];
   if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
   if (session && session.mode === 'admin') apps.splice(1, 0, AdminApp);
   return apps;

@@ -11,6 +11,7 @@ import * as AdminApp from './apps/admin/admin.js';
 import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
+import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
 const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
@@ -41,14 +42,29 @@ function renderDesktopIcons(session){
     const btn = document.createElement('button');
     btn.className = 'desktop-icon';
     btn.type = 'button';
+    btn.dataset.appId = mod.meta.id;
     btn.setAttribute('role', 'listitem');
     btn.setAttribute('aria-label', mod.meta.title);
     btn.innerHTML = `
-      <span class="desktop-icon-glyph">${icon(mod.meta.icon)}</span>
+      <span class="desktop-icon-glyph">${icon(mod.meta.icon)}<span class="desktop-icon-badge" data-badge hidden></span></span>
       <span class="desktop-icon-label">${mod.meta.title}</span>`;
     btn.addEventListener('click', () => openApp(mod.meta.id));
     desktopIconsEl.appendChild(btn);
   });
+}
+
+const BASE_TITLE = document.title;
+
+/** Admin-only: a badge on the Admin desktop icon + a "(N)" tab-title prefix
+ * for pending Run on Robot submissions, so an admin notices a student is
+ * waiting even without the Admin app open. See robot-jobs-service.js. */
+function setAdminJobBadge(count){
+  const badgeEl = desktopIconsEl.querySelector('[data-app-id="admin"] [data-badge]');
+  if (badgeEl){
+    badgeEl.hidden = count <= 0;
+    badgeEl.textContent = count > 9 ? '9+' : String(count);
+  }
+  document.title = count > 0 ? `(${count}) ${BASE_TITLE}` : BASE_TITLE;
 }
 
 // Studio (studio/server/content-load.mjs + adapters/portal-home-writer.mjs)
@@ -460,6 +476,14 @@ async function showDesktop(){
   guestBadgeEl.hidden = !(session && session.mode === 'guest');
 
   renderDesktopIcons(session);
+
+  if (session && session.mode === 'admin'){
+    startAdminJobWatch();
+    onPendingCountChange(setAdminJobBadge);
+  } else {
+    stopAdminJobWatch();
+    setAdminJobBadge(0);
+  }
 
   // Always restore whatever was open last session first (with its saved
   // geometry) — otherwise refreshing on a deep link like /learn or /account

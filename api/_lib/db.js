@@ -73,6 +73,41 @@ export async function recordTermsAcceptance(email, version){
   `;
 }
 
+/**
+ * Per-email progress summary for the admin panel's student list: how many
+ * activities completed, and what (if anything) they're currently on.
+ * Returns a map keyed by email — emails with no progress rows simply don't
+ * appear in the result, callers should treat a missing entry as "0 completed,
+ * nothing in progress" rather than an error.
+ */
+export async function fetchProgressSummary(emails){
+  if (!emails.length) return {};
+
+  const [completedCounts, currentRows] = await Promise.all([
+    sql`
+      SELECT email, count(*) AS n FROM progress_completed
+      WHERE email = ANY(${emails}) GROUP BY email
+    `,
+    sql`
+      SELECT email, activity_id, updated_at FROM progress_current
+      WHERE email = ANY(${emails})
+    `,
+  ]);
+
+  const summary = {};
+  for (const row of completedCounts){
+    summary[row.email] = { completedCount: Number(row.n), currentActivityId: null, currentUpdatedAt: null };
+  }
+  for (const row of currentRows){
+    summary[row.email] = {
+      ...(summary[row.email] || { completedCount: 0 }),
+      currentActivityId: row.activity_id,
+      currentUpdatedAt: row.updated_at,
+    };
+  }
+  return summary;
+}
+
 export async function listSchoolNames(){
   const rows = await sql`
     SELECT DISTINCT school_name FROM robots

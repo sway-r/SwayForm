@@ -129,13 +129,19 @@
 .desktop-icon:hover,.desktop-icon:focus-visible{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}
 .desktop-icon:focus-visible{outline:2px solid var(--p-accent);outline-offset:1px}
 .desktop-icon-glyph{
-  width:46px;height:46px;border-radius:11px;
+  position:relative;width:46px;height:46px;border-radius:11px;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(155deg,rgba(255,255,255,.1),rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.12);
 }
 .desktop-icon-glyph svg{width:21px;height:21px;stroke:#eaf0ff;fill:none;stroke-width:1.6}
 .desktop-icon-label{font-size:11px;font-weight:600;color:#dfe6f4;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.desktop-icon-badge{
+  position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;
+  border-radius:20px;background:var(--p-red);color:#fff;font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
 
 /* ── Windows layer ──────────────────────────────────────── */
 .windows-layer{position:absolute;top:var(--topline-h);left:0;right:0;bottom:var(--taskbar-h);z-index:10;pointer-events:none}

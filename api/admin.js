@@ -1,7 +1,8 @@
 import { readSessionFromRequest } from './_lib/session.js';
-import { sql } from './_lib/db.js';
+import { sql, fetchProgressSummary } from './_lib/db.js';
 import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
+import { findItem } from '../portal/data/curriculum.js';
 
 export default async function handler(req, res){
   const session = await readSessionFromRequest(req);
@@ -25,10 +26,25 @@ export default async function handler(req, res){
         ORDER BY (status = 'active') DESC, seat_number, created_at
       `,
     ]);
+
+    // Only active students' progress is worth the admin's time — archived
+    // students' work is preserved in the DB but not surfaced here.
+    const activeEmails = studentRows.filter((r) => r.status === 'active').map((r) => r.email);
+    const progress = await fetchProgressSummary(activeEmails);
+
     res.status(200).json({
       robotSerial: robotRows[0] && robotRows[0].serial_number,
       adminEmails: emailRows.map((r) => r.email),
-      students: studentRows.map((r) => ({ id: r.id, email: r.email, seatNumber: r.seat_number, status: r.status })),
+      students: studentRows.map((r) => {
+        const p = progress[r.email];
+        const current = p && p.currentActivityId ? findItem(p.currentActivityId) : null;
+        return {
+          id: r.id, email: r.email, seatNumber: r.seat_number, status: r.status,
+          completedCount: p ? p.completedCount : 0,
+          currentActivityTitle: current ? current.item.title : null,
+          currentActivityUpdatedAt: p ? p.currentUpdatedAt : null,
+        };
+      }),
     });
     return;
   }

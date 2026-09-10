@@ -1,8 +1,9 @@
 /**
- * Verifies a server-to-server request from the bridge VPS (agent-auth,
- * heartbeat, and later job-result). A static shared secret is enough here —
- * this call never reaches a browser, unlike the short-lived per-viewer JWTs
- * used for browser-facing bridge access added in later phases.
+ * Verifies a server-to-server request from the bridge VPS (api/robot/agent.js
+ * — auth, heartbeat, and job lifecycle updates). A static shared secret is
+ * enough here — this call never reaches a browser, unlike the short-lived
+ * per-viewer JWTs used for browser-facing bridge access added in later
+ * phases.
  */
 export function requireBridgeSecret(req, res){
   const expected = process.env.BRIDGE_SERVICE_SECRET;

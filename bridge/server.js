@@ -50,15 +50,15 @@ wss.on('connection', (ws) => {
 
     if (msg.t === 'hello'){
       try {
-        const auth = await callApi('/api/robot/agent-auth', { token: msg.token, serial: msg.serial });
+        const auth = await callApi('/api/robot/agent', { action: 'auth', token: msg.token, serial: msg.serial });
         robotId = auth.robotId;
         agentVersion = msg.agentVersion || null;
 
-        await callApi('/api/robot/heartbeat', { robotId, online: true, agentVersion });
+        await callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion });
         ws.send(JSON.stringify({ t: 'hello.ok', robotId, heartbeatIntervalMs: HEARTBEAT_INTERVAL_MS }));
 
         heartbeatTimer = setInterval(() => {
-          callApi('/api/robot/heartbeat', { robotId, online: true, agentVersion }).catch((e) => {
+          callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion }).catch((e) => {
             console.error('heartbeat write failed:', e.message);
           });
         }, HEARTBEAT_INTERVAL_MS);
@@ -73,30 +73,30 @@ wss.on('connection', (ws) => {
     }
 
     if (msg.t === 'job.accepted'){
-      callApi('/api/robot/job-update', { jobId: msg.jobId, phase: 'started' }).catch((e) => {
-        console.error('job-update(started) failed:', e.message);
+      callApi('/api/robot/agent', { action: 'job-started', jobId: msg.jobId }).catch((e) => {
+        console.error('job-started failed:', e.message);
       });
       return;
     }
 
     if (msg.t === 'job.output'){
-      callApi('/api/robot/job-update', { jobId: msg.jobId, phase: 'output', text: msg.text || '' }).catch((e) => {
-        console.error('job-update(output) failed:', e.message);
+      callApi('/api/robot/agent', { action: 'job-output', jobId: msg.jobId, text: msg.text || '' }).catch((e) => {
+        console.error('job-output failed:', e.message);
       });
       return;
     }
 
     if (msg.t === 'job.exit'){
-      callApi('/api/robot/job-update', { jobId: msg.jobId, phase: 'finished', exitCode: msg.exitCode }).catch((e) => {
-        console.error('job-update(finished) failed:', e.message);
+      callApi('/api/robot/agent', { action: 'job-finished', jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
+        console.error('job-finished failed:', e.message);
       });
       return;
     }
 
     if (msg.t === 'job.error'){
       console.error(`agent reported job.error for job ${msg.jobId}: ${msg.code} — ${msg.message}`);
-      callApi('/api/robot/job-update', { jobId: msg.jobId, phase: 'finished', exitCode: 1 }).catch((e) => {
-        console.error('job-update(finished/error) failed:', e.message);
+      callApi('/api/robot/agent', { action: 'job-finished', jobId: msg.jobId, exitCode: 1 }).catch((e) => {
+        console.error('job-finished(error) failed:', e.message);
       });
       return;
     }
@@ -109,7 +109,7 @@ wss.on('connection', (ws) => {
     if (heartbeatTimer) clearInterval(heartbeatTimer);
     if (dispatchTimer) clearInterval(dispatchTimer);
     if (robotId){
-      callApi('/api/robot/heartbeat', { robotId, online: false }).catch((e) => {
+      callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: false }).catch((e) => {
         console.error('offline heartbeat write failed:', e.message);
       });
     }
@@ -119,7 +119,7 @@ wss.on('connection', (ws) => {
 async function pollDispatchQueue(ws, robotId, dispatchedJobIds){
   if (ws.readyState !== ws.OPEN) return;
   try {
-    const { jobs } = await getApi(`/api/robot/dispatch-queue?robotId=${robotId}`);
+    const { jobs } = await getApi(`/api/robot/agent?action=dispatch-queue&robotId=${robotId}`);
     for (const job of jobs){
       if (dispatchedJobIds.has(job.jobId)) continue;
       dispatchedJobIds.add(job.jobId);

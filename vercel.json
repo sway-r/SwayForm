@@ -99,5 +99,8 @@
         { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
       ]
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/cleanup-robot-jobs", "schedule": "0 9 * * *" }
   ]
 }

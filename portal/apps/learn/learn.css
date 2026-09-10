@@ -162,6 +162,7 @@
 .term-line.term-cmd{color:#7dffbd}
 .term-line.term-ok{color:#4fd68e}
 .term-line.term-warn{color:var(--p-yellow)}
+.term-line.term-err{color:var(--p-red)}
 .term-line.term-accent{color:#7fb2ff}
 
 @media(max-width:900px){

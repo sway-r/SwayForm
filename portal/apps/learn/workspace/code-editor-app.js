@@ -11,6 +11,8 @@ import { OutputPanel } from '../editor/terminal-panel.js';
 import { WorkspaceToolbar } from '../editor/workspace-toolbar.js';
 import * as fs from '../editor/mock-fs.js';
 import { isReadOnlyFile, defaultOpenFileFor } from '../../../data/workspace-config.js';
+import { packageAndEntry, isCanonicalRobotPath } from './ros-paths.js';
+import { getSession } from '../../../services/auth-service.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -18,6 +20,18 @@ export function mount(bodyEl, winApi, opts) {
   const { activity, onRun } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
+  let hasRobot = false;
+  // Queue only becomes tappable after Run on Robot passes for exactly this
+  // content — any edit since (tracked in the onChange handler below) closes
+  // the gate again, so a student can never queue code that wasn't the exact
+  // thing just verified.
+  let lastValidated = { path: null, content: null, ok: false };
+  let jobPollTimer = null;
+
+  getSession().then((session) => {
+    hasRobot = !!(session && session.robotId);
+    if (tabs.activePath) toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(tabs.activePath));
+  });
 
   // Scope the explorer to this activity's own file — a student working
   // through the Wave demo (or any one lab) doesn't need every other demo/lab
@@ -79,6 +93,7 @@ export function mount(bodyEl, winApi, opts) {
   output.toggleCollapse(true);
   const toolbar = new WorkspaceToolbar(toolbarEl, {
     onRun: runActiveFile, onCheck: checkActiveFile, onSave: saveActiveFile, onReset: resetActiveFile,
+    onRunOnRobot: runOnRobot, onQueue: queueOnRobot,
   });
 
   editorSurfaceEl.innerHTML = '<div class="editor-loading">Loading editor…</div>';
@@ -89,6 +104,7 @@ export function mount(bodyEl, winApi, opts) {
     // Unsaved/Saved status instead of claiming to be saved before it is.
     onChange: (path, value) => {
       if (tabs.activePath === path) toolbar.setFileStatus('Unsaved changes…');
+      if (path === lastValidated.path && value !== lastValidated.content) toolbar.setQueueEnabled(false);
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => persist(path, value), 500);
     },
@@ -124,12 +140,8 @@ export function mount(bodyEl, winApi, opts) {
     tabs.setActive(path);
     explorer.setActive(path);
     toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/') + (readOnly ? '  ·  read-only' : ''));
+    toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(path));
     winApi.setTitle(path.split('/').pop());
-  }
-
-  function packageAndEntry(path){
-    const parts = path.split('/');
-    return { pkg: parts[2] || 'swayform_demos', file: parts[parts.length - 1].replace(/\.py$/, '') };
   }
 
   function runActiveFile(){
@@ -163,6 +175,120 @@ export function mount(bodyEl, winApi, opts) {
       output.appendLine(`Check passed — no TODO markers remain in ${path.split('/').pop()}. Nice work.`, 'term-ok', 'output');
       output.setActive('output');
     }
+  }
+
+  async function runOnRobot(){
+    const path = tabs.activePath;
+    if (!path) return;
+    output.toggleCollapse(false);
+    toolbar.setRunRobotBusy(true);
+    const content = fs.readFile(path) || '';
+    try {
+      const res = await fetch('/api/robot/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'validate', path, code: content }),
+      });
+      const data = await res.json();
+      output.clear('output');
+      if (res.ok && data.valid){
+        lastValidated = { path, content, ok: true };
+        toolbar.setQueueEnabled(true);
+        output.appendLine(`Run on Robot: passed — this matches the verified working ${path.split('/').pop()} exactly. Queue is now available.`, 'term-ok', 'output');
+      } else {
+        lastValidated = { path, content, ok: false };
+        toolbar.setQueueEnabled(false);
+        const reason = data.reason === 'no_canonical_source'
+          ? "There's no verified working version of this file to check against yet."
+          : "This doesn't exactly match the verified working version — even a single character or whitespace difference fails this check.";
+        output.appendLine(`Run on Robot: failed — ${reason}`, 'term-err', 'output');
+      }
+      output.setActive('output');
+    } catch (e) {
+      output.appendLine('Run on Robot: could not reach the server. Try again.', 'term-err', 'output');
+      output.setActive('output');
+    }
+    toolbar.setRunRobotBusy(false);
+  }
+
+  async function queueOnRobot(){
+    const path = tabs.activePath;
+    if (!path || !lastValidated.ok || lastValidated.path !== path) return;
+    toolbar.setQueueEnabled(false);
+    try {
+      const res = await fetch('/api/robot/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'submit', path, code: lastValidated.content }),
+      });
+      const data = await res.json();
+      output.clear('output');
+      if (res.ok && data.ok){
+        output.appendLine(`Queued — position ${data.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
+        lastValidated = { path: null, content: null, ok: false };
+        watchJob(data.jobId);
+      } else if (data.error === 'cooldown'){
+        const seconds = Math.ceil((data.retryAfterMs || 0) / 1000);
+        output.appendLine(`Please wait ${seconds}s before queueing again.`, 'term-warn', 'output');
+        toolbar.setQueueEnabled(true);
+      } else if (data.error === 'code_mismatch'){
+        output.appendLine('The code changed since it was last verified — run "Run on Robot" again.', 'term-err', 'output');
+        lastValidated = { path: null, content: null, ok: false };
+      } else {
+        output.appendLine(`Couldn't queue: ${data.message || data.error || 'unknown error'}`, 'term-err', 'output');
+        toolbar.setQueueEnabled(true);
+      }
+      output.setActive('output');
+    } catch (e) {
+      output.appendLine('Could not reach the server. Try again.', 'term-err', 'output');
+      toolbar.setQueueEnabled(true);
+      output.setActive('output');
+    }
+  }
+
+  const JOB_STATUS_LINE = {
+    approved: ['An admin approved it — waiting for the robot to pick it up.', 'term-ok'],
+    running: ['Running on the real robot now…', 'term-ok'],
+    succeeded: ['Succeeded.', 'term-ok'],
+    failed: ['Failed.', 'term-err'],
+    rejected: ['An admin rejected this submission.', 'term-err'],
+    cancelled: ['Cancelled.', 'term-warn'],
+  };
+
+  /** Polls this job's status after queueing and appends a line to the
+   * output panel each time it changes, so a student watching sees real
+   * progress (approved -> running -> succeeded/failed) without needing a
+   * separate app. Stops once the job reaches a terminal status. */
+  function watchJob(jobId){
+    clearInterval(jobPollTimer);
+    let lastSeenStatus = 'pending';
+    let lastOutputLen = 0;
+    jobPollTimer = setInterval(async () => {
+      let jobs;
+      try {
+        const res = await fetch('/api/robot/queue');
+        if (!res.ok) return;
+        ({ jobs } = await res.json());
+      } catch (e) { return; }
+
+      const job = jobs.find((j) => j.id === jobId);
+      if (!job) return;
+
+      if (job.status !== lastSeenStatus){
+        lastSeenStatus = job.status;
+        const [text, cls] = JOB_STATUS_LINE[job.status] || [job.status, 'term-warn'];
+        output.appendLine(text, cls, 'output');
+        output.setActive('output');
+      }
+      if (job.output && job.output.length > lastOutputLen){
+        output.appendLine(job.output.slice(lastOutputLen), 'output-line', 'output');
+        lastOutputLen = job.output.length;
+      }
+      if (['succeeded', 'failed', 'rejected', 'cancelled'].includes(job.status)){
+        clearInterval(jobPollTimer);
+        jobPollTimer = null;
+      }
+    }, 3000);
   }
 
   // Shared by both the debounced autosave and the explicit Save button, so
@@ -202,6 +328,6 @@ export function mount(bodyEl, winApi, opts) {
     openFile,
     insertCode(code){ if (editor) editor.insertAtCursor(code); },
     save: saveActiveFile,
-    dispose(){ clearTimeout(saveTimer); if (editor) editor.dispose(); },
+    dispose(){ clearTimeout(saveTimer); clearInterval(jobPollTimer); if (editor) editor.dispose(); },
   };
 }

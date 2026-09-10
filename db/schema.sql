@@ -76,6 +76,39 @@ CREATE TABLE IF NOT EXISTS progress_current (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- "Run on Robot" submission queue. See db/migrations/004_robot_jobs.sql and
+-- docs/robot-connectivity.md. Terminal jobs are purged after 90 days by
+-- api/cron/cleanup-robot-jobs.js — see /data-retention on the public site.
+CREATE TABLE IF NOT EXISTS robot_jobs (
+  id             SERIAL PRIMARY KEY,
+  robot_id       INTEGER NOT NULL REFERENCES robots(id) ON DELETE CASCADE,
+  -- References user_profiles so deleting a student's account cascades to
+  -- their submitted code/output, same pattern as progress_completed above.
+  student_email  TEXT NOT NULL REFERENCES user_profiles(email) ON DELETE CASCADE,
+  workspace_path TEXT NOT NULL,
+  package        TEXT NOT NULL,
+  executable     TEXT NOT NULL,
+  code           TEXT NOT NULL,
+  code_sha256    TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'pending'
+                 CHECK (status IN ('pending','approved','running','succeeded','failed','rejected','cancelled')),
+  queue_position INTEGER,
+  decided_by     TEXT,
+  reject_reason  TEXT,
+  exit_code      INTEGER,
+  output         TEXT,
+  submitted_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  decided_at     TIMESTAMPTZ,
+  started_at     TIMESTAMPTZ,
+  finished_at    TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_robot_jobs_queue ON robot_jobs (robot_id, status, queue_position);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_robot_jobs_one_running
+  ON robot_jobs (robot_id) WHERE status = 'running';
+CREATE INDEX IF NOT EXISTS idx_robot_jobs_terminal_age
+  ON robot_jobs (status, finished_at, decided_at, submitted_at)
+  WHERE status IN ('succeeded','failed','rejected','cancelled');
+
 -- Clickwrap acceptance record for the Terms of Use + Privacy Policy, written
 -- on every Google sign-in (including a user's first, pre-onboarding). Not
 -- tied to user_profiles so it survives even if onboarding is never

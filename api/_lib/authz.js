@@ -16,11 +16,14 @@ export async function requireCurrentAdmin(session){
 /**
  * Same re-validation, but accepts either an admin or an active student —
  * for endpoints any linked account may read (e.g. robot online/offline
- * status). Returns the current robotId, or null if unauthorized.
+ * status). Returns { robotId, role } (the CURRENT database role, not the
+ * possibly-stale session.mode — a caller that needs to know whether this
+ * request is from an admin must check the returned role, not session.mode)
+ * on success, or null if unauthorized.
  */
 export async function requireCurrentRobotMember(session){
   if (!session || (session.mode !== 'admin' && session.mode !== 'student')) return null;
   const current = await findRoleForEmail(session.email);
   if (!current || current.robotId !== session.robotId) return null;
-  return current.robotId;
+  return { robotId: current.robotId, role: current.role };
 }

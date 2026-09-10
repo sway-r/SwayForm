@@ -11,11 +11,12 @@ export default async function handler(req, res){
   if (!requireMethod(req, res, 'GET')) return;
 
   const session = await readSessionFromRequest(req);
-  const robotId = await requireCurrentRobotMember(session);
-  if (!robotId){
+  const member = await requireCurrentRobotMember(session);
+  if (!member){
     res.status(401).json({ error: 'not_authorized' });
     return;
   }
+  const robotId = member.robotId;
 
   const rows = await sql`
     SELECT serial_number, is_online, last_seen_at, agent_version

@@ -107,7 +107,12 @@ function queueSectionHtml(jobs){
   return `
     <div class="set-section-title">Run on Robot queue ${pendingJobs.length ? `<span class="set-mock-badge">${pendingJobs.length} pending</span>` : ''}</div>
     ${openJobs.length ? `<div class="rq-list">${openJobs.map((j) => jobRow(j, pendingJobs)).join('')}</div>` : '<div class="set-card"><p class="adm-loading">No submissions waiting right now.</p></div>'}
-    ${closedJobs.length ? `<details class="rq-history"><summary>Recent history (${closedJobs.length})</summary><div class="rq-list">${closedJobs.map((j) => jobRow(j, [])).join('')}</div></details>` : ''}
+    ${closedJobs.length ? `
+      <details class="rq-history">
+        <summary>Recent history (${closedJobs.length})</summary>
+        <div class="rq-history-actions"><button type="button" class="p-btn ghost" data-clear-history>Clear history</button></div>
+        <div class="rq-list">${closedJobs.map((j) => jobRow(j, [])).join('')}</div>
+      </details>` : ''}
   `;
 }
 
@@ -261,6 +266,15 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
       catch (err){ showError(container, err.message); }
     });
   });
+
+  const clearHistoryBtn = root.querySelector('[data-clear-history]');
+  if (clearHistoryBtn){
+    clearHistoryBtn.addEventListener('click', async () => {
+      if (!window.confirm('Permanently delete this robot\'s finished submission history (succeeded/failed/rejected/cancelled)? Pending, approved, and running jobs are not affected. This cannot be undone.')) return;
+      try { await postQueueAction({ action: 'clear_history' }); await refreshQueue(); }
+      catch (err){ showError(container, err.message); }
+    });
+  }
 
   root.querySelectorAll('[data-move-up], [data-move-down]').forEach((btn) => {
     btn.addEventListener('click', async () => {

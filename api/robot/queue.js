@@ -181,6 +181,19 @@ export default async function handler(req, res){
       return;
     }
 
+    case 'clear_history': {
+      if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
+      // Only ever touches terminal statuses — pending/approved/running jobs
+      // are never in reach of this, regardless of what the client sends.
+      const deleted = await sql`
+        DELETE FROM robot_jobs
+        WHERE robot_id = ${robotId} AND status IN ('succeeded', 'failed', 'rejected', 'cancelled')
+        RETURNING id
+      `;
+      res.status(200).json({ ok: true, deletedCount: deleted.length });
+      return;
+    }
+
     default:
       res.status(400).json({ error: 'unknown_action' });
   }

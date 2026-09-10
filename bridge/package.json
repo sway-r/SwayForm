@@ -1,0 +1,12 @@
+{
+  "name": "swayform-bridge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "fake-agent": "node fake-agent.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

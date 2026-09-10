@@ -5,8 +5,10 @@ CREATE TABLE IF NOT EXISTS robots (
   id SERIAL PRIMARY KEY,
   serial_number TEXT UNIQUE NOT NULL,       -- e.g. 'robot005'
   school_name TEXT,
-  is_online BOOLEAN NOT NULL DEFAULT FALSE, -- Phase 2: heartbeat sets this
+  is_online BOOLEAN NOT NULL DEFAULT FALSE, -- set by api/robot/heartbeat.js, via the bridge server
   last_seen_at TIMESTAMPTZ,
+  agent_token_hash TEXT,                    -- sha256 of the Pi agent's long-lived token; see db/migrations/002_robot_agent.sql
+  agent_version TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -72,4 +74,15 @@ CREATE TABLE IF NOT EXISTS progress_current (
   activity_id TEXT,
   step_index INTEGER NOT NULL DEFAULT 0,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Clickwrap acceptance record for the Terms of Use + Privacy Policy, written
+-- on every Google sign-in (including a user's first, pre-onboarding). Not
+-- tied to user_profiles so it survives even if onboarding is never
+-- completed. See db/migrations/003_terms_acceptance.sql.
+CREATE TABLE IF NOT EXISTS terms_acceptances (
+  email TEXT NOT NULL,
+  version TEXT NOT NULL,
+  accepted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (email, version)
 );

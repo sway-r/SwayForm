@@ -1,23 +1,15 @@
 import { readSessionFromRequest } from './_lib/session.js';
-import { sql, findRoleForEmail } from './_lib/db.js';
+import { sql } from './_lib/db.js';
+import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 
 export default async function handler(req, res){
   const session = await readSessionFromRequest(req);
-  if (!session || session.mode !== 'admin'){
+  const robotId = await requireCurrentAdmin(session);
+  if (!robotId){
     res.status(401).json({ error: 'not_authorized' });
     return;
   }
-
-  // The JWT's role/robotId are only as fresh as the cookie (up to 7 days
-  // old) — re-check against the database so a removed admin can't keep
-  // acting as one until their cookie happens to expire.
-  const current = await findRoleForEmail(session.email);
-  if (!current || current.role !== 'admin' || current.robotId !== session.robotId){
-    res.status(401).json({ error: 'not_authorized' });
-    return;
-  }
-  const robotId = session.robotId;
 
   if (req.method === 'GET'){
     const [robotRows, emailRows, studentRows] = await Promise.all([

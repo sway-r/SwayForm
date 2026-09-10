@@ -105,7 +105,10 @@ function queueSectionHtml(jobs){
   const closedJobs = jobs.filter((j) => !openJobs.includes(j)).slice(0, 15);
 
   return `
-    <div class="set-section-title">Run on Robot queue ${pendingJobs.length ? `<span class="set-mock-badge">${pendingJobs.length} pending</span>` : ''}</div>
+    <div class="set-section-title">
+      Run on Robot queue ${pendingJobs.length ? `<span class="set-mock-badge">${pendingJobs.length} pending</span>` : ''}
+      <a class="p-btn ghost rq-export" href="/api/robot/queue?format=csv">Export CSV</a>
+    </div>
     ${openJobs.length ? `<div class="rq-list">${openJobs.map((j) => jobRow(j, pendingJobs)).join('')}</div>` : '<div class="set-card"><p class="adm-loading">No submissions waiting right now.</p></div>'}
     ${closedJobs.length ? `
       <details class="rq-history">

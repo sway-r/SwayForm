@@ -16,6 +16,26 @@ import { getSession } from '../../../services/auth-service.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
+/** Turns a failed /api/robot/queue {action:'validate'} response into a
+ * message pointing at roughly where the code stops matching, instead of
+ * just "doesn't match" — see canonical-source.js's firstLineDifference. */
+function describeMismatch(validateData){
+  if (validateData.reason === 'no_canonical_source'){
+    return "There's no verified working version of this file to check against yet.";
+  }
+  const d = validateData.diff;
+  if (!d){
+    return "This doesn't exactly match the verified working version — even a single character or whitespace difference fails this check.";
+  }
+  if (d.kind === 'changed'){
+    return `Line ${d.line} doesn't match.\n  Yours:    ${d.yours}\n  Expected: ${d.expected}`;
+  }
+  if (d.kind === 'missing'){
+    return `Your file is missing a line at line ${d.line}.\n  Expected: ${d.expected}`;
+  }
+  return `Your file has an extra line at line ${d.line} that the verified version doesn't have:\n  ${d.yours}`;
+}
+
 export function mount(bodyEl, winApi, opts) {
   const { activity, onRun } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null;
@@ -193,10 +213,7 @@ export function mount(bodyEl, winApi, opts) {
       output.clear('output');
 
       if (!validateRes.ok || !validateData.valid){
-        const reason = validateData.reason === 'no_canonical_source'
-          ? "There's no verified working version of this file to check against yet."
-          : "This doesn't exactly match the verified working version — even a single character or whitespace difference fails this check.";
-        output.appendLine(`Couldn't queue — ${reason}`, 'term-err', 'output');
+        output.appendLine(`Couldn't queue — ${describeMismatch(validateData)}`, 'term-err', 'output');
         output.setActive('output');
         toolbar.setQueueRobotBusy(false);
         return;

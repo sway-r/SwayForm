@@ -11,6 +11,37 @@ function sha256(text){
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
+const CSV_COLUMNS = [
+  ['id', (r) => r.id],
+  ['submitted_at', (r) => r.submitted_at.toISOString()],
+  ['student_email', (r) => r.student_email],
+  ['package', (r) => r.package],
+  ['executable', (r) => r.executable],
+  ['workspace_path', (r) => r.workspace_path],
+  ['status', (r) => r.status],
+  ['decided_by', (r) => r.decided_by || ''],
+  ['decided_at', (r) => (r.decided_at ? r.decided_at.toISOString() : '')],
+  ['started_at', (r) => (r.started_at ? r.started_at.toISOString() : '')],
+  ['finished_at', (r) => (r.finished_at ? r.finished_at.toISOString() : '')],
+  ['exit_code', (r) => (r.exit_code === null ? '' : r.exit_code)],
+  ['reject_reason', (r) => r.reject_reason || ''],
+];
+
+function csvEscape(value){
+  const s = String(value);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+// Deliberately excludes `code`/`output` — those can be large multi-line
+// blobs and this export is for grading/record-keeping (who ran what,
+// when, with what result), not a full audit dump. The full code/output is
+// still visible per-job in the Admin app itself.
+function jobsToCsv(rows){
+  const header = CSV_COLUMNS.map(([name]) => name).join(',');
+  const lines = rows.map((row) => CSV_COLUMNS.map(([, get]) => csvEscape(get(row))).join(','));
+  return [header, ...lines].join('\r\n') + '\r\n';
+}
+
 function jobView(row){
   return {
     id: row.id,
@@ -46,6 +77,19 @@ export default async function handler(req, res){
   const isAdmin = member.role === 'admin';
 
   if (req.method === 'GET'){
+    if (req.query.format === 'csv'){
+      if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
+      // No LIMIT here (unlike the live-view query below) — this is the
+      // full historical record for grading, not "what needs my attention
+      // right now", so it should include everything, not just the last 50.
+      const rows = await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} ORDER BY submitted_at ASC`;
+      const filename = `robot-jobs-${new Date().toISOString().slice(0, 10)}.csv`;
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.status(200).send(jobsToCsv(rows));
+      return;
+    }
+
     const rows = isAdmin
       ? await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} ORDER BY submitted_at DESC LIMIT 50`
       : await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} ORDER BY submitted_at DESC LIMIT 50`;

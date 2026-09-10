@@ -62,7 +62,7 @@
 .cb-code pre{margin:0;padding:14px 16px;overflow-x:auto;font-size:12px;line-height:1.7}
 .cb-code code{background:none;border:none;padding:0;color:#d6deeb;font-family:var(--mono);white-space:pre}
 
-.cb-term{border-radius:8px;overflow:hidden;border:1px solid rgba(0,0,0,.08);margin:14px 0}
+.cb-term{border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08);margin:14px 0}
 .cb-term-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#0d1117;border-bottom:1px solid rgba(255,255,255,.06)}
 .cb-term-dot{width:9px;height:9px;border-radius:50%}
 .cb-term-dot.r{background:#ff5f57}.cb-term-dot.y{background:#febc2e}.cb-term-dot.g{background:#28c840}

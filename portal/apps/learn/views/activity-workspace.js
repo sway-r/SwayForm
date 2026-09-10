@@ -65,7 +65,7 @@ export function mount(container, params, nav, ctx){
     <div class="aw-root">
       <div class="aw-header">
         <button type="button" class="lh-menu-btn" data-menu title="Curriculum" aria-label="Open curriculum index">${icon('menu')}</button>
-        <button type="button" class="aw-back" data-back>${icon('arrowLeft')}<span></span></button>
+        <button type="button" class="aw-back" data-back>${icon('arrowLeft')}<span>${section.title}</span></button>
         <div class="aw-crumb">${section.title} / <strong>${activity.title}</strong></div>
         <div class="aw-header-spacer"></div>
         ${isReading ? '' : `<div class="aw-presets" data-presets></div>`}

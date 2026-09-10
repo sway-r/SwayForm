@@ -189,7 +189,7 @@ function boot() {
     return renderBlocksFn;
   }
 
-  const stubCtx = { openFile() {}, insertCode() {} };
+  const stubCtx = { openFile() { }, insertCode() { } };
 
   async function rerenderSteps() {
     const rb = await renderer();
@@ -411,12 +411,14 @@ function boot() {
         { label: 'Insert above', run: () => showInsertMenu(cluster, step, block) },
         { label: 'Insert below', run: () => showInsertMenu(cluster, step, block + 1) },
         'sep',
-        { label: 'Delete block', run: () => {
-          if (window.confirm(`Delete this ${blocks[block].type} block?`)) {
-            if (selected && selected.step === step && selected.block === block) setSelected(null);
-            post({ type: 'studio:op', op: { type: 'block.remove', activityId: activity.id, stepIndex: step, blockIndex: block } });
+        {
+          label: 'Delete block', run: () => {
+            if (window.confirm(`Delete this ${blocks[block].type} block?`)) {
+              if (selected && selected.step === step && selected.block === block) setSelected(null);
+              post({ type: 'studio:op', op: { type: 'block.remove', activityId: activity.id, stepIndex: step, blockIndex: block } });
+            }
           }
-        } },
+        },
       ]);
     }
   }

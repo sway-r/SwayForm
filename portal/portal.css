@@ -54,7 +54,7 @@
    design (see spec: "Code Editor dark in both light and dark portal mode is
    fine" / "desktop wallpaper remains appropriate"). Toggled by Settings via
    portal/theme.js, which sets data-theme on <html>. ── */
-[data-theme="dark"]{
+:root[data-theme="dark"]{
   --la-bg:#1b1e25;
   --la-bg2:#15171d;
   --la-bg3:#21242c;

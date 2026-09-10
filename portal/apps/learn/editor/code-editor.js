@@ -13,9 +13,13 @@ function loadMonaco(){
   if (monacoPromise) return monacoPromise;
   monacoPromise = new Promise((resolve, reject) => {
     if (window.monaco) { resolve(window.monaco); return; }
-    const timer = setTimeout(() => reject(new Error('Monaco load timed out')), LOAD_TIMEOUT_MS);
+    const timer = setTimeout(() => finish(null, new Error('Monaco load timed out')), LOAD_TIMEOUT_MS);
 
-    const finish = (val, err) => { clearTimeout(timer); err ? reject(err) : resolve(val); };
+    // Don't cache a failed load — a transient CDN/network hiccup would
+    // otherwise permanently strand every future CodeEditor in textarea
+    // fallback mode for the rest of the session, since monacoPromise is
+    // module-level and loadMonaco() short-circuits to it once set.
+    const finish = (val, err) => { clearTimeout(timer); if (err) { monacoPromise = null; reject(err); } else resolve(val); };
 
     const loaderScript = document.createElement('script');
     loaderScript.src = `${MONACO_BASE}/loader.js`;

@@ -1,5 +1,5 @@
 import { readSessionFromRequest } from './_lib/session.js';
-import { sql, fetchProgressSummary } from './_lib/db.js';
+import { sql, fetchProgressSummary, syncProfileSchoolToRobot } from './_lib/db.js';
 import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 import { findItem } from '../portal/data/curriculum.js';
@@ -110,6 +110,12 @@ export default async function handler(req, res){
         }
         throw e;
       }
+      // A robot's school is the source of truth once someone's actually
+      // tied to it — if they'd already onboarded with a different
+      // self-reported school (or transferred from elsewhere), correct it
+      // now rather than leaving a stale mismatch. No-op if they haven't
+      // onboarded yet.
+      await syncProfileSchoolToRobot(email, robotId);
       res.status(200).json({ ok: true });
       return;
     }
@@ -180,6 +186,7 @@ export default async function handler(req, res){
         }
         throw e;
       }
+      await syncProfileSchoolToRobot(email, robotId);
       res.status(200).json({ ok: true });
       return;
     }

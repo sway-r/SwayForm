@@ -43,6 +43,10 @@ export default async function handler(req, res){
     picture: payload.picture || null,
     robotId: match ? match.robotId : null,
     robotSerial: match ? match.robotSerial : null,
+    // Lets onboarding.js lock/pre-fill the school field instead of asking
+    // a question it already knows the answer to, for anyone an admin
+    // already linked to a robot before their first login.
+    robotSchoolName: match ? match.robotSchoolName : null,
   };
 
   // The login screen shows "by continuing you agree to our Terms and

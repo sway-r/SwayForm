@@ -13,7 +13,7 @@ export async function findRoleForEmail(email){
   const normalized = email.trim().toLowerCase();
 
   const admin = await sql`
-    SELECT r.id AS robot_id, r.serial_number AS robot_serial
+    SELECT r.id AS robot_id, r.serial_number AS robot_serial, r.school_name AS robot_school_name
     FROM admin_emails ae
     JOIN admin_accounts aa ON aa.id = ae.admin_account_id
     JOIN robots r ON r.id = aa.robot_id
@@ -21,18 +21,18 @@ export async function findRoleForEmail(email){
   `;
   if (admin.length){
     const row = admin[0];
-    return { role: 'admin', robotId: row.robot_id, robotSerial: row.robot_serial };
+    return { role: 'admin', robotId: row.robot_id, robotSerial: row.robot_serial, robotSchoolName: row.robot_school_name };
   }
 
   const student = await sql`
-    SELECT r.id AS robot_id, r.serial_number AS robot_serial
+    SELECT r.id AS robot_id, r.serial_number AS robot_serial, r.school_name AS robot_school_name
     FROM students s
     JOIN robots r ON r.id = s.robot_id
     WHERE s.email = ${normalized} AND s.status = 'active'
   `;
   if (student.length){
     const row = student[0];
-    return { role: 'student', robotId: row.robot_id, robotSerial: row.robot_serial };
+    return { role: 'student', robotId: row.robot_id, robotSerial: row.robot_serial, robotSchoolName: row.robot_school_name };
   }
 
   return undefined;
@@ -106,6 +106,28 @@ export async function fetchProgressSummary(emails){
     };
   }
   return summary;
+}
+
+/**
+ * Keeps a person's self-reported school in sync with reality whenever an
+ * admin links their email to a robot (add_student / set_admin_email in
+ * api/admin.js) — a robot's school is the authoritative source once
+ * someone's actually tied to it, not whatever they picked from a dropdown
+ * at onboarding (which could predate the link, or just be a mistake). A
+ * no-op if they haven't onboarded yet (nothing to correct — the onboarding
+ * flow itself locks the school field for anyone already linked at that
+ * point) or if the robot has no school_name set yet.
+ */
+export async function syncProfileSchoolToRobot(email, robotId){
+  const normalized = email.trim().toLowerCase();
+  const [robot] = await sql`SELECT school_name FROM robots WHERE id = ${robotId}`;
+  if (!robot || !robot.school_name) return;
+
+  await sql`
+    UPDATE user_profiles
+    SET school_name = ${robot.school_name}, updated_at = now()
+    WHERE email = ${normalized} AND school_name IS DISTINCT FROM ${robot.school_name}
+  `;
 }
 
 export async function listSchoolNames(){

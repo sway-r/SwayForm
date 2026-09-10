@@ -6,27 +6,42 @@
 .login-root{position:fixed;inset:0;z-index:100;display:flex;background:var(--la-bg);color:var(--la-ink)}
 
 .login-brand{
+  /* Hero-local color tokens, deliberately not the theme-switching la- tokens
+   * or the portal-chrome p- tokens. .login-root sets color:var(--la-ink) as
+   * its base text color, which is dark navy in Light Mode; anything in here
+   * that didn't set its own color (the h1, the plain "wayForm" text node)
+   * silently inherited that dark navy onto this near-black scrim and went
+   * almost invisible. Hardcoding a self-contained palette here means this
+   * panel can't break the same way again, regardless of the active theme. */
+  --hero-ink:#ffffff;      /* heading */
+  --hero-text:#dce6f5;     /* paragraph, bullet copy */
+  --hero-muted:#9fb0d1;    /* separators, sublabel — still >7:1 contrast on the scrim */
+  --hero-accent:#3d8bff;   /* brand mark + bullet icons */
+
   flex:1.15;position:relative;overflow:hidden;display:flex;flex-direction:column;
   justify-content:space-between;padding:48px;min-width:0;
 }
 .login-brand-wallpaper{position:absolute;inset:0;z-index:0;background-image:url('/images/background.png');background-size:cover;background-position:62% center;filter:saturate(1.05)}
 .login-brand-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,rgba(3,5,9,.94) 0%,rgba(3,5,9,.82) 38%,rgba(5,8,14,.55) 100%)}
-.login-brand-top{position:relative;z-index:2;display:flex;align-items:center;font-size:17px;font-weight:800;letter-spacing:-.02em}
-.login-brand-s{color:var(--p-accent)}
-.login-brand-sep{color:var(--p-faint);font-weight:400;margin:0 8px}
-.login-brand-label{font-size:13px;font-weight:600;color:var(--p-soft)}
+.login-brand-top{position:relative;z-index:2;display:flex;align-items:center;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--hero-ink)}
+.login-brand-s{color:var(--hero-accent)}
+.login-brand-sep{color:var(--hero-muted);font-weight:400;margin:0 8px}
+.login-brand-label{font-size:13px;font-weight:600;color:var(--hero-muted)}
 .login-brand-mid{position:relative;z-index:2;max-width:460px}
-.login-brand-mid h1{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:16px}
-.login-brand-mid p{font-size:14.5px;color:var(--p-soft);line-height:1.75}
+.login-brand-mid h1{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:16px;color:var(--hero-ink)}
+.login-brand-mid p{font-size:14.5px;color:var(--hero-text);line-height:1.75}
 .login-brand-features{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;max-width:420px}
-.login-feature{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--p-soft);line-height:1.6}
-.login-feature svg{width:16px;height:16px;stroke:var(--p-accent);fill:none;stroke-width:1.8;flex-shrink:0;margin-top:2px}
+.login-feature{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--hero-text);line-height:1.6}
+.login-feature svg{width:16px;height:16px;stroke:var(--hero-accent);fill:none;stroke-width:1.8;flex-shrink:0;margin-top:2px}
 
 .login-form-side{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 40px;min-width:340px;background:var(--la-bg)}
 .login-card{width:100%;max-width:380px}
 .login-card-hdr{margin-bottom:36px}
 .login-card-hdr h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px;color:var(--la-ink)}
 .login-card-hdr p{font-size:13px;color:var(--la-muted)}
+
+.login-consent{font-size:11.5px;color:var(--la-muted);line-height:1.5;margin:14px 0 18px}
+.login-consent a{color:var(--la-muted);text-decoration:underline}
 
 .login-field{margin-bottom:16px}
 .login-field label{display:block;font-size:11.5px;font-weight:700;color:var(--la-muted);margin-bottom:7px;letter-spacing:.02em}

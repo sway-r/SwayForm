@@ -58,6 +58,21 @@ export async function upsertProfile(email, { displayName, schoolName }){
   return rows[0];
 }
 
+/**
+ * Logs clickwrap acceptance of the Terms of Use + Privacy Policy at sign-in.
+ * One row per (email, version) — ON CONFLICT DO NOTHING keeps this cheap to
+ * call on every login without duplicating rows for repeat acceptances of the
+ * same version.
+ */
+export async function recordTermsAcceptance(email, version){
+  const normalized = email.trim().toLowerCase();
+  await sql`
+    INSERT INTO terms_acceptances (email, version)
+    VALUES (${normalized}, ${version})
+    ON CONFLICT (email, version) DO NOTHING
+  `;
+}
+
 export async function listSchoolNames(){
   const rows = await sql`
     SELECT DISTINCT school_name FROM robots

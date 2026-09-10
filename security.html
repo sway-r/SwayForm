@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security | SwayForm Robotics</title>
+<meta name="description" content="An overview of SwayForm's written information security program: access controls, encryption, monitoring, vulnerability management, and incident response.">
+<link rel="canonical" href="https://www.swayform.net/security">
+<meta property="og:title" content="Security | SwayForm Robotics">
+<meta property="og:description" content="An overview of SwayForm's written information security program: access controls, encryption, monitoring, vulnerability management, and incident response.">
+<meta property="og:url" content="https://www.swayform.net/security">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Security | SwayForm Robotics">
+<meta name="twitter:description" content="An overview of SwayForm's written information security program: access controls, encryption, monitoring, vulnerability management, and incident response.">
+<meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+#topbar{top:0!important}
+.policy-wrap{max-width:760px;margin:0 auto;padding:calc(var(--nav-h) + 80px) 24px 100px}
+.policy-wrap h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.03em;margin-bottom:8px;color:var(--ink)}
+.policy-updated{font-size:13px;color:var(--faint);margin-bottom:40px}
+.policy-wrap h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:40px 0 12px;color:var(--ink)}
+.policy-wrap p{color:var(--muted);line-height:1.75;margin-bottom:14px}
+.policy-wrap ul{margin:0 0 14px 20px;list-style:disc;color:var(--muted);line-height:1.75}
+.policy-wrap li{margin-bottom:6px}
+.policy-wrap a{color:var(--blue);text-decoration:underline}
+.policy-note{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);margin:20px 0}
+.policy-strong{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;padding:16px 20px;font-size:14px;color:var(--ink);margin:20px 0}
+</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/for-schools">For Schools</a>
+      <a href="/purpose">Our Mission</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:13px;padding:8px 18px">Open Learning Portal <span aria-hidden="true">&#8599;</span></a>
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/purpose">Our Mission</a>
+  <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Portal &#8599;</a>
+  <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
+</div>
+
+<div class="policy-wrap">
+  <h1>Security</h1>
+  <p class="policy-updated">Last updated: September 9, 2026 &middot; Version 2026-09-09</p>
+
+  <p>This page summarizes the security practices SwayForm LLC applies to the website, Learning Portal, and the data described in our <a href="/privacy">Privacy Policy</a>. It is a public summary of our written information security program, intended for school IT/procurement review — not an exhaustive technical specification.</p>
+
+  <div class="policy-strong">We do not claim our systems are "100% secure," "unhackable," or "military-grade." No system can make that claim honestly, and we would rather describe what we actually do than make a promise we can't keep.</div>
+
+  <h2>Access controls</h2>
+  <ul>
+    <li>Access to production data is limited to the people who need it to operate SwayForm's systems.</li>
+    <li>School administrator and student accounts are authenticated through Google Identity Services rather than a self-managed password system, and sessions are stored in signed, HTTP-only cookies.</li>
+    <li>Administrative actions (such as adding or removing a student, or changing admin emails) are restricted to authenticated admin sessions tied to a specific robot/school.</li>
+  </ul>
+
+  <h2>Encryption</h2>
+  <p>Connections to the website and Learning Portal are encrypted in transit (HTTPS). Data at rest in our database provider is protected by that provider's own storage-level encryption.</p>
+
+  <h2>Infrastructure</h2>
+  <p>The website and Learning Portal are hosted on Vercel; the database is hosted on Neon. Both are established infrastructure providers that SwayForm relies on for platform-level security (network protections, patching of the underlying platform, etc.) in addition to SwayForm's own application-level controls.</p>
+
+  <h2>Vulnerability management</h2>
+  <p>We keep application dependencies up to date and address known vulnerabilities in software we rely on as they're identified. As SwayForm grows, we intend to adopt a more formal vulnerability-disclosure and patching cadence appropriate to the scale of school data we hold.</p>
+
+  <h2>Monitoring and logging</h2>
+  <p>Our hosting provider logs standard technical request data (IP address, timestamps) that we can use to investigate suspicious activity. We do not currently operate a dedicated security-analytics or intrusion-detection product beyond what our hosting and database providers offer natively; we expect to add more formal monitoring as we scale toward commercial deployment.</p>
+
+  <h2>Incident response</h2>
+  <p>If we become aware of a security incident affecting personal information, we will investigate, take reasonable steps to contain it, and provide notifications required by applicable law and any signed agreement with an affected school. See the <a href="/school-data-agreement">School Data Agreement</a> for our breach-notification commitment to schools specifically.</p>
+
+  <h2>Data minimization</h2>
+  <p>We aim to collect only the information described in the <a href="/privacy#collect">Privacy Policy</a>. Student-written code, in particular, is stored locally (in the browser or on the robot's own storage) rather than on SwayForm's servers, which limits what a server-side incident could expose.</p>
+
+  <h2>Insurance</h2>
+  <p>SwayForm is currently evaluating cyber liability and product liability insurance appropriate to our stage of growth. This page will be updated once coverage is in place.</p>
+
+  <h2>Contact</h2>
+  <p>To report a suspected security issue, or to request a security summary for procurement purposes, contact <a href="mailto:contact@swayform.net">contact@swayform.net</a>.</p>
+
+  <div class="policy-note">SwayForm is in pilot development. As we move toward commercial release and take on more schools, we expect to formalize this program further — including a fuller internal Written Information Security Program available to schools under a signed agreement.</div>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Learning Portal</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm LLC. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/student-privacy">Student Privacy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/school-data-agreement">School Data Agreement</a>
+        <a href="/security" class="active">Security</a>
+        <a href="/data-retention">Data Retention</a>
+        <a href="/accessibility">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script src="/site-data.js"></script>
+</body>
+</html>

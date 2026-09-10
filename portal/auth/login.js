@@ -27,6 +27,7 @@ export function mount(container, { onAuthenticated }){
           <h2>Sign in</h2>
           <p>Continue your SwayForm Learning Portal session.</p>
         </div>
+        <p class="login-consent">By continuing, you agree to SwayForm's <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, including the <a href="/student-privacy" target="_blank" rel="noopener noreferrer">Student Privacy Notice</a>.</p>
         <form data-login-form>
           <div class="login-field">
             <label for="login-email">Email or username</label>

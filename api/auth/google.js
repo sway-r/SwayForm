@@ -1,6 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
-import { findRoleForEmail, enrichSessionWithProfile } from '../_lib/db.js';
+import { findRoleForEmail, enrichSessionWithProfile, recordTermsAcceptance } from '../_lib/db.js';
 import { createSessionCookie, requireMethod } from '../_lib/session.js';
+import { CURRENT_TERMS_VERSION } from '../_lib/legal.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -43,6 +44,11 @@ export default async function handler(req, res){
     robotId: match ? match.robotId : null,
     robotSerial: match ? match.robotSerial : null,
   };
+
+  // The login screen shows "by continuing you agree to our Terms and
+  // Privacy Policy" next to the Google button — record that acceptance here,
+  // server-side, so there's a durable record independent of the client.
+  await recordTermsAcceptance(session.email, CURRENT_TERMS_VERSION);
 
   const cookie = await createSessionCookie(session);
   res.setHeader('Set-Cookie', cookie);

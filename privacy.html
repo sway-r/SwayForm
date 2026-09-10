@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy Policy | SwayForm Robotics</title>
-<meta name="description" content="How SwayForm handles data from the website and the robot platform, including local processing, website analytics, data retention, and privacy requests.">
+<meta name="description" content="How SwayForm LLC collects, uses, stores, and protects data from the website, the Learning Portal, and the S1 robot platform, including student data, retention, and subprocessors.">
 <link rel="canonical" href="https://www.swayform.net/privacy">
 <meta property="og:title" content="Privacy Policy | SwayForm Robotics">
-<meta property="og:description" content="How SwayForm handles data from the website and the robot platform, including local processing, website analytics, data retention, and privacy requests.">
+<meta property="og:description" content="How SwayForm LLC collects, uses, stores, and protects data from the website, the Learning Portal, and the S1 robot platform, including student data, retention, and subprocessors.">
 <meta property="og:url" content="https://www.swayform.net/privacy">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Privacy Policy | SwayForm Robotics">
-<meta name="twitter:description" content="How SwayForm handles data from the website and the robot platform, including local processing, website analytics, data retention, and privacy requests.">
+<meta name="twitter:description" content="How SwayForm LLC collects, uses, stores, and protects data from the website, the Learning Portal, and the S1 robot platform, including student data, retention, and subprocessors.">
 <meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="/favicon.ico">
@@ -28,11 +28,19 @@
 .policy-wrap h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.03em;margin-bottom:8px;color:var(--ink)}
 .policy-updated{font-size:13px;color:var(--faint);margin-bottom:40px}
 .policy-wrap h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:40px 0 12px;color:var(--ink)}
+.policy-wrap h3{font-size:15px;font-weight:700;letter-spacing:-.01em;margin:24px 0 8px;color:var(--ink)}
 .policy-wrap p{color:var(--muted);line-height:1.75;margin-bottom:14px}
 .policy-wrap ul{margin:0 0 14px 20px;list-style:disc;color:var(--muted);line-height:1.75}
 .policy-wrap li{margin-bottom:6px}
 .policy-wrap a{color:var(--blue);text-decoration:underline}
 .policy-note{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);margin:20px 0}
+.policy-strong{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;padding:16px 20px;font-size:14px;color:var(--ink);margin:20px 0}
+.policy-table{width:100%;border-collapse:collapse;margin:8px 0 20px;font-size:13.5px}
+.policy-table th,.policy-table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}
+.policy-table th{color:var(--ink);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.policy-toc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0 32px}
+.policy-toc p{margin-bottom:8px;font-weight:700;color:var(--ink);font-size:13px;text-transform:uppercase;letter-spacing:.03em}
+.policy-toc ol{margin:0 0 0 18px;color:var(--muted);font-size:13.5px;line-height:1.9}
 </style>
 </head>
 <body>
@@ -65,38 +73,135 @@
 
 <div class="policy-wrap">
   <h1>Privacy Policy</h1>
-  <p class="policy-updated">Last updated: <span class="copy-year">2026</span></p>
+  <p class="policy-updated">Last updated: September 9, 2026 &middot; Version 2026-09-09</p>
 
-  <p>This policy covers two separate things: the SwayForm website (swayform.net) and the SwayForm S1 platform. They are described separately below because they handle data very differently.</p>
+  <p>This Privacy Policy is issued by <strong>SwayForm LLC</strong> ("SwayForm," "we," "us," or "our"), based in Atlanta, Georgia. It explains how we collect, use, store, and share information across the SwayForm website (swayform.net), the Learning Portal (learning.swayform.net), our administrative tools, and the S1 robot platform.</p>
 
-  <h2>The S1 platform</h2>
-  <p>S1's core processing — motion control, ROS 2 nodes, and camera processing — runs locally on its onboard Raspberry Pi. S1 connects to the school's Wi-Fi (for the Learning Portal, classroom accounts, and updates), but does not require a cloud connection to operate.</p>
+  <p>If you are a student, parent, guardian, or school employee, please also read the <a href="/student-privacy">Student &amp; Children's Privacy Notice</a>, which covers COPPA, FERPA, and Georgia student-data law in more detail and controls over this policy for anything specific to student data. Schools should also see the <a href="/school-data-agreement">School Data Agreement</a>, and anyone interested in our security practices should see the <a href="/security">Security</a> page. Retention and deletion specifics live on the <a href="/data-retention">Data Retention &amp; Deletion Policy</a> page. Physical safety and acceptable use of S1 hardware is covered separately by the <a href="/robot-safety">Robot Safety and Acceptable Use Policy</a>.</p>
+
+  <div class="policy-toc">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#scope">Scope of this policy</a></li>
+      <li><a href="#s1">The S1 platform</a></li>
+      <li><a href="#biometrics">Cameras, biometrics, and AI</a></li>
+      <li><a href="#student-data">Student data</a></li>
+      <li><a href="#collect">Information we collect</a></li>
+      <li><a href="#google">Signing in with Google</a></li>
+      <li><a href="#subprocessors">Who else sees this data</a></li>
+      <li><a href="#no-sale">We do not sell data or use it for advertising</a></li>
+      <li><a href="#retention">Data retention</a></li>
+      <li><a href="#choices">Your choices and rights</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#transfer">Business transfers</a></li>
+      <li><a href="#changes">Changes to this policy</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <h2 id="scope">1. Scope of this policy</h2>
+  <p>This policy covers every SwayForm-operated surface a school, family, student, or visitor might interact with:</p>
+  <ul>
+    <li>The marketing website at swayform.net and www.swayform.net</li>
+    <li>The Learning Portal at learning.swayform.net, including student, teacher, and administrator accounts</li>
+    <li>Administrative dashboards used to manage schools, robots, and student rosters</li>
+    <li>The S1 robot platform itself, including on-device processing and any connection it makes to the Learning Portal</li>
+    <li>Support and sales interactions, including our contact forms</li>
+  </ul>
+  <p>SwayForm is currently in a <strong>pilot development stage</strong> — we do not yet process commercial purchases through this website, and some sections below describe both what is true today and how a feature will be handled once it exists. Where that distinction matters, we say so explicitly rather than describing a feature we have not built yet.</p>
+
+  <h2 id="s1">2. The S1 platform</h2>
+  <p>S1's core processing — motion control, ROS 2 nodes, and camera/sensor processing — runs locally on its onboard computer. S1 connects to the school's Wi-Fi (for the Learning Portal, classroom accounts, and updates), but does not require a cloud connection to operate.</p>
   <ul>
     <li>Camera and sensor processing happens locally on S1 by default.</li>
-    <li>Classroom images and video are not uploaded automatically.</li>
+    <li>As of the date of this policy, classroom images and video are not uploaded to SwayForm's servers automatically, are not stored by SwayForm, and are not recorded by SwayForm.</li>
     <li>Classroom data is not sold.</li>
-    <li>Classroom data is not used to train external AI models by default.</li>
+    <li>Classroom data is not used to train external or general-purpose AI models by default.</li>
   </ul>
-  <p>The optional cloud simulation subscription (see <a href="/for-schools">For Schools</a>) is a separate, opt-in service — it is not required for S1 to operate. Enabling it requires separate disclosure and consent before it is turned on, and nothing described here changes without that separate notice.</p>
+  <p>The optional cloud simulation subscription (see <a href="/for-schools">For Schools</a>) is a separate, opt-in service — it is not required for S1 to operate. Enabling it requires separate disclosure and consent before it is turned on.</p>
+  <div class="policy-strong">If SwayForm later introduces a feature that transmits, relays, or stores camera or video data off of the robot — for example, a live classroom viewing feature — this policy will be updated <em>before</em> that feature is enabled for any school, with a clear description of what is transmitted, who can view it, whether it is ever recorded, and how long any recording is kept. We will not silently expand what leaves the robot without updating this section first.</div>
 
-  <h2>The website</h2>
-  <p>The website serves instructional content (the Learning Portal) and sales/contact information. It does not communicate directly with any robot.</p>
+  <h2 id="biometrics">3. Cameras, biometrics, and AI</h2>
+  <p>SwayForm does not use facial recognition, voiceprint recognition, or gesture-based biometric identification, and does not create biometric identifiers (as defined by applicable law, including the amended COPPA Rule) from classroom images, video, or sensor data. This is true even though S1's camera and depth sensor are technically capable of supporting such features in the future.</p>
+  <p>If SwayForm ever adds a biometric-recognition feature, it will be a separate, clearly disclosed, opt-in feature requiring its own authorization process — never a silent addition to an existing product.</p>
+  <p>SwayForm does not send Student Data (defined below), classroom video, audio, or student-written code to third-party AI services to train general-purpose AI models. We may use properly de-identified or aggregated information (for example, anonymized feature-usage counts) to understand how our products are used, diagnose performance issues, and improve our educational products — but we will not attempt to re-identify properly de-identified Student Data.</p>
+
+  <h2 id="student-data">4. Student data</h2>
+  <p>"Student Data" means personal information about a K-12 student that is collected or generated in connection with SwayForm's products, including but not limited to: name, school-affiliated or personal email address, school name, account identifiers, class or robot-seat assignments, lesson progress, activity logs, code or projects a student creates, and any information provided by the school on the student's behalf.</p>
   <ul>
-    <li><strong>Contact and Contact Sales forms</strong> collect only what you submit — name, email, organization, role, and message — to respond to your inquiry. Form submissions are processed through a third-party form-delivery service (Web3Forms) solely to deliver the message to SwayForm.</li>
-    <li><strong>Hosting logs.</strong> Our hosting provider may log standard technical information (such as IP address and request timestamps) for security and reliability purposes.</li>
-    <li><strong>Analytics and cookies.</strong> <em>If and when analytics or cookies are added to this site, this section will be updated to disclose what is collected and why. As of this update, no dedicated analytics or advertising cookies are in use.</em></li>
+    <li><strong>SwayForm does not sell Student Data.</strong></li>
+    <li><strong>SwayForm does not use Student Data for targeted or behavioral advertising, and does not build advertising profiles from it.</strong></li>
+    <li>SwayForm processes Student Data only to provide, maintain, and improve the educational service the school has requested — not for unrelated commercial purposes.</li>
+    <li>Where a school provides or authorizes access to Student Data, SwayForm acts as a school service provider with respect to that data, consistent with FERPA's "school official" exception: we use Student Data only for the purposes authorized by the school, do not redisclose it except as the school authorizes or as law requires, and maintain it under our own direct security obligations to the school.</li>
+  </ul>
+  <p><strong>A school's authorization does not make the school solely responsible for compliance with COPPA or other student-privacy laws.</strong> SwayForm maintains its own obligations as an operator under COPPA and other applicable law regardless of any school consent or authorization it relies on.</p>
+  <p>See the <a href="/student-privacy">Student &amp; Children's Privacy Notice</a> for the full COPPA notice, including what is collected from children under 13, parental and school review/deletion rights, and how to make a request.</p>
+
+  <h2 id="collect">5. Information we collect</h2>
+  <table class="policy-table">
+    <tr><th>Category</th><th>What we collect</th><th>Why</th></tr>
+    <tr><td>Account &amp; profile</td><td>Name, email address, school name, account role (admin, student, or general member)</td><td>Create and operate your Learning Portal account; identify which school and robot you belong to</td></tr>
+    <tr><td>Lesson progress</td><td>Which activities are completed, current activity/step</td><td>Save and display your learning progress across sessions</td></tr>
+    <tr><td>Code and projects you write</td><td>Program files you create in the Learning Portal editor</td><td>Let you write, edit, and run programs — stored locally in your browser and, once deployed, on the robot's own onboard storage; not transmitted to or stored on SwayForm's servers as of the date of this policy</td></tr>
+    <tr><td>Session data</td><td>A signed, HTTP-only session cookie</td><td>Keep you signed in; expires automatically</td></tr>
+    <tr><td>Terms acceptance record</td><td>Your email, the policy version you accepted, and a timestamp</td><td>Maintain proof that you agreed to the Terms of Use and this Privacy Policy</td></tr>
+    <tr><td>Contact &amp; sales inquiries</td><td>Name, email, organization, role, and message you submit</td><td>Respond to your inquiry</td></tr>
+    <tr><td>Hosting logs</td><td>IP address, request timestamps, and other standard technical data logged by our hosting provider</td><td>Security, abuse prevention, and reliability</td></tr>
+    <tr><td>Analytics and cookies</td><td>None in dedicated use as of this update</td><td>If and when analytics or advertising cookies are added, this row and the rest of this policy will be updated first to disclose what is collected and why</td></tr>
+  </table>
+  <p>We do not currently operate any live video, audio, or biometric data pipeline from S1 to our servers — see <a href="#s1">Section 2</a>.</p>
+
+  <h2 id="google">6. Signing in with Google</h2>
+  <p>The Learning Portal uses Google Identity Services ("Sign in with Google") rather than a username/password system. When you sign in this way, Google provides us with a signed token containing your email address, whether that email is verified, your display name, and your profile picture — nothing more. We do not request any additional Google permissions (such as access to your Drive, Calendar, or contacts), and we never receive your Google password.</p>
+
+  <h2 id="subprocessors">7. Who else sees this data</h2>
+  <p>SwayForm uses a small number of service providers ("subprocessors") to operate the website and Learning Portal. Each may use the information it receives only to provide its contracted service to SwayForm, and must protect it accordingly.</p>
+  <table class="policy-table">
+    <tr><th>Provider</th><th>Purpose</th><th>What it may receive</th></tr>
+    <tr><td>Vercel</td><td>Website and Learning Portal hosting</td><td>Standard hosting/request logs (IP address, timestamps)</td></tr>
+    <tr><td>Neon</td><td>Database hosting</td><td>Account, profile, school, and lesson-progress data described in Section 5</td></tr>
+    <tr><td>Google</td><td>Sign-in / authentication</td><td>The sign-in token described in Section 6</td></tr>
+    <tr><td>Web3Forms</td><td>Delivers contact-form submissions to SwayForm by email</td><td>Whatever you type into the Contact or Contact Sales form</td></tr>
+  </table>
+  <p>This is a complete list of subprocessors currently receiving any data as of the date of this policy. If SwayForm adds a new subprocessor that will receive Student Data or other personal information, we will update this table before that subprocessor begins receiving data.</p>
+
+  <h2 id="no-sale">8. We do not sell data or use it for advertising</h2>
+  <p>SwayForm does not sell personal information of any kind — student or otherwise — and does not share it with third parties for their own marketing purposes. We do not use website visitor or Learning Portal account information for targeted or behavioral advertising, and we will not add contact-form submitters to a marketing mailing list.</p>
+
+  <h2 id="retention">9. Data retention</h2>
+  <p>Full detail, including how to request deletion, is on the <a href="/data-retention">Data Retention &amp; Deletion Policy</a> page. In summary:</p>
+  <table class="policy-table">
+    <tr><th>Data</th><th>Retention</th></tr>
+    <tr><td>Account profile &amp; lesson progress</td><td>While the account or school relationship is active; purged within 30 days of a verified deletion request or account closure</td></tr>
+    <tr><td>An entire school's data (school leaves the platform, or requests full deletion)</td><td>Completed within 45 days of a verified request from an authorized school representative</td></tr>
+    <tr><td>Contact-form submissions</td><td>Up to 12 months, or sooner once your inquiry is resolved</td></tr>
+    <tr><td>Hosting/security logs</td><td>Up to 12 months</td></tr>
+    <tr><td>Terms acceptance records</td><td>Retained for the life of the account, plus 3 years, as proof of consent</td></tr>
+    <tr><td>Backups</td><td>Roll off within 30 days after the underlying data is purged from live systems</td></tr>
+    <tr><td>Code you write in the Learning Portal editor or on robot hardware</td><td>Stored locally on your device/browser or the robot's own storage, not on SwayForm's servers — SwayForm cannot delete what it does not hold, so you and your school are responsible for local copies</td></tr>
+  </table>
+
+  <h2 id="choices">10. Your choices and rights</h2>
+  <ul>
+    <li><strong>Access and correction.</strong> You (or, for a student, your school or parent/guardian where applicable) can ask us what personal information we hold and request that inaccurate information be corrected.</li>
+    <li><strong>Deletion.</strong> You can request deletion of your account and associated data at <a href="mailto:contact@swayform.net">contact@swayform.net</a>. For students, we may direct the request through the school first, consistent with how COPPA and Georgia's student-data law expect these requests to be verified and routed — but SwayForm will still assist and will not treat this as solely the school's responsibility.</li>
+    <li><strong>No marketing use.</strong> We will not add you to a marketing list or use your information for advertising without your separate, affirmative consent.</li>
+    <li><strong>Other states.</strong> This policy is currently written primarily with Georgia law in mind, since Georgia is SwayForm's home state and first target market. As SwayForm serves schools in other states, we will publish state-specific addenda addressing any additional rights those states provide.</li>
   </ul>
 
-  <h2>Data retention</h2>
-  <p>Contact form submissions are retained only as long as needed to respond to and follow up on your inquiry. <em>A specific retention period will be finalized and published here before commercial release.</em></p>
+  <h2 id="security">11. Security</h2>
+  <p>We maintain administrative, technical, and organizational safeguards designed to protect the information described in this policy, including access controls, encrypted connections, and least-privilege access to production data. Full detail is on the <a href="/security">Security</a> page. No system can be guaranteed to be 100% secure, and we do not claim otherwise. If we become aware of a security incident affecting your personal information, we will investigate and provide notifications required by applicable law and any agreement we have with your school.</p>
 
-  <h2>Your choices</h2>
-  <p>We will not add contact-form submitters to a marketing mailing list or share their information with third parties for marketing purposes.</p>
+  <h2 id="transfer">12. Business transfers</h2>
+  <p>If SwayForm is involved in a merger, acquisition, financing, or sale of assets, personal information may be transferred as part of that transaction. Any successor will remain subject to the commitments in this policy with respect to information collected before the transfer, including the student-data protections described here and in the Student &amp; Children's Privacy Notice.</p>
 
-  <h2>Privacy requests</h2>
-  <p>To ask a question, request a copy of your data, or request deletion, contact us at <a href="mailto:contact@swayform.net">contact@swayform.net</a>.</p>
+  <h2 id="changes">13. Changes to this policy</h2>
+  <p>We will update the version number and "Last updated" date at the top of this page whenever this policy changes. For material changes — particularly anything affecting Student Data, camera/video handling, or retention — we will provide advance notice (for example, to school administrators on file) before the change takes effect where practical.</p>
 
-  <div class="policy-note">This policy will be updated as SwayForm's products and services develop — for example, as details of the optional cloud simulation subscription are finalized. Material changes will be reflected on this page with an updated date.</div>
+  <h2 id="contact">14. Contact</h2>
+  <p>Questions, access requests, or deletion requests can be sent to <a href="mailto:contact@swayform.net">contact@swayform.net</a>. SwayForm LLC is based in Atlanta, Georgia.</p>
+
+  <div class="policy-note">SwayForm is in pilot development and expanding this policy as our products develop — for example, as the optional cloud simulation subscription and future robot connectivity features are finalized. Material changes will be reflected on this page with an updated date and version number.</div>
 </div>
 
 <footer id="footer">
@@ -121,10 +226,14 @@
       </ul></div>
     </div>
     <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
-      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm LLC. All rights reserved.</span>
       <div class="footer-sub" style="flex-wrap:wrap">
         <a href="/privacy" class="active">Privacy Policy</a>
+        <a href="/student-privacy">Student Privacy</a>
         <a href="/terms">Terms of Use</a>
+        <a href="/school-data-agreement">School Data Agreement</a>
+        <a href="/security">Security</a>
+        <a href="/data-retention">Data Retention</a>
         <a href="/accessibility">Accessibility</a>
         <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
       </div>

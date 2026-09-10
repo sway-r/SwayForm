@@ -4,3 +4,6 @@ node_modules/
 .env.local
 db/seed.local.sql
 docs/
+
+.vercel
+.env*

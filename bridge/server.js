@@ -32,14 +32,15 @@ async function getApi(path){
 const server = http.createServer();
 const wss = new WebSocketServer({ server, path: '/agent' });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+  console.log(`raw connection opened from ${req.socket.remoteAddress}:${req.socket.remotePort}`);
   let robotId = null;
   let agentVersion = null;
   let heartbeatTimer = null;
   let dispatchTimer = null;
   // jobIds already sent as job.run this connection — avoids re-sending the
   // same approved job on every poll tick. Cleared on reconnect (a fresh
-  // connection re-polls dispatch-queue.js fresh, which is also how a job
+  // connection re-polls the dispatch-queue action fresh, which is also how a job
   // approved while the agent was briefly offline still gets delivered).
   const dispatchedJobIds = new Set();
 
@@ -56,6 +57,7 @@ wss.on('connection', (ws) => {
 
         await callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion });
         ws.send(JSON.stringify({ t: 'hello.ok', robotId, heartbeatIntervalMs: HEARTBEAT_INTERVAL_MS }));
+        console.log(`agent connected: serial=${msg.serial} robotId=${robotId} agentVersion=${agentVersion}`);
 
         heartbeatTimer = setInterval(() => {
           callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion }).catch((e) => {
@@ -73,8 +75,18 @@ wss.on('connection', (ws) => {
     }
 
     if (msg.t === 'job.accepted'){
+      // If this fails (e.g. the DB's one-job-at-a-time constraint conflicts
+      // with a stale 'running' row — see docs/robot-connectivity.md), the
+      // agent has typically already started running the job locally
+      // (job.accepted is sent before the bridge round-trip completes) — its
+      // eventual job.output/job.exit would then silently no-op forever,
+      // since those UPDATEs only match rows already in 'running'. Telling
+      // the agent to cancel is a best-effort mitigation, not a full fix —
+      // a real fix means the agent waiting for bridge confirmation before
+      // it runs anything, which is a Pi-side change, not made here.
       callApi('/api/robot/agent', { action: 'job-started', jobId: msg.jobId }).catch((e) => {
-        console.error('job-started failed:', e.message);
+        console.error('job-started failed:', e.message, '— telling agent to cancel');
+        if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ t: 'job.cancel', jobId: msg.jobId }));
       });
       return;
     }
@@ -105,7 +117,8 @@ wss.on('connection', (ws) => {
     // interval above already keeps is_online fresh from the bridge's side.
   });
 
-  ws.on('close', () => {
+  ws.on('close', (code, reason) => {
+    console.log(`connection closed (robotId=${robotId}) code=${code} reason=${reason}`);
     if (heartbeatTimer) clearInterval(heartbeatTimer);
     if (dispatchTimer) clearInterval(dispatchTimer);
     if (robotId){

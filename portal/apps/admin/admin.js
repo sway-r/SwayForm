@@ -361,8 +361,15 @@ export function mount(container, ctx){
   async function refreshQueue(){
     const root = container.querySelector('[data-queue-root]');
     if (!root) return; // panel isn't mounted (e.g. still on the loading state)
+    // Swapping innerHTML on every poll would otherwise silently re-collapse
+    // "Recent history" if the admin had it open — carry that state across.
+    const wasHistoryOpen = !!root.querySelector('.rq-history[open]');
     const jobs = await fetchQueue();
     root.innerHTML = queueSectionHtml(jobs);
+    if (wasHistoryOpen){
+      const historyEl = root.querySelector('.rq-history');
+      if (historyEl) historyEl.open = true;
+    }
     bindQueueActions(root, container, {
       pendingJobs: jobs.filter((j) => j.status === 'pending'),
       refreshQueue,

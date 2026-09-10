@@ -5,7 +5,8 @@ import { sql } from '../_lib/db.js';
 /**
  * Polled by the portal's Robot app. This is the fallback path that works
  * even before the browser opens any bridge WebSocket (added in a later
- * phase) — it just reads whatever the bridge last wrote via heartbeat.js.
+ * phase) — it just reads whatever the bridge last wrote via
+ * api/robot/agent.js's heartbeat action.
  */
 export default async function handler(req, res){
   if (!requireMethod(req, res, 'GET')) return;

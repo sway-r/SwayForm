@@ -261,7 +261,7 @@ export function mount(bodyEl, winApi, opts) {
         output.setActive('output');
       }
       if (job.output && job.output.length > lastOutputLen){
-        output.appendLine(job.output.slice(lastOutputLen), 'output-line', 'output');
+        output.appendLine(job.output.slice(lastOutputLen), '', 'output');
         lastOutputLen = job.output.length;
       }
       if (['succeeded', 'failed', 'rejected', 'cancelled'].includes(job.status)){

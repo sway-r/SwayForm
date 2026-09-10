@@ -41,7 +41,7 @@ export async function mount(container, ctx){
         <div class="robot-hero-icon">${icon('robot')}</div>
         <h1 class="robot-hero-title">${session.robotSerial}</h1>
         <span class="robot-status-badge" data-role="status-badge">Checking…</span>
-        <p class="robot-hero-note" data-role="status-note">Live video, the run queue, and the embedded editor land here in later phases. For now this just shows whether the robot's agent is currently connected.</p>
+        <p class="robot-hero-note" data-role="status-note">Live video and the embedded editor land here in later phases. Run on Robot is already available from the lab code editor's Queue on Robot button — this screen just shows whether the robot's agent is currently connected.</p>
       </div>
     </div>`;
   ctx.setAppTitle && ctx.setAppTitle('Robot');

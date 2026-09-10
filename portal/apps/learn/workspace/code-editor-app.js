@@ -21,11 +21,6 @@ export function mount(bodyEl, winApi, opts) {
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
   let hasRobot = false;
-  // Queue only becomes tappable after Run on Robot passes for exactly this
-  // content — any edit since (tracked in the onChange handler below) closes
-  // the gate again, so a student can never queue code that wasn't the exact
-  // thing just verified.
-  let lastValidated = { path: null, content: null, ok: false };
   let jobPollTimer = null;
 
   getSession().then((session) => {
@@ -93,7 +88,7 @@ export function mount(bodyEl, winApi, opts) {
   output.toggleCollapse(true);
   const toolbar = new WorkspaceToolbar(toolbarEl, {
     onRun: runActiveFile, onCheck: checkActiveFile, onSave: saveActiveFile, onReset: resetActiveFile,
-    onRunOnRobot: runOnRobot, onQueue: queueOnRobot,
+    onQueueOnRobot: queueOnRobot,
   });
 
   editorSurfaceEl.innerHTML = '<div class="editor-loading">Loading editor…</div>';
@@ -104,7 +99,6 @@ export function mount(bodyEl, winApi, opts) {
     // Unsaved/Saved status instead of claiming to be saved before it is.
     onChange: (path, value) => {
       if (tabs.activePath === path) toolbar.setFileStatus('Unsaved changes…');
-      if (path === lastValidated.path && value !== lastValidated.content) toolbar.setQueueEnabled(false);
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => persist(path, value), 500);
     },
@@ -177,73 +171,59 @@ export function mount(bodyEl, winApi, opts) {
     }
   }
 
-  async function runOnRobot(){
+  /** One button, one click: validates against the real verified source and,
+   * only if it matches exactly, immediately submits it to the queue. No
+   * separate "test it, then a second button unlocks" step — the server
+   * still re-validates on submit regardless, so this is purely a UX
+   * simplification, not a safety change. */
+  async function queueOnRobot(){
     const path = tabs.activePath;
     if (!path) return;
     output.toggleCollapse(false);
-    toolbar.setRunRobotBusy(true);
+    toolbar.setQueueRobotBusy(true);
     const content = fs.readFile(path) || '';
+
     try {
-      const res = await fetch('/api/robot/queue', {
+      const validateRes = await fetch('/api/robot/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'validate', path, code: content }),
       });
-      const data = await res.json();
+      const validateData = await validateRes.json();
       output.clear('output');
-      if (res.ok && data.valid){
-        lastValidated = { path, content, ok: true };
-        toolbar.setQueueEnabled(true);
-        output.appendLine(`Run on Robot: passed — this matches the verified working ${path.split('/').pop()} exactly. Queue is now available.`, 'term-ok', 'output');
-      } else {
-        lastValidated = { path, content, ok: false };
-        toolbar.setQueueEnabled(false);
-        const reason = data.reason === 'no_canonical_source'
+
+      if (!validateRes.ok || !validateData.valid){
+        const reason = validateData.reason === 'no_canonical_source'
           ? "There's no verified working version of this file to check against yet."
           : "This doesn't exactly match the verified working version — even a single character or whitespace difference fails this check.";
-        output.appendLine(`Run on Robot: failed — ${reason}`, 'term-err', 'output');
+        output.appendLine(`Couldn't queue — ${reason}`, 'term-err', 'output');
+        output.setActive('output');
+        toolbar.setQueueRobotBusy(false);
+        return;
       }
-      output.setActive('output');
-    } catch (e) {
-      output.appendLine('Run on Robot: could not reach the server. Try again.', 'term-err', 'output');
-      output.setActive('output');
-    }
-    toolbar.setRunRobotBusy(false);
-  }
 
-  async function queueOnRobot(){
-    const path = tabs.activePath;
-    if (!path || !lastValidated.ok || lastValidated.path !== path) return;
-    toolbar.setQueueEnabled(false);
-    try {
-      const res = await fetch('/api/robot/queue', {
+      const submitRes = await fetch('/api/robot/queue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'submit', path, code: lastValidated.content }),
+        body: JSON.stringify({ action: 'submit', path, code: content }),
       });
-      const data = await res.json();
-      output.clear('output');
-      if (res.ok && data.ok){
-        output.appendLine(`Queued — position ${data.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
-        lastValidated = { path: null, content: null, ok: false };
-        watchJob(data.jobId);
-      } else if (data.error === 'cooldown'){
-        const seconds = Math.ceil((data.retryAfterMs || 0) / 1000);
+      const submitData = await submitRes.json();
+
+      if (submitRes.ok && submitData.ok){
+        output.appendLine(`Queued — position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
+        watchJob(submitData.jobId);
+      } else if (submitData.error === 'cooldown'){
+        const seconds = Math.ceil((submitData.retryAfterMs || 0) / 1000);
         output.appendLine(`Please wait ${seconds}s before queueing again.`, 'term-warn', 'output');
-        toolbar.setQueueEnabled(true);
-      } else if (data.error === 'code_mismatch'){
-        output.appendLine('The code changed since it was last verified — run "Run on Robot" again.', 'term-err', 'output');
-        lastValidated = { path: null, content: null, ok: false };
       } else {
-        output.appendLine(`Couldn't queue: ${data.message || data.error || 'unknown error'}`, 'term-err', 'output');
-        toolbar.setQueueEnabled(true);
+        output.appendLine(`Couldn't queue: ${submitData.message || submitData.error || 'unknown error'}`, 'term-err', 'output');
       }
       output.setActive('output');
     } catch (e) {
       output.appendLine('Could not reach the server. Try again.', 'term-err', 'output');
-      toolbar.setQueueEnabled(true);
       output.setActive('output');
     }
+    toolbar.setQueueRobotBusy(false);
   }
 
   const JOB_STATUS_LINE = {

@@ -66,6 +66,12 @@ function jobRow(job, pendingJobs){
   }
   if (job.status === 'pending' || job.status === 'approved'){
     actions.push(`<button type="button" class="p-btn ghost" data-cancel="${job.id}">Cancel</button>`);
+  } else if (job.status === 'running'){
+    // A job can get stuck here if the robot's agent crashed/disconnected
+    // mid-run without ever reporting back — the one-job-at-a-time DB rule
+    // would otherwise block every future job on this robot forever, so
+    // this is the only way to clear it.
+    actions.push(`<button type="button" class="p-btn ghost" data-cancel="${job.id}">Force stop (stuck?)</button>`);
   }
 
   return `

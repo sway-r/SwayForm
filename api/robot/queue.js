@@ -141,10 +141,17 @@ export default async function handler(req, res){
       // function doesn't support composing sub-fragments the way some other
       // SQL-template libraries do, so this is two explicit query shapes
       // rather than one query built from parts.
+      //
+      // Admins can also force-cancel a 'running' job — the only way to
+      // clear one stuck there (agent crashed/disconnected mid-run without
+      // ever reporting job.exit) since the one-job-at-a-time DB constraint
+      // would otherwise block every future job on this robot forever.
+      // Students cannot touch a running job — only their own pending/
+      // approved submissions.
       const updated = isAdmin
         ? await sql`
-            UPDATE robot_jobs SET status = 'cancelled', decided_by = ${session.email}, decided_at = now()
-            WHERE id = ${jobId} AND robot_id = ${robotId} AND status IN ('pending', 'approved')
+            UPDATE robot_jobs SET status = 'cancelled', decided_by = ${session.email}, decided_at = now(), finished_at = now()
+            WHERE id = ${jobId} AND robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
             RETURNING id
           `
         : await sql`

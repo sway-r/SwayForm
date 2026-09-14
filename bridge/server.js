@@ -1,5 +1,6 @@
 import './load-env.js';
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { WebSocketServer } from 'ws';
 import { jwtVerify } from 'jose';
 
@@ -83,9 +84,80 @@ async function handleMediamtxAuth(req, res){
   res.writeHead(401); res.end();
 }
 
+// ── code-server access: single-use JWT (minted by api/admin.js, admin-only)
+// exchanged here for a 30-min httpOnly cookie on code.bridge.swayform.net.
+// Two small in-memory maps — fine at this scale, this process already
+// tracks per-connection state the same way (see dispatchedJobIds below).
+const CODE_SESSION_TTL_MS = 30 * 60 * 1000;
+const usedExchangeJtis = new Map(); // jti -> expiryMs, so a stolen/replayed link can't be reused
+const codeSessions = new Map(); // opaque session id -> { expiresAt }
+
+function pruneExpired(map){
+  const now = Date.now();
+  for (const [key, val] of map){
+    const exp = typeof val === 'number' ? val : val.expiresAt;
+    if (exp < now) map.delete(key);
+  }
+}
+
+function parseCookies(req){
+  const header = req.headers.cookie;
+  const out = {};
+  if (!header) return out;
+  for (const part of header.split(';')){
+    const i = part.indexOf('=');
+    if (i === -1) continue;
+    out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
+  }
+  return out;
+}
+
+async function handleCodeExchange(req, res){
+  const url = new URL(req.url, 'http://internal');
+  const token = url.searchParams.get('token') || '';
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET_KEY);
+    if (payload.purpose !== 'code-server') throw new Error('wrong_purpose');
+
+    pruneExpired(usedExchangeJtis);
+    if (usedExchangeJtis.has(payload.jti)) throw new Error('token_already_used');
+    usedExchangeJtis.set(payload.jti, (payload.exp || 0) * 1000);
+
+    const sessionId = crypto.randomBytes(24).toString('hex');
+    codeSessions.set(sessionId, { expiresAt: Date.now() + CODE_SESSION_TTL_MS });
+
+    res.writeHead(302, {
+      'set-cookie': `swayform_code_session=${sessionId}; HttpOnly; Secure; SameSite=Lax; Max-Age=${CODE_SESSION_TTL_MS / 1000}; Path=/`,
+      location: '/',
+    });
+    res.end();
+  } catch (e) {
+    console.error('code-server exchange failed:', e.message);
+    res.writeHead(401, { 'content-type': 'text/plain' });
+    res.end('invalid or expired link');
+  }
+}
+
+function handleCodeAuthCheck(req, res){
+  pruneExpired(codeSessions);
+  const sessionId = parseCookies(req).swayform_code_session;
+  const session = sessionId && codeSessions.get(sessionId);
+  res.writeHead(session ? 200 : 401);
+  res.end();
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/mediamtx-auth'){
     handleMediamtxAuth(req, res);
+    return;
+  }
+  if (req.method === 'GET' && req.url.startsWith('/_exchange')){
+    handleCodeExchange(req, res);
+    return;
+  }
+  if (req.method === 'GET' && req.url === '/code-auth-check'){
+    handleCodeAuthCheck(req, res);
     return;
   }
   res.writeHead(200, { 'content-type': 'text/plain' });

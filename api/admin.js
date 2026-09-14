@@ -1,8 +1,18 @@
+import crypto from 'node:crypto';
+import { SignJWT } from 'jose';
 import { readSessionFromRequest } from './_lib/session.js';
 import { sql, fetchProgressSummary, syncProfileSchoolToRobot } from './_lib/db.js';
 import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 import { findItem } from '../portal/data/curriculum.js';
+
+const CODE_SERVER_TOKEN_TTL_SECONDS = 60;
+
+function bridgeSecretKey(){
+  const secret = process.env.BRIDGE_SERVICE_SECRET;
+  if (!secret) throw new Error('BRIDGE_SERVICE_SECRET is not set');
+  return new TextEncoder().encode(secret);
+}
 
 export default async function handler(req, res){
   const session = await readSessionFromRequest(req);
@@ -188,6 +198,23 @@ export default async function handler(req, res){
       }
       await syncProfileSchoolToRobot(email, robotId);
       res.status(200).json({ ok: true });
+      return;
+    }
+
+    // Mints a single-use, 60s token exchanged at the bridge
+    // (bridge/server.js's /_exchange route) for a 30-min httpOnly cookie
+    // on code.bridge.swayform.net. requireCurrentAdmin above already
+    // re-validated the admin role fresh from Postgres for this whole
+    // request — no separate check needed here. Full arbitrary code
+    // execution on the robot's Pi sits behind this, so admin-only and a
+    // short, single-use token are load-bearing, not just tidiness.
+    case 'code-server-token': {
+      const token = await new SignJWT({ robotId, purpose: 'code-server', jti: crypto.randomUUID() })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(`${CODE_SERVER_TOKEN_TTL_SECONDS}s`)
+        .sign(bridgeSecretKey());
+      res.status(200).json({ token });
       return;
     }
 

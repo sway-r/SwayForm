@@ -1,5 +1,6 @@
 import { icon } from '../../icons.js';
 import { getSession } from '../../services/auth-service.js';
+import { mountVideoPlayer } from './video-player.js';
 
 export const meta = {
   id: 'robot',
@@ -37,17 +38,27 @@ export async function mount(container, ctx){
   }
 
   container.innerHTML = `<div class="robot-root p-scroll la-surface">
-      <div class="robot-hero">
-        <div class="robot-hero-icon">${icon('robot')}</div>
-        <h1 class="robot-hero-title">${session.robotSerial}</h1>
-        <span class="robot-status-badge" data-role="status-badge">Checking…</span>
-        <p class="robot-hero-note" data-role="status-note">Live video and the embedded editor land here in later phases. Run on Robot is already available from the lab code editor's Queue on Robot button — this screen just shows whether the robot's agent is currently connected.</p>
+      <div class="robot-tabs" data-role="tabs">
+        <button type="button" class="robot-tab is-active" data-tab="status">Status</button>
+        <button type="button" class="robot-tab" data-tab="video">Live Video</button>
       </div>
+      <div class="robot-tab-panel" data-panel="status">
+        <div class="robot-hero">
+          <div class="robot-hero-icon">${icon('robot')}</div>
+          <h1 class="robot-hero-title">${session.robotSerial}</h1>
+          <span class="robot-status-badge" data-role="status-badge">Checking…</span>
+          <p class="robot-hero-note" data-role="status-note">The embedded admin editor lands here in a later phase. Run on Robot is already available from the lab code editor's Queue on Robot button — this screen just shows whether the robot's agent is currently connected.</p>
+        </div>
+      </div>
+      <div class="robot-tab-panel" data-panel="video" hidden></div>
     </div>`;
   ctx.setAppTitle && ctx.setAppTitle('Robot');
 
   const badge = container.querySelector('[data-role="status-badge"]');
   const note = container.querySelector('[data-role="status-note"]');
+  const tabsEl = container.querySelector('[data-role="tabs"]');
+  const statusPanel = container.querySelector('[data-panel="status"]');
+  const videoPanel = container.querySelector('[data-panel="video"]');
 
   async function refreshStatus(){
     try {
@@ -69,7 +80,32 @@ export async function mount(container, ctx){
   await refreshStatus();
   const pollTimer = setInterval(refreshStatus, POLL_INTERVAL_MS);
 
+  // The video player only connects once its tab is actually selected —
+  // leaving the Robot app open on Status shouldn't hold a viewer slot on
+  // the relay. Torn down again when switching away or unmounting.
+  let videoPlayer = null;
+
+  tabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.robot-tab');
+    if (!btn) return;
+    const tab = btn.dataset.tab;
+
+    tabsEl.querySelectorAll('.robot-tab').forEach((el) => el.classList.toggle('is-active', el === btn));
+    statusPanel.hidden = tab !== 'status';
+    videoPanel.hidden = tab !== 'video';
+
+    if (tab === 'video' && !videoPlayer){
+      videoPlayer = mountVideoPlayer(videoPanel);
+    } else if (tab !== 'video' && videoPlayer){
+      videoPlayer.unmount();
+      videoPlayer = null;
+    }
+  });
+
   return {
-    unmount(){ clearInterval(pollTimer); },
+    unmount(){
+      clearInterval(pollTimer);
+      if (videoPlayer) videoPlayer.unmount();
+    },
   };
 }

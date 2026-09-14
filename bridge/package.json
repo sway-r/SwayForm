@@ -7,6 +7,7 @@
     "fake-agent": "node fake-agent.js"
   },
   "dependencies": {
+    "jose": "^5.9.6",
     "ws": "^8.18.0"
   }
 }

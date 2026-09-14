@@ -1,12 +1,14 @@
 import './load-env.js';
 import http from 'node:http';
 import { WebSocketServer } from 'ws';
+import { jwtVerify } from 'jose';
 
 const PORT = process.env.PORT || 9000;
 const API_BASE = process.env.VERCEL_API_BASE;
 const SERVICE_SECRET = process.env.BRIDGE_SERVICE_SECRET;
 if (!API_BASE) throw new Error('VERCEL_API_BASE is not set');
 if (!SERVICE_SECRET) throw new Error('BRIDGE_SERVICE_SECRET is not set');
+const JWT_SECRET_KEY = new TextEncoder().encode(SERVICE_SECRET);
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
 const DISPATCH_POLL_INTERVAL_MS = 4_000;
@@ -29,7 +31,66 @@ async function getApi(path){
   return res.json();
 }
 
-const server = http.createServer();
+function readJsonBody(req){
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(data ? JSON.parse(data) : {}); }
+      catch (e) { reject(e); }
+    });
+    req.on('error', reject);
+  });
+}
+
+// MediaMTX's authHTTPAddress webhook. A WHIP/WHEP client's Authorization:
+// Bearer header arrives here as `token`; `path` is the MediaMTX path name,
+// which we use as the robot serial. Publish reuses the same token the Pi
+// agent already authenticates its WebSocket connection with — no new
+// Pi-side credential. Read uses a short-lived viewer JWT minted by
+// api/robot/status.js, verified locally (no Vercel round-trip per viewer).
+async function handleMediamtxAuth(req, res){
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const { action, path, token } = body || {};
+
+  if (action === 'publish'){
+    try {
+      await callApi('/api/robot/agent', { action: 'auth', token, serial: path });
+      res.writeHead(200); res.end();
+    } catch (e) {
+      console.error('mediamtx publish auth failed:', e.message);
+      res.writeHead(401); res.end();
+    }
+    return;
+  }
+
+  if (action === 'read'){
+    try {
+      const { payload } = await jwtVerify(token || '', JWT_SECRET_KEY);
+      if (payload.serial !== path) throw new Error('serial_mismatch');
+      res.writeHead(200); res.end();
+    } catch (e) {
+      console.error('mediamtx read auth failed:', e.message);
+      res.writeHead(401); res.end();
+    }
+    return;
+  }
+
+  // Deny by default — nothing else (api/metrics/pprof/playback) is needed here.
+  res.writeHead(401); res.end();
+}
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'POST' && req.url === '/mediamtx-auth'){
+    handleMediamtxAuth(req, res);
+    return;
+  }
+  res.writeHead(200, { 'content-type': 'text/plain' });
+  res.end('swayform-bridge ok');
+});
 const wss = new WebSocketServer({ server, path: '/agent' });
 
 wss.on('connection', (ws, req) => {

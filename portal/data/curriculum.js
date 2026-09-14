@@ -145,15 +145,16 @@ const s5 = [
 // depth-based tracking, state-machine design, and multi-sensor
 // integration") — no individual lab titles published yet, so these stay
 // generic placeholders rather than inventing specific ones.
-const s6 = Array.from({ length: 10 }, (_, i) =>
+const s6 = Array.from({ length: 40 }, (_, i) =>
   placeholder(`perceive-${21 + i}`, 'perceive', `6.${String(i + 1).padStart(2, '0')}`, `Lab ${21 + i} — Coming Soon`,
     'Level 3 builds toward a student project track: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration. Exact lab titles will be finalized as development continues.'));
 
 // Level 4 — Create: theme only on the public site ("Original ROS 2 package
 // design, multi-node architecture, and a final showcase demo") — the
 // project track, no individual lab titles published yet.
-const s7 = Array.from({ length: 10 }, (_, i) =>
-  placeholder(`create-${31 + i}`, 'create', `7.${String(i + 1).padStart(2, '0')}`, `Lab ${31 + i} — Coming Soon`,
+// Preserve existing placeholder IDs; display numbering follows the ~100-lab roadmap.
+const s7 = Array.from({ length: 40 }, (_, i) =>
+  placeholder(`create-${31 + i}`, 'create', `7.${String(i + 1).padStart(2, '0')}`, `Lab ${61 + i} — Coming Soon`,
     'Level 4 is the project track: fully student-authored programs, original ROS 2 package design, multi-node architecture, and a final showcase demo. Exact lab titles will be finalized as development continues.'));
 
 export const CURRICULUM = {

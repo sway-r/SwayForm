@@ -65,7 +65,6 @@
     { "source": "/login",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/learn",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/learn/:path*",             "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
-    { "source": "/project/:path*",           "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/account",                  "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/help/:path*",              "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/settings",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },

@@ -16,7 +16,6 @@ export const WRITABLE_FILES = [
   'portal/data/workspace-config.js',
   'portal/portal.js',
   'portal/apps/learn/learn.js',
-  'portal/apps/projects/projects.js',
   'portal/apps/account/account.js',
   'portal/apps/help/help.js',
   'portal/apps/settings/settings.js',

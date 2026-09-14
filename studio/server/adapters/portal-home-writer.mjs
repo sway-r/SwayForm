@@ -9,7 +9,7 @@
 import { parse, print, b, findExportConst, objPropValue, setObjProp, deepEqual } from '../ast-utils.mjs';
 
 const APP_IDENT = {
-  learn: 'LearnApp', projects: 'ProjectsApp', account: 'AccountApp',
+  learn: 'LearnApp', account: 'AccountApp',
   help: 'HelpApp', settings: 'SettingsApp',
   // robot/admin are role-gated at runtime (visibleApps() in portal.js), not
   // part of REGISTRY_ORDER()'s static array — registered here only so a
@@ -20,7 +20,6 @@ const APP_IDENT = {
 
 export const APP_FILES = {
   learn: 'portal/apps/learn/learn.js',
-  projects: 'portal/apps/projects/projects.js',
   account: 'portal/apps/account/account.js',
   help: 'portal/apps/help/help.js',
   settings: 'portal/apps/settings/settings.js',

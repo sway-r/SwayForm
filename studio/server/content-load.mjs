@@ -111,7 +111,6 @@ export const CONTENT_FILES = [
   'portal/data/workspace-config.js',
   'portal/portal.js',
   'portal/apps/learn/learn.js',
-  'portal/apps/projects/projects.js',
   'portal/apps/account/account.js',
   'portal/apps/help/help.js',
   'portal/apps/settings/settings.js',
@@ -119,7 +118,6 @@ export const CONTENT_FILES = [
 
 const APP_MODULES = {
   learn: 'portal/apps/learn/learn.js',
-  projects: 'portal/apps/projects/projects.js',
   account: 'portal/apps/account/account.js',
   help: 'portal/apps/help/help.js',
   settings: 'portal/apps/settings/settings.js',

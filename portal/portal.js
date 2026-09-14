@@ -2,7 +2,6 @@
    No build step: this is a plain ES module loaded directly by the browser. */
 import { icon } from './icons.js';
 import * as LearnApp from './apps/learn/learn.js';
-import * as ProjectsApp from './apps/projects/projects.js';
 import * as AccountApp from './apps/account/account.js';
 import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
@@ -13,7 +12,7 @@ import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
-const REGISTRY = [LearnApp, ProjectsApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp]
+const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -73,11 +72,6 @@ function setAdminJobBadge(count){
 // parser silently falls through to "every imported app" and its writer
 // throws when saving. Keep any conditional/session-based app visibility out
 // of this function; put it in visibleApps() below instead.
-//
-// Projects is hidden for now — it's 100% fake data (mock-projects.js) with
-// no real backend behind it yet. Still imported/registered (so /project/:id
-// routing and restoreOpenApps() keep working if anything reaches it
-// directly), just not offered as a desktop icon until it's real.
 function REGISTRY_ORDER(){
   return [LearnApp, AccountApp, HelpApp, SettingsApp];
 }
@@ -332,7 +326,6 @@ const ROUTES = {
       return { view: 'home' };
     },
   },
-  project: { app: 'projects', parse: (p) => ({ projectId: p[0] }) },
   account: { app: 'account', parse: () => ({}) },
   help: { app: 'help', parse: (p) => ({ topic: p[0] }) },
   settings: { app: 'settings', parse: () => ({}) },
@@ -355,7 +348,6 @@ function pathForApp(appId, params){
       if (params.view === 'activity' && params.activityId) return '/learn/activity/' + params.activityId;
       if (params.view === 'section' && params.sectionId) return '/learn/section/' + params.sectionId;
       return '/learn';
-    case 'projects': return '/project' + (params.projectId ? '/' + params.projectId : '');
     case 'account': return '/account';
     case 'help': return '/help' + (params.topic ? '/' + params.topic : '');
     case 'settings': return '/settings';

@@ -12,27 +12,17 @@ import { markComplete, setCurrentActivity, getCurrentActivity, isActivityComplet
 // silently carried over into the next, unrelated activity you opened,
 // making it look like activities randomly opened with Code Editor alone.
 // Scoping the key per activity.id means a brand-new activity always starts
-// from DEFAULT_LAYOUT, while returning to an activity you've already
+// from LEARN_CODE_LAYOUT, while returning to an activity you've already
 // customized still remembers your arrangement for that activity specifically.
 const LAYOUT_STORAGE_PREFIX = 'swayform.portal.workspace.layout';
 
-// Default tiled workstation: Notebook fills the left column at full height;
-// Code Editor and Terminal stack on the right (Code taller than Terminal).
-// Tight percentage gaps (~0.3-0.4%) read as a thin divider at any screen
-// width rather than a fixed-px value that would look enormous on some
-// screens and cramped on others.
-const DEFAULT_LAYOUT = {
-  notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
-  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 68 },
-  terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6 },
-};
-
-// "Learn + Code" preset: the old two-pane arrangement, Terminal minimized.
-// Same tight edge gaps as DEFAULT_LAYOUT (full-bleed, not a centered float
-// with margins) so the two panes use all the space they can instead of
-// leaving visible borders around them. Its stored bounds (used if the
-// student un-minimizes it without dragging) match the tiled default's
-// bottom-right tile, not a centered float.
+// "Learn + Code" layout: the default workstation. Notebook and Code Editor
+// split the screen two-pane; Terminal starts minimized (not needed for most
+// labs right now). Tight percentage gaps (~0.3-0.4%) read as a thin divider
+// at any screen width rather than a fixed-px value that would look enormous
+// on some screens and cramped on others. Its stored bounds (used if the
+// student un-minimizes Terminal without dragging) still reserve a sensible
+// tile rather than a centered float.
 const LEARN_CODE_LAYOUT = {
   notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
   codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 99 },
@@ -88,7 +78,7 @@ export function mount(container, params, nav, ctx){
 
   const wm = new WorkspaceWindowManager(desktopEl, {
     storageKey: LAYOUT_STORAGE_PREFIX + '.' + activity.id,
-    defaultLayout: isReading ? READING_DEFAULT_LAYOUT : DEFAULT_LAYOUT,
+    defaultLayout: isReading ? READING_DEFAULT_LAYOUT : LEARN_CODE_LAYOUT,
   });
 
   async function finish(){

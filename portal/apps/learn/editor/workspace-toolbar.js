@@ -8,7 +8,7 @@ export class WorkspaceToolbar {
         <button type="button" class="p-btn primary" data-act="run">${icon('play')}<span>Run</span></button>
         <button type="button" class="p-btn" data-act="check">${icon('checkCircle')}<span>Check</span></button>
         <div class="wt-divider"></div>
-        <button type="button" class="p-btn ghost" data-act="save">${icon('save')}<span>Save</span></button>
+        <button type="button" class="p-btn ghost" data-act="save" title="Drafts are saved for this tab and cleared on sign-out. Copy code you want to keep.">${icon('save')}<span>Save</span></button>
         <button type="button" class="p-btn ghost" data-act="reset">${icon('refresh')}<span>Reset</span></button>
         <div class="wt-divider" data-robot-divider hidden></div>
         <button type="button" class="p-btn primary" data-act="queue-robot" hidden>${icon('robot')}<span>Queue on Robot</span></button>

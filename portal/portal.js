@@ -11,6 +11,7 @@ import * as CodeEditorApp from './apps/code-editor/code-editor.js';
 import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
+import { setWorkspaceAccount } from './apps/learn/editor/mock-fs.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
 const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp, CodeEditorApp]
@@ -428,8 +429,10 @@ launcherEl.addEventListener('keydown', (e) => {
 logoutBtnEl.querySelector('.taskbar-logout-glyph').innerHTML = icon('logout');
 logoutBtnEl.addEventListener('click', async () => {
   if (!window.confirm('Log out of SwayForm Learning Portal?')) return;
-  await logout();
-  location.href = '/';
+  desktopEl.hidden = true;
+  try { await logout(); }
+  catch (error){ window.alert(error.message || 'Sign-out failed. Reconnect and retry.'); location.href = '/login?logout=pending'; return; }
+  location.href = '/login';
 });
 
 window.addEventListener('resize', () => {
@@ -456,6 +459,8 @@ window.addEventListener('resize', () => {
 /* ---------------------------------------------------------- Boot / auth gate */
 async function showDesktop(){
   const session = await getSession();
+  if (!session){ showLogin(); return; }
+  setWorkspaceAccount(session);
 
   // Every path into the desktop (boot, Google login, guest login) funnels
   // through here — so this is the one place a first-time real login gets
@@ -517,7 +522,21 @@ async function boot(){
   await showDesktop();
 }
 
-boot();
+const saveNotice = document.createElement('div');
+saveNotice.setAttribute('role', 'alert');
+saveNotice.className = 'portal-save-notice';
+saveNotice.hidden = true;
+document.body.appendChild(saveNotice);
+window.addEventListener('swayform:save-error', (event) => {
+  saveNotice.textContent = event.detail;
+  saveNotice.hidden = false;
+});
+
+boot().catch(() => {
+  desktopEl.hidden = true;
+  loginRootEl.hidden = false;
+  loginRootEl.textContent = 'Could not check your session. Check your connection and reload to retry.';
+});
 
 export const Portal = { openApp, closeWindow, navigateTo };
 window.SwayPortal = Portal;

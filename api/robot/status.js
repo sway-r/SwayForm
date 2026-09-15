@@ -1,3 +1,4 @@
+import { privateResponse, requireBrowserMutation } from '../_lib/browser-security.js';
 import { SignJWT } from 'jose';
 import { readSessionFromRequest } from '../_lib/session.js';
 import { requireCurrentRobotMember } from '../_lib/authz.js';
@@ -23,6 +24,8 @@ function bridgeSecretKey(){
  * one — video is visible to everyone linked to the robot, not admin-only.
  */
 export default async function handler(req, res){
+  privateResponse(res);
+  if (req.method === 'POST' && !requireBrowserMutation(req, res)) return;
   const session = await readSessionFromRequest(req);
   const member = await requireCurrentRobotMember(session);
   if (!member){
@@ -42,7 +45,7 @@ export default async function handler(req, res){
   const r = rows[0];
 
   if (req.method === 'POST'){
-    const token = await new SignJWT({ robotId, serial: r.serial_number })
+    const token = await new SignJWT({ robotId, serial: r.serial_number, purpose: 'video-viewer' })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(`${VIEWER_TOKEN_TTL_SECONDS}s`)
@@ -58,7 +61,7 @@ export default async function handler(req, res){
 
   res.status(200).json({
     robotSerial: r.serial_number,
-    online: r.is_online,
+    online: !!r.is_online && Date.now() - new Date(r.last_seen_at).getTime() < 30_000,
     lastSeenAt: r.last_seen_at,
     agentVersion: r.agent_version,
   });

@@ -26,5 +26,11 @@ export default async function handler(req, res){
     RETURNING id
   `;
 
+  await sql.transaction([
+    sql`DELETE FROM portal_sessions WHERE expires_at < now()`,
+    sql`DELETE FROM school_invitations WHERE expires_at < now()`,
+    sql`DELETE FROM portal_rate_limits WHERE window_start < now() - interval '1 day'`,
+    sql`DELETE FROM portal_audit_events WHERE created_at < now() - interval '90 days'`,
+  ]);
   res.status(200).json({ deletedCount: deleted.length });
 }

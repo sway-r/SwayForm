@@ -2,14 +2,18 @@ import { OAuth2Client } from 'google-auth-library';
 import { findRoleForEmail, enrichSessionWithProfile, recordTermsAcceptance } from '../_lib/db.js';
 import { createSessionCookie, requireMethod } from '../_lib/session.js';
 import { CURRENT_TERMS_VERSION } from '../_lib/legal.js';
+import { requireBrowserMutation, rateLimit } from '../_lib/browser-security.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export default async function handler(req, res){
   if (!requireMethod(req, res, 'POST')) return;
+  if (!requireBrowserMutation(req, res)) return;
+  const ip = req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+  if (!await rateLimit(res, 'login', ip, 60)) return;
 
   const { credential } = req.body || {};
-  if (!credential){
+  if (typeof credential !== 'string' || !credential || credential.length > 16384){
     res.status(400).json({ error: 'missing_credential' });
     return;
   }
@@ -38,6 +42,7 @@ export default async function handler(req, res){
 
   const session = {
     mode: match ? match.role : 'member',
+    subject: payload.sub,
     email: payload.email.trim().toLowerCase(),
     name: payload.name || payload.email,
     picture: payload.picture || null,

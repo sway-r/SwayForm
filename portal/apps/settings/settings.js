@@ -64,7 +64,7 @@ export function mount(container, ctx){
             <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
           </div>
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset all local workspace edits</span><span class="set-row-desc">Reverts every file in the mock ROS 2 workspace back to its starter version.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset this tab's workspace edits</span><span class="set-row-desc">Drafts survive reloads in this tab and are cleared on sign-out. Copy code you want to keep. Reset restores the starter files.</span></span>
             <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
           <div class="set-row">
@@ -117,7 +117,7 @@ export function mount(container, ctx){
       ? 'Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.'
       : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
     if (!window.confirm(confirmMsg)) return;
-    resetProgress();
+    try { await resetProgress(); } catch { return; }
     const btn = e.currentTarget;
     const original = btn.textContent;
     btn.textContent = 'Progress reset';

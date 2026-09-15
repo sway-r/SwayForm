@@ -1,5 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { serialize, parse } from 'cookie';
+import { randomUUID } from 'node:crypto';
+import { sql, findRoleForEmail } from './db.js';
 
 const COOKIE_NAME = 'swayform_session';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
@@ -21,11 +23,16 @@ function cookieOptions(){
 
 /** Signs `session` and returns a Set-Cookie header value. */
 export async function createSessionCookie(session){
+  const id = randomUUID();
   const token = await new SignJWT(session)
     .setProtectedHeader({ alg: 'HS256' })
+    .setJti(id)
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
     .sign(secretKey());
+
+  await sql`INSERT INTO portal_sessions (id, email, expires_at)
+    VALUES (${id}, ${session.email}, now() + interval '7 days')`;
 
   return serialize(COOKIE_NAME, token, { ...cookieOptions(), maxAge: MAX_AGE_SECONDS });
 }
@@ -43,13 +50,34 @@ export async function readSessionFromRequest(req){
   const token = parse(header)[COOKIE_NAME];
   if (!token) return null;
 
+  let payload;
   try {
-    const { payload } = await jwtVerify(token, secretKey());
-    const { iat, exp, ...session } = payload;
-    return session;
+    ({ payload } = await jwtVerify(token, secretKey(), { algorithms: ['HS256'] }));
   } catch (e) {
     return null;
   }
+  // Pre-migration stateless cookies are deliberately not accepted.
+  if (typeof payload.jti !== 'string' || !/^[0-9a-f-]{36}$/i.test(payload.jti) || typeof payload.email !== 'string') return null;
+  const rows = await sql`SELECT id FROM portal_sessions
+    WHERE id = ${payload.jti} AND email = ${payload.email} AND expires_at > now()`;
+  if (!rows.length) return null;
+  const { iat, exp, jti, ...session } = payload;
+  const current = await findRoleForEmail(session.email);
+  const result = {
+    ...session,
+    mode: current ? current.role : 'member',
+    robotId: current ? current.robotId : null,
+    robotSerial: current ? current.robotSerial : null,
+    robotSchoolName: current ? current.robotSchoolName : null,
+  };
+  // Available to server logout, never serialized into the browser response.
+  Object.defineProperty(result, 'sessionId', { value: jti });
+  return result;
+}
+
+export async function revokeSession(req){
+  const session = await readSessionFromRequest(req);
+  if (session) await sql`DELETE FROM portal_sessions WHERE id = ${session.sessionId}`;
 }
 
 /** Rejects with 405 and returns false unless req.method matches. */

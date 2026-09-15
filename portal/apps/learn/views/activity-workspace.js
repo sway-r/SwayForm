@@ -112,10 +112,10 @@ export function mount(container, params, nav, ctx){
         // Monaco model with no feedback the insert happened at all.
         insertCode: (code) => { wm.open('codeEditor'); const ed = wm.getInstance('codeEditor'); if (ed) ed.insertCode(code); },
       },
-      onSectionChange: (i) => { resumeStep = i; setCurrentActivity(activity.id, i); },
+      onSectionChange: (i) => { resumeStep = i; setCurrentActivity(activity.id, i).catch(() => {}); },
       onFinish: async (mode) => {
-        resumeDone = true;
         await finish();
+        resumeDone = true;
         if (mode === 'next' && nextActivity) nav.activity(nextActivity.id);
       },
     }),
@@ -221,9 +221,9 @@ export function mount(container, params, nav, ctx){
   Promise.all([getCurrentActivity(), isActivityComplete(activity.id)]).then(([current, done]) => {
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
-    setCurrentActivity(activity.id, resumeStep);
+    setCurrentActivity(activity.id, resumeStep).catch(() => {});
     bootDefault();
-  });
+  }).catch(() => { bootDefault(); });
 
   return {
     unmount(){

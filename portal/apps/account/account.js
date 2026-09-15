@@ -1,6 +1,6 @@
 import { icon } from '../../icons.js';
 import { CURRICULUM, labTotals, sectionProgress } from '../../data/curriculum.js';
-import { getSession, logout } from '../../services/auth-service.js';
+import { getSession, logout, invalidateSessionCache } from '../../services/auth-service.js';
 import { getCompletedActivities, resetProgress } from '../../services/progress-service.js';
 import { escapeHtml } from '../../utils.js';
 
@@ -16,10 +16,6 @@ const ROLE_LABELS = { admin: 'Admin', student: 'Student', member: 'Member' };
 // Still genuinely true — features SwayForm hasn't built yet, not fabricated
 // data about this account.
 const COMING_SOON = [
-  {
-    label: 'School Organization',
-    description: "Join your class or school's account to share progress with an instructor, coming with school accounts.",
-  },
   {
     label: 'Instructor Review',
     description: 'Get structured feedback from a teacher on your labs, coming with school accounts.',
@@ -44,6 +40,7 @@ function statRow(label, done, total, iconName){
 }
 
 async function render(container, ctx){
+  invalidateSessionCache();
   const session = await getSession();
 
   // getSession() can transiently return null (a network/DB hiccup, not an
@@ -59,7 +56,8 @@ async function render(container, ctx){
   }
 
   const isGuest = session.mode === 'guest';
-  const completed = await getCompletedActivities();
+  let completed = [], progressError = false;
+  try { completed = await getCompletedActivities(); } catch { progressError = true; }
   const labs = labTotals(completed);
 
   const displayName = isGuest ? 'Guest User' : (session.displayName || session.name || 'Signed in');
@@ -69,7 +67,7 @@ async function render(container, ctx){
 
   const avatar = (!isGuest && session.picture)
     ? `<img class="acct-avatar" src="${escapeHtml(session.picture)}" alt="">`
-    : `<div class="acct-avatar">${initials(displayName)}</div>`;
+    : `<div class="acct-avatar">${escapeHtml(initials(displayName))}</div>`;
 
   const perSection = CURRICULUM.sections.map((section) => ({ section, ...sectionProgress(section.id, completed) }));
 
@@ -87,10 +85,19 @@ async function render(container, ctx){
       </div>
 
       <div class="acct-section">
+        <div class="acct-section-title">School invitations</div>
+        <p>Accept only an invitation from your school. Accepting shares your account's lesson completion and current activity with that school's admins. It does not provide parental consent or replace your school's authorization process.</p>
+        ${(session.invitations || []).map((invite) => `<div class="acct-row">
+          <span>${escapeHtml(invite.schoolName || 'School not named')} · ${escapeHtml(invite.robotSerial)}</span>
+          <button class="p-btn primary" data-accept-invitation="${invite.id}">Accept and share progress</button>
+          <button class="p-btn ghost" data-decline-invitation="${invite.id}">Decline</button>
+        </div>`).join('') || '<p>No pending invitations. Reopen Account after your teacher invites you.</p>'}
+      </div>
+
+      <div class="acct-section">
         <div class="acct-section-title">Learning progress</div>
         <div class="acct-stats">
-          ${statRow('Labs complete', labs.complete, labs.total, 'checkCircle')}
-          ${perSection.map((l) => statRow(`${l.section.number}. ${l.section.title}`, l.complete, l.total, 'layers')).join('')}
+          ${progressError ? '<p>Progress could not be loaded. Reconnect and reopen Account.</p>' : statRow('Labs complete', labs.complete, labs.total, 'checkCircle') + perSection.map((l) => statRow(`${l.section.number}. ${l.section.title}`, l.complete, l.total, 'layers')).join('')}
         </div>
       </div>
 
@@ -124,16 +131,32 @@ async function render(container, ctx){
 
   container.querySelector('[data-signout]').addEventListener('click', async () => {
     if (!window.confirm('Log out of SwayForm Learning Portal?')) return;
-    await logout();
-    location.href = '/';
+    container.textContent = 'Signing out…';
+    try { await logout(); } catch (error){ window.alert(error.message || 'Sign-out failed. Reconnect and retry.'); location.href = '/login?logout=pending'; return; }
+    location.href = '/login';
   });
   container.querySelector('[data-reset]').addEventListener('click', async () => {
     const confirmMsg = isGuest
       ? 'Reset all locally saved progress? Every activity will show as not started. This cannot be undone.'
       : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
     if (!window.confirm(confirmMsg)) return;
-    await resetProgress();
-    render(container, ctx);
+    try { await resetProgress(); await render(container, ctx); }
+    catch { /* save notice explains the failure */ }
+  });
+  container.querySelectorAll('[data-accept-invitation], [data-decline-invitation]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        const accept = !!button.dataset.acceptInvitation;
+        const res = await fetch('/api/profile', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: accept ? 'accept_invitation' : 'decline_invitation', invitationId: Number(button.dataset.acceptInvitation || button.dataset.declineInvitation) }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Could not update this invitation. Refresh and try again.');
+        location.reload();
+      } catch (error){ button.disabled = false; window.alert(error.message); }
+    });
   });
 }
 

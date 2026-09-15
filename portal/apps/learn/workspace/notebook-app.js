@@ -92,7 +92,7 @@ export function mount(bodyEl, winApi, opts) {
         <p>This entry is planned but not yet available — check back after this section is authored.</p>
         ${nextActivity ? `<div class="nb-complete-actions"><button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button></div>` : ''}`;
       const nextBtn = completeBlock.querySelector('[data-next-activity]');
-      if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next'));
+      if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next').catch(() => {}));
       return;
     }
     completeBlock.innerHTML = `
@@ -113,12 +113,11 @@ export function mount(bodyEl, winApi, opts) {
           : ''}
       </div>`;
     completeBlock.querySelector('[data-mark-complete]').addEventListener('click', async () => {
-      done = true;
-      await onFinish();
-      renderComplete();
+      try { await onFinish(); done = true; renderComplete(); }
+      catch { /* shared save notice explains why completion was not confirmed */ }
     });
     const nextBtn = completeBlock.querySelector('[data-next-activity]');
-    if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next'));
+    if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next').catch(() => {}));
   }
   renderComplete();
   doc.appendChild(completeBlock);

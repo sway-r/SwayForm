@@ -17,6 +17,7 @@ const MAX_OUTPUT_CHARS = 64 * 1024;
  * (GET query) rather than by path.
  */
 export default async function handler(req, res){
+  res.setHeader('Cache-Control', 'private, no-store');
   if (!requireBridgeSecret(req, res)) return;
 
   if (req.method === 'GET'){
@@ -41,7 +42,7 @@ export default async function handler(req, res){
 // ── auth ─────────────────────────────────────────────────────────────────
 async function handleAuth(req, res){
   const { token, serial } = req.body || {};
-  if (!token || !serial){
+  if (typeof token !== 'string' || !token || token.length > 4096 || typeof serial !== 'string' || !serial || serial.length > 200){
     res.status(400).json({ error: 'missing_fields' });
     return;
   }
@@ -77,8 +78,8 @@ async function handleHeartbeat(req, res){
 
 // ── job lifecycle ───────────────────────────────────────────────────────
 async function handleJobStarted(req, res){
-  const { jobId } = req.body || {};
-  if (!jobId){
+  const { jobId, robotId } = req.body || {};
+  if (!Number.isSafeInteger(jobId) || jobId < 1 || !Number.isSafeInteger(robotId) || robotId < 1){
     res.status(400).json({ error: 'missing_job_id' });
     return;
   }
@@ -87,8 +88,8 @@ async function handleJobStarted(req, res){
   // second concurrent 'started' for the same robot fails here with 23505.
   try {
     const updated = await sql`
-      UPDATE robot_jobs SET status = 'running', started_at = now()
-      WHERE id = ${jobId} AND status = 'approved'
+      UPDATE robot_jobs SET status = 'running', started_at = COALESCE(started_at, now())
+      WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
       RETURNING id
     `;
     if (!updated.length){ res.status(400).json({ error: 'not_approved' }); return; }
@@ -100,22 +101,22 @@ async function handleJobStarted(req, res){
 }
 
 async function handleJobOutput(req, res){
-  const { jobId, text } = req.body || {};
-  if (!jobId){
+  const { jobId, robotId, text } = req.body || {};
+  if (!Number.isSafeInteger(jobId) || jobId < 1 || !Number.isSafeInteger(robotId) || robotId < 1){
     res.status(400).json({ error: 'missing_job_id' });
     return;
   }
   await sql`
     UPDATE robot_jobs
     SET output = right(COALESCE(output, '') || ${String(text || '')}, ${MAX_OUTPUT_CHARS})
-    WHERE id = ${jobId} AND status = 'running'
+    WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
   `;
   res.status(200).json({ ok: true });
 }
 
 async function handleJobFinished(req, res){
-  const { jobId, exitCode } = req.body || {};
-  if (!jobId){
+  const { jobId, robotId, exitCode } = req.body || {};
+  if (!Number.isSafeInteger(jobId) || jobId < 1 || !Number.isSafeInteger(robotId) || robotId < 1){
     res.status(400).json({ error: 'missing_job_id' });
     return;
   }
@@ -123,7 +124,7 @@ async function handleJobFinished(req, res){
   const status = code === 0 ? 'succeeded' : 'failed';
   await sql`
     UPDATE robot_jobs SET status = ${status}, exit_code = ${code}, finished_at = now()
-    WHERE id = ${jobId} AND status = 'running'
+    WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
   `;
   res.status(200).json({ ok: true });
 }
@@ -136,12 +137,18 @@ async function handleDispatchQueue(req, res){
     return;
   }
 
-  const rows = await sql`
-    SELECT id, workspace_path, package, executable, code, code_sha256
-    FROM robot_jobs
-    WHERE robot_id = ${robotId} AND status = 'approved'
-    ORDER BY decided_at ASC
-  `;
+  // Claim exactly one job before sending code to the Pi. A lost delivery stays
+  // running for manual reconciliation; never automatically replay physical motion.
+  const [, rows] = await sql.transaction([
+    sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
+    sql`UPDATE robot_jobs SET status = 'running', started_at = now()
+      WHERE id = (
+        SELECT id FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'approved'
+          AND NOT EXISTS (SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'running')
+        ORDER BY queue_position ASC NULLS LAST, decided_at ASC, id ASC LIMIT 1
+      ) AND robot_id = ${robotId} AND status = 'approved'
+      RETURNING id, workspace_path, package, executable, code, code_sha256`,
+  ]);
 
   res.status(200).json({
     jobs: rows.map((r) => ({

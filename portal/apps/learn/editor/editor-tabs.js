@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../../utils.js';
 import { icon } from '../../../icons.js';
 import { isModified } from './mock-fs.js';
 
@@ -39,7 +40,7 @@ export class EditorTabs {
       const name = path.split('/').pop();
       const tab = document.createElement('div');
       tab.className = 'ed-tab' + (path === this.activePath ? ' active' : '');
-      tab.innerHTML = `<span class="ed-tab-name">${name}</span>${isModified(path) ? '<span class="ed-tab-dot"></span>' : ''}<button type="button" class="ed-tab-close" aria-label="Close ${name}">${icon('close')}</button>`;
+      tab.innerHTML = `<span class="ed-tab-name">${escapeHtml(name)}</span>${isModified(path) ? '<span class="ed-tab-dot"></span>' : ''}<button type="button" class="ed-tab-close" aria-label="Close ${escapeHtml(name)}">${icon('close')}</button>`;
       tab.addEventListener('click', (e) => {
         if (e.target.closest('.ed-tab-close')) return;
         this.onSelect && this.onSelect(path);

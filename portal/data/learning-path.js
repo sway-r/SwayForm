@@ -642,7 +642,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: "SwayForm raises its right arm and waves the elbow open and closed while its fingers ripple in a rolling wave — a greeting gesture built directly from PCA9685 servo channels, no simplified motion layer in between." },
+                    { type: 'lead', text: "The Wave command makes SwayForm say hello! Using a combination of shoulder, elbow, wrist, and finger servos, the robot raises its arm, opens its hand, and swings its elbow back and forth — while its fingers ripple one after another in a rolling wave, just like the gesture people make to say hi." },
                   ],
                 },
                 {
@@ -661,24 +661,25 @@ export const LEARNING_PATH = {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
                     { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'center\n  ↓\nopen hand\n  ↓\nwave-ready pose\n  ↓\nelbow_wave() — elbow oscillates, fingers ripple on a separate thread\n  ↓\ncenter' },
-                    { type: 'p', text: 'The finger ripple runs on its own background thread for the whole gesture — each finger follows a sine curve staggered a quarter cycle behind the next, so the motion rolls down the hand while the elbow keeps waving independently.' },
-                    { type: 'p', text: '`with sc.hardware_lock():` is a cross-process lock — it guarantees nothing else (handshake, idle, another wave) can move the same servo boards while this sequence is running, and a `finally` block always closes the PCA9685 handles, even on error.' },
+                    { type: 'callout', tone: 'note', label: 'Quick definition', text: '"Center" just means the robot\'s starting position — its arms resting at the origin pose, ready to move. You\'ll see the robot return to center at the start and end of almost every gesture.' },
+                    { type: 'p', text: 'While the elbow waves back and forth, each of the four fingers moves too — but not all at once. Each finger starts moving a little after the one before it, so the motion rolls down the hand one finger at a time instead of moving all together. That\'s what creates the "ripple" look. It all runs on its own background thread, set up inside `elbow_wave()` (line 118), so it can happen at the same time as the elbow motion, independently.' },
+                    { type: 'p', text: 'You\'ll also see `with sc.hardware_lock():` in the code (line 147). Think of it like a "busy" sign on the robot\'s arm — it makes sure nothing else (like Handshake, or another Wave) can try to move the same servos at the same time, which could cause the robot to jerk or collide with itself. When Wave finishes — or even if something goes wrong — a cleanup step called `finally` (line 170) always takes the sign back down and safely closes the connection to the servos.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
                     { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...\ndef open_hand(ctrl): ...\ndef wave_ready_pose(ctrl): ...\ndef elbow_wave(ctrl, cycles): ...\ndef perform_wave(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py' },
-                    { type: 'p', text: 'Five functions, in order: center, open the hand, move into the wave-ready pose, wave the elbow, and the top-level `perform_wave()` that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
+                    { type: 'p', text: 'Five functions, in order: `center_all()` (line 75), `open_hand()` (line 80), `wave_ready_pose()` (line 90), `elbow_wave()` (line 118), and the top-level `perform_wave()` (line 146) that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
                   ],
                 },
                 {
                   id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
                     { type: 'list', items: [
-                      'Change `WAVE_CYCLES` to wave more or fewer times.',
-                      'Change `SPEED_SCALE` to make the elbow wave faster or slower.',
-                      'Change `RIPPLE_SPEED` to make the finger ripple faster or slower.',
+                      'Change `WAVE_CYCLES` (line 32) to wave more or fewer times.',
+                      'Change `SPEED_SCALE` (line 33) to make the elbow wave faster or slower.',
+                      'Change `RIPPLE_SPEED` (line 28) to make the finger ripple faster or slower.',
                     ] },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
                   ],
@@ -686,7 +687,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Change `WAVE_CYCLES` to 1, predict how the gesture will feel, then run it and see if you were right.' },
+                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) to 1, predict how the gesture will feel, then run it and see if you were right.' },
                   ],
                 },
                 {

@@ -154,6 +154,44 @@ function handleCodeAuthCheck(req, res){
   res.end();
 }
 
+// Admin-triggered stop request, called by api/robot/queue.js (the only
+// direction that runs api/ -> bridge instead of bridge -> api/, so it's
+// gated the same way as every other machine-to-machine call: a shared
+// secret header, checked here since this route is reachable over the
+// public internet, not just from localhost like /mediamtx-auth.
+//
+// This delivers a job.stop frame to whichever agent is currently connected
+// for that robotId — it does NOT touch the database (the run-queue's
+// physical-execution-lock principle: a browser action can request a stop,
+// but only the agent's own eventual job.exit/job.error, reporting what
+// actually happened on the hardware, may change a running row's status).
+// Delivery only confirms the message reached a connected agent — whether
+// the agent acts on it depends on that agent's own implementation of the
+// job.stop frame (see docs/robot-connectivity.md).
+async function handleAdminStop(req, res){
+  if (req.headers['x-bridge-secret'] !== SERVICE_SECRET){ res.writeHead(401); res.end(); return; }
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const robotId = Number(body.robotId);
+  const jobId = Number(body.jobId);
+  if (!Number.isSafeInteger(robotId) || !Number.isSafeInteger(jobId)){
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'invalid_fields' }));
+    return;
+  }
+
+  const ws = connectedRobots.get(robotId);
+  const delivered = !!(ws && ws.readyState === ws.OPEN);
+  if (delivered) ws.send(JSON.stringify({ t: 'job.stop', jobId }));
+
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify({ ok: true, delivered }));
+}
+
+const connectedRobots = new Map();
+
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/mediamtx-auth'){
     handleMediamtxAuth(req, res);
@@ -167,11 +205,14 @@ const server = http.createServer((req, res) => {
     handleCodeAuthCheck(req, res);
     return;
   }
+  if (req.method === 'POST' && req.url === '/admin-stop'){
+    handleAdminStop(req, res);
+    return;
+  }
   res.writeHead(200, { 'content-type': 'text/plain' });
   res.end('swayform-bridge ok');
 });
 const wss = new WebSocketServer({ server, path: '/agent', maxPayload: 128 * 1024 });
-const connectedRobots = new Map();
 
 wss.on('connection', (ws, req) => {
   console.log(`raw connection opened from ${req.socket.remoteAddress}:${req.socket.remotePort}`);

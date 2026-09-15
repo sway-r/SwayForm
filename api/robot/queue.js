@@ -4,6 +4,7 @@ import { readSessionFromRequest } from '../_lib/session.js';
 import { sql } from '../_lib/db.js';
 import { requireCurrentRobotMember } from '../_lib/authz.js';
 import { validateAgainstCanonicalSource, packageAndEntry } from '../_lib/canonical-source.js';
+import { callBridge } from '../_lib/bridge.js';
 
 const SUBMIT_COOLDOWN_MS = 15_000;
 const MAX_CODE_BYTES = 64 * 1024;
@@ -207,6 +208,29 @@ export default async function handler(req, res){
           `;
       if (!updated.length){ res.status(400).json({ error: 'not_cancellable' }); return; }
       res.status(200).json({ ok: true });
+      return;
+    }
+
+    // Admin-only. Relays a stop request to whichever agent is currently
+    // connected for this robot — it does NOT change the job's database
+    // status itself (see the cancel case above: a browser action never
+    // gets to unilaterally declare a running job stopped). Whether this
+    // actually halts the robot depends on the Pi-side agent implementing
+    // the job.stop frame; `delivered` only confirms the bridge reached a
+    // connected agent, not that motion actually stopped. Only ever act on
+    // that confirmation from the agent's own eventual job.exit/job.error.
+    case 'stop': {
+      if (!isAdmin){ res.status(403).json({ error: 'not_authorized' }); return; }
+      const jobId = Number(body.jobId);
+      if (!jobId){ res.status(400).json({ error: 'missing_job_id' }); return; }
+      const [job] = await sql`SELECT id FROM robot_jobs WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'`;
+      if (!job){ res.status(400).json({ error: 'not_running' }); return; }
+      try {
+        const result = await callBridge('/admin-stop', { robotId, jobId });
+        res.status(200).json({ ok: true, delivered: !!result.delivered });
+      } catch (e){
+        res.status(502).json({ error: 'bridge_unreachable', message: "Couldn't reach the bridge to relay the stop signal." });
+      }
       return;
     }
 

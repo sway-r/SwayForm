@@ -67,11 +67,15 @@ function jobRow(job, pendingJobs){
   if (job.status === 'pending' || job.status === 'approved'){
     actions.push(`<button type="button" class="p-btn ghost" data-cancel="${job.id}">Cancel</button>`);
   } else if (job.status === 'running'){
-    // A job can get stuck here if the robot's agent crashed/disconnected
-    // mid-run without ever reporting back — the one-job-at-a-time DB rule
-    // would otherwise block every future job on this robot forever, so
-    // this is the only way to clear it.
-    actions.push(`<span class="p-muted">Stop the robot physically if needed. Contact support to reconcile a stuck run.</span>`);
+    // Sends a stop request to the connected agent — it does not touch this
+    // row's status itself (see the cancel action: a browser click never
+    // gets to unilaterally declare a running job stopped). The row only
+    // moves once the agent reports back what actually happened on the
+    // hardware. If the agent isn't connected, or its build doesn't yet
+    // handle a stop request, physically stop the robot and reconcile the
+    // stuck row with support.
+    actions.push(`<button type="button" class="p-btn ghost" data-stop="${job.id}">Send stop signal</button>`);
+    actions.push(`<span class="p-muted rq-stop-note">Confirms delivery to the robot's connection, not that it physically stopped — verify in person.</span>`);
   }
 
   return `
@@ -272,6 +276,19 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
     btn.addEventListener('click', async () => {
       if (!window.confirm('Cancel this submission?')) return;
       try { await postQueueAction({ action: 'cancel', jobId: Number(btn.dataset.cancel) }); await refreshQueue(); }
+      catch (err){ showError(container, err.message); }
+    });
+  });
+
+  root.querySelectorAll('[data-stop]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!window.confirm("Send a stop request to the robot's connected agent? This does not mark the job stopped here — verify physically.")) return;
+      try {
+        const result = await postQueueAction({ action: 'stop', jobId: Number(btn.dataset.stop) });
+        window.alert(result.delivered
+          ? "Stop signal delivered to the robot's connection. This does not confirm physical motion actually stopped — verify in person."
+          : "The robot's agent isn't currently connected — nothing was delivered. Stop it physically.");
+      }
       catch (err){ showError(container, err.message); }
     });
   });

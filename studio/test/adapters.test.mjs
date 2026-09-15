@@ -99,7 +99,7 @@ test('move item between sections updates sectionId arg and renumbers both', asyn
     assert.equal(control.items[0].id, 'wave');
     assert.equal(control.items[0].sectionId, 'control');
     assert.equal(control.items[0].number, '4.01');
-    assert.equal(demos.items[0].number, '3.1'); // renumbered, plain style kept
+    assert.equal(demos.items[0].number, '3.01'); // renumbered, current padded style kept
   } finally { cleanup(); }
 });
 

@@ -36,13 +36,20 @@ export function mountVideoPlayer(container){
   let pc = null;
   let resourceUrl = null;
   let stopped = false;
+  let viewerToken = null;
+  function releaseResource(){
+    if (!resourceUrl) return;
+    const url = resourceUrl; resourceUrl = null;
+    fetch(url, { method: 'DELETE', headers: { authorization: `Bearer ${viewerToken}` }, signal: AbortSignal.timeout(5000) }).catch(() => {});
+  }
 
   async function connect(){
     try {
-      const tokenRes = await fetch('/api/robot/status', { method: 'POST' });
+      const tokenRes = await fetch('/api/robot/status', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(10_000) });
       if (!tokenRes.ok) throw new Error(`token ${tokenRes.status}`);
       const { token, serial } = await tokenRes.json();
       if (stopped) return;
+      viewerToken = token;
 
       pc = new RTCPeerConnection();
       pc.addTransceiver('video', { direction: 'recvonly' });
@@ -65,15 +72,20 @@ export function mountVideoPlayer(container){
         method: 'POST',
         headers: { 'content-type': 'application/sdp', authorization: `Bearer ${token}` },
         body: pc.localDescription.sdp,
+        signal: AbortSignal.timeout(10_000),
       });
       if (!res.ok) throw new Error(`whep ${res.status}`);
 
       const location = res.headers.get('location');
-      resourceUrl = location ? new URL(location, whepUrl).href : null;
+      const resource = location ? new URL(location, whepUrl) : null;
+      if (resource && resource.origin !== VIDEO_BASE) throw new Error('unexpected_video_origin');
+      resourceUrl = resource ? resource.href : null;
       const answerSdp = await res.text();
-      if (stopped) return;
+      if (stopped){ releaseResource(); return; }
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
     } catch (e) {
+      releaseResource();
+      if (pc){ pc.close(); pc = null; }
       if (!stopped) note.textContent = "Couldn't connect to the robot's video feed. It may be offline.";
     }
   }
@@ -84,10 +96,7 @@ export function mountVideoPlayer(container){
     unmount(){
       stopped = true;
       if (pc){ pc.close(); pc = null; }
-      if (resourceUrl){
-        fetch(resourceUrl, { method: 'DELETE' }).catch(() => {});
-        resourceUrl = null;
-      }
+      releaseResource();
     },
   };
 }

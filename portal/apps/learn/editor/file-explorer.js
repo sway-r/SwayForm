@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../../utils.js';
 import { icon } from '../../../icons.js';
 import { isModified } from './mock-fs.js';
 
@@ -59,7 +60,7 @@ export class FileExplorer {
       row.type = 'button';
       row.className = 'fx-row fx-folder-row';
       row.style.paddingLeft = (10 + depth * 14) + 'px';
-      row.innerHTML = `<span class="fx-caret ${isOpen ? 'open' : ''}">${icon('chevronRight')}</span><span class="fx-icon">${icon(isOpen ? 'folderOpen' : 'folder')}</span><span class="fx-name">${node.name}</span>`;
+      row.innerHTML = `<span class="fx-caret ${isOpen ? 'open' : ''}">${icon('chevronRight')}</span><span class="fx-icon">${icon(isOpen ? 'folderOpen' : 'folder')}</span><span class="fx-name">${escapeHtml(node.name)}</span>`;
       row.addEventListener('click', () => {
         if (this.expanded.has(node.path)) this.expanded.delete(node.path);
         else this.expanded.add(node.path);
@@ -82,7 +83,7 @@ export class FileExplorer {
     row.dataset.path = node.path;
     row.style.paddingLeft = (10 + depth * 14 + 18) + 'px';
     const ext = extOf(node.name);
-    row.innerHTML = `<span class="fx-icon fx-icon-file ext-${ext}">${EXT_LABEL[ext] ? '' : icon('file')}${EXT_LABEL[ext] ? `<span class="fx-ext">${EXT_LABEL[ext]}</span>` : ''}</span><span class="fx-name">${node.name}</span>${isModified(node.path) ? '<span class="fx-dot" title="Modified"></span>' : ''}`;
+    row.innerHTML = `<span class="fx-icon fx-icon-file ext-${ext}">${EXT_LABEL[ext] ? '' : icon('file')}${EXT_LABEL[ext] ? `<span class="fx-ext">${EXT_LABEL[ext]}</span>` : ''}</span><span class="fx-name">${escapeHtml(node.name)}</span>${isModified(node.path) ? '<span class="fx-dot" title="Modified"></span>' : ''}`;
     row.addEventListener('click', () => this.onSelect && this.onSelect(node.path));
     return row;
   }

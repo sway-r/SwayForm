@@ -3,6 +3,33 @@
    getSession() has to ask the server — it deliberately can't read that
    cookie itself. */
 const SESSION_KEY = 'swayform.portal.session';
+const LOGOUT_PENDING_KEY = 'swayform.portal.logout-pending';
+const AUTH_CHANGE_KEY = 'swayform.portal.auth-change';
+
+export function hasPendingLogout(){
+  if (typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('logout') === 'pending') return true;
+  try { return localStorage.getItem(LOGOUT_PENDING_KEY) === '1'; } catch { return false; }
+}
+
+function clearPrivateBrowserData(){
+  try {
+    localStorage.removeItem('swayform.portal.fs.overrides');
+    for (let i = sessionStorage.length - 1; i >= 0; i--){
+      const key = sessionStorage.key(i);
+      if (key?.startsWith('swayform.portal.fs.')) sessionStorage.removeItem(key);
+    }
+  } catch { /* storage may be unavailable */ }
+}
+
+function announceAuthChange(){
+  try { localStorage.setItem(AUTH_CHANGE_KEY, `${Date.now()}:${Math.random()}`); } catch { /* unavailable */ }
+}
+if (typeof window !== 'undefined') window.addEventListener('storage', (event) => {
+  if (event.key === AUTH_CHANGE_KEY || event.key === LOGOUT_PENDING_KEY){
+    clearPrivateBrowserData();
+    window.location.reload();
+  }
+});
 
 function readGuestSession(){
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
@@ -29,14 +56,15 @@ export function invalidateSessionCache(){
 }
 
 export async function getSession(){
+  if (hasPendingLogout()) return null;
   const guest = readGuestSession();
   if (guest) return guest;
 
   if (!sessionFetchPromise){
     sessionFetchPromise = fetch('/api/auth/session')
-      .then((res) => res.json())
+      .then((res) => { if (!res.ok) throw new Error('Could not check your session. Please retry.'); return res.json(); })
       .then((data) => data.session || null)
-      .catch(() => null);
+      .catch((error) => { sessionFetchPromise = null; throw error; });
   }
   return sessionFetchPromise;
 }
@@ -46,6 +74,7 @@ export async function isAuthenticated(){
 }
 
 export async function loginGuest(){
+  if (hasPendingLogout()) throw new Error('Complete sign-out before starting another session.');
   const session = { mode: 'guest', displayName: 'Guest User', startedAt: new Date().toISOString() };
   writeGuestSession(session);
   invalidateSessionCache();
@@ -54,6 +83,7 @@ export async function loginGuest(){
 
 /** Verifies a Google ID token with the backend and, on success, starts a real session. */
 export async function loginWithGoogle(credential){
+  if (hasPendingLogout()) throw new Error('Complete sign-out before starting another session.');
   const res = await fetch('/api/auth/google', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -64,6 +94,9 @@ export async function loginWithGoogle(credential){
   if (!res.ok){
     throw new Error(data.message || 'Google sign-in failed. Please try again.');
   }
+  writeGuestSession(null);
+  clearPrivateBrowserData();
+  announceAuthChange();
   invalidateSessionCache();
   return data.session;
 }
@@ -74,10 +107,19 @@ export async function loginWithCredentials(){
 }
 
 export async function logout(){
-  writeGuestSession(null);
+  try { localStorage.setItem(LOGOUT_PENDING_KEY, '1'); } catch { /* unavailable */ }
+  clearPrivateBrowserData();
   invalidateSessionCache();
-  try { await fetch('/api/auth/logout', { method: 'POST' }); }
-  catch (e) { /* best-effort; cookie will just expire */ }
+  const res = await fetch('/api/auth/logout', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error('Sign-out was not completed. Reconnect and use Retry sign-out before leaving this shared computer.');
+  const check = await fetch('/api/auth/session', { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+  if (!check.ok || (await check.json()).session) throw new Error('Could not confirm sign-out. Please retry.');
+  writeGuestSession(null);
+  try { localStorage.removeItem(LOGOUT_PENDING_KEY); } catch { /* unavailable */ }
+  announceAuthChange();
 }
 
 /** Guest-only: an httpOnly session cookie is deliberately invisible to JS. */

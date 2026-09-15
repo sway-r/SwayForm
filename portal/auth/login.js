@@ -1,5 +1,5 @@
 import { icon } from '../icons.js';
-import { loginGuest, loginWithCredentials, loginWithGoogle } from '../services/auth-service.js';
+import { loginGuest, loginWithGoogle, hasPendingLogout, logout } from '../services/auth-service.js';
 
 const GOOGLE_CLIENT_ID = '214694324547-cdpd0h6rdcdharusaiain5d7fmgpdjtr.apps.googleusercontent.com';
 
@@ -28,36 +28,29 @@ export function mount(container, { onAuthenticated }){
           <p>Continue your SwayForm Learning Portal session.</p>
         </div>
         <p class="login-consent">By continuing, you agree to SwayForm's <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, including the <a href="/student-privacy" target="_blank" rel="noopener noreferrer">Student Privacy Notice</a>.</p>
-        <form data-login-form>
-          <div class="login-field">
-            <label for="login-email">Email or username</label>
-            <input type="text" id="login-email" placeholder="you@school.edu" autocomplete="username">
-          </div>
-          <div class="login-field">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-          </div>
-          <a href="#" class="login-forgot" data-forgot>Forgot password?</a>
-          <div class="login-note" data-auth-note>Authentication isn't connected yet — use Continue as Guest below.</div>
-          <button type="submit" class="login-btn">${icon('lock')}<span>Sign In</span></button>
-        </form>
+        <div class="login-note" data-auth-note role="alert"></div>
+        ${hasPendingLogout() ? '<p>Sign-out has not been confirmed. Reconnect before leaving this shared computer.</p><button type="button" class="login-guest" data-retry-logout>Retry sign-out</button>' : ''}
         <div class="login-google-slot" data-google-loading>Loading Google sign-in…</div>
         <div data-google></div>
 
         <div class="login-divider">or</div>
 
         <button type="button" class="login-guest" data-guest>${icon('arrowRight')}<span>Continue as Guest</span></button>
-        <p class="login-guest-note">Guest progress is saved locally in this browser. Sign in with a school account later to keep it.</p>
+        <p class="login-guest-note">Guest progress stays in this browser and is separate from your Google account. Code drafts last for this tab and are cleared on sign-out.</p>
       </div>
     </div>`;
 
   const note = container.querySelector('[data-auth-note]');
 
-  container.querySelector('[data-login-form]').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try { await loginWithCredentials(); }
-    catch (err){ note.textContent = err.message; note.classList.add('visible'); }
-  });
+  if (hasPendingLogout()){
+    container.querySelector('[data-google-loading]').hidden = true;
+    container.querySelector('[data-guest]').disabled = true;
+    container.querySelector('[data-retry-logout]').addEventListener('click', async () => {
+      try { await logout(); location.href = '/login'; }
+      catch (error){ note.textContent = error.message; note.classList.add('visible'); }
+    });
+    return;
+  }
   // The GIS script tag loads with `async defer`, so it may not be ready yet
   // when this screen mounts (e.g. on a cold page load, or a slow school
   // network) — poll indefinitely rather than giving up on a timeout.
@@ -96,18 +89,15 @@ export function mount(container, { onAuthenticated }){
     // No giving-up timeout — but do stop once this screen is gone (e.g. the
     // user logged in as guest while GIS was still loading), or this would
     // poll forever in the background for the rest of the page's life.
+    const startedAt = Date.now();
     const retry = setInterval(() => {
+      if (Date.now() - startedAt > 15000){ loadingNote.textContent = 'Google sign-in could not load. Check your connection or ask school IT to allow Google sign-in, then reload.'; clearInterval(retry); return; }
       if (!googleSlot.isConnected){ clearInterval(retry); return; }
       if (initGoogleButton()) clearInterval(retry);
     }, 200);
   }
-  container.querySelector('[data-forgot]').addEventListener('click', (e) => {
-    e.preventDefault();
-    note.textContent = "Password reset isn't connected yet — use Continue as Guest below.";
-    note.classList.add('visible');
-  });
   container.querySelector('[data-guest]').addEventListener('click', async () => {
-    await loginGuest();
-    onAuthenticated();
+    try { await loginGuest(); onAuthenticated(); }
+    catch (error){ note.textContent = error.message; note.classList.add('visible'); }
   });
 }

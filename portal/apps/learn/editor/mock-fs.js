@@ -1,15 +1,38 @@
-/* Virtual ROS 2 workspace filesystem. Seeds from the static WORKSPACE_FILES
-   map and persists any edits to localStorage for the current browser —
-   there is no backend yet, so "save" just means "survives a reload". */
+/* Virtual ROS 2 workspace. Drafts are account-scoped in this tab's storage,
+   survive reloads, and are cleared at logout. They are not cloud backups. */
 import { WORKSPACE_FILES } from '../../../data/workspace-files.js';
 
-const STORAGE_KEY = 'swayform.portal.fs.overrides';
+let storageKey = null;
+let overrides = Object.create(null);
 
-let overrides = {};
-try { overrides = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { overrides = {}; }
+// Real drafts live in this tab, scoped to the account. They survive reloads,
+// but are cleared on sign-out and do not leak into a different shared-device account.
+export function setWorkspaceAccount(session){
+  storageKey = `swayform.portal.fs.${encodeURIComponent(session?.email || 'guest')}`;
+  overrides = Object.create(null);
+  try {
+    // Unattributed legacy drafts cannot safely be assigned to the next login.
+    localStorage.removeItem('swayform.portal.fs.overrides');
+    const saved = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+    if (saved && !Array.isArray(saved) && typeof saved === 'object'){
+      for (const [path, content] of Object.entries(saved)){
+        if (path.startsWith('swayform_ws/') && typeof content === 'string') overrides[path] = content;
+      }
+    }
+  } catch { /* start with a clean, in-memory workspace */ }
+}
 
 function persist(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); } catch (e) { /* storage unavailable */ }
+  try {
+    if (!storageKey) throw new Error('Workspace account is not initialized');
+    sessionStorage.setItem(storageKey, JSON.stringify(overrides));
+    return true;
+  } catch (e) {
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('swayform:save-error', {
+      detail: 'Your draft is only in memory because browser storage is unavailable or full. Copy your code before closing this page.',
+    }));
+    return false;
+  }
 }
 
 export function listPaths(){
@@ -24,8 +47,9 @@ export function readFile(path){
 }
 
 export function writeFile(path, content){
+  if (!storageKey || typeof path !== 'string' || !path.startsWith('swayform_ws/') || typeof content !== 'string') throw new Error('Invalid workspace write');
   overrides[path] = content;
-  persist();
+  return persist();
 }
 
 export function isModified(path){
@@ -39,7 +63,7 @@ export function resetFile(path){
 }
 
 export function resetAll(){
-  overrides = {};
+  overrides = Object.create(null);
   persist();
 }
 

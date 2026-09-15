@@ -5,3 +5,7 @@ studio/
 # Bridge server — deployed to its own VPS (or run locally for testing),
 # never to Vercel. See bridge/README.md.
 bridge/
+
+# Local security tests and rollout instructions.
+test/
+SECURITY-ROLLOUT.md

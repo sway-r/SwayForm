@@ -1,57 +1,23 @@
-# SwayForm bridge server
+# SwayForm bridge
 
-The always-on relay between the physical robot (Pi, no public IP), the
-portal's browser clients, and the `api/` Vercel backend. Not deployed to
-Vercel — it runs as its own long-lived Node process, currently on your own
-machine for local testing, eventually on a small VPS.
+Long-running VPS relay for authenticated Pi WebSockets, one-at-a-time robot job delivery, MediaMTX video authorization and the configured Pi's code-editor token exchange. The website APIs are consolidated at /api/robot/agent.
 
-Phase 1 (current): accepts the Pi agent's WebSocket connection, verifies its
-token against the database via `api/robot/agent-auth.js`, and writes
-online/offline status via `api/robot/heartbeat.js`. No video or job-queue
-relaying yet — those land in later phases.
+## Configuration
 
-## Local setup
+Install dependencies with npm ci in this directory. Set VERCEL_API_BASE and BRIDGE_SERVICE_SECRET through the service environment. The shared secret must match Vercel. Set CODE_SERVER_ROBOT_ID to the database ID of the Pi behind code.bridge.swayform.net on both services; other robots cannot access that shared editor. PORT defaults to 9000.
 
-```
-cd bridge
-npm install
-cp .env.example .env
-# fill in VERCEL_API_BASE and BRIDGE_SERVICE_SECRET in .env
-npm start
-```
+Use TLS and a reverse proxy for public traffic. The repository does not contain the deployed proxy/MediaMTX/code-server configuration. Do not assume those services are protected merely because the Node bridge authenticates its own routes.
 
-`BRIDGE_SERVICE_SECRET` must be the exact same value as the `BRIDGE_SERVICE_SECRET`
-env var on the Vercel side (see `docs/environment-variables.md`) — it's how
-`api/robot/agent-auth.js`/`heartbeat.js` know a request really came from this
-bridge and not from a random caller.
+## Protocol
 
-## Testing without a real Pi
+Connect at /agent and send hello with token, serial and optional agentVersion within ten seconds. Other messages are rejected before authentication. One socket per robot is accepted. Ping/pong detects dead connections. Frame size and pending message backlog are bounded.
 
-In a second terminal, once `robots.agent_token_hash` has a row set up
-(see below):
+The bridge polls the API, which atomically claims at most one approved job before returning code. The Pi receives job.run and reports job.accepted, job.output and job.exit. Updates are accepted only for jobs dispatched on that authenticated connection and are scoped to its robot ID in the API. The bridge serializes lifecycle messages to preserve their order.
 
-```
-cd bridge
-npm run fake-agent -- ws://localhost:9000/agent <plaintext-token> <serial>
-```
+A claimed job is not replayed after reconnect. If delivery or completion is uncertain, it remains locked for operator reconciliation after a verified physical stop. The portal Cancel action does not stop a running physical program.
 
-Watch the bridge's console for `hello.ok`, then check the portal's Robot app
-(or `GET /api/robot/status`) — it should show Online. Ctrl-C the fake agent
-and it should flip back to Offline within a few seconds.
+## Testing and rollout
 
-To set up a token for testing, run this once in the Neon SQL Editor (pick
-any plaintext token, e.g. from `node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"`):
+Run npm test from the repository root after installing root and bridge dependencies. Tests launch an isolated local bridge with a synthetic API. Do not use fake-agent against production unless explicitly carrying out an authorized integration test.
 
-```sql
-UPDATE robots
-SET agent_token_hash = encode(sha256('<plaintext-token>'::bytea), 'hex')
-WHERE serial_number = '<your-robot-serial>';
-```
-
-## Deploying to a VPS (later phase)
-
-Not needed until you're ready to connect the real Pi from outside your home
-network. At that point: provision a small box, point `bridge.swayform.net`
-at it, run this directory there under a systemd unit instead of `npm start`
-in a terminal, and update the Pi's `SWAYFORM_BRIDGE_URL` to point at it
-instead of localhost.
+Read ../SECURITY-ROLLOUT.md before deployment. This API/bridge protocol update requires a coordinated maintenance window and the portal privacy database migration.

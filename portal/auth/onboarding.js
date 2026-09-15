@@ -13,7 +13,7 @@ export function mount(container, { session, onComplete }){
       <div class="login-card">
         <div class="login-card-hdr">
           <h2>Tell us about you</h2>
-          <p>One-time setup — this is what other people will see, and it never changes.</p>
+          <p>Set up your profile. Afterward, open Account to review any invitation from your school before sharing progress.</p>
         </div>
         <form data-onboarding-form>
           <div class="login-field">

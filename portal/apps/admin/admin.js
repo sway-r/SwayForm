@@ -71,7 +71,7 @@ function jobRow(job, pendingJobs){
     // mid-run without ever reporting back — the one-job-at-a-time DB rule
     // would otherwise block every future job on this robot forever, so
     // this is the only way to clear it.
-    actions.push(`<button type="button" class="p-btn ghost" data-cancel="${job.id}">Force stop (stuck?)</button>`);
+    actions.push(`<span class="p-muted">Stop the robot physically if needed. Contact support to reconcile a stuck run.</span>`);
   }
 
   return `
@@ -154,7 +154,7 @@ function seatRow(seatNumber, student){
         </span>
         <span class="adm-row-actions">
           <button type="button" class="p-btn ghost" data-archive="${student.id}">Archive</button>
-          <button type="button" class="p-btn ghost" data-delete="${student.id}">Delete forever</button>
+          <button type="button" class="p-btn ghost" data-delete="${student.id}">Remove from class</button>
         </span>
       </div>`;
   }
@@ -163,7 +163,7 @@ function seatRow(seatNumber, student){
       <span class="set-row-text"><span class="set-row-label">Seat ${seatNumber} · Empty</span></span>
       <form class="adm-inline-form" data-add-student>
         <input type="email" placeholder="student@school.edu" required>
-        <button type="submit" class="p-btn ghost">Add</button>
+        <button type="submit" class="p-btn ghost">Invite</button>
       </form>
     </div>`;
 }
@@ -171,10 +171,10 @@ function seatRow(seatNumber, student){
 function archivedRow(student){
   return `
     <div class="set-row">
-      <span class="set-row-text"><span class="set-row-label">${escapeHtml(student.email)}</span><span class="set-row-desc">Archived — history kept</span></span>
+      <span class="set-row-text"><span class="set-row-label">${escapeHtml(student.email)}</span><span class="set-row-desc">Archived — personal progress preserved</span></span>
       <span class="adm-row-actions">
-        <button type="button" class="p-btn ghost" data-restore="${escapeHtml(student.email)}">Restore</button>
-        <button type="button" class="p-btn ghost" data-delete="${student.id}">Delete forever</button>
+        <button type="button" class="p-btn ghost" data-restore="${escapeHtml(student.email)}">Invite again</button>
+        <button type="button" class="p-btn ghost" data-delete="${student.id}">Remove from class</button>
       </span>
     </div>`;
 }
@@ -190,11 +190,17 @@ function showError(container, message){
  * Only called from fullRender() — these nodes are never touched by the 5s
  * queue poll, so there's no risk of re-binding onto the same DOM twice. */
 function bindRosterActions(container, ctx, { fullRender }){
+  container.querySelectorAll('[data-cancel-invitation]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      try { await postAction({ action: 'cancel_invitation', invitationId: Number(button.dataset.cancelInvitation) }); await fullRender(); }
+      catch (error){ showError(container, error.message); }
+    });
+  });
   container.querySelectorAll('[data-add-student]').forEach((form) => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = form.querySelector('input').value.trim();
-      try { await postAction({ action: 'add_student', email }); await fullRender(); }
+      try { await postAction({ action: 'add_student', email }); await fullRender(); showError(container, 'Invitation created. Ask the student to sign in and open Account to accept it. No email is sent automatically.'); }
       catch (err){ showError(container, err.message); }
     });
   });
@@ -220,7 +226,7 @@ function bindRosterActions(container, ctx, { fullRender }){
 
   container.querySelectorAll('[data-archive]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!window.confirm("Archive this student? They will lose access, but their history is kept until you delete it forever.")) return;
+      if (!window.confirm("Archive this student? They will lose class access. Their personal learning progress is preserved.")) return;
       try { await postAction({ action: 'archive_student', studentId: Number(btn.dataset.archive) }); await fullRender(); }
       catch (err){ showError(container, err.message); }
     });
@@ -235,7 +241,7 @@ function bindRosterActions(container, ctx, { fullRender }){
 
   container.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!window.confirm("Permanently delete this student's data? This erases their account and progress forever and cannot be undone.")) return;
+      if (!window.confirm("Remove this student from your class? This does not delete their personal account or learning progress.")) return;
       try { await postAction({ action: 'delete_student', studentId: Number(btn.dataset.delete) }); await fullRender(); }
       catch (err){ showError(container, err.message); }
     });
@@ -347,7 +353,12 @@ export function mount(container, ctx){
             <div class="set-card">${archivedStudents.map(archivedRow).join('')}</div>
           </div>` : ''}
 
-        <div class="adm-note" data-admin-note></div>
+        <div class="set-section">
+          <div class="set-section-title">Pending student invitations</div>
+          <p>Students must sign in and accept in Account before you can see their progress. Invitations expire after 14 days; no email is sent automatically.</p>
+          ${(state.invitations || []).map((invite) => `<div class="set-row"><span>${escapeHtml(invite.email)}</span><button class="p-btn ghost" data-cancel-invitation="${invite.id}">Cancel invitation</button></div>`).join('') || '<p>No pending invitations.</p>'}
+        </div>
+        <div class="adm-note" data-admin-note role="status"></div>
       </div>`;
 
     bindRosterActions(container, ctx, { fullRender });

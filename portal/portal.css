@@ -266,3 +266,10 @@
   .window.restored{resize:none}
   .desktop-brand-label{display:none}
 }
+/* Persistent feedback when a save cannot be confirmed. */
+.portal-save-notice {
+  position: fixed; left: 16px; right: 16px; bottom: 68px; z-index: 100000;
+  padding: 14px 18px; border: 1px solid #a85700; border-radius: 8px;
+  background: #fff3d6; color: #572800; font: 14px/1.5 system-ui, sans-serif;
+}
+.portal-save-notice[hidden] { display: none; }

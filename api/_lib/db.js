@@ -29,6 +29,7 @@ export async function findRoleForEmail(email){
     FROM students s
     JOIN robots r ON r.id = s.robot_id
     WHERE s.email = ${normalized} AND s.status = 'active'
+    ORDER BY s.created_at, s.id
   `;
   if (student.length){
     const row = student[0];
@@ -149,11 +150,18 @@ export async function enrichSessionWithProfile(session){
   if (!session || session.mode === 'guest') return session;
 
   const profile = await findProfileForEmail(session.email);
+  const invitations = await sql`
+    SELECT i.id, r.school_name, r.serial_number
+    FROM school_invitations i JOIN robots r ON r.id = i.robot_id
+    WHERE i.email = ${session.email} AND i.expires_at > now()
+    ORDER BY i.created_at
+  `;
   return {
     ...session,
     hasProfile: !!profile,
     displayName: profile ? profile.display_name : session.name,
     schoolName: profile ? profile.school_name : null,
     profileCreatedAt: profile ? profile.created_at : null,
+    invitations: invitations.map((i) => ({ id: i.id, schoolName: i.school_name, robotSerial: i.serial_number })),
   };
 }

@@ -113,7 +113,7 @@ export function mount(bodyEl, winApi, opts) {
 
   editorSurfaceEl.innerHTML = '<div class="editor-loading">Loading editor…</div>';
   editor = new CodeEditor(editorSurfaceEl, {
-    // Debounced autosave: writing to localStorage + rebuilding the whole
+    // Debounced autosave: writing to tab storage + rebuilding the whole
     // File Explorer tree on every single keystroke was real, unnecessary
     // work and I/O. A short debounce also gives room for an honest
     // Unsaved/Saved status instead of claiming to be saved before it is.
@@ -292,11 +292,12 @@ export function mount(bodyEl, winApi, opts) {
   // "Save" isn't a no-op that merely repeats work autosave already did —
   // it flushes any pending debounce and gives the same honest Saved status.
   function persist(path, value){
-    fs.writeFile(path, value);
+    const stored = fs.writeFile(path, value);
     tabs.refreshDirtyState();
     refreshExplorer();
     if (tabs.activePath === path){
-      toolbar.setFileStatus('Saved · ' + path.replace(/^swayform_ws\//, '~/swayform_ws/'));
+      if (!stored){ toolbar.setFileStatus('Not saved to browser · copy your code'); return; }
+      toolbar.setFileStatus('Saved for this tab · ' + path.replace(/^swayform_ws\//, '~/swayform_ws/'));
       setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/')); }, 1200);
     }
   }

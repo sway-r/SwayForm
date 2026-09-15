@@ -19,6 +19,7 @@ async function callApi(path, body){
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-bridge-secret': SERVICE_SECRET },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) throw new Error(`${path} -> ${res.status}`);
   return res.json();
@@ -27,6 +28,7 @@ async function callApi(path, body){
 async function getApi(path){
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'x-bridge-secret': SERVICE_SECRET },
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) throw new Error(`${path} -> ${res.status}`);
   return res.json();
@@ -35,7 +37,10 @@ async function getApi(path){
 function readJsonBody(req){
   return new Promise((resolve, reject) => {
     let data = '';
-    req.on('data', (chunk) => { data += chunk; });
+    req.on('data', (chunk) => {
+      data += chunk;
+      if (Buffer.byteLength(data) > 16 * 1024){ reject(new Error('body_too_large')); req.destroy(); }
+    });
     req.on('end', () => {
       try { resolve(data ? JSON.parse(data) : {}); }
       catch (e) { reject(e); }
@@ -70,8 +75,8 @@ async function handleMediamtxAuth(req, res){
 
   if (action === 'read'){
     try {
-      const { payload } = await jwtVerify(token || '', JWT_SECRET_KEY);
-      if (payload.serial !== path) throw new Error('serial_mismatch');
+      const { payload } = await jwtVerify(token || '', JWT_SECRET_KEY, { algorithms: ['HS256'], requiredClaims: ['exp', 'iat'] });
+      if (payload.purpose !== 'video-viewer' || payload.serial !== path) throw new Error('serial_mismatch');
       res.writeHead(200); res.end();
     } catch (e) {
       console.error('mediamtx read auth failed:', e.message);
@@ -117,8 +122,8 @@ async function handleCodeExchange(req, res){
   const token = url.searchParams.get('token') || '';
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET_KEY);
-    if (payload.purpose !== 'code-server') throw new Error('wrong_purpose');
+    const { payload } = await jwtVerify(token, JWT_SECRET_KEY, { algorithms: ['HS256'], requiredClaims: ['exp', 'iat', 'jti'] });
+    if (payload.purpose !== 'code-server' || !process.env.CODE_SERVER_ROBOT_ID || String(payload.robotId) !== process.env.CODE_SERVER_ROBOT_ID) throw new Error('wrong_purpose');
 
     pruneExpired(usedExchangeJtis);
     if (usedExchangeJtis.has(payload.jti)) throw new Error('token_already_used');
@@ -130,6 +135,8 @@ async function handleCodeExchange(req, res){
     res.writeHead(302, {
       'set-cookie': `swayform_code_session=${sessionId}; HttpOnly; Secure; SameSite=Lax; Max-Age=${CODE_SESSION_TTL_MS / 1000}; Path=/`,
       location: '/',
+      'cache-control': 'no-store',
+      'referrer-policy': 'no-referrer',
     });
     res.end();
   } catch (e) {
@@ -152,7 +159,7 @@ const server = http.createServer((req, res) => {
     handleMediamtxAuth(req, res);
     return;
   }
-  if (req.method === 'GET' && req.url.startsWith('/_exchange')){
+  if (req.method === 'GET' && new URL(req.url, 'http://internal').pathname === '/_exchange'){
     handleCodeExchange(req, res);
     return;
   }
@@ -163,7 +170,8 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, { 'content-type': 'text/plain' });
   res.end('swayform-bridge ok');
 });
-const wss = new WebSocketServer({ server, path: '/agent' });
+const wss = new WebSocketServer({ server, path: '/agent', maxPayload: 128 * 1024 });
+const connectedRobots = new Map();
 
 wss.on('connection', (ws, req) => {
   console.log(`raw connection opened from ${req.socket.remoteAddress}:${req.socket.remotePort}`);
@@ -171,28 +179,48 @@ wss.on('connection', (ws, req) => {
   let agentVersion = null;
   let heartbeatTimer = null;
   let dispatchTimer = null;
+  let alive = true;
+  let messageTail = Promise.resolve();
+  let pendingMessages = 0;
+  const authTimer = setTimeout(() => ws.close(4001, 'auth_timeout'), 10_000);
+  ws.on('error', (e) => console.error('agent socket error:', e.message));
+  ws.on('pong', () => { alive = true; });
   // jobIds already sent as job.run this connection — avoids re-sending the
   // same approved job on every poll tick. Cleared on reconnect (a fresh
   // connection re-polls the dispatch-queue action fresh, which is also how a job
   // approved while the agent was briefly offline still gets delivered).
   const dispatchedJobIds = new Set();
 
-  ws.on('message', async (raw) => {
+  ws.on('message', (raw) => {
+    if (++pendingMessages > 32){ ws.close(1008, 'message_backlog'); return; }
+    messageTail = messageTail.then(async () => {
+    if (ws.readyState !== ws.OPEN) return;
     let msg;
     try { msg = JSON.parse(raw.toString()); }
     catch { return; }
 
+    if (!msg || typeof msg !== 'object' || Array.isArray(msg) || typeof msg.t !== 'string') return;
+    if (!robotId && msg.t !== 'hello'){ ws.close(4001, 'authenticate_first'); return; }
     if (msg.t === 'hello'){
+      if (robotId){ ws.close(4001, 'already_authenticated'); return; }
       try {
         const auth = await callApi('/api/robot/agent', { action: 'auth', token: msg.token, serial: msg.serial });
+        if (ws.readyState !== ws.OPEN) return;
+        if (connectedRobots.has(auth.robotId)){ ws.close(4009, 'robot_already_connected'); return; }
         robotId = auth.robotId;
+        connectedRobots.set(robotId, ws);
+        clearTimeout(authTimer);
         agentVersion = msg.agentVersion || null;
 
         await callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion });
+        if (ws.readyState !== ws.OPEN) return;
         ws.send(JSON.stringify({ t: 'hello.ok', robotId, heartbeatIntervalMs: HEARTBEAT_INTERVAL_MS }));
         console.log(`agent connected: serial=${msg.serial} robotId=${robotId} agentVersion=${agentVersion}`);
 
         heartbeatTimer = setInterval(() => {
+          if (!alive){ ws.terminate(); return; }
+          alive = false;
+          ws.ping();
           callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion }).catch((e) => {
             console.error('heartbeat write failed:', e.message);
           });
@@ -207,32 +235,28 @@ wss.on('connection', (ws, req) => {
       return;
     }
 
+    if (msg.t.startsWith('job.') && (!Number.isSafeInteger(msg.jobId) || !dispatchedJobIds.has(msg.jobId))){
+      ws.close(4003, 'job_not_dispatched'); return;
+    }
     if (msg.t === 'job.accepted'){
-      // If this fails (e.g. the DB's one-job-at-a-time constraint conflicts
-      // with a stale 'running' row — see docs/robot-connectivity.md), the
-      // agent has typically already started running the job locally
-      // (job.accepted is sent before the bridge round-trip completes) — its
-      // eventual job.output/job.exit would then silently no-op forever,
-      // since those UPDATEs only match rows already in 'running'. Telling
-      // the agent to cancel is a best-effort mitigation, not a full fix —
-      // a real fix means the agent waiting for bridge confirmation before
-      // it runs anything, which is a Pi-side change, not made here.
-      callApi('/api/robot/agent', { action: 'job-started', jobId: msg.jobId }).catch((e) => {
+      // Dispatch already claimed this job in the database before sending code.
+      // Acceptance confirms the claim; it never starts an unclaimed job.
+      await callApi('/api/robot/agent', { action: 'job-started', robotId, jobId: msg.jobId }).catch((e) => {
         console.error('job-started failed:', e.message, '— telling agent to cancel');
-        if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ t: 'job.cancel', jobId: msg.jobId }));
+        if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ t: 'job.cancel', robotId, jobId: msg.jobId }));
       });
       return;
     }
 
     if (msg.t === 'job.output'){
-      callApi('/api/robot/agent', { action: 'job-output', jobId: msg.jobId, text: msg.text || '' }).catch((e) => {
+      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text: msg.text || '' }).catch((e) => {
         console.error('job-output failed:', e.message);
       });
       return;
     }
 
     if (msg.t === 'job.exit'){
-      callApi('/api/robot/agent', { action: 'job-finished', jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
+      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
         console.error('job-finished failed:', e.message);
       });
       return;
@@ -240,18 +264,21 @@ wss.on('connection', (ws, req) => {
 
     if (msg.t === 'job.error'){
       console.error(`agent reported job.error for job ${msg.jobId}: ${msg.code} — ${msg.message}`);
-      callApi('/api/robot/agent', { action: 'job-finished', jobId: msg.jobId, exitCode: 1 }).catch((e) => {
+      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: 1 }).catch((e) => {
         console.error('job-finished(error) failed:', e.message);
       });
       return;
     }
 
-    // The agent's own periodic 'heartbeat' frames are a no-op here — the
-    // interval above already keeps is_online fresh from the bridge's side.
+    // Ping/pong detects dead sockets independently of agent application frames.
+    }).catch((e) => { console.error('agent message failed:', e.message); ws.close(1011, 'message_failed'); })
+      .finally(() => { pendingMessages--; });
   });
 
   ws.on('close', (code, reason) => {
     console.log(`connection closed (robotId=${robotId}) code=${code} reason=${reason}`);
+    clearTimeout(authTimer);
+    if (connectedRobots.get(robotId) === ws) connectedRobots.delete(robotId);
     if (heartbeatTimer) clearInterval(heartbeatTimer);
     if (dispatchTimer) clearInterval(dispatchTimer);
     if (robotId){
@@ -263,9 +290,11 @@ wss.on('connection', (ws, req) => {
 });
 
 async function pollDispatchQueue(ws, robotId, dispatchedJobIds){
-  if (ws.readyState !== ws.OPEN) return;
+  if (ws.readyState !== ws.OPEN || ws.dispatchPending) return;
+  ws.dispatchPending = true;
   try {
     const { jobs } = await getApi(`/api/robot/agent?action=dispatch-queue&robotId=${robotId}`);
+    if (ws.readyState !== ws.OPEN) return;
     for (const job of jobs){
       if (dispatchedJobIds.has(job.jobId)) continue;
       dispatchedJobIds.add(job.jobId);
@@ -282,7 +311,7 @@ async function pollDispatchQueue(ws, robotId, dispatchedJobIds){
     }
   } catch (e) {
     console.error('dispatch-queue poll failed:', e.message);
-  }
+  } finally { ws.dispatchPending = false; }
 }
 
 server.listen(PORT, () => console.log(`swayform-bridge listening on :${PORT}`));

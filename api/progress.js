@@ -1,7 +1,11 @@
 import { readSessionFromRequest } from './_lib/session.js';
 import { sql } from './_lib/db.js';
+import { privateResponse, requireBrowserMutation, rateLimit } from './_lib/browser-security.js';
+import { findActivity } from '../portal/data/learning-path.js';
 
 export default async function handler(req, res){
+  privateResponse(res);
+  if (req.method === 'POST' && !requireBrowserMutation(req, res)) return;
   const session = await readSessionFromRequest(req);
   if (!session || session.mode === 'guest'){
     res.status(401).json({ error: 'not_authenticated' });
@@ -27,6 +31,14 @@ export default async function handler(req, res){
   }
 
   const body = req.body || {};
+  if (!await rateLimit(res, 'progress', email, 120)) return;
+  if (['complete', 'incomplete', 'current'].includes(body.action)){
+    const entry = typeof body.activityId === 'string' && body.activityId.length <= 120 ? findActivity(body.activityId) : null;
+    if (!entry){ res.status(400).json({ error: 'invalid_activity' }); return; }
+    if (body.action === 'current' && (!Number.isInteger(body.stepIndex) || body.stepIndex < 0 || body.stepIndex >= entry.activity.steps.length)){
+      res.status(400).json({ error: 'invalid_step' }); return;
+    }
+  }
 
   switch (body.action){
     case 'complete': {
@@ -57,7 +69,7 @@ export default async function handler(req, res){
       return;
     }
     case 'reset': {
-      await Promise.all([
+      await sql.transaction([
         sql`DELETE FROM progress_completed WHERE email = ${email}`,
         sql`DELETE FROM progress_current WHERE email = ${email}`,
       ]);

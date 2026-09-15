@@ -1,3 +1,4 @@
+import { privateResponse, requireBrowserMutation, rateLimit } from '../_lib/browser-security.js';
 import { createHash } from 'node:crypto';
 import { readSessionFromRequest } from '../_lib/session.js';
 import { sql } from '../_lib/db.js';
@@ -28,7 +29,8 @@ const CSV_COLUMNS = [
 ];
 
 function csvEscape(value){
-  const s = String(value);
+  let s = String(value);
+  if (/^[=+@\-\t\r\n]/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
@@ -64,6 +66,8 @@ function jobView(row){
 }
 
 export default async function handler(req, res){
+  privateResponse(res);
+  if (req.method === 'POST' && !requireBrowserMutation(req, res)) return;
   const session = await readSessionFromRequest(req);
   const member = await requireCurrentRobotMember(session);
   if (!member){
@@ -102,6 +106,7 @@ export default async function handler(req, res){
     return;
   }
 
+  if (!await rateLimit(res, 'robot-queue', session.email, 60)) return;
   const body = req.body || {};
 
   switch (body.action){
@@ -186,16 +191,13 @@ export default async function handler(req, res){
       // SQL-template libraries do, so this is two explicit query shapes
       // rather than one query built from parts.
       //
-      // Admins can also force-cancel a 'running' job — the only way to
-      // clear one stuck there (agent crashed/disconnected mid-run without
-      // ever reporting job.exit) since the one-job-at-a-time DB constraint
-      // would otherwise block every future job on this robot forever.
-      // Students cannot touch a running job — only their own pending/
-      // approved submissions.
+      // A database cancellation does not stop physical motion. Only pending
+      // and approved jobs may be cancelled; running jobs require verified
+      // physical stop and support reconciliation before the queue is released.
       const updated = isAdmin
         ? await sql`
             UPDATE robot_jobs SET status = 'cancelled', decided_by = ${session.email}, decided_at = now(), finished_at = now()
-            WHERE id = ${jobId} AND robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
+            WHERE id = ${jobId} AND robot_id = ${robotId} AND status IN ('pending', 'approved')
             RETURNING id
           `
         : await sql`

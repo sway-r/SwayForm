@@ -7,12 +7,13 @@ import * as HelpApp from './apps/help/help.js';
 import * as SettingsApp from './apps/settings/settings.js';
 import * as RobotApp from './apps/robot/robot.js';
 import * as AdminApp from './apps/admin/admin.js';
+import * as CodeEditorApp from './apps/code-editor/code-editor.js';
 import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
-const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp]
+const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp, CodeEditorApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -87,6 +88,7 @@ function visibleApps(session){
   const apps = REGISTRY_ORDER();
   if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
   if (session && session.mode === 'admin') apps.splice(1, 0, AdminApp);
+  if (session && session.mode === 'admin' && session.robotId) apps.splice(1, 0, CodeEditorApp);
   return apps;
 }
 
@@ -331,6 +333,7 @@ const ROUTES = {
   settings: { app: 'settings', parse: () => ({}) },
   'my-robot': { app: 'robot', parse: () => ({}) },
   admin: { app: 'admin', parse: () => ({}) },
+  'code-editor': { app: 'code-editor', parse: () => ({}) },
 };
 
 function routeFromPath(pathname){
@@ -353,6 +356,7 @@ function pathForApp(appId, params){
     case 'settings': return '/settings';
     case 'robot': return '/my-robot';
     case 'admin': return '/admin';
+    case 'code-editor': return '/code-editor';
     default: return '/';
   }
 }

@@ -2,6 +2,10 @@ import { icon } from '../../icons.js';
 import { getSession } from '../../services/auth-service.js';
 import { mountVideoPlayer } from './video-player.js';
 
+// The admin-only embedded code editor lives in its own desktop app
+// (apps/code-editor/code-editor.js), not as a tab here — see that file for
+// the exchange-token/iframe details, unchanged from when it was a tab.
+
 export const meta = {
   id: 'robot',
   title: 'Robot',
@@ -37,13 +41,10 @@ export async function mount(container, ctx){
     return;
   }
 
-  const isAdmin = session.mode === 'admin';
-
   container.innerHTML = `<div class="robot-root p-scroll la-surface">
       <div class="robot-tabs" data-role="tabs">
         <button type="button" class="robot-tab is-active" data-tab="status">Status</button>
         <button type="button" class="robot-tab" data-tab="video">Live Video</button>
-        ${isAdmin ? '<button type="button" class="robot-tab" data-tab="code">VS Code</button>' : ''}
       </div>
       <div class="robot-tab-panel" data-panel="status">
         <div class="robot-hero">
@@ -54,7 +55,6 @@ export async function mount(container, ctx){
         </div>
       </div>
       <div class="robot-tab-panel" data-panel="video" hidden></div>
-      ${isAdmin ? '<div class="robot-tab-panel" data-panel="code" hidden></div>' : ''}
     </div>`;
   ctx.setAppTitle && ctx.setAppTitle('Robot');
 
@@ -63,7 +63,6 @@ export async function mount(container, ctx){
   const tabsEl = container.querySelector('[data-role="tabs"]');
   const statusPanel = container.querySelector('[data-panel="status"]');
   const videoPanel = container.querySelector('[data-panel="video"]');
-  const codePanel = container.querySelector('[data-panel="code"]');
 
   async function refreshStatus(){
     try {
@@ -90,26 +89,6 @@ export async function mount(container, ctx){
   // the relay. Torn down again when switching away or unmounting.
   let videoPlayer = null;
 
-  // The code-server iframe mints a fresh single-use token every time the
-  // tab is opened, rather than trying to detect a still-valid cookie
-  // client-side (it's httpOnly, not readable from JS anyway) — cheap and
-  // always correct.
-  async function openCodeServerTab(){
-    codePanel.innerHTML = '<p class="robot-video-note">Connecting…</p>';
-    try {
-      const res = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ action: 'code-server-token' }),
-      });
-      if (!res.ok) throw new Error(`token ${res.status}`);
-      const { token } = await res.json();
-      codePanel.innerHTML = `<iframe class="robot-code-frame" src="https://code.bridge.swayform.net/_exchange?token=${encodeURIComponent(token)}"></iframe>`;
-    } catch (e) {
-      codePanel.innerHTML = '<p class="robot-video-note">Couldn\'t connect to the robot\'s code editor.</p>';
-    }
-  }
-
   tabsEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.robot-tab');
     if (!btn) return;
@@ -118,18 +97,12 @@ export async function mount(container, ctx){
     tabsEl.querySelectorAll('.robot-tab').forEach((el) => el.classList.toggle('is-active', el === btn));
     statusPanel.hidden = tab !== 'status';
     videoPanel.hidden = tab !== 'video';
-    if (codePanel) codePanel.hidden = tab !== 'code';
 
     if (tab === 'video' && !videoPlayer){
       videoPlayer = mountVideoPlayer(videoPanel);
     } else if (tab !== 'video' && videoPlayer){
       videoPlayer.unmount();
       videoPlayer = null;
-    }
-
-    if (tab === 'code' && codePanel && !codePanel.dataset.loaded){
-      codePanel.dataset.loaded = 'true';
-      openCodeServerTab();
     }
   });
 

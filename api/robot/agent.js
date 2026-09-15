@@ -121,9 +121,15 @@ async function handleJobFinished(req, res){
   }
   const code = Number.isInteger(exitCode) ? exitCode : null;
   const status = code === 0 ? 'succeeded' : 'failed';
+  // Also matches 'approved' (not just 'running'): the agent can refuse a
+  // job before ever sending job.accepted (e.g. no_operator), in which case
+  // job.error arrives for a row that never transitioned to 'running' —
+  // without this it silently no-ops and the job is stuck in 'approved'
+  // forever (found 2026-09-15: a post-reboot no_operator refusal did
+  // exactly this to job id 14).
   await sql`
     UPDATE robot_jobs SET status = ${status}, exit_code = ${code}, finished_at = now()
-    WHERE id = ${jobId} AND status = 'running'
+    WHERE id = ${jobId} AND status IN ('running', 'approved')
   `;
   res.status(200).json({ ok: true });
 }

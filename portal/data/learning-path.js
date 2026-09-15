@@ -681,13 +681,15 @@ export const LEARNING_PATH = {
                       'Change `SPEED_SCALE` (line 33) to make the elbow wave faster or slower.',
                       'Change `RIPPLE_SPEED` (line 28) to make the finger ripple faster or slower.',
                     ] },
+                    { type: 'callout', tone: 'note', label: 'What can go on the real robot (for now)', text: 'Right now, only `WAVE_CYCLES` can be queued onto the physical robot, and only using a whole number from 1 to 5. `SPEED_SCALE` and `RIPPLE_SPEED` are still good to experiment with using Run, but Queue on Robot won\'t accept them changed yet.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) to 1, predict how the gesture will feel, then run it and see if you were right.' },
+                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) to any whole number from 1 to 5, predict how the gesture will feel, then click Run to see if you were right.' },
+                    { type: 'p', text: 'Once Run confirms your code, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue — Queue on Robot only ever sends code Run has just confirmed.' },
                   ],
                 },
                 {

@@ -42,10 +42,18 @@ export function mount(bodyEl, winApi, opts) {
   let saveTimer = null;
   let hasRobot = false;
   let jobPollTimer = null;
+  // Path whose current (on-disk/mock-fs) content Run has most recently
+  // confirmed valid against the canonical source — cleared on any edit to
+  // that file, so Queue on Robot always reflects the content actually in
+  // the editor, never a stale pass from before a change.
+  let robotValidatedPath = null;
 
   getSession().then((session) => {
     hasRobot = !!(session && session.robotId);
-    if (tabs.activePath) toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(tabs.activePath));
+    if (tabs.activePath){
+      toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(tabs.activePath));
+      toolbar.setQueueRobotReady(robotValidatedPath === tabs.activePath);
+    }
   });
 
   // Scope the explorer to this activity's own file — a student working
@@ -119,6 +127,10 @@ export function mount(bodyEl, winApi, opts) {
     // Unsaved/Saved status instead of claiming to be saved before it is.
     onChange: (path, value) => {
       if (tabs.activePath === path) toolbar.setFileStatus('Unsaved changes…');
+      if (robotValidatedPath === path){
+        robotValidatedPath = null;
+        if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
+      }
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => persist(path, value), 500);
     },
@@ -155,10 +167,17 @@ export function mount(bodyEl, winApi, opts) {
     explorer.setActive(path);
     toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/') + (readOnly ? '  ·  read-only' : ''));
     toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(path));
+    toolbar.setQueueRobotReady(robotValidatedPath === path);
     winApi.setTitle(path.split('/').pop());
   }
 
-  function runActiveFile(){
+  /** Run always streams its mocked sequence into the Terminal app, unchanged.
+   * For canonical robot files it additionally asks the server (the same
+   * validate check Queue on Robot itself re-runs before submit) whether the
+   * current content is a working version — only a confirmed pass unlocks
+   * Queue on Robot, and only for that exact content (see the onChange
+   * handler above, which clears this the moment the file is edited again). */
+  async function runActiveFile(){
     const path = tabs.activePath;
     if (!path){
       output.toggleCollapse(false);
@@ -170,6 +189,33 @@ export function mount(bodyEl, winApi, opts) {
     const { pkg, file } = packageAndEntry(path);
     const content = fs.readFile(path) || '';
     onRun(pkg, file, content);
+
+    if (isCanonicalRobotPath(path)){
+      output.toggleCollapse(false);
+      try {
+        const res = await fetch('/api/robot/queue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'validate', path, code: content }),
+        });
+        const data = await res.json();
+        if (res.ok && data.valid){
+          robotValidatedPath = path;
+          if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
+          output.appendLine('Run confirmed this matches a verified working version — Queue on Robot is now available.', 'term-ok', 'output');
+        } else {
+          robotValidatedPath = null;
+          if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
+          output.appendLine(`Run could not confirm this code — ${describeMismatch(data)}`, 'term-warn', 'output');
+        }
+      } catch (e) {
+        robotValidatedPath = null;
+        if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
+        output.appendLine('Could not reach the server to confirm this run. Try again.', 'term-err', 'output');
+      }
+      output.setActive('output');
+    }
+
     setTimeout(() => toolbar.setBusy(false), 400);
   }
 
@@ -200,6 +246,13 @@ export function mount(bodyEl, winApi, opts) {
     const path = tabs.activePath;
     if (!path) return;
     output.toggleCollapse(false);
+    // The button is disabled until this is true, but guard the handler too
+    // in case of a stale click already in flight when state changed.
+    if (robotValidatedPath !== path){
+      output.appendLine('Click Run first to confirm your code before queueing it on the robot.', 'term-warn', 'output');
+      output.setActive('output');
+      return;
+    }
     toolbar.setQueueRobotBusy(true);
     const content = fs.readFile(path) || '';
 
@@ -314,6 +367,7 @@ export function mount(bodyEl, winApi, opts) {
     if (!path) return;
     if (!window.confirm(`Reset ${path.split('/').pop()} to its starter version? Your changes to this file will be lost. This cannot be undone.`)) return;
     clearTimeout(saveTimer);
+    if (robotValidatedPath === path){ robotValidatedPath = null; toolbar.setQueueRobotReady(false); }
     fs.resetFile(path);
     const original = fs.readFile(path);
     editor.setValue(path, original);

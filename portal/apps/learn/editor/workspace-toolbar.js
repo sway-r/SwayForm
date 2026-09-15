@@ -29,6 +29,15 @@ export class WorkspaceToolbar {
     this.checkBtn = container.querySelector('[data-act="check"]');
     this.queueRobotBtn = container.querySelector('[data-act="queue-robot"]');
     this.robotDivider = container.querySelector('[data-robot-divider]');
+
+    // Queue on Robot has two independent gates, both of which must be clear
+    // for the button to be enabled: not currently busy, and "ready" — Run
+    // must have confirmed the current content first (see code-editor-app.js,
+    // which flips this back to false on every edit and on a fresh file).
+    this.queueReady = false;
+    this.runBusy = false;
+    this.queueBusy = false;
+    this.queueRobotBtn.disabled = true;
   }
 
   setFileStatus(text){
@@ -38,7 +47,8 @@ export class WorkspaceToolbar {
   setBusy(busy){
     this.runBtn.disabled = busy;
     this.checkBtn.disabled = busy;
-    if (!this.queueRobotBtn.hidden) this.queueRobotBtn.disabled = busy;
+    this.runBusy = busy;
+    this._refreshQueueDisabled();
   }
 
   /** Show Queue on Robot (and hide Check, which only makes sense for
@@ -50,7 +60,22 @@ export class WorkspaceToolbar {
     this.checkBtn.hidden = eligible;
   }
 
+  /** Whether Run has confirmed (server-validated) the file's current content.
+   * Stays false until a Run against this exact content succeeds, so a
+   * student can't queue code they haven't run and had confirmed first. */
+  setQueueRobotReady(ready){
+    this.queueReady = ready;
+    this.queueRobotBtn.title = ready ? '' : 'Run your code first to confirm it works before queueing it on the robot.';
+    this._refreshQueueDisabled();
+  }
+
   setQueueRobotBusy(busy){
-    this.queueRobotBtn.disabled = busy;
+    this.queueBusy = busy;
+    this._refreshQueueDisabled();
+  }
+
+  _refreshQueueDisabled(){
+    if (this.queueRobotBtn.hidden) return;
+    this.queueRobotBtn.disabled = this.runBusy || this.queueBusy || !this.queueReady;
   }
 }

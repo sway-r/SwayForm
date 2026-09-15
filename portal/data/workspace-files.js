@@ -97,36 +97,7 @@ setup(
 )
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `"""
-wave.py
-
-Wave behavior — direct PCA9685 control. Source of truth for the right-arm
-wave motion: channels, centers, limits.
-
-Run directly:
-    ros2 run swayform_robot wave                                 # mock by default
-    ros2 run swayform_robot wave --ros-args -p use_mock_hardware:=false
-    ros2 launch swayform_bringup wave_demo.launch.py
-    ros2 launch swayform_bringup wave_demo.launch.py use_mock_hardware:=false
-
-Or import and trigger a single bounded wave programmatically (e.g. from the
-wave-detector vision program):
-    from swayform_robot.behaviors.wave import perform_wave
-    perform_wave()
-
-Importing this module never touches hardware — all I2C/PCA9685 setup happens
-inside perform_wave()/wave_forever() themselves, so it's safe to import in a
-dry-run context.
-
-Servo pulse-math and threaded smooth-move logic live in
-swayform_robot.hardware.servo_control, shared with handshake.py and idle.py.
-
-This module is both the real implementation (perform_wave/wave_forever, the
-functions the wave-detector and every other caller use) and the ROS2 node
-(WaveNode/main()) that runs it via \`ros2 run\`/\`ros2 launch\`.
-"""
-
-import time
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `import time
 import math
 import threading
 
@@ -145,28 +116,17 @@ ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1
 
-# Wave pose
 SHOULDER_ROLL_WAVE = 40
 SHOULDER_PITCH_WAVE = 260
 ELBOW_WAVE_BENT = 40
 ELBOW_WAVE_OPEN = 70
 WRIST_CENTER = 100
 
-# Finger ripple, run continuously in the background for the duration of
-# elbow_wave() — see finger_wave.py, which this is copied from verbatim
-# (same constants, confirmed good on hardware there first). Each finger follows a
-# sine curve staggered a quarter cycle (90°) behind the previous one, so
-# finger 1 hits full-open right as finger 3 (two fingers/half a cycle later)
-# hits its most-curled point — a rolling ripple down the hand. THUMB is set
-# once in wave_ready_pose() and never touched by the ripple.
 FINGER_OPEN = 135
-RIPPLE_AMPLITUDE = 40   # 40° (~47% of the fingers' full 85° range) is the
-                        # smallest amplitude confirmed visible on hardware —
-                        # string-driven fingers eat smaller deltas as cable
-                        # slack before producing any real motion.
-RIPPLE_SPEED = 3.0      # radians/sec the wave rolls at
+RIPPLE_AMPLITUDE = 40   # smallest amplitude confirmed visible on hardware
+RIPPLE_SPEED = 3.0
 PHASE_OFFSET = math.pi / 2
-RIPPLE_TICK = 0.02      # seconds between position updates (~50Hz)
+RIPPLE_TICK = 0.02
 
 WAVE_CYCLES = 3
 SPEED_SCALE = 0.3
@@ -195,10 +155,7 @@ LIMITS = {
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
-# ELBOW and SHOULDER_ROLL/SHOULDER_PITCH are 270 ROM servos (elbow: 60kgcm
-# replacement; both shoulder axes: 270 from the start) — see robot.yaml.
-# CENTERS/LIMITS above re-tested on real hardware 2026-08-14 against this
-# mapping via servo_tester.py (jogged with a matching 270 divisor per channel).
+# ELBOW/SHOULDER_ROLL/SHOULDER_PITCH are 270° ROM servos — see robot.yaml.
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
@@ -207,8 +164,6 @@ SERVO_RANGES = {
 
 
 def _mv(addr, ch, target, steps, delay):
-    """Build a servo_control.ServoController.run_threads() move, scaled by
-    SPEED_SCALE exactly as the original inline smooth_move() did."""
     return {
         "addr": addr, "ch": ch, "target": target,
         "limits": LIMITS[(addr, ch)],
@@ -247,9 +202,6 @@ def wave_ready_pose(ctrl):
 
 
 def _ripple_tick(ctrl, t):
-    """Write each finger's ripple position for time \`t\` (seconds since the
-    ripple started). Direct set_servo() writes, not smooth_move — the sine
-    curve itself is already the smooth motion. THUMB is untouched."""
     for i, ch in enumerate(FINGERS):
         theta = t * RIPPLE_SPEED - i * PHASE_OFFSET
         angle = FINGER_OPEN - RIPPLE_AMPLITUDE * (0.5 + 0.5 * math.sin(theta))
@@ -264,14 +216,8 @@ def _finger_ripple_worker(ctrl, stop_event):
 
 
 def elbow_wave(ctrl, cycles=WAVE_CYCLES):
-    """Runs \`cycles\` open/bent elbow oscillations, or forever if cycles is None.
-
-    Fingers ripple continuously in the background (see finger_wave.py) for the
-    whole call, on a separate thread from the elbow/wrist moves — the
-    ripple thread is always stopped and joined before returning, even on
-    KeyboardInterrupt, so nothing keeps writing to \`ctrl\` after the caller
-    moves on (e.g. wave_ready_pose()'s settle move, or ctrl.close()).
-    """
+    # ripple thread is always stopped+joined before returning, so nothing
+    # writes to ctrl after the caller moves on
     stop_ripple = threading.Event()
     ripple_thread = threading.Thread(
         target=_finger_ripple_worker, args=(ctrl, stop_ripple), daemon=True
@@ -300,12 +246,6 @@ def elbow_wave(ctrl, cycles=WAVE_CYCLES):
 
 
 def perform_wave(mock=False):
-    """Run the full wave sequence on real hardware (or mock, if mock=True).
-
-    Sequence: center -> open hand -> wave-ready pose -> elbow wave -> center.
-    Holds the cross-process hardware_lock() for the whole sequence, and
-    always closes its PCA9685 handles before returning, even on error.
-    """
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -334,19 +274,8 @@ def perform_wave(mock=False):
 
 
 def wave_forever(mock=False, center_on_stop=False):
-    """Move straight to the wave-ready pose (hand open, arm lifted) and keep
-    waving from there forever, until interrupted with Ctrl+C.
-
-    On Ctrl+C, settles the arm before closing: back to the wave-ready pose
-    by default, or fully centered if center_on_stop=True.
-
-    Unlike perform_wave(), this never centers first — the hand stays
-    lifted for the whole run. Holds the cross-process hardware_lock() for
-    the entire run, and always closes its PCA9685 handles on exit, even on
-    error. Note the lock being held the whole time means nothing else
-    (handshake, idle, another wave) can move the robot while this is
-    running.
-    """
+    # holds hardware_lock() for the whole run — nothing else (handshake,
+    # idle, another wave) can move the robot while this is running
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -374,15 +303,6 @@ def wave_forever(mock=False, center_on_stop=False):
         finally:
             ctrl.close()
 
-
-# ── ROS2 node ────────────────────────────────────────────────────────────
-#
-# Thin wrapper: on startup, runs perform_wave() once in a background thread
-# and reports success/failure — no action server, no motion_server, no
-# topics.
-#
-# Parameters:
-#     use_mock_hardware (bool): print instead of moving real servos. Default True.
 
 class WaveNode(Node):
     def __init__(self):
@@ -416,9 +336,7 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        # Ctrl+C already triggers rclpy's own SIGINT handler, which shuts
-        # the context down before this finally block runs — calling
-        # shutdown() again raises RCLError, so only do it if still needed.
+        # avoid a double shutdown() call — rclpy's SIGINT handler may have beaten us to it
         if rclpy.ok():
             rclpy.shutdown()
 

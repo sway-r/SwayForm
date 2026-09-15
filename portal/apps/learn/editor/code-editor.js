@@ -90,16 +90,46 @@ export class CodeEditor {
     this.activePath = path;
     if (this.mode === 'monaco'){
       let model = this.models.get(path);
+      let isNewModel = false;
       if (!model){
         model = this.monaco.editor.createModel(content, language || 'plaintext');
         this.models.set(path, model);
+        isNewModel = true;
       }
       this.editor.setModel(model);
       this.editor.focus();
+      if (isNewModel) this._foldAllExceptTodos();
     } else if (this.mode === 'textarea'){
       this.textarea.value = content;
       this.textarea.focus();
     }
+  }
+
+  /** First time a file is opened this session, collapse every top-level
+   *  function/class so students see the shape of the file first, then
+   *  re-expand only the one(s) containing a `# TODO` — the part they
+   *  actually need to change. Files with no TODO (read-only demos like
+   *  wave.py) just stay fully folded. Only runs once per model so a
+   *  student's own fold/unfold choices persist across switching files. */
+  _foldAllExceptTodos(){
+    const { editor, monaco } = this;
+    const model = editor.getModel();
+    if (!editor || !model) return;
+    const foldAll = editor.getAction('editor.foldAll');
+    if (!foldAll) return;
+    foldAll.run().then(() => {
+      const todoLines = [];
+      for (let i = 1; i <= model.getLineCount(); i++){
+        if (/#\s*TODO/.test(model.getLineContent(i))) todoLines.push(i);
+      }
+      if (!todoLines.length) return;
+      editor.setSelections(todoLines.map((line) => new monaco.Selection(line, 1, line, 1)));
+      const unfold = editor.getAction('editor.unfoldRecursively');
+      if (unfold) unfold.run();
+      const first = todoLines[0];
+      editor.revealLineInCenter(first);
+      editor.setSelection(new monaco.Selection(first, 1, first, 1));
+    });
   }
 
   /** Sync a model's text to `content` without touching undo history of other files

@@ -127,12 +127,27 @@ export function mountVideoPlayer(container){
       if (!active) return;
 
       const whepUrl = `${VIDEO_BASE}/${encodeURIComponent(serial)}/whep`;
-      const res = await fetch(whepUrl, {
+      const postWhep = () => fetch(whepUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/sdp', authorization: `Bearer ${token}` },
         body: pc.localDescription.sdp,
         signal: AbortSignal.timeout(10_000),
       });
+
+      // The 'start' request above only pings the Pi to begin publishing —
+      // it doesn't wait for confirmation. The real WHIP handshake (camera
+      // open, ffmpeg offer/answer/ICE/DTLS/SRTP) takes ~1.5s on real
+      // hardware, so the very first WHEP request here can easily arrive
+      // before MediaMTX has a publisher on this path yet and get a 404.
+      // Retry with backoff instead of treating that as "offline."
+      let res = await postWhep();
+      for (let attempt = 0; !res.ok && attempt < 5 && active; attempt++){
+        note.textContent = 'Waiting for the robot to start streaming…';
+        await new Promise((r) => setTimeout(r, 700));
+        if (!active) return;
+        res = await postWhep();
+      }
+      if (!active) return;
       if (!res.ok) throw new Error(`whep ${res.status}`);
 
       const location = res.headers.get('location');

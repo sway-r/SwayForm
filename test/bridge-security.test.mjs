@@ -44,6 +44,34 @@ test('authenticated socket cannot update a job that was not dispatched to it',{t
   assert.equal((await closed)[0],4003);
   assert.equal(calls.some(x=>x.action==='job-output'),false);
 });
+test('video-request requires the bridge secret, only pings the agent on 0->1/1->0 transitions',{timeout:5000},async()=>{
+  const post=async(action,key)=>fetch(base+'/video-request',{method:'POST',headers:{'content-type':'application/json','x-bridge-secret':key},body:JSON.stringify({robotId:1,action})});
+  assert.equal((await post('start','wrong')).status,401);
+
+  const ws=await connect();const hello=once(ws,'message');
+  ws.send(JSON.stringify({t:'hello',token:'synthetic',serial:'synthetic'}));await hello;
+
+  const frame=()=>new Promise((resolve)=>ws.once('message',(raw)=>resolve(JSON.parse(raw.toString()))));
+
+  let next=frame();
+  let r=await post('start',secret); assert.equal((await r.json()).delivered,true);
+  assert.deepEqual(await next,{t:'video.start'});
+
+  // Second viewer joining sends no additional frame — refcount is now 2.
+  const noFrame=Promise.race([frame().then(()=>'frame'),new Promise((resolve)=>setTimeout(()=>resolve('timeout'),300))]);
+  r=await post('start',secret); assert.equal((await r.json()).delivered,true);
+  assert.equal(await noFrame,'timeout');
+
+  // First stop (2->1) sends nothing either — someone's still watching.
+  const noFrame2=Promise.race([frame().then(()=>'frame'),new Promise((resolve)=>setTimeout(()=>resolve('timeout'),300))]);
+  r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
+  assert.equal(await noFrame2,'timeout');
+
+  // Final stop (1->0) actually pings the agent.
+  next=frame();
+  r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
+  assert.deepEqual(await next,{t:'video.stop'});
+});
 test('viewer JWTs require the video purpose, and editor tokens are robot-bound and single use',async()=>{
   async function token(payload){return new SignJWT(payload).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('60s').sign(new TextEncoder().encode(secret));}
   const post=async t=>fetch(base+'/mediamtx-auth',{method:'POST',body:JSON.stringify({action:'read',path:'synthetic',token:t})});

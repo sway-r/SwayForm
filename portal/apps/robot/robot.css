@@ -18,5 +18,7 @@
 
 .robot-video-panel{flex:1 1 auto;min-height:0;display:flex}
 .robot-video-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;flex:1 1 auto;min-height:0}
+.robot-video-idle{display:flex;flex-direction:column;align-items:center;gap:10px}
+.robot-video-live{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;min-height:0}
 .robot-video{width:100%;max-width:720px;aspect-ratio:4/3;max-height:100%;object-fit:contain;background:#0b0f1a;border-radius:10px}
 .robot-video-note{font-size:12.5px;color:var(--la-muted);margin:0;text-align:center}

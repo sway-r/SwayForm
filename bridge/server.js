@@ -200,6 +200,57 @@ async function handleAdminStop(req, res){
   res.end(JSON.stringify({ ok: true, delivered }));
 }
 
+// On-demand live video, mirroring /admin-stop's shape: api/ calls this
+// (server-to-server, secret-gated) when a browser viewer opens/closes the
+// "Show feed" panel, instead of the Pi encoding around the clock. Refcounted
+// per robot so one viewer closing early doesn't cut the feed for another
+// still watching — the agent only gets a real video.stop once the count
+// drops back to zero. See docs/robot-connectivity.md for the video.start/
+// video.stop frames themselves; the real agent doesn't handle them yet,
+// same NOT YET HANDLED status job.stop shipped with.
+const activeViewerCounts = new Map(); // robotId -> count
+
+async function handleVideoRequest(req, res){
+  const provided = req.headers['x-bridge-secret'];
+  if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const robotId = Number(body.robotId);
+  if (!Number.isSafeInteger(robotId) || (body.action !== 'start' && body.action !== 'stop')){
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'invalid_fields' }));
+    return;
+  }
+
+  const wasZero = !activeViewerCounts.get(robotId);
+  if (body.action === 'start'){
+    activeViewerCounts.set(robotId, (activeViewerCounts.get(robotId) || 0) + 1);
+  } else {
+    const next = Math.max(0, (activeViewerCounts.get(robotId) || 0) - 1);
+    if (next === 0) activeViewerCounts.delete(robotId); else activeViewerCounts.set(robotId, next);
+  }
+  const nowZero = !activeViewerCounts.get(robotId);
+
+  const ws = connectedRobots.get(robotId);
+  let delivered = false;
+  if (ws && ws.readyState === ws.OPEN){
+    if (body.action === 'start' && wasZero){
+      ws.send(JSON.stringify({ t: 'video.start' }));
+      delivered = true;
+    } else if (body.action === 'stop' && !wasZero && nowZero){
+      ws.send(JSON.stringify({ t: 'video.stop' }));
+      delivered = true;
+    } else {
+      delivered = true; // already in the requested state — no frame needed
+    }
+  }
+
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify({ ok: true, delivered }));
+}
+
 const connectedRobots = new Map();
 
 const server = http.createServer((req, res) => {
@@ -217,6 +268,10 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'POST' && req.url === '/admin-stop'){
     handleAdminStop(req, res);
+    return;
+  }
+  if (req.method === 'POST' && req.url === '/video-request'){
+    handleVideoRequest(req, res);
     return;
   }
   res.writeHead(200, { 'content-type': 'text/plain' });
@@ -338,6 +393,7 @@ wss.on('connection', (ws, req) => {
     console.log(`connection closed (robotId=${robotId}) code=${code} reason=${reason}`);
     clearTimeout(authTimer);
     if (connectedRobots.get(robotId) === ws) connectedRobots.delete(robotId);
+    activeViewerCounts.delete(robotId);
     if (heartbeatTimer) clearInterval(heartbeatTimer);
     if (dispatchTimer) clearInterval(dispatchTimer);
     if (robotId){

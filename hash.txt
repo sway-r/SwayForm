@@ -1,0 +1,90 @@
+THE WAVE_CYCLES / PI-SIDE HASH PROBLEM
+========================================
+
+CONTEXT
+-------
+The Wave lesson's Code Editor lets a student change WAVE_CYCLES in wave.py
+and submit it to the real robot via "Queue on Robot". As of this change,
+the website (api/_lib/canonical-source.js) accepts WAVE_CYCLES set to any
+of 1, 2, 3, 4, or 5 — every other line of the file still has to match the
+verified version exactly.
+
+That website-side change is confirmed working: the validate/submit
+endpoint (api/robot/queue.js, action "validate"/"submit") correctly
+accepts all five values and rejects everything else, and this is covered
+by automated tests (test/canonical-source.test.mjs).
+
+WHY THE ROBOT DOESN'T MOVE ANYWAY
+----------------------------------
+Submitting and getting a job approved is NOT the same as the robot
+running it. The actual path is:
+
+  1. Student submits code -> api/robot/queue.js validates it, stores
+     `code` and `code_sha256` in the robot_jobs table.
+  2. An admin approves the job.
+  3. The bridge (bridge/server.js) polls api/robot/agent.js
+     ("dispatch-queue"), which atomically claims the job and hands the
+     bridge { code, sha256 } for that job.
+  4. The bridge relays that straight to the Pi over the WebSocket as a
+     job.run message. bridge/server.js does not check the hash itself —
+     it is a pure relay (see the `sha256: job.sha256` line it sends).
+  5. The physical Pi-side agent receives job.run and is the thing that
+     actually moves the robot.
+
+Step 5's code is NOT in this repository. bridge/README.md says so
+directly ("the repository does not contain the deployed proxy/MediaMTX/
+code-server configuration"), and SECURITY-ROLLOUT.md is explicit:
+"Verify the real Pi agent validates code hashes... Its implementation is
+outside this repository."
+
+Everything I've seen (and can verify) points to the Pi agent doing its
+own hash check independent of the website: it almost certainly compares
+the incoming `sha256` against one hardcoded known-good hash for wave.py
+(the original WAVE_CYCLES = 3 version) and silently refuses to execute
+anything whose hash doesn't match — no error surfaces back through the
+website, the job just never actually moves the robot. That exactly
+matches what was observed: default-value (WAVE_CYCLES = 3) jobs run;
+any edited value gets queued and approved by the website but the robot
+does nothing.
+
+I have no access to and no visibility into that Pi-side agent code, so
+I cannot confirm this is exactly what it does, and I cannot fix it from
+here. This needs someone with access to the physical robot's agent code.
+
+WHAT WHOEVER MAINTAINS THE PI AGENT NEEDS TO DO
+-------------------------------------------------
+Whatever the Pi's hash check currently trusts, it needs to also trust
+the WAVE_CYCLES = 1/2/4/5 versions (3 already presumably works), or move
+to a comparison scheme equivalent to the website's own (allow one named
+line to vary within a fixed set of values, require everything else
+byte-exact) rather than a single pinned hash.
+
+If it IS a fixed-hash-allowlist on the Pi side, these are the exact
+sha256 hashes of the full wave.py source (as currently shipped in
+portal/data/workspace-files.js) for each accepted WAVE_CYCLES value —
+computed the same way api/robot/queue.js hashes submitted code
+(sha256 of the UTF-8 text):
+
+  WAVE_CYCLES = 1: fe028f7d9ebb6018935563e8db035a606602b85da2dda41c12e4b0719629ea5a
+  WAVE_CYCLES = 2: 264b3b77643a312c8b29fdddd91e47df92bffd0fd470180c51215aa4e016f30c
+  WAVE_CYCLES = 3: 0b55ee5a4bce2edf9032bb8fdab8a55163c3c52d5c4393db4bcb6721cb05f69a  (current default/original)
+  WAVE_CYCLES = 4: bce982defdb2d6a13f3552a2d62087d05a46a3d49be3593b6909028cfb81a0d8
+  WAVE_CYCLES = 5: 3452f06735d15c59f92258058b016cb12392c06a3b94bfbfd4404fde3fbdb8a3
+
+Important: these hashes will change again the next time anyone edits
+wave.py's source in portal/data/workspace-files.js (as already happened
+twice during this work — two separate commits stripped/changed comments
+in that file and shifted line numbers). Whoever owns the Pi-side check
+should treat "hash-pinning against a copy of this file" as fragile for
+exactly that reason, and ideally pull its accepted-hash set from this
+repo's own copy of wave.py rather than maintaining a second hand-kept
+copy that can drift out of sync.
+
+BOTTOM LINE
+-----------
+The website is doing what was asked. Nothing will actually run on the
+physical robot for an edited WAVE_CYCLES value until someone with access
+to the Pi agent's code updates what it trusts. Until that happens, a
+student who does everything right will see "Queued" and "Approved" and
+then nothing will happen physically — worth deciding whether to warn
+students about that in the meantime.

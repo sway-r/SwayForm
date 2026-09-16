@@ -6,23 +6,35 @@ export { packageAndEntry, isCanonicalRobotPath };
 /**
  * Every canonical robot file ships with exactly one starting/default
  * version (WORKSPACE_FILES[path] — the same content the Code Editor opens
- * with) and exactly one named constant a student is meant to change to
- * reach exactly one correct target value. There is no longer a range of
- * "acceptable" values for that constant — only its target counts as the
- * lab's objective being complete. Everything else in the file must match
- * byte-for-byte (modulo incidental whitespace — see normalize()), always.
+ * with) and exactly one named constant a student is meant to change to reach
+ * one of that constant's acceptable target values. Most files have exactly
+ * one target (the historical behavior); finger_count.py's NUMBER is the
+ * first with several (1-5 are all valid "solutions" — the lab is "pick a
+ * number to show," not "reach one specific number"). Everything else in the
+ * file must match byte-for-byte (modulo incidental whitespace — see
+ * normalize()), always, regardless of how many targets a tunable has.
  * `pattern` must match the constant's canonical line and capture the
  * current value in group 1. Keep in sync with the "Safe Things to Change"/
  * "Look at This Part" copy in portal/data/learning-path.js.
  */
 const TUNABLES = {
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py': [
-    { name: 'WAVE_CYCLES', pattern: /^WAVE_CYCLES = (\d+)$/, target: '5' },
+    { name: 'WAVE_CYCLES', pattern: /^WAVE_CYCLES = (\d+)$/, targets: ['5'] },
   ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py': [
-    { name: 'ENABLE_HEAD_NOD', pattern: /^ENABLE_HEAD_NOD = (True|False)\b.*$/, target: 'True' },
+    { name: 'ENABLE_HEAD_NOD', pattern: /^ENABLE_HEAD_NOD = (True|False)\b.*$/, targets: ['True'] },
+  ],
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py': [
+    { name: 'NUMBER', pattern: /^NUMBER = (None|[1-5])$/, targets: ['1', '2', '3', '4', '5'] },
   ],
 };
+
+/** "5" -> "5"; ["True"] -> "True"; ["1".."5"] -> "1, 2, 3, 4, or 5". */
+function formatTargets(targets){
+  if (targets.length === 1) return targets[0];
+  if (targets.length === 2) return `${targets[0]} or ${targets[1]}`;
+  return `${targets.slice(0, -1).join(', ')}, or ${targets[targets.length - 1]}`;
+}
 
 /**
  * Classifies submitted code against this file's default/target pair.
@@ -41,20 +53,29 @@ export function validateAgainstCanonicalSource(path, code){
   if (typeof canonical !== 'string') return { valid: false, status: 'no_canonical_source' };
 
   const tunables = TUNABLES[path] || [];
-  const target = applyTunableTargets(canonical, tunables);
+  const variants = allCompleteVariants(canonical, tunables);
+  const normalizedCode = normalize(code);
 
-  if (normalize(code) === normalize(target)) return { valid: true, status: 'complete' };
+  if (variants.some((v) => normalizedCode === normalize(v))) return { valid: true, status: 'complete' };
 
-  if (normalize(code) === normalize(canonical)){
+  if (normalizedCode === normalize(canonical)){
     const t = tunables[0];
     return {
       valid: false,
       status: 'not_started',
-      tunable: t ? { name: t.name, from: currentTunableValue(canonical, t), to: t.target } : null,
+      tunable: t ? { name: t.name, from: currentTunableValue(canonical, t), to: formatTargets(t.targets) } : null,
     };
   }
 
-  return { valid: false, status: 'tampered', diffs: allLineDifferences(code, target) };
+  // Diff against whichever acceptable variant is closest to what was
+  // submitted, so a student who set NUMBER = 3 sees a diff against the
+  // NUMBER = 3 variant, not one that happens to compare against NUMBER = 1.
+  // With a single-target tunable (the historical case) there's only one
+  // variant, so this is unchanged from before.
+  const diffs = variants
+    .map((v) => allLineDifferences(code, v))
+    .reduce((best, d) => (d.length < best.length ? d : best));
+  return { valid: false, status: 'tampered', diffs };
 }
 
 /** Trailing whitespace per line and a trailing run of blank lines are the
@@ -72,17 +93,29 @@ function currentTunableValue(canonical, tunable){
   return null;
 }
 
-/** Substitutes each tunable's target value into canonical, line for line —
- * this IS the definition of "the one correct solution" for this file. */
-function applyTunableTargets(canonical, tunables){
-  if (!tunables.length) return canonical;
+/** Substitutes one specific value for one tunable into canonical, line for line. */
+function applyTunableValue(canonical, tunable, value){
   return canonical.split('\n').map((line) => {
-    const tunable = tunables.find((t) => t.pattern.test(line));
-    if (!tunable) return line;
+    if (!tunable.pattern.test(line)) return line;
     const m = line.match(tunable.pattern);
     const valueStart = line.indexOf(m[1]);
-    return line.slice(0, valueStart) + tunable.target + line.slice(valueStart + m[1].length);
+    return line.slice(0, valueStart) + value + line.slice(valueStart + m[1].length);
   }).join('\n');
+}
+
+/** Every acceptable "complete" version of this file — one combination per
+ * tunable-target pairing. With zero tunables that's just [canonical]; with
+ * one tunable and one target (the historical case, e.g. wave.py) it's a
+ * single variant, same as before; with one tunable and several targets
+ * (finger_count.py's NUMBER) it's one variant per target. Multiple distinct
+ * tunables in one file would multiply out combinatorially — no current file
+ * needs that, but the loop is written to not silently break if one ever does. */
+function allCompleteVariants(canonical, tunables){
+  let variants = [canonical];
+  for (const tunable of tunables){
+    variants = variants.flatMap((base) => tunable.targets.map((value) => applyTunableValue(base, tunable, value)));
+  }
+  return variants;
 }
 
 /**

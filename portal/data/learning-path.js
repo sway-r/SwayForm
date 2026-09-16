@@ -843,6 +843,71 @@ export const LEARNING_PATH = {
               ],
               completionSummary: { text: 'You studied a real multi-part gesture — arm, hand, and torso together — and flipped a real feature flag to change what it does.', conceptsUsed: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Boolean flags'] },
             },
+            {
+              id: 'finger-count', title: 'Finger Count', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
+              summary: 'Study SwayForm\'s real finger-count behavior, then set one variable to make it hold up a number.',
+              workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py',
+              relatedConcepts: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Tunable variables'],
+              steps: [
+                {
+                  id: 'what-it-does', title: 'What It Does',
+                  blocks: [
+                    { type: 'lead', text: 'SwayForm raises its arm to the same ready position as Wave, but instead of waving, closes its hand into a fist — before the arm has even finished moving — and holds it there. Set a number from 1 to 5 and it extends that many fingers instead, holds for four seconds, then opens its hand and returns home.' },
+                    { type: 'callout', tone: 'note', label: 'Honest note', text: 'Like Wave and Handshake, this is a fixed choreography, not vision-triggered — it runs the same way every time, whether from the terminal, a launch file, or another program.' },
+                  ],
+                },
+                {
+                  id: 'what-to-watch', title: 'What to Watch',
+                  blocks: [
+                    { type: 'heading', level: 3, text: 'Hardware used' },
+                    { type: 'list', items: ['Shoulder pitch servo (reach_pca)', 'Elbow servo', 'Shoulder roll servo', 'Wrist servo', 'Thumb and four finger servos'] },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The hand closes into a fist immediately, then the arm raises to the wave-ready pose with the fist still closed. It either stays a fist, or extends fingers one at a time starting with the index finger (thumb last, only at 5) to show a number. After a four-second hold, the hand opens and everything returns to center.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep fingers clear of the hand while it opens and closes — the same caution as Fist Bump.' },
+                  ],
+                },
+                {
+                  id: 'how-it-works', title: 'How It Works',
+                  blocks: [
+                    { type: 'p', text: '`close_fist` curls the whole hand — thumb and all four fingers — the moment the behavior starts, before `raise_arm` swings shoulder roll/pitch, elbow, and wrist up to the same wave-ready pose Wave uses. Because `raise_arm` never touches the finger servos, whatever `close_fist` set stays exactly as it was through the raise.' },
+                    { type: 'p', text: '`show_number` decides which fingers extend: `_finger_targets` treats `NUMBER` as None/0 for a closed fist, or extends fingers starting with the index finger for 1-4, adding the thumb only at 5 — matching how people actually count on one hand. `open_and_return` then opens the hand and brings every joint back to `CENTERS`.' },
+                    { type: 'p', text: 'As in Wave, Handshake, and Fist Bump, `with sc.hardware_lock():` keeps another behavior from moving the same servos mid-count, and a `finally` block always closes the PCA9685 handles, even on error.' },
+                  ],
+                },
+                {
+                  id: 'look-at-this-part', title: 'Look at This Part',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'finger_count.py', code: 'NUMBER = None  # set to 1-5 to hold up that many fingers\n\ndef close_fist(ctrl): ...\ndef raise_arm(ctrl): ...\ndef show_number(ctrl, number): ...\ndef open_and_return(ctrl): ...\ndef perform_finger_count(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py' },
+                    { type: 'p', text: 'Same **setup → behavior → cleanup** shape as every other demo — plus one variable sitting right at the top of the file, above every constant: `NUMBER`.' },
+                  ],
+                },
+                {
+                  id: 'safe-things-to-change', title: 'Safe Things to Change',
+                  blocks: [
+                    { type: 'list', items: [
+                      'Set `NUMBER` to any whole number from 1 to 5 to pick which count the robot shows — today\'s exercise, see Try It below.',
+                      'Change `HOLD_SECONDS` to hold the count longer or shorter.',
+                      'Change `RAISE_DURATION` or `RETURN_DURATION` to make the raise or the return slower or faster.',
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: 'Unlike Fist Bump\'s single on/off switch, this lab has five valid solutions — `NUMBER = 1`, `2`, `3`, `4`, or `5` all count as finished and unlock Queue on Robot. `HOLD_SECONDS`, `RAISE_DURATION`, and `RETURN_DURATION` are still good to experiment with using Run, but can\'t be queued yet.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Stay inside the ranges already defined in `LIMITS` — do not push a target outside them, and only set `NUMBER` to a whole number 1-5 or leave it as `None`.' },
+                  ],
+                },
+                {
+                  id: 'try-it', title: 'Try It',
+                  blocks: [
+                    { type: 'p', text: 'Find `NUMBER` near the top of the file — it starts as `None`, so the robot just holds up a closed fist. Pick any whole number from 1 to 5, set `NUMBER` to it, then click Run to check your work.' },
+                    { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `NUMBER` is set to 1, 2, 3, 4, or 5, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue.' },
+                  ],
+                },
+                {
+                  id: 'full-code', title: 'Full Code',
+                  blocks: [
+                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot finger_count` command runs automatically, and its output streams into the Output tab below.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You studied a real gesture built around one tunable variable, and picked your own valid solution from several correct answers instead of just one.', conceptsUsed: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Tunable variables'] },
+            },
           ],
         },
       ],

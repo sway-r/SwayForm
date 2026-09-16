@@ -841,6 +841,287 @@ if __name__ == "__main__":
     main()
 `,
 
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py": `"""
+finger_count.py
+
+Finger-count behavior — direct PCA9685 control, right arm. Raises the arm
+to the same "wave ready" pose as wave.py (shoulder roll/pitch, elbow,
+wrist), but instead of waving, holds a closed fist and — if the lab
+exercise's NUMBER variable below is set — extends that many fingers to
+show the count, holds it, then returns to center.
+
+Lab exercise: set NUMBER (near the top of this file) to a whole number
+from 1 to 5 and the robot will hold up that many fingers instead of just a
+closed fist. It's None by default (fist only, nothing raised).
+
+Run:
+    ros2 run swayform_robot finger_count                                 # mock by default
+    ros2 run swayform_robot finger_count --ros-args -p use_mock_hardware:=false
+    ros2 launch swayform_bringup finger_count_demo.launch.py
+    ros2 launch swayform_bringup finger_count_demo.launch.py use_mock_hardware:=false
+
+Or import and trigger it programmatically:
+    from swayform_robot.behaviors.finger_count import perform_finger_count
+    perform_finger_count()
+
+Importing this module never touches hardware — all I2C/PCA9685 setup
+happens inside perform_finger_count() itself.
+
+Sequence: close the fist immediately (before the arm even moves) -> raise
+the arm to the wave-ready pose (fist stays closed through the raise,
+unlike wave.py's own open_hand()) -> show NUMBER (extend that many
+fingers, index first, thumb last at NUMBER=5) or hold the fist if NUMBER
+is None -> hold for HOLD_SECONDS -> open the hand and return everything to
+center.
+
+CENTERS/LIMITS/SERVO_RANGES below are the right-arm wave-ready values,
+copied from wave.py (same physical joints/calibration — see robot.yaml and
+docs/servo_guide.md for the source of truth). Fist/finger-extend angles
+are copied from fist_bump.py's raise_and_curl() (curled = LIMITS-min for
+fingers / LIMITS-max for the thumb; the reverse of each is "extended").
+"""
+
+import time
+import threading
+
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+
+from swayform_robot.hardware import servo_control as sc
+
+# ── Lab exercise ────────────────────────────────────────────────────────
+# With NUMBER left as None, the robot just raises a closed fist. Set it to
+# a whole number from 1 to 5 and the robot will hold up that many fingers
+# instead.
+NUMBER = None
+# ────────────────────────────────────────────────────────────────────────
+
+PCA_HAND = 0x40
+PCA_REACH = 0x60
+
+THUMB = 0
+FINGER_ORDER = [1, 2, 3, 4]  # index, middle, ring, pinky — the order they extend in for counting
+WRIST = 5
+ELBOW = 6
+SHOULDER_ROLL = 7
+SHOULDER_PITCH = 1  # on PCA_REACH
+
+# Wave-ready pose — identical targets to wave.py's wave_ready_pose(), copied
+# rather than imported (this workspace's pattern of each direct-hardware
+# behavior hardcoding its own CENTERS/LIMITS — see servo_control.py's
+# docstring).
+SHOULDER_ROLL_WAVE = 40
+SHOULDER_PITCH_WAVE = 260
+ELBOW_WAVE_BENT = 40
+WRIST_CENTER = 100
+
+FINGER_EXTENDED = 135  # fully open
+FINGER_CURLED = 50     # fully curled (fist)
+THUMB_EXTENDED = 50    # fully open
+THUMB_CURLED = 135     # fully curled (fist) — thumb's range is reversed vs. the fingers, see fist_bump.py
+
+HOLD_SECONDS = 4.0
+
+CENTERS = {
+    (PCA_HAND, THUMB): 50,
+    (PCA_HAND, 1): 135,
+    (PCA_HAND, 2): 135,
+    (PCA_HAND, 3): 135,
+    (PCA_HAND, 4): 135,
+    (PCA_HAND, WRIST): 100,
+    (PCA_HAND, ELBOW): 130,
+    (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_REACH, SHOULDER_PITCH): 170,
+}
+
+LIMITS = {
+    (PCA_HAND, THUMB): (50, 135),
+    (PCA_HAND, 1): (50, 135),
+    (PCA_HAND, 2): (50, 135),
+    (PCA_HAND, 3): (50, 135),
+    (PCA_HAND, 4): (50, 135),
+    (PCA_HAND, WRIST): (60, 160),
+    (PCA_HAND, ELBOW): (40, 140),
+    (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_REACH, SHOULDER_PITCH): (150, 260),
+}
+
+# ELBOW and SHOULDER_ROLL/SHOULDER_PITCH are 270 ROM servos — see robot.yaml
+# and wave.py.
+SERVO_RANGES = {
+    (PCA_HAND, ELBOW): 270.0,
+    (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_REACH, SHOULDER_PITCH): 270.0,
+}
+
+RAISE_DURATION = 1.5
+RETURN_DURATION = 2.0
+TICK_DELAY = 0.02
+
+
+def _mv(addr, ch, target, duration):
+    steps = max(1, round(duration / TICK_DELAY))
+    return {"addr": addr, "ch": ch, "target": target, "limits": LIMITS[(addr, ch)],
+            "steps": steps, "delay": TICK_DELAY,
+            "servo_range": SERVO_RANGES.get((addr, ch), 180.0)}
+
+
+def _finger_targets(number):
+    """Angle for THUMB + each of FINGER_ORDER to show \`number\`: None/0 is a
+    closed fist, 1-4 extends that many fingers starting with the index
+    finger, 5 extends all four fingers plus the thumb."""
+    if not number:
+        targets = {THUMB: THUMB_CURLED}
+        targets.update({ch: FINGER_CURLED for ch in FINGER_ORDER})
+        return targets
+
+    extended = set(FINGER_ORDER[:min(number, 4)])
+    targets = {ch: (FINGER_EXTENDED if ch in extended else FINGER_CURLED) for ch in FINGER_ORDER}
+    targets[THUMB] = THUMB_EXTENDED if number >= 5 else THUMB_CURLED
+    return targets
+
+
+def close_fist(ctrl):
+    """Curl the whole hand into a fist — called immediately on startup,
+    before the arm even raises, so the hand is already a fist by the time
+    anyone sees it move."""
+    targets = _finger_targets(None)
+    ctrl.run_threads([_mv(PCA_HAND, ch, target, RAISE_DURATION) for ch, target in targets.items()])
+
+
+def raise_arm(ctrl):
+    """Swing shoulder roll/pitch + elbow + wrist up to the wave-ready pose.
+    Doesn't touch the fingers/thumb, so whatever close_fist() set stays put
+    through the raise."""
+    ctrl.run_threads([
+        _mv(PCA_HAND, SHOULDER_ROLL, SHOULDER_ROLL_WAVE, RAISE_DURATION),
+        _mv(PCA_REACH, SHOULDER_PITCH, SHOULDER_PITCH_WAVE, RAISE_DURATION),
+        _mv(PCA_HAND, ELBOW, ELBOW_WAVE_BENT, RAISE_DURATION),
+        _mv(PCA_HAND, WRIST, WRIST_CENTER, RAISE_DURATION),
+    ])
+
+
+def show_number(ctrl, number):
+    """Extend fingers/thumb to show \`number\`."""
+    targets = _finger_targets(number)
+    ctrl.run_threads([_mv(PCA_HAND, ch, target, RAISE_DURATION) for ch, target in targets.items()])
+
+
+def open_and_return(ctrl):
+    """Open the hand and bring every joint back to CENTERS."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
+
+
+def perform_finger_count(mock=False):
+    """Run the full sequence: close fist -> raise to wave-ready pose ->
+    show NUMBER (or hold the fist, if NUMBER is None) -> hold for
+    HOLD_SECONDS -> open hand, return to center.
+
+    Holds the cross-process hardware_lock() for the whole sequence, and
+    always closes its PCA9685 handles before returning, even on error.
+    """
+    if NUMBER is not None and NUMBER not in (1, 2, 3, 4, 5):
+        raise ValueError(f"NUMBER must be None or a whole number 1-5, got {NUMBER!r}")
+
+    with sc.hardware_lock():
+        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl.current = CENTERS.copy()
+        try:
+            print("Closing fist...")
+            close_fist(ctrl)
+            time.sleep(0.2)
+
+            print("Raising arm...")
+            raise_arm(ctrl)
+            time.sleep(0.3)
+
+            if NUMBER is None:
+                print("Holding fist...")
+            else:
+                print(f"Showing {NUMBER}...")
+                show_number(ctrl, NUMBER)
+            time.sleep(HOLD_SECONDS)
+
+            print("Opening hand and returning to center...")
+            open_and_return(ctrl)
+
+        finally:
+            ctrl.close()
+
+
+# ── ROS2 node ────────────────────────────────────────────────────────────
+#
+# Thin wrapper: on startup, runs perform_finger_count() once in a
+# background thread and reports success/failure — no action server, no
+# motion_server, no topics.
+#
+# Parameters:
+#     use_mock_hardware (bool): print instead of moving real servos. Default True.
+
+class FingerCountNode(Node):
+    def __init__(self):
+        super().__init__("finger_count")
+        self.declare_parameter("use_mock_hardware", True)
+        self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        self._started = False
+        self.create_timer(1.0, self._start)
+
+    def _start(self):
+        if self._started:
+            return
+        self._started = True
+        self.get_logger().info("Finger count starting.")
+        threading.Thread(target=self._run, daemon=False).start()
+
+    def _run(self):
+        try:
+            perform_finger_count(mock=self._mock)
+            self.get_logger().info("Finger count complete.")
+        except Exception as e:
+            self.get_logger().error(f"Finger count failed: {e}")
+        finally:
+            # One-shot gesture: the motion is done (or failed) by the time
+            # we get here, so shut rclpy down instead of leaving main()'s
+            # spin() blocking until the caller times it out. main()'s own
+            # \`if rclpy.ok(): rclpy.shutdown()\` in its finally already
+            # tolerates shutdown having happened here first — but Ctrl+C
+            # can beat us to it (rclpy's own SIGINT handler shuts the
+            # context down from the main thread while we're still mid-
+            # motion here), so guard this call the same way main() does:
+            # unguarded, a second shutdown() raises RCLError from this
+            # background thread instead of exiting quietly.
+            if rclpy.ok():
+                rclpy.shutdown()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = FingerCountNode()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        # KeyboardInterrupt: the usual Ctrl+C path.
+        # ExternalShutdownException: raised by rclpy's executor instead,
+        # on some distro/executor combinations, when the context is shut
+        # down from another thread while spin() is blocked — which is
+        # exactly what _run()'s own \`finally: rclpy.shutdown()\` above does
+        # on a normal, successful one-shot gesture. Without this, a
+        # successful run could still end in an unhandled traceback here.
+        pass
+    finally:
+        node.destroy_node()
+        # Ctrl+C already triggers rclpy's own SIGINT handler, which shuts
+        # the context down before this finally block runs — calling
+        # shutdown() again raises RCLError, so only do it if still needed.
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
+`,
+
   "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py": `"""
 finger_wave.py
 

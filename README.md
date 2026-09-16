@@ -114,7 +114,7 @@ running (`npm run studio`) — it doesn't require the Vercel backend.
 - **Pre-Installed Demos → Wave and Handshake are real**, running against
   actual robot source (mirrored from the real `swayform_ws` robot repo) —
   don't treat them as mockups.
-- **Placeholders are honest** — Hand Mimic, Rock Paper Scissors, Pick and
+- **Placeholders are honest** — Rock Paper Scissors, Pick and
   Place, and all of React/Perceive/Create levels are intentionally marked
   `planned`/not-yet-written, not hidden bugs. Leave them as placeholders
   unless you're specifically asked to author that content.

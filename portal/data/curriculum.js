@@ -17,8 +17,8 @@
  *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
  *   2. Introduction to ROS 2 — the software ideas behind Control (9 items, active)
  *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave,
- *        Handshake, and Fist Bump are built; Hand Mimic and Rock Paper
- *        Scissors are honest Planned placeholders, not faked)
+ *        Handshake, Fist Bump, and Finger Count are built; Rock Paper
+ *        Scissors is an honest Planned placeholder, not faked)
  *   4. Control (Level 1)  — 10 guided labs, first joint to keyboard capstone (active)
  *   5-7. React / Perceive / Create — Levels 2-4, all Planned, no lesson
  *        content authored yet (working titles only for React).
@@ -89,20 +89,22 @@ const s2 = [
   real('navigating-the-workspace', 'ros2-intro', '2.09'),
 ];
 
-// Wave, Handshake, and Fist Bump are confirmed working demos with authored
-// pages. Hand Mimic and Rock Paper Scissors are marked Planned — honest
-// placeholders, not faked content — until their production robot behavior
-// is confirmed. Rock Paper Scissors keeps its learning-path.js id (content
-// preserved, unlisted) in case it's promoted back to a full demo later.
-// Pick and Place was removed from this section entirely (its
-// learning-path.js content stays, unlisted, same as Rock Paper Scissors);
-// interactive-exchange was removed entirely earlier (it's not one of the 5
-// demos and had no content worth keeping).
+// Wave, Handshake, Fist Bump, and Finger Count are confirmed working demos
+// with authored pages. Rock Paper Scissors is marked Planned — an honest
+// placeholder, not faked content — until its production robot behavior is
+// confirmed; it keeps its learning-path.js id (content preserved, unlisted)
+// in case it's promoted back to a full demo later. Hand Mimic (formerly this
+// slot) was replaced outright by Finger Count, a real confirmed behavior,
+// rather than kept alongside it as a second placeholder. Pick and Place was
+// removed from this section entirely (its learning-path.js content stays,
+// unlisted, same as Rock Paper Scissors); interactive-exchange was removed
+// entirely earlier (it's not one of the 5 demos and had no content worth
+// keeping).
 const s3 = [
   demo('wave', 'demos', '3.01'),
   demo('handshake', 'demos', '3.02'),
   real('fist-bump', 'demos', '3.03'),
-  placeholder('hand-mimic', 'demos', '3.04', 'Hand Mimic', 'A hand open/curl mimic motion. Planned — not yet available.'),
+  real('finger-count', 'demos', '3.04'),
   placeholder('rock-paper-scissors', 'demos', '3.05', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
 ];
 

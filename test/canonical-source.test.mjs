@@ -5,8 +5,10 @@ import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js'
 
 const WAVE_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
 const FIST_BUMP_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py';
+const FINGER_COUNT_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py';
 const canonicalWave = WORKSPACE_FILES[WAVE_PATH];
 const canonicalFistBump = WORKSPACE_FILES[FIST_BUMP_PATH];
+const canonicalFingerCount = WORKSPACE_FILES[FINGER_COUNT_PATH];
 
 test('the untouched default is not_started, not complete', () => {
   const result = validateAgainstCanonicalSource(WAVE_PATH, canonicalWave);
@@ -72,4 +74,38 @@ test('Fist Bump: the untouched default (ENABLE_HEAD_NOD = False) is not_started'
   assert.equal(result.valid, false);
   assert.equal(result.status, 'not_started');
   assert.deepEqual(result.tunable, { name: 'ENABLE_HEAD_NOD', from: 'False', to: 'True' });
+});
+
+test('Finger Count: the untouched default (NUMBER = None) is not_started, listing all 5 acceptable values', () => {
+  const result = validateAgainstCanonicalSource(FINGER_COUNT_PATH, canonicalFingerCount);
+  assert.equal(result.valid, false);
+  assert.equal(result.status, 'not_started');
+  assert.deepEqual(result.tunable, { name: 'NUMBER', from: 'None', to: '1, 2, 3, 4, or 5' });
+});
+
+test('Finger Count: any of NUMBER = 1 through 5 is complete/queueable, not just one target', () => {
+  for (const n of [1, 2, 3, 4, 5]){
+    const edited = canonicalFingerCount.replace('NUMBER = None', `NUMBER = ${n}`);
+    const result = validateAgainstCanonicalSource(FINGER_COUNT_PATH, edited);
+    assert.deepEqual(result, { valid: true, status: 'complete' }, `NUMBER = ${n} should be queueable`);
+  }
+});
+
+test('Finger Count: NUMBER outside 1-5 (including 0) is tampered, not accepted', () => {
+  for (const n of [0, 6, -1, 100]){
+    const edited = canonicalFingerCount.replace('NUMBER = None', `NUMBER = ${n}`);
+    const result = validateAgainstCanonicalSource(FINGER_COUNT_PATH, edited);
+    assert.equal(result.valid, false, `NUMBER = ${n} should not be queueable`);
+    assert.equal(result.status, 'tampered');
+  }
+});
+
+test('Finger Count: tampering elsewhere is caught even with a valid NUMBER, diffed against the closest matching variant', () => {
+  const edited = canonicalFingerCount
+    .replace('NUMBER = None', 'NUMBER = 3')
+    .replace('HOLD_SECONDS = 4.0', 'HOLD_SECONDS = 999.0');
+  const result = validateAgainstCanonicalSource(FINGER_COUNT_PATH, edited);
+  assert.equal(result.status, 'tampered');
+  assert.equal(result.diffs.length, 1);
+  assert.equal(result.diffs[0].expected, 'HOLD_SECONDS = 4.0');
 });

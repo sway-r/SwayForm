@@ -21,6 +21,7 @@ export const CANONICAL_ROBOT_PATHS = new Set([
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py',
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py',
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py',
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py',
 ]);
 
 export function isCanonicalRobotPath(path){

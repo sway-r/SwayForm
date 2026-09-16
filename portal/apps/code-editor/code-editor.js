@@ -36,7 +36,12 @@ export async function mount(container, ctx){
     });
     if (!res.ok) throw new Error(`token ${res.status}`);
     const { token } = await res.json();
-    rootEl.innerHTML = `<iframe class="code-editor-frame" src="https://code.bridge.swayform.net/_exchange?token=${encodeURIComponent(token)}"></iframe>`;
+    // Without an explicit allow list, the workbench's terminal can write to
+    // the clipboard (browsers allow that from any user gesture) but can't
+    // read it back for paste -- Chrome blocks clipboard-read in iframes
+    // unless it's delegated here, surfacing as its own in-workbench error
+    // dialog rather than anything visibly wrong on the portal's side.
+    rootEl.innerHTML = `<iframe class="code-editor-frame" allow="clipboard-read; clipboard-write" src="https://code.bridge.swayform.net/_exchange?token=${encodeURIComponent(token)}"></iframe>`;
   } catch (e) {
     rootEl.innerHTML = '<p class="code-editor-note">Couldn\'t connect to the robot\'s code editor.</p>';
   }

@@ -12,6 +12,24 @@ references Studio.
 
 ---
 
+## Setting up on a new computer
+
+Studio is just a folder inside the main repo — there's nothing to install
+separately.
+
+1. Install [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/)
+   (LTS or newer).
+2. Clone the repo: `git clone https://github.com/sway-r/SwayForm.git`
+3. Install dependencies once: `cd SwayForm/studio && npm install`
+4. Launch it the same way every time after that — see **Launching** below.
+
+That's the whole setup. Studio reads/writes the same repo files a clone
+always has; there's no separate database, config, or API key to copy over.
+If Claude Code is also being used on the new machine to review and commit
+Studio's saves, install it there too (`npm install -g @anthropic-ai/claude-code`
+or see [claude.com/claude-code](https://claude.com/claude-code)) and run it
+from the repo root.
+
 ## Launching
 
 ```
@@ -105,12 +123,21 @@ Nothing touches the repo until you press **Save Changes**. Then:
 5. **Write** — candidates written; originals snapshotted for rollback.
 6. **Reload & verify** — the written files are re-imported and the result
    must deep-equal the draft (a failed round-trip rolls everything back).
-7. **Commit** — `git add`/`commit` scoped to exactly the written paths, so
-   unrelated working-tree changes are never swept in. **No push** — push
-   manually when ready.
+7. **Hand off for review** — Studio stops here. It does **not** commit.
+   It drops `studio/.pending-review.json` (gitignored) with the suggested
+   commit message and diff stat, and the files sit in the working tree,
+   written but uncommitted.
 
 Any failure before step 7 restores every file and reports what failed,
 why, and where. Failure UIs offer "Return to editing" — the draft is kept.
+
+After a successful save, tell **Claude Code** to review it. Claude reads
+the real `git diff` (not just Studio's own heuristics), confirms the
+change is healthy and doesn't break the site, then asks which branch to
+commit to and commits there — it never assumes. This is the "Claude
+review" step referenced below: no API key or live model call inside
+Studio, just Studio stopping short of committing so a real review happens
+in the same session that's already looking at the repo.
 
 ## Student terminal system (product behavior)
 
@@ -131,8 +158,10 @@ why, and where. Failure UIs offer "Return to editing" — the draft is kept.
 - **Block types are the renderer's real set** — Studio deliberately cannot
   invent block types the portal can't render; the video block was added to
   BOTH `lesson-renderer.js` and Studio together for exactly this reason.
-- **"Claude review" step** is implemented as deterministic heuristics; an
-  LLM review pass would need an API key and is intentionally out of scope.
+- **Automated review (step 4)** is deterministic heuristics, not an LLM
+  call — it catches obvious mistakes (large unexplained deletions, stray
+  `undefined`) before anything is written. The actual judgment-call review
+  happens after, when Claude Code reads the real diff (see Save Changes).
 - **reference.js (Help app)** and login-page copy are not yet exposed;
   the adapter pattern extends naturally when needed.
 - Curriculum ops assume the current two-file architecture; if that is ever

@@ -102,6 +102,7 @@ import math
 import threading
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
@@ -326,8 +327,10 @@ class WaveNode(Node):
         except Exception as e:
             self.get_logger().error(f"Wave failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
-            rclpy.shutdown()
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until
+            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
+            if rclpy.ok():
+                rclpy.shutdown()
 
 
 def main(args=None):
@@ -335,7 +338,7 @@ def main(args=None):
     node = WaveNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()
@@ -386,6 +389,7 @@ import time
 import threading
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
@@ -567,8 +571,10 @@ class HandshakeNode(Node):
         except Exception as e:
             self.get_logger().error(f"Handshake failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
-            rclpy.shutdown()
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until
+            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
+            if rclpy.ok():
+                rclpy.shutdown()
 
 
 def main(args=None):
@@ -576,7 +582,7 @@ def main(args=None):
     node = HandshakeNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()
@@ -595,6 +601,7 @@ if __name__ == "__main__":
 import threading
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
@@ -810,8 +817,10 @@ class FistBumpNode(Node):
         except Exception as e:
             self.get_logger().error(f"Fist bump failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
-            rclpy.shutdown()
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until
+            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
+            if rclpy.ok():
+                rclpy.shutdown()
 
 
 def main(args=None):
@@ -819,7 +828,7 @@ def main(args=None):
     node = FistBumpNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()

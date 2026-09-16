@@ -325,6 +325,9 @@ class WaveNode(Node):
             self.get_logger().info("Wave complete.")
         except Exception as e:
             self.get_logger().error(f"Wave failed: {e}")
+        finally:
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
+            rclpy.shutdown()
 
 
 def main(args=None):
@@ -563,6 +566,9 @@ class HandshakeNode(Node):
             self.get_logger().info("Handshake complete.")
         except Exception as e:
             self.get_logger().error(f"Handshake failed: {e}")
+        finally:
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
+            rclpy.shutdown()
 
 
 def main(args=None):
@@ -803,6 +809,9 @@ class FistBumpNode(Node):
             self.get_logger().info("Fist bump complete.")
         except Exception as e:
             self.get_logger().error(f"Fist bump failed: {e}")
+        finally:
+            # one-shot gesture is done — shut down instead of leaving spin() blocking until timeout
+            rclpy.shutdown()
 
 
 def main(args=None):

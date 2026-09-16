@@ -1,3 +1,4 @@
 node_modules/
 .draft.json
+.pending-review.json
 web/dist/

@@ -1,15 +1,21 @@
 /* The Save Changes pipeline (brief §12): generate → inspect → validate →
- * reimport-verify → review → commit, with full rollback on any failure.
- * Nothing is committed unless every gate passes; nothing outside the files
- * Studio generated is ever staged.
+ * reimport-verify → write, with full rollback on any failure. Studio itself
+ * never commits — it stops once the files are written and verified, and
+ * drops a pending-review summary (.pending-review.json) for Claude Code to
+ * read, review against the real git diff, and commit (Claude picks the
+ * branch with the user each time; see studio/README.md).
+ * Nothing outside the files Studio generated is ever touched.
  */
 import fs from 'node:fs';
-import { absPath, writeRepoFile } from './repo.mjs';
+import path from 'node:path';
+import { absPath, writeRepoFile, REPO_ROOT } from './repo.mjs';
 import { loadContent } from './content-load.mjs';
 import { generateChanges } from './writers.mjs';
 import { validateModel } from './validate.mjs';
 import { deepEqual } from './ast-utils.mjs';
-import { gitCommitPaths, gitDiffStat } from './gitops.mjs';
+import { gitDiffStat } from './gitops.mjs';
+
+const PENDING_REVIEW_FILE = path.resolve(import.meta.dirname, '..', '.pending-review.json');
 
 /** Compares the semantically-meaningful parts of two models (base hashes and
  * bookkeeping fields excluded). */
@@ -68,8 +74,9 @@ function commitMessage(ops, changes) {
     'Files:',
     ...changes.map((c) => `- ${c.path}`),
     '',
-    'Saved via SwayForm Learning Portal Studio (validated: syntax, reimport,',
-    'structural curriculum checks, automated review).',
+    'Made via SwayForm Learning Portal Studio (validated: syntax, reimport,',
+    'structural curriculum checks, automated review). Written but not yet',
+    'committed — reviewed and committed by Claude Code.',
   ].join('\n');
   return title + '\n' + body;
 }
@@ -189,25 +196,34 @@ export async function runSave(draft) {
     }
   }
 
-  /* 7 — commit (scoped to exactly the written paths) */
-  let commit;
+  /* 7 — leave the commit to Claude Code. Write a pending-review summary
+   * (uncommitted — the files are already on disk from step 5) instead of
+   * committing here, so a human/Claude reviews the real diff before it
+   * enters history. */
+  const summary = commitMessage(ops, changes);
   {
-    const s = step('commit', 'Git commit');
+    const s = step('pending-review', 'Write pending-review summary');
     try {
       const stat = await gitDiffStat(changes.map((c) => c.path));
-      commit = await gitCommitPaths(changes.map((c) => c.path), commitMessage(ops, changes));
+      fs.writeFileSync(PENDING_REVIEW_FILE, JSON.stringify({
+        writtenAt: new Date().toISOString(),
+        files: changes.map((c) => c.path),
+        suggestedMessage: summary,
+        diffStat: stat.trim(),
+      }, null, 2), 'utf8');
       s.ok = true;
-      s.detail = `Committed ${commit.slice(0, 10)}\n${stat.trim()}`;
+      s.detail = `Written, uncommitted.\n${stat.trim()}`;
     } catch (err) {
-      // Files are written and verified; a commit failure leaves the working
-      // tree intact for manual inspection rather than destroying good work.
-      return fail(s, [{ msg: `Commit failed: ${err.message}. The written files are VALID and remain in the working tree — inspect with git status.` }]);
+      // Files are written and verified even if this note-taking step fails —
+      // never roll back good work over a bookkeeping error.
+      s.ok = true;
+      s.detail = `Written, uncommitted. (Could not write pending-review note: ${err.message})`;
     }
   }
 
-  /* 8 — reset draft onto the new base */
+  /* 8 — reset draft onto the new (written, still uncommitted) base */
   draft.discard();
   await draft.reloadBase();
 
-  return { ok: true, steps, commit };
+  return { ok: true, steps, summary };
 }

@@ -165,7 +165,7 @@ const STEP_LABELS = {
   review: 'Automated review checks',
   write: 'Write source files',
   reimport: 'Reload + verify round-trip',
-  commit: 'Git commit',
+  'pending-review': 'Hand off for review',
 };
 
 function SaveModal({ onClose }) {
@@ -184,7 +184,7 @@ function SaveModal({ onClose }) {
       setResult(r);
       setPhase('done');
       await refreshState();
-      if (r.ok) toast(`Committed ${r.commit.slice(0, 10)}`, 'success', 5000);
+      if (r.ok) toast('Written — ask Claude Code to review and commit', 'success', 6000);
     } catch (err) {
       setResult({ ok: false, steps: [], message: err.message });
       setPhase('done');
@@ -196,7 +196,7 @@ function SaveModal({ onClose }) {
       phase === 'confirm' ? (
         <>
           <button className="btn" onClick={onClose}>Keep editing</button>
-          <button className="btn primary" onClick={run}><Icon name="save" size={12} /> Validate & commit</button>
+          <button className="btn primary" onClick={run}><Icon name="save" size={12} /> Validate & write</button>
         </>
       ) : phase === 'done' ? (
         <button className="btn primary" onClick={onClose}>{result?.ok ? 'Done' : 'Return to editing'}</button>
@@ -205,7 +205,7 @@ function SaveModal({ onClose }) {
       {phase === 'confirm' && summary && (
         <>
           <div className="view-sub" style={{ marginBottom: 8 }}>
-            {summary.ops.length} change(s) will be validated and committed locally (no push):
+            {summary.ops.length} change(s) will be validated and written to disk (not committed):
           </div>
           <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 10 }}>
             {summary.ops.map((op) => <div key={op.index} className="small" style={{ padding: '2px 0' }}>• {op.text}</div>)}
@@ -214,8 +214,10 @@ function SaveModal({ onClose }) {
             Files: {summary.files.map((f) => f.path.split('/').pop()).join(', ') || '(none)'}
           </div>
           <div className="small muted" style={{ marginTop: 8 }}>
-            Pipeline: syntax check → curriculum validation → automated review → write → reload-and-verify → commit.
-            If anything fails, every file is rolled back and nothing is committed.
+            Pipeline: syntax check → curriculum validation → automated review → write → reload-and-verify.
+            If anything fails, every file is rolled back and nothing is written.
+            Studio never commits — once written, tell Claude Code to review the change
+            and commit it (it'll ask which branch).
           </div>
         </>
       )}
@@ -241,8 +243,11 @@ function SaveModal({ onClose }) {
           {result.message && <div className="small muted" style={{ marginTop: 8 }}>{result.message}</div>}
           {result.ok && (
             <div style={{ marginTop: 10, padding: 10, borderRadius: 7, background: 'rgba(52,192,124,0.08)', border: '1px solid var(--green)' }}>
-              <b>Committed {result.commit.slice(0, 10)}</b>
-              <div className="small muted" style={{ marginTop: 3 }}>Local commit only — push manually when ready.</div>
+              <b>Written to disk — uncommitted</b>
+              <div className="small muted" style={{ marginTop: 3 }}>
+                Ask Claude Code to review these changes; it'll check the real git diff, confirm it's
+                healthy, then ask which branch to commit to.
+              </div>
             </div>
           )}
         </>

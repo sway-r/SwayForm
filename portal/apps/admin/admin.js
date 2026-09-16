@@ -85,7 +85,7 @@ function jobRow(job, pendingJobs){
         <span class="rq-job-who">${escapeHtml(job.studentEmail)} · ${escapeHtml(fileName)}</span>
         <span class="rq-job-time">${new Date(job.submittedAt).toLocaleString()}</span>
       </div>
-      <details class="rq-code-details">
+      <details class="rq-code-details" data-job-id="${job.id}">
         <summary>View submitted code</summary>
         <pre class="rq-code">${escapeHtml(job.code)}</pre>
       </details>
@@ -393,14 +393,22 @@ export function mount(container, ctx){
     const root = container.querySelector('[data-queue-root]');
     if (!root) return; // panel isn't mounted (e.g. still on the loading state)
     // Swapping innerHTML on every poll would otherwise silently re-collapse
-    // "Recent history" if the admin had it open — carry that state across.
+    // "Recent history" and any job's open "View submitted code" panel —
+    // carry that state across. The latter is keyed by job id (not position)
+    // since which jobs are even in the list can shift between polls.
     const wasHistoryOpen = !!root.querySelector('.rq-history[open]');
+    const openCodeJobIds = Array.from(root.querySelectorAll('.rq-code-details[open]'))
+      .map((el) => el.dataset.jobId);
     const jobs = await fetchQueue();
     root.innerHTML = queueSectionHtml(jobs);
     if (wasHistoryOpen){
       const historyEl = root.querySelector('.rq-history');
       if (historyEl) historyEl.open = true;
     }
+    openCodeJobIds.forEach((id) => {
+      const el = root.querySelector(`.rq-code-details[data-job-id="${id}"]`);
+      if (el) el.open = true;
+    });
     bindQueueActions(root, container, {
       pendingJobs: jobs.filter((j) => j.status === 'pending'),
       refreshQueue,

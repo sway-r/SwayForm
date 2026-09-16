@@ -123,6 +123,7 @@ function openApp(appId, params, opts){
     windows.set(appId, win);
     persistOpenApps();
   }
+  if (opts.path) win.lastPath = opts.path;
   win.el.classList.remove('minimized');
   win.minimized = false;
   focusWindow(appId);
@@ -173,7 +174,7 @@ function createWindow(mod, saved){
   const header = el.querySelector('.window-header');
 
   const win = { el, meta: mod.meta, instance: null, maximized: startMaximized, minimized: false,
-    geometry: restoredGeometry };
+    geometry: restoredGeometry, lastPath: null };
 
   el.addEventListener('mousedown', () => focusWindow(mod.meta.id));
 
@@ -252,6 +253,22 @@ function focusWindow(appId){
   windows.forEach((w, id) => w.el.classList.toggle('focused', id === appId));
   win.el.style.zIndex = ++zCounter;
   renderTaskbar();
+  syncFocusUrl(appId, win);
+}
+
+/** Keep the address bar pointing at whichever app is actually focused.
+ * openApp() already does this itself via navigateForApp() below, but
+ * switching focus by clicking the taskbar or an already-open window calls
+ * focusWindow() directly and skipped it entirely — so the URL stayed on
+ * whatever app was last opened/deep-linked, and refreshing reopened THAT
+ * app on top instead of the one you were actually looking at. Uses the
+ * window's own last known path when there is one (so a deep link, e.g.
+ * into a specific Learn activity, survives a focus switch), falling back
+ * to the app's bare path otherwise. replaceState, not pushState —
+ * refocusing an already-open window isn't a new place to "go back" to. */
+function syncFocusUrl(appId, win){
+  const path = win.lastPath || pathForApp(appId, {});
+  if (location.pathname !== path) history.replaceState({}, '', path);
 }
 
 function closeWindow(appId){
@@ -364,6 +381,8 @@ function pathForApp(appId, params){
 
 function navigateForApp(appId, params, explicitPath){
   const path = explicitPath || pathForApp(appId, params);
+  const win = windows.get(appId);
+  if (win) win.lastPath = path;
   navigateTo(path, { skipDispatch: true });
 }
 
@@ -378,7 +397,7 @@ function navigateTo(path, opts){
 
 window.addEventListener('popstate', () => {
   const route = routeFromPath(location.pathname);
-  if (route) openApp(route.appId, route.params, { silent: true });
+  if (route) openApp(route.appId, route.params, { silent: true, path: location.pathname });
 });
 
 /* ---------------------------------------------------------- Persistence */
@@ -486,17 +505,27 @@ async function showDesktop(){
     setAdminJobBadge(0);
   }
 
+  // Capture the actual refresh-time URL before restoring anything — each
+  // restored window focuses itself in turn (see focusWindow's syncFocusUrl),
+  // which would otherwise overwrite location.pathname with whichever app
+  // happened to be restored last, before we ever get to read what the
+  // browser's address bar really said when the page loaded.
+  const bootPath = location.pathname;
+  const initialRoute = routeFromPath(bootPath);
+
   // Always restore whatever was open last session first (with its saved
   // geometry) — otherwise refreshing on a deep link like /learn or /account
   // skipped this branch entirely and every window came back at its default
   // maximized bounds, discarding position/size for THIS window even though
   // the general case (refresh on the bare desktop) preserved it correctly.
   restoreOpenApps();
-  const initialRoute = routeFromPath(location.pathname);
   if (initialRoute){
-    openApp(initialRoute.appId, initialRoute.params, { silent: true });
-    history.replaceState({}, '', location.pathname);
+    openApp(initialRoute.appId, initialRoute.params, { silent: true, path: bootPath });
   }
+  // Land back on the URL the page actually loaded with, regardless of any
+  // focus-churn above — this is the one honest signal for which app (and
+  // which of its own deep views) the student was really looking at.
+  history.replaceState({}, '', bootPath);
 }
 
 function showLogin(){

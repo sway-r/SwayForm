@@ -41,27 +41,26 @@ export async function mount(container, ctx){
     return;
   }
 
-  container.innerHTML = `<div class="robot-root p-scroll la-surface">
-      <div class="robot-tabs" data-role="tabs">
-        <button type="button" class="robot-tab is-active" data-tab="status">Status</button>
-        <button type="button" class="robot-tab" data-tab="video">Live Video</button>
+  // Status and Live Video used to be separate tabs — merged into one
+  // always-visible view (a compact status bar, video filling the rest)
+  // since there was no real reason to hide one to see the other, and it
+  // also removes a second piece of "which tab was I on" state that a
+  // refresh could lose (see portal.js's per-window lastPath for the
+  // top-level app-focus version of that same problem).
+  container.innerHTML = `<div class="robot-root robot-connected la-surface">
+      <div class="robot-status-bar">
+        <span class="robot-status-badge" data-role="status-badge">Checking…</span>
+        <span class="robot-status-text">
+          <strong>${session.robotSerial}</strong>
+          <span data-role="status-note"></span>
+        </span>
       </div>
-      <div class="robot-tab-panel" data-panel="status">
-        <div class="robot-hero">
-          <div class="robot-hero-icon">${icon('robot')}</div>
-          <h1 class="robot-hero-title">${session.robotSerial}</h1>
-          <span class="robot-status-badge" data-role="status-badge">Checking…</span>
-          <p class="robot-hero-note" data-role="status-note">Run on Robot is already available from the lab code editor's Queue on Robot button — this screen just shows whether the robot's agent is currently connected.</p>
-        </div>
-      </div>
-      <div class="robot-tab-panel" data-panel="video" hidden></div>
+      <div class="robot-video-panel" data-panel="video"></div>
     </div>`;
   ctx.setAppTitle && ctx.setAppTitle('Robot');
 
   const badge = container.querySelector('[data-role="status-badge"]');
   const note = container.querySelector('[data-role="status-note"]');
-  const tabsEl = container.querySelector('[data-role="tabs"]');
-  const statusPanel = container.querySelector('[data-panel="status"]');
   const videoPanel = container.querySelector('[data-panel="video"]');
 
   async function refreshStatus(){
@@ -83,33 +82,12 @@ export async function mount(container, ctx){
 
   await refreshStatus();
   const pollTimer = setInterval(refreshStatus, POLL_INTERVAL_MS);
-
-  // The video player only connects once its tab is actually selected —
-  // leaving the Robot app open on Status shouldn't hold a viewer slot on
-  // the relay. Torn down again when switching away or unmounting.
-  let videoPlayer = null;
-
-  tabsEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('.robot-tab');
-    if (!btn) return;
-    const tab = btn.dataset.tab;
-
-    tabsEl.querySelectorAll('.robot-tab').forEach((el) => el.classList.toggle('is-active', el === btn));
-    statusPanel.hidden = tab !== 'status';
-    videoPanel.hidden = tab !== 'video';
-
-    if (tab === 'video' && !videoPlayer){
-      videoPlayer = mountVideoPlayer(videoPanel);
-    } else if (tab !== 'video' && videoPlayer){
-      videoPlayer.unmount();
-      videoPlayer = null;
-    }
-  });
+  const videoPlayer = mountVideoPlayer(videoPanel);
 
   return {
     unmount(){
       clearInterval(pollTimer);
-      if (videoPlayer) videoPlayer.unmount();
+      videoPlayer.unmount();
     },
   };
 }

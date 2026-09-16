@@ -308,6 +308,18 @@ function minimizeWindow(appId){
   renderTaskbar();
 }
 
+/** "Show desktop" — minimizes every open window in one shot, without
+ * closing any of them (unlike closeWindow, nothing here unmounts an app or
+ * touches persisted layout). One renderTaskbar() call at the end instead of
+ * one per window. */
+function minimizeAllWindows(){
+  windows.forEach((win) => {
+    win.minimized = true;
+    win.el.classList.add('minimized');
+  });
+  renderTaskbar();
+}
+
 function toggleMaximize(appId){
   const win = windows.get(appId);
   if (!win) return;
@@ -453,7 +465,7 @@ tickClock();
 setInterval(tickClock, 15000);
 
 /* ---------------------------------------------------------- Launcher */
-launcherEl.addEventListener('click', () => openApp('learn'));
+launcherEl.addEventListener('click', () => minimizeAllWindows());
 launcherEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launcherEl.click(); }
 });

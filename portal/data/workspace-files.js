@@ -606,7 +606,7 @@ from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
 
-ENABLE_HEAD_NOD = False  # TODO: change to True
+ENABLE_HEAD_NOD = False
 
 PCA_HAND = 0x40
 PCA_REACH = 0x60
@@ -846,13 +846,9 @@ finger_count.py
 
 Finger-count behavior — direct PCA9685 control, right arm. Raises the arm
 to the same "wave ready" pose as wave.py (shoulder roll/pitch, elbow,
-wrist), but instead of waving, holds a closed fist and — if the lab
-exercise's NUMBER variable below is set — extends that many fingers to
-show the count, holds it, then returns to center.
-
-Lab exercise: set NUMBER (near the top of this file) to a whole number
-from 1 to 5 and the robot will hold up that many fingers instead of just a
-closed fist. It's None by default (fist only, nothing raised).
+wrist), but instead of waving, holds a closed fist and — if NUMBER (below)
+is set — extends that many fingers to show the count, holds it, then
+returns to center.
 
 Run:
     ros2 run swayform_robot finger_count                                 # mock by default
@@ -890,12 +886,7 @@ from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
 
-# ── Lab exercise ────────────────────────────────────────────────────────
-# With NUMBER left as None, the robot just raises a closed fist. Set it to
-# a whole number from 1 to 5 and the robot will hold up that many fingers
-# instead.
 NUMBER = None
-# ────────────────────────────────────────────────────────────────────────
 
 PCA_HAND = 0x40
 PCA_REACH = 0x60

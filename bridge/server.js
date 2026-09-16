@@ -237,7 +237,24 @@ async function handleIdleRequest(req, res){
 // drops back to zero. See docs/robot-connectivity.md for the video.start/
 // video.stop frames themselves; the real agent doesn't handle them yet,
 // same NOT YET HANDLED status job.stop shipped with.
-const activeViewerCounts = new Map(); // robotId -> count
+//
+// Each "viewer" is an expiry timestamp, not a bare count: a 'stop' can be
+// lost (tab crash, network drop, notifyBridgeStop's best-effort fetch never
+// landing) with nothing upstream ever retrying it, which would otherwise
+// wedge the count above zero forever — silently skipping every future
+// video.start on this process until it's restarted (see the incident this
+// was found from, in project_video_on_demand memory). Pruning expired
+// entries before every read bounds that wedge to VIEWER_TTL_MS instead.
+const VIEWER_TTL_MS = 60_000; // generous margin over the client's 30s FEED_DURATION_MS plus WHEP connect/retry time
+const activeViewers = new Map(); // robotId -> expiry timestamps (ms epoch), oldest first
+
+function pruneViewers(robotId){
+  const list = activeViewers.get(robotId);
+  if (!list) return [];
+  const kept = list.filter((exp) => exp > Date.now());
+  if (kept.length) activeViewers.set(robotId, kept); else activeViewers.delete(robotId);
+  return kept;
+}
 
 async function handleVideoRequest(req, res){
   const provided = req.headers['x-bridge-secret'];
@@ -253,14 +270,16 @@ async function handleVideoRequest(req, res){
     return;
   }
 
-  const wasZero = !activeViewerCounts.get(robotId);
+  const current = pruneViewers(robotId);
+  const wasZero = current.length === 0;
   if (body.action === 'start'){
-    activeViewerCounts.set(robotId, (activeViewerCounts.get(robotId) || 0) + 1);
-  } else {
-    const next = Math.max(0, (activeViewerCounts.get(robotId) || 0) - 1);
-    if (next === 0) activeViewerCounts.delete(robotId); else activeViewerCounts.set(robotId, next);
+    current.push(Date.now() + VIEWER_TTL_MS);
+    activeViewers.set(robotId, current);
+  } else if (current.length){
+    current.shift();
+    if (current.length) activeViewers.set(robotId, current); else activeViewers.delete(robotId);
   }
-  const nowZero = !activeViewerCounts.get(robotId);
+  const nowZero = !activeViewers.get(robotId)?.length;
 
   const ws = connectedRobots.get(robotId);
   let delivered = false;
@@ -426,7 +445,7 @@ wss.on('connection', (ws, req) => {
     console.log(`connection closed (robotId=${robotId}) code=${code} reason=${reason}`);
     clearTimeout(authTimer);
     if (connectedRobots.get(robotId) === ws) connectedRobots.delete(robotId);
-    activeViewerCounts.delete(robotId);
+    activeViewers.delete(robotId);
     if (heartbeatTimer) clearInterval(heartbeatTimer);
     if (dispatchTimer) clearInterval(dispatchTimer);
     if (robotId){

@@ -165,6 +165,20 @@ test('even an admin cannot release the physical execution lock with a database-o
   assert.equal((await call(queue,cookie,{action:'cancel',jobId:job.id})).code,400);
   assert.equal((await db.query('SELECT status FROM robot_jobs WHERE id=$1',[job.id])).rows[0].status,'running');
 });
+test('a student cannot reconcile a stuck running job, but an admin can — and it releases the execution lock', async () => {
+  const adminCookie = (await createSessionCookie({email:'teacher-b@example.test',mode:'admin',robotId:2})).split(';')[0];
+  const {rows:[job]} = await db.query("SELECT id FROM robot_jobs WHERE robot_id=2 AND status='running'");
+  assert.equal((await call(queue,otherCookie,{action:'reconcile',jobId:job.id})).code,403);
+  assert.equal((await db.query('SELECT status FROM robot_jobs WHERE id=$1',[job.id])).rows[0].status,'running');
+  const reconciled = await call(queue,adminCookie,{action:'reconcile',jobId:job.id});
+  assert.equal(reconciled.code,200);
+  assert.equal((await db.query('SELECT status FROM robot_jobs WHERE id=$1',[job.id])).rows[0].status,'failed');
+  assert.equal((await db.query("SELECT action FROM portal_audit_events WHERE robot_id=2 ORDER BY id DESC LIMIT 1")).rows[0].action,'reconcile_job');
+  // The one-running-job-per-robot lock is now actually released.
+  await db.query(`INSERT INTO robot_jobs (robot_id,student_email,workspace_path,package,executable,code,code_sha256,status,queue_position)
+    VALUES (2,'other@example.test','test.py','test','test.py','pass','hash2','approved',3)`);
+  assert.equal((await agentCall(null, { action: 'dispatch-queue', robotId: '2' }, 'GET')).data.jobs.length, 1);
+});
 test('shared code editor rejects admins of robots without a configured isolated destination', async () => {
   const cookie = (await createSessionCookie({email:'teacher-b@example.test',mode:'admin',robotId:2})).split(';')[0];
   delete process.env.CODE_SERVER_ROBOT_ID;

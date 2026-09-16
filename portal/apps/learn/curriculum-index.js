@@ -8,6 +8,7 @@
 import { icon } from '../../icons.js';
 import { CURRICULUM, LAB_SECTION_IDS, search as searchCurriculum } from '../../data/curriculum.js';
 import { getCompletedActivities } from '../../services/progress-service.js';
+import { escapeHtml } from '../../utils.js';
 
 // Module-level so expanded sections survive close/reopen within the session
 // (not persisted across page reloads — that would be over-engineering this).
@@ -54,7 +55,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
     const results = searchCurriculum(query);
     listEl.innerHTML = '';
     if (!results.length) {
-      listEl.innerHTML = `<div class="ci-empty">No matches for "${query}"</div>`;
+      listEl.innerHTML = `<div class="ci-empty">No matches for "${escapeHtml(query)}"</div>`;
       return;
     }
     results.forEach((r) => {

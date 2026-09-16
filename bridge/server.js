@@ -168,8 +168,18 @@ function handleCodeAuthCheck(req, res){
 // Delivery only confirms the message reached a connected agent — whether
 // the agent acts on it depends on that agent's own implementation of the
 // job.stop frame (see docs/robot-connectivity.md).
+/** Constant-time secret comparison — hashing first means both sides compare
+ *  as fixed-size buffers, avoiding both a length-based timingSafeEqual throw
+ *  and any timing signal a plain `===` on the raw secret would leak. */
+function secureEqual(a, b){
+  const bufA = crypto.createHash('sha256').update(String(a)).digest();
+  const bufB = crypto.createHash('sha256').update(String(b)).digest();
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 async function handleAdminStop(req, res){
-  if (req.headers['x-bridge-secret'] !== SERVICE_SECRET){ res.writeHead(401); res.end(); return; }
+  const provided = req.headers['x-bridge-secret'];
+  if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
   let body;
   try { body = await readJsonBody(req); }
   catch { res.writeHead(400); res.end(); return; }
@@ -305,6 +315,14 @@ wss.on('connection', (ws, req) => {
 
     if (msg.t === 'job.error'){
       console.error(`agent reported job.error for job ${msg.jobId}: ${msg.code} — ${msg.message}`);
+      // Surface the agent's reason through the same job-output pipe a normal
+      // run's stdout uses — otherwise a rejection (bad hash, joint-limit
+      // violation, anything) reaches the student/admin as a bare "Exit code:
+      // 1" with no explanation at all.
+      const line = `[agent error] ${msg.code || 'error'}: ${msg.message || 'unknown error'}\n`;
+      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text: line }).catch((e) => {
+        console.error('job-output(error) failed:', e.message);
+      });
       await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: 1 }).catch((e) => {
         console.error('job-finished(error) failed:', e.message);
       });

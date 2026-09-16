@@ -107,8 +107,18 @@ export default async function handler(req, res){
     return;
   }
 
-  if (!await rateLimit(res, 'robot-queue', session.email, 60)) return;
   const body = req.body || {};
+  // 'validate' is read-only and fires on every Run click (Wave/Fist Bump's
+  // Run flow calls it automatically) — sharing one 60/min bucket with the
+  // mutating actions (submit/approve/reject/...) meant a student iterating
+  // quickly could burn the whole class's submit budget just from clicking
+  // Run, or hit a rate limit that then rendered as "no verified working
+  // version of this file" client-side (no `status` field on a 429) instead
+  // of a rate-limit message. Its own, higher-ceiling bucket fixes both.
+  const limited = body.action === 'validate'
+    ? !await rateLimit(res, 'robot-queue-validate', session.email, 120)
+    : !await rateLimit(res, 'robot-queue', session.email, 60);
+  if (limited) return;
 
   switch (body.action){
     case 'validate': {
@@ -231,6 +241,34 @@ export default async function handler(req, res){
       } catch (e){
         res.status(502).json({ error: 'bridge_unreachable', message: "Couldn't reach the bridge to relay the stop signal." });
       }
+      return;
+    }
+
+    // Admin-only, last resort. A running job with no connected agent (a
+    // reconnect, a crash, a pulled plug) has no automatic path back to a
+    // terminal status — cancel refuses 'running' rows on purpose (see
+    // above), and stop only ever relays a signal, never touches the
+    // database. Without this action such a row blocks every future job for
+    // this robot forever (the one-running-job-at-a-time constraint). This
+    // does NOT verify or claim anything about physical state — it exists
+    // for exactly the case the docs already describe ("have the operator
+    // reconcile that specific running record before restarting"), so an
+    // admin must explicitly confirm they've physically checked the robot
+    // first; the client-side confirmation dialog carries that requirement.
+    case 'reconcile': {
+      if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
+      const jobId = Number(body.jobId);
+      if (!jobId){ res.status(400).json({ error: 'missing_job_id' }); return; }
+      const outcome = body.outcome === 'succeeded' ? 'succeeded' : 'failed';
+      const updated = await sql`
+        UPDATE robot_jobs SET status = ${outcome}, decided_by = ${session.email}, finished_at = now()
+        WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
+        RETURNING id
+      `;
+      if (!updated.length){ res.status(400).json({ error: 'not_running' }); return; }
+      await sql`INSERT INTO portal_audit_events (robot_id, actor_email, action, subject_email)
+        VALUES (${robotId}, ${session.email}, 'reconcile_job', NULL)`;
+      res.status(200).json({ ok: true });
       return;
     }
 

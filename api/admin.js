@@ -112,10 +112,15 @@ export default async function handler(req, res){
     case 'archive_student': {
       const studentId = Number(body.studentId);
       if (!studentId){ res.status(400).json({ error: 'missing_student_id' }); return; }
-      await sql`
+      const rows = await sql`
         UPDATE students SET status = 'archived', seat_number = NULL, archived_at = now()
         WHERE id = ${studentId} AND robot_id = ${robotId}
+        RETURNING email
       `;
+      // Every other roster action (invite/cancel/remove) writes an audit
+      // row — this one didn't, leaving no record of who archived a student
+      // or when.
+      if (rows.length) await audit('archive_student', rows[0].email);
       res.status(200).json({ ok: true });
       return;
     }

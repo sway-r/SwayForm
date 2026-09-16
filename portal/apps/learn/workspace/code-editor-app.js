@@ -155,6 +155,14 @@ export function mount(bodyEl, winApi, opts) {
   refreshExplorer();
   toolbar.setFileStatus('No file open');
 
+  /** The debounced autosave only writes editor.getValue() into fs 500ms
+   *  after typing pauses — reading fs.readFile() here instead meant Run,
+   *  Check, and Queue on Robot could validate whatever was on screen up to
+   *  half a second ago, not what's actually there right now. */
+  function currentContent(path){
+    return (editor && editor.activePath === path) ? editor.getValue() : (fs.readFile(path) || '');
+  }
+
   function refreshExplorer(){
     explorer.render(fs.buildTree(explorerScope), tabs.activePath);
   }
@@ -201,7 +209,7 @@ export function mount(bodyEl, winApi, opts) {
     output.clear('problems');
     output.setActive('output');
     const { pkg, file } = packageAndEntry(path);
-    const content = fs.readFile(path) || '';
+    const content = currentContent(path);
     const stream = buildRunSequence(pkg, file, content);
     stream.forEach((s) => setTimeout(() => {
       output.appendLine(s.text, s.cls, 'output');
@@ -220,7 +228,9 @@ export function mount(bodyEl, winApi, opts) {
         robotValidatedPath = null;
         if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
 
-        if (data.status === 'complete'){
+        if (res.status === 429){
+          output.appendLine(data.message || 'Too many run checks in a row — wait a moment and try again.', 'term-warn', 'output');
+        } else if (data.status === 'complete'){
           robotValidatedPath = path;
           if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
           output.appendLine('Objective complete — this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
@@ -252,7 +262,7 @@ export function mount(bodyEl, winApi, opts) {
     const path = tabs.activePath;
     output.toggleCollapse(false);
     if (!path){ output.appendLine('No file is open to check.', 'term-warn', 'problems'); output.setActive('problems'); return; }
-    const content = fs.readFile(path) || '';
+    const content = currentContent(path);
     const todoMatches = content.match(/#\s*TODO[^\n]*/gi) || [];
     output.clear('problems');
     output.clear('output');
@@ -283,7 +293,7 @@ export function mount(bodyEl, winApi, opts) {
       return;
     }
     toolbar.setQueueRobotBusy(true);
-    const content = fs.readFile(path) || '';
+    const content = currentContent(path);
 
     try {
       const validateRes = await fetch('/api/robot/queue', {
@@ -405,10 +415,32 @@ export function mount(bodyEl, winApi, opts) {
     toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/'));
   }
 
+  // Settings' "Reset workspace" clears mock-fs's overrides directly (it
+  // isn't scoped to one activity's editor instance) and broadcasts this so
+  // any currently-open Code Editor refreshes too — without it, every open
+  // Monaco model kept showing the old draft text until the tab was closed
+  // and reopened, so the reset silently didn't apply to what was on screen.
+  function onWorkspaceFsReset(){
+    tabs.tabs.forEach((p) => {
+      const fresh = fs.readFile(p);
+      if (fresh !== null && editor) editor.setValue(p, fresh);
+    });
+    if (robotValidatedPath){ robotValidatedPath = null; toolbar.setQueueRobotReady(false); }
+    tabs.refreshDirtyState();
+    refreshExplorer();
+    if (tabs.activePath) toolbar.setFileStatus(tabs.activePath.replace(/^swayform_ws\//, '~/swayform_ws/'));
+  }
+  window.addEventListener('swayform:workspace-fs-reset', onWorkspaceFsReset);
+
   return {
     openFile,
     insertCode(code){ if (editor) editor.insertAtCursor(code); },
     save: saveActiveFile,
-    dispose(){ clearTimeout(saveTimer); clearInterval(jobPollTimer); if (editor) editor.dispose(); },
+    dispose(){
+      clearTimeout(saveTimer);
+      clearInterval(jobPollTimer);
+      window.removeEventListener('swayform:workspace-fs-reset', onWorkspaceFsReset);
+      if (editor) editor.dispose();
+    },
   };
 }

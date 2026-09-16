@@ -174,7 +174,7 @@ function createWindow(mod, saved){
   const header = el.querySelector('.window-header');
 
   const win = { el, meta: mod.meta, instance: null, maximized: startMaximized, minimized: false,
-    geometry: restoredGeometry, lastPath: null };
+    geometry: restoredGeometry, lastPath: null, closed: false };
 
   el.addEventListener('mousedown', () => focusWindow(mod.meta.id));
 
@@ -194,7 +194,23 @@ function createWindow(mod, saved){
     close(){ closeWindow(mod.meta.id); },
   };
 
-  win.instance = mod.mount(body, ctx);
+  // Robot and Code Editor mount asynchronously (they await getSession()
+  // before rendering) — mod.mount() then returns a Promise, not the
+  // {unmount()} instance itself. Storing that Promise directly as
+  // win.instance meant closeWindow()'s `typeof win.instance.unmount ===
+  // 'function'` check never matched, so closing Robot never cleared its
+  // status-poll interval or released its live video connection. Await the
+  // result and, if the window was already closed by the time it resolves,
+  // unmount it immediately instead of leaving it referenced by nothing.
+  const mountResult = mod.mount(body, ctx);
+  if (mountResult && typeof mountResult.then === 'function'){
+    mountResult.then((instance) => {
+      if (win.closed){ if (instance && typeof instance.unmount === 'function') instance.unmount(); return; }
+      win.instance = instance || null;
+    }).catch((err) => console.error(`${mod.meta.id}: mount failed`, err));
+  } else {
+    win.instance = mountResult;
+  }
   return win;
 }
 
@@ -274,6 +290,7 @@ function syncFocusUrl(appId, win){
 function closeWindow(appId){
   const win = windows.get(appId);
   if (!win) return;
+  win.closed = true;
   if (win.instance && typeof win.instance.unmount === 'function') win.instance.unmount();
   win.el.remove();
   windows.delete(appId);

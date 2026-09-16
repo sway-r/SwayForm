@@ -76,6 +76,12 @@ function jobRow(job, pendingJobs){
     // stuck row with support.
     actions.push(`<button type="button" class="p-btn ghost" data-stop="${job.id}">Send stop signal</button>`);
     actions.push(`<span class="p-muted rq-stop-note">Confirms delivery to the robot's connection, not that it physically stopped — verify in person.</span>`);
+    // Last resort: a job with no connected agent (crash, reconnect, pulled
+    // plug) has no automatic way out of "running" — it would otherwise block
+    // every future job for this robot forever. This clears the database
+    // lock only; it never claims to know or affect physical state, which is
+    // why the confirm dialog itself carries that requirement.
+    actions.push(`<button type="button" class="p-btn ghost rq-reconcile" data-reconcile="${job.id}">Mark reconciled…</button>`);
   }
 
   return `
@@ -289,6 +295,19 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
           ? "Stop signal delivered to the robot's connection. This does not confirm physical motion actually stopped — verify in person."
           : "The robot's agent isn't currently connected — nothing was delivered. Stop it physically.");
       }
+      catch (err){ showError(container, err.message); }
+    });
+  });
+
+  root.querySelectorAll('[data-reconcile]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!window.confirm(
+        "Only do this after physically confirming the robot is stopped and this job is not moving it.\n\n" +
+        "This clears the database lock so future jobs can run again — it does NOT stop the robot and does not " +
+        "verify anything on its own. Use this when the agent crashed, reconnected, or was disconnected mid-job " +
+        "and will never report back.\n\nMark this job reconciled?"
+      )) return;
+      try { await postQueueAction({ action: 'reconcile', jobId: Number(btn.dataset.reconcile), outcome: 'failed' }); await refreshQueue(); }
       catch (err){ showError(container, err.message); }
     });
   });

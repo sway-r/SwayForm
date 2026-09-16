@@ -94,7 +94,17 @@ export function mount(container, params, nav, ctx){
     defaultLayout: isReading ? READING_DEFAULT_LAYOUT : LEARN_CODE_LAYOUT,
   });
 
+  // A placeholder has no learning-path.js content at all — its id doesn't
+  // resolve server-side (api/progress.js's findActivity), so any progress
+  // write for one is rejected as invalid_activity. That rejection still
+  // fires the shared save-error banner even when the caller swallows the
+  // promise (progress-service.js's mutateRemote reports before rethrowing),
+  // so callers below must not attempt one for a placeholder in the first
+  // place, rather than relying on .catch(() => {}) to make it silent.
+  const isPlaceholder = activity.kind === 'placeholder';
+
   async function finish(){
+    if (isPlaceholder) return;
     await markComplete(activity.id);
   }
 
@@ -115,7 +125,7 @@ export function mount(container, params, nav, ctx){
         // Monaco model with no feedback the insert happened at all.
         insertCode: (code) => { wm.open('codeEditor'); const ed = wm.getInstance('codeEditor'); if (ed) ed.insertCode(code); },
       },
-      onSectionChange: (i) => { resumeStep = i; setCurrentActivity(activity.id, i).catch(() => {}); },
+      onSectionChange: (i) => { resumeStep = i; if (!isPlaceholder) setCurrentActivity(activity.id, i).catch(() => {}); },
       onFinish: async (mode) => {
         await finish();
         resumeDone = true;
@@ -217,7 +227,7 @@ export function mount(container, params, nav, ctx){
   Promise.all([getCurrentActivity(), isActivityComplete(activity.id)]).then(([current, done]) => {
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
-    setCurrentActivity(activity.id, resumeStep).catch(() => {});
+    if (!isPlaceholder) setCurrentActivity(activity.id, resumeStep).catch(() => {});
     bootDefault();
   }).catch(() => { bootDefault(); });
 

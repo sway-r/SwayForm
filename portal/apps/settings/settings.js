@@ -68,7 +68,7 @@ export function mount(container, ctx){
             <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset learning progress</span><span class="set-row-desc">Clears local "completed" marks on every activity.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset learning progress</span><span class="set-row-desc">Clears "completed" marks on every activity — for a signed-in account, everywhere, not just this browser.</span></span>
             <button type="button" class="p-btn ghost" data-reset-progress>Reset progress</button>
           </div>
         </div>
@@ -110,6 +110,10 @@ export function mount(container, ctx){
     if (!window.confirm('Reset all local workspace edits? Every file reverts to its starter version. This cannot be undone.')) return;
     const fs = await import('../learn/editor/mock-fs.js');
     fs.resetAll();
+    // A currently-open Code Editor (a separate window) can't see this call —
+    // tell it to refresh from the now-reset fs, same pattern as the layout
+    // reset button just above.
+    window.dispatchEvent(new CustomEvent('swayform:workspace-fs-reset'));
   });
   container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {
     const session = await getSession();

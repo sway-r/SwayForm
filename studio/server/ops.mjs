@@ -563,6 +563,21 @@ const OPS = {
           if (blk.type === 'code' && blk.workspaceFile === op.oldPath) blk.workspaceFile = op.newPath;
         }));
       });
+      // Same for workspace-config's own path references — missed here
+      // before, so renaming a file still referenced as read-only or as an
+      // activity's defaultOpenFile left validateModel() reporting it as
+      // missing (correctly refusing the save, but for a confusing reason
+      // the rename itself should have prevented).
+      const cfg = model.workspaceConfig;
+      if (cfg.readOnlyFiles.includes(op.oldPath)){
+        cfg.readOnlyFiles = cfg.readOnlyFiles.map((p) => (p === op.oldPath ? op.newPath : p));
+      }
+      Object.values(cfg.perActivity).forEach((override) => {
+        if (override.readOnlyFiles && override.readOnlyFiles.includes(op.oldPath)){
+          override.readOnlyFiles = override.readOnlyFiles.map((p) => (p === op.oldPath ? op.newPath : p));
+        }
+        if (override.defaultOpenFile === op.oldPath) override.defaultOpenFile = op.newPath;
+      });
       return {
         text: `Renamed workspace file ${op.oldPath} → ${op.newPath}${retargeted.length ? ` (retargeted: ${retargeted.join(', ')})` : ''}`,
         before: op.oldPath, after: op.newPath,

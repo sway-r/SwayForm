@@ -48,6 +48,7 @@
     { "source": "/demo-programs",             "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/section/demos",                       "permanent": true },
     { "source": "/demos/wave",                "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/wave",                       "permanent": true },
     { "source": "/demos/handshake",           "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/handshake",                  "permanent": true },
+    { "source": "/demos/fist-bump",           "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/fist-bump",                  "permanent": true },
     { "source": "/demos/pick-and-place",      "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/pick-and-place",             "permanent": true },
     { "source": "/demos/rock-paper-scissors", "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/rock-paper-scissors",        "permanent": true },
     { "source": "/demos/hand-mimic",          "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/hand-mimic",                 "permanent": true },

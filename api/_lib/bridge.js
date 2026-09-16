@@ -1,3 +1,16 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
+
+/** Constant-time string comparison — hashing first means both inputs
+ *  compare as fixed-size (32-byte) buffers regardless of their own length,
+ *  so this never hits timingSafeEqual's "different length" throw and never
+ *  leaks length or prefix-match information through response timing, unlike
+ *  a plain `===` on the raw secret. */
+function secureEqual(a, b){
+  const bufA = createHash('sha256').update(String(a)).digest();
+  const bufB = createHash('sha256').update(String(b)).digest();
+  return timingSafeEqual(bufA, bufB);
+}
+
 /**
  * Verifies a server-to-server request from the bridge VPS (api/robot/agent.js
  * — auth, heartbeat, and job lifecycle updates). A static shared secret is
@@ -10,7 +23,7 @@ export function requireBridgeSecret(req, res){
   if (!expected) throw new Error('BRIDGE_SERVICE_SECRET is not set');
 
   const provided = req.headers['x-bridge-secret'];
-  if (provided !== expected){
+  if (typeof provided !== 'string' || !secureEqual(provided, expected)){
     res.status(401).json({ error: 'not_authorized' });
     return false;
   }

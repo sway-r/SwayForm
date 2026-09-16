@@ -207,6 +207,19 @@ test('workspace file edit/add/rename round-trip; unrelated entries untouched', a
   } finally { cleanup(); }
 });
 
+test('file.rename retargets workspace-config read-only files and defaultOpenFile references', () => {
+  const oldPath = 'swayform_ws/src/swayform_demos/pick_and_place.py';
+  const newPath = 'swayform_ws/src/swayform_demos/pick_and_place_v2.py';
+  const withConfig = replay(base, [
+    { type: 'config.setReadOnlyFiles', paths: [oldPath] },
+    { type: 'config.setActivityOverride', activityId: 'finger-curl', override: { defaultOpenFile: oldPath } },
+  ]).model;
+  const final = replay(withConfig, [{ type: 'file.rename', oldPath, newPath }]).model;
+  assert.deepEqual(final.workspaceConfig.readOnlyFiles, [newPath]);
+  assert.equal(final.workspaceConfig.perActivity['finger-curl'].defaultOpenFile, newPath);
+  assert.deepEqual(validateModel(final).errors, []);
+});
+
 test('validation catches broken references and bad terminal bounds', () => {
   const broken = structuredClone(base);
   broken.activities['finger-curl'].workspaceFile = 'swayform_ws/src/missing.py';

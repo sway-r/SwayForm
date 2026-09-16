@@ -22,7 +22,18 @@ const GUEST_CURRENT_KEY = `${CURRENT_KEY}.guest`;
 // own request to /api/auth/session.
 let sessionPromise = null;
 function resolveSession(){
-  if (!sessionPromise) sessionPromise = getSession().then((s) => { if (!s) throw new Error('Please sign in again.'); return s; });
+  if (!sessionPromise) sessionPromise = getSession().then((s) => {
+    if (!s) throw new Error('Please sign in again.');
+    return s;
+  }).catch((error) => {
+    // A rejected promise is still a truthy cache entry — without clearing
+    // it here, one transient failure (a network hiccup, not an actual
+    // logout) would permanently fail every progress read/write for the
+    // rest of the page's life instead of retrying next call, same fix
+    // auth-service.js's own getSession() cache already has.
+    sessionPromise = null;
+    throw error;
+  });
   return sessionPromise;
 }
 

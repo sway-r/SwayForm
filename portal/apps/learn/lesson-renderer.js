@@ -227,6 +227,12 @@ function renderBlock(block, ctx){
             copyBtn.classList.add('ok');
             copyBtn.querySelector('span').textContent = 'Copied';
             setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
+          }).catch(() => {
+            // Clipboard access can be denied (permissions, an insecure
+            // context, a background tab) — say so instead of leaving the
+            // student thinking "Copy" silently worked when it didn't.
+            copyBtn.querySelector('span').textContent = "Couldn't copy";
+            setTimeout(() => { copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
           });
         });
         actions.appendChild(copyBtn);

@@ -15,6 +15,9 @@
 .robot-status-text{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden}
 .robot-status-text strong{font-size:13px;font-weight:800;color:var(--la-ink);white-space:nowrap}
 .robot-status-text span{font-size:12px;color:var(--la-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.robot-status-spacer{flex:1 1 auto}
+.robot-idle-toggle{flex:0 0 auto;white-space:nowrap}
+.robot-idle-toggle.is-on{color:#0a7a3d;background:rgba(10,122,61,.08);border-color:rgba(10,122,61,.25)}
 
 .robot-video-panel{flex:1 1 auto;min-height:0;display:flex}
 .robot-video-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;flex:1 1 auto;min-height:0}

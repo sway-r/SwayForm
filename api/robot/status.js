@@ -29,6 +29,15 @@ function bridgeSecretKey(){
  * matching stop request and returns no token. Any current robot member
  * (admin or student) can call this — video is visible to everyone linked to
  * the robot, not admin-only.
+ *
+ * POST {action:'idle-on'|'idle-off'}: admin-only "Live Robot Session"
+ * toggle — loops idle.py on the physical robot so it looks alive between
+ * real jobs. 'idle-on' is refused (409) if any job is pending/approved/
+ * running for this robot, so idle can never start into a race with a job
+ * about to be dispatched. Persisted in robots.idle_session_enabled (the
+ * admin's intent, not a live status report) and reset to false server-side
+ * by api/robot/queue.js's approve action the moment a job is approved —
+ * see db/migrations/008_robot_idle_session.sql.
  */
 export default async function handler(req, res){
   privateResponse(res);
@@ -42,7 +51,7 @@ export default async function handler(req, res){
   const robotId = member.robotId;
 
   const rows = await sql`
-    SELECT serial_number, is_online, last_seen_at, agent_version
+    SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled
     FROM robots WHERE id = ${robotId}
   `;
   if (!rows.length){
@@ -50,6 +59,25 @@ export default async function handler(req, res){
     return;
   }
   const r = rows[0];
+
+  if (req.method === 'POST' && (req.body?.action === 'idle-on' || req.body?.action === 'idle-off')){
+    if (member.role !== 'admin'){ res.status(403).json({ error: 'not_authorized' }); return; }
+    const enable = req.body.action === 'idle-on';
+
+    if (enable){
+      const [openJob] = await sql`
+        SELECT id FROM robot_jobs
+        WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
+        LIMIT 1
+      `;
+      if (openJob){ res.status(409).json({ error: 'job_in_progress' }); return; }
+    }
+
+    await sql`UPDATE robots SET idle_session_enabled = ${enable} WHERE id = ${robotId}`;
+    try { await callBridge('/idle-request', { robotId, action: enable ? 'start' : 'stop' }); } catch (e) { /* best-effort */ }
+    res.status(200).json({ ok: true, idleSessionEnabled: enable });
+    return;
+  }
 
   if (req.method === 'POST'){
     const action = req.body && req.body.action === 'stop' ? 'stop' : 'start';
@@ -80,5 +108,6 @@ export default async function handler(req, res){
     online: !!r.is_online && Date.now() - new Date(r.last_seen_at).getTime() < 30_000,
     lastSeenAt: r.last_seen_at,
     agentVersion: r.agent_version,
+    idleSessionEnabled: r.idle_session_enabled,
   });
 }

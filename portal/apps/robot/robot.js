@@ -47,6 +47,8 @@ export async function mount(container, ctx){
   // also removes a second piece of "which tab was I on" state that a
   // refresh could lose (see portal.js's per-window lastPath for the
   // top-level app-focus version of that same problem).
+  const isAdmin = session.mode === 'admin';
+
   container.innerHTML = `<div class="robot-root robot-connected la-surface">
       <div class="robot-status-bar">
         <span class="robot-status-badge" data-role="status-badge">Checking…</span>
@@ -54,6 +56,10 @@ export async function mount(container, ctx){
           <strong>${session.robotSerial}</strong>
           <span data-role="status-note"></span>
         </span>
+        ${isAdmin ? `
+          <span class="robot-status-spacer"></span>
+          <button type="button" class="p-btn ghost robot-idle-toggle" data-role="idle-toggle" title="Loops small ambient movement (idle.py) on the physical robot when no job is running">Live Robot Session: off</button>
+        ` : ''}
       </div>
       <div class="robot-video-panel" data-panel="video"></div>
     </div>`;
@@ -62,6 +68,7 @@ export async function mount(container, ctx){
   const badge = container.querySelector('[data-role="status-badge"]');
   const note = container.querySelector('[data-role="status-note"]');
   const videoPanel = container.querySelector('[data-panel="video"]');
+  const idleToggle = container.querySelector('[data-role="idle-toggle"]');
 
   async function refreshStatus(){
     try {
@@ -74,10 +81,45 @@ export async function mount(container, ctx){
       note.textContent = data.online
         ? 'Robot agent connected.'
         : `Robot agent not connected. Last seen: ${formatLastSeen(data.lastSeenAt)}.`;
+
+      if (idleToggle && !idleToggle.disabled){
+        idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
+        idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
+      }
     } catch (e) {
       badge.textContent = 'Unknown';
       note.textContent = "Couldn't reach the server to check robot status.";
     }
+  }
+
+  if (idleToggle){
+    idleToggle.addEventListener('click', async () => {
+      const turningOn = !idleToggle.classList.contains('is-on');
+      idleToggle.disabled = true;
+      const prevText = idleToggle.textContent;
+      idleToggle.textContent = turningOn ? 'Starting…' : 'Stopping…';
+      try {
+        const res = await fetch('/api/robot/status', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: turningOn ? 'idle-on' : 'idle-off' }),
+        });
+        const data = await res.json();
+        if (!res.ok){
+          note.textContent = data.error === 'job_in_progress'
+            ? "Can't start — a student's job is pending, approved, or running right now."
+            : (data.message || "Couldn't change the live session.");
+          idleToggle.textContent = prevText;
+        } else {
+          idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
+          idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
+        }
+      } catch (e) {
+        note.textContent = "Couldn't reach the server to change the live session.";
+        idleToggle.textContent = prevText;
+      } finally {
+        idleToggle.disabled = false;
+      }
+    });
   }
 
   await refreshStatus();

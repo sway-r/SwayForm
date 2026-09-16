@@ -71,6 +71,25 @@ test('video-request requires the bridge secret, only pings the agent on 0->1/1->
   next=frame();
   r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
   assert.deepEqual(await next,{t:'video.stop'});
+  ws.close(); // free the one-socket-per-robot slot for the next test
+});
+test('idle-request requires the bridge secret and relays start/stop to the connected agent',{timeout:5000},async()=>{
+  const post=async(action,key)=>fetch(base+'/idle-request',{method:'POST',headers:{'content-type':'application/json','x-bridge-secret':key},body:JSON.stringify({robotId:1,action})});
+  assert.equal((await post('start','wrong')).status,401);
+
+  const ws=await connect();const hello=once(ws,'message');
+  ws.send(JSON.stringify({t:'hello',token:'synthetic',serial:'synthetic'}));await hello;
+
+  const frame=()=>new Promise((resolve)=>ws.once('message',(raw)=>resolve(JSON.parse(raw.toString()))));
+
+  let next=frame();
+  let r=await post('start',secret); assert.equal((await r.json()).delivered,true);
+  assert.deepEqual(await next,{t:'idle.start'});
+
+  next=frame();
+  r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
+  assert.deepEqual(await next,{t:'idle.stop'});
+  ws.close();
 });
 test('viewer JWTs require the video purpose, and editor tokens are robot-bound and single use',async()=>{
   async function token(payload){return new SignJWT(payload).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('60s').sign(new TextEncoder().encode(secret));}

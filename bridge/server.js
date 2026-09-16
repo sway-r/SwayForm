@@ -200,6 +200,35 @@ async function handleAdminStop(req, res){
   res.end(JSON.stringify({ ok: true, delivered }));
 }
 
+// Admin's "Live Robot Session" toggle, mirroring /admin-stop's shape: api/
+// calls this (server-to-server, secret-gated) when an admin flips the idle
+// switch on the Robot tab, or when api/robot/queue.js's approve action turns
+// it off to make way for a real job. Unlike /video-request, no refcounting —
+// this is a single admin-controlled on/off per robot, not a multi-viewer
+// concern. See docs/robot-connectivity.md for the idle.start/idle.stop wire
+// protocol entries.
+async function handleIdleRequest(req, res){
+  const provided = req.headers['x-bridge-secret'];
+  if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const robotId = Number(body.robotId);
+  if (!Number.isSafeInteger(robotId) || (body.action !== 'start' && body.action !== 'stop')){
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'invalid_fields' }));
+    return;
+  }
+
+  const ws = connectedRobots.get(robotId);
+  const delivered = !!(ws && ws.readyState === ws.OPEN);
+  if (delivered) ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
+
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify({ ok: true, delivered }));
+}
+
 // On-demand live video, mirroring /admin-stop's shape: api/ calls this
 // (server-to-server, secret-gated) when a browser viewer opens/closes the
 // "Show feed" panel, instead of the Pi encoding around the clock. Refcounted
@@ -268,6 +297,10 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'POST' && req.url === '/admin-stop'){
     handleAdminStop(req, res);
+    return;
+  }
+  if (req.method === 'POST' && req.url === '/idle-request'){
+    handleIdleRequest(req, res);
     return;
   }
   if (req.method === 'POST' && req.url === '/video-request'){

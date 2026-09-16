@@ -216,6 +216,15 @@ export default async function handler(req, res){
         RETURNING id
       `;
       if (!updated.length){ res.status(400).json({ error: 'not_pending' }); return; }
+      // A real job is about to be dispatched — the admin's "Live Robot
+      // Session" (idle.py loop) must yield so it can never overlap with an
+      // actual job on the physical robot. Turn off the DB intent and relay
+      // best-effort; it does not auto-resume once the job finishes, the
+      // admin re-enables it manually. See db/migrations/008_robot_idle_session.sql.
+      const [wasIdle] = await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId} AND idle_session_enabled = true RETURNING id`;
+      if (wasIdle){
+        try { await callBridge('/idle-request', { robotId, action: 'stop' }); } catch (e) { /* best-effort */ }
+      }
       res.status(200).json({ ok: true });
       return;
     }

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS robots (
   last_seen_at TIMESTAMPTZ,
   agent_token_hash TEXT,                    -- sha256 of the Pi agent's long-lived token; see db/migrations/002_robot_agent.sql
   agent_version TEXT,
+  idle_session_enabled BOOLEAN NOT NULL DEFAULT FALSE, -- admin's "Live Robot Session" toggle intent; see db/migrations/008_robot_idle_session.sql
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

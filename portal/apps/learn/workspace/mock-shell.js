@@ -63,17 +63,16 @@ function findExecutableFile(pkg, file) {
 }
 
 /** The same staged mocked run sequence used by both `ros2 run` / `python3`
- *  in the Terminal and the Code Editor's Run button — one source of truth. */
+ *  in the Terminal and the Code Editor's Run button — one source of truth.
+ *  Reads like a real `ros2 run` session (no meta/explainer lines about the
+ *  run being mocked) — direct terminal output, not a teaching aside. */
 export function buildRunSequence(pkg, file, content) {
   const hasTodo = /#\s*TODO/i.test(content || '');
   return [
     { t: 200, text: `$ ros2 run ${pkg} ${file}`, cls: 'term-cmd' },
-    { t: 500, text: 'Sourcing ~/swayform_ws/install/setup.bash', cls: '' },
-    { t: 700, text: `Building ${pkg}... done`, cls: 'term-ok' },
-    { t: 950, text: `[INFO] [${file}]: node started`, cls: '' },
-    { t: 1250, text: '[INFO] Connecting to motion controller (mock)…', cls: '' },
-    { t: 1600, text: hasTodo ? `[WARN] [${file}]: one or more # TODO sections are still unfinished — behavior may be incomplete` : `[INFO] [${file}]: all required values are set`, cls: hasTodo ? 'term-warn' : '' },
-    { t: 1950, text: '[INFO] Simulation infrastructure coming in a later phase — this run is a mocked preview of terminal output only.', cls: 'term-accent' },
+    { t: 450, text: `[INFO] [${file}]: node started`, cls: '' },
+    { t: 700, text: '[INFO] Connecting to motion controller...', cls: '' },
+    { t: 950, text: hasTodo ? `[WARN] [${file}]: one or more # TODO sections are still unfinished` : `[INFO] [${file}]: all required values are set`, cls: hasTodo ? 'term-warn' : '' },
   ];
 }
 

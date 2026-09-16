@@ -1,9 +1,8 @@
 /* Code Editor application — file explorer + tabs + Monaco + toolbar, wrapping
  * the existing editor components exactly as the old fixed-pane layout did.
- * The only real change from before: the bottom strip is Output/Problems only
- * (portal/apps/learn/editor/terminal-panel.js, now OutputPanel) — Run streams
- * its mocked sequence into the standalone Terminal app instead of a local
- * panel, via the `onRun` hook the controller supplies. */
+ * Run/Check/Queue all report through the bottom Output/Problems strip
+ * (portal/apps/learn/editor/terminal-panel.js, OutputPanel) — a student never
+ * has to open the standalone Terminal app to do a lab. */
 import { CodeEditor } from '../editor/code-editor.js';
 import { FileExplorer } from '../editor/file-explorer.js';
 import { EditorTabs } from '../editor/editor-tabs.js';
@@ -12,6 +11,7 @@ import { WorkspaceToolbar } from '../editor/workspace-toolbar.js';
 import * as fs from '../editor/mock-fs.js';
 import { isReadOnlyFile, defaultOpenFileFor } from '../../../data/workspace-config.js';
 import { packageAndEntry, isCanonicalRobotPath } from './ros-paths.js';
+import { buildRunSequence } from './mock-shell.js';
 import { getSession } from '../../../services/auth-service.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
@@ -37,7 +37,7 @@ function describeMismatch(validateData){
 }
 
 export function mount(bodyEl, winApi, opts) {
-  const { activity, onRun } = opts;
+  const { activity } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
   let hasRobot = false;
@@ -171,12 +171,17 @@ export function mount(bodyEl, winApi, opts) {
     winApi.setTitle(path.split('/').pop());
   }
 
-  /** Run always streams its mocked sequence into the Terminal app, unchanged.
-   * For canonical robot files it additionally asks the server (the same
-   * validate check Queue on Robot itself re-runs before submit) whether the
-   * current content is a working version — only a confirmed pass unlocks
-   * Queue on Robot, and only for that exact content (see the onChange
-   * handler above, which clears this the moment the file is edited again). */
+  /** Streams the same mocked run sequence a `ros2 run`/`python3` in the
+   *  standalone Terminal would produce, straight into this window's own
+   *  Output tab — Run no longer opens/focuses the Terminal app. Any warning
+   *  line (e.g. unfinished # TODOs) also lands in Problems, so that tab's
+   *  count badge reflects Run the same way it already does for Check.
+   *
+   *  For canonical robot files, Run additionally asks the server (the same
+   *  validate check Queue on Robot itself re-runs before submit) whether the
+   *  current content is a working version — only a confirmed pass unlocks
+   *  Queue on Robot, and only for that exact content (see the onChange
+   *  handler above, which clears this the moment the file is edited again). */
   async function runActiveFile(){
     const path = tabs.activePath;
     if (!path){
@@ -186,12 +191,20 @@ export function mount(bodyEl, winApi, opts) {
       return;
     }
     toolbar.setBusy(true);
+    output.toggleCollapse(false);
+    output.clear('output');
+    output.clear('problems');
+    output.setActive('output');
     const { pkg, file } = packageAndEntry(path);
     const content = fs.readFile(path) || '';
-    onRun(pkg, file, content);
+    const stream = buildRunSequence(pkg, file, content);
+    stream.forEach((s) => setTimeout(() => {
+      output.appendLine(s.text, s.cls, 'output');
+      if (s.cls === 'term-warn') output.appendLine(s.text, s.cls, 'problems');
+    }, s.t));
+    const runDuration = stream.length ? stream[stream.length - 1].t + 150 : 400;
 
     if (isCanonicalRobotPath(path)){
-      output.toggleCollapse(false);
       try {
         const res = await fetch('/api/robot/queue', {
           method: 'POST',
@@ -213,10 +226,9 @@ export function mount(bodyEl, winApi, opts) {
         if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
         output.appendLine('Could not reach the server to confirm this run. Try again.', 'term-err', 'output');
       }
-      output.setActive('output');
     }
 
-    setTimeout(() => toolbar.setBusy(false), 400);
+    setTimeout(() => toolbar.setBusy(false), runDuration);
   }
 
   function checkActiveFile(){

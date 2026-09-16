@@ -29,6 +29,19 @@ const LEARN_CODE_LAYOUT = {
   terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6, minimized: true },
 };
 
+// "Workspace" preset: the one arrangement that actually shows all three
+// windows at once, terminal included — everything else (the boot default,
+// "Learn + Code") keeps the terminal off-screen since Run/Check/Queue all
+// report through the Code Editor's own Output/Problems panel now and a
+// student never has to open a shell to do the labs. Same two-column split
+// as LEARN_CODE_LAYOUT; codeEditor just gives up its bottom third so the
+// terminal has real, un-minimized space instead of sitting stacked behind it.
+const WORKSPACE_LAYOUT = {
+  notebook:   { xPct: 0.3,  yPct: 0.5,  wPct: 37,   hPct: 99 },
+  codeEditor: { xPct: 37.6, yPct: 0.5,  wPct: 62.1, hPct: 65 },
+  terminal:   { xPct: 37.6, yPct: 66.3, wPct: 62.1, hPct: 33.2 },
+};
+
 const READING_DEFAULT_LAYOUT = {
   notebook: { xPct: 0.3, yPct: 0.5, wPct: 99.4, hPct: 99 },
 };
@@ -120,14 +133,7 @@ export function mount(container, params, nav, ctx){
   if (!isReading){
     wm.registerApp('codeEditor', {
       title: CodeEditorApp.meta.title, icon: CodeEditorApp.meta.icon, minWidth: 420, minHeight: 300,
-      render: (bodyEl, winApi) => CodeEditorApp.mount(bodyEl, winApi, {
-        activity,
-        onRun: (pkg, file, content) => {
-          wm.open('terminal');
-          const term = wm.getInstance('terminal');
-          if (term) term.appendRunSequence(pkg, file, content);
-        },
-      }),
+      render: (bodyEl, winApi) => CodeEditorApp.mount(bodyEl, winApi, { activity }),
     });
 
     wm.registerApp('terminal', {
@@ -164,7 +170,7 @@ export function mount(container, params, nav, ctx){
   }
 
   function applyPreset(name){
-    if (name === 'default'){ wm.resetLayout(); return; }
+    if (name === 'default'){ wm.applyLayout(WORKSPACE_LAYOUT); return; }
     if (name === 'learnCode'){ wm.applyLayout(LEARN_CODE_LAYOUT); return; }
     if (name === 'code'){ wm.open('codeEditor'); wm.maximize('codeEditor'); return; }
     if (name === 'learn'){ wm.open('notebook'); wm.maximize('notebook'); return; }

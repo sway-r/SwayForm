@@ -224,15 +224,23 @@ export function mount(container, params, nav, ctx){
     renderDock();
   }
 
+  // If this view is closed (unmount() below) before this resolves, the view
+  // is already torn down — bootDefault() must not go on to open fresh
+  // Notebook/Terminal/Code Editor instances (and setCurrentActivity must
+  // not fire) into a workspace nobody will ever clean up again.
+  let disposed = false;
+
   Promise.all([getCurrentActivity(), isActivityComplete(activity.id)]).then(([current, done]) => {
+    if (disposed) return;
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
     if (!isPlaceholder) setCurrentActivity(activity.id, resumeStep).catch(() => {});
     bootDefault();
-  }).catch(() => { bootDefault(); });
+  }).catch(() => { if (!disposed) bootDefault(); });
 
   return {
     unmount(){
+      disposed = true;
       window.removeEventListener('swayform:workspace-layout-reset', onExternalLayoutReset);
       document.removeEventListener('keydown', onKeydown);
       wm.apps.forEach((cfg, id) => wm.close(id));

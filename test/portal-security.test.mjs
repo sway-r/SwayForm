@@ -34,7 +34,7 @@ const { default: progress } = await import('../api/progress.js');
 const { default: logout } = await import('../api/auth/logout.js');
 const { requireBrowserMutation } = await import('../api/_lib/browser-security.js');
 
-let teacherCookie, studentCookie, otherCookie;
+let teacherCookie, studentCookie, otherCookie, teacherCCookie;
 function request(cookie, body, method = 'POST'){
   return { method, body, headers: { cookie, origin: 'https://learning.swayform.net', 'content-type': 'application/json' }, query: {} };
 }
@@ -45,20 +45,26 @@ async function call(handler, cookie, body, method){ const res = response(); awai
 
 before(async () => {
   await db.exec(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8'));
-  // Verify the additive migration remains safe after a fresh-schema install.
+  // Verify these additive migrations remain safe after a fresh-schema install.
   await db.exec(await readFile(new URL('../db/migrations/005_portal_privacy.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../db/migrations/006_robot_job_output_counter.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../db/migrations/007_admin_email_slots.sql', import.meta.url), 'utf8'));
   await db.exec(`
-    INSERT INTO robots (id,serial_number,school_name) VALUES (1,'test-a','School A'),(2,'test-b','School B');
-    INSERT INTO admin_accounts (id,robot_id) VALUES (1,1),(2,2);
-    INSERT INTO admin_emails (admin_account_id,email) VALUES (1,'teacher-a@example.test'),(2,'teacher-b@example.test');
+    INSERT INTO robots (id,serial_number,school_name) VALUES (1,'test-a','School A'),(2,'test-b','School B'),(3,'test-c','School C');
+    INSERT INTO admin_accounts (id,robot_id) VALUES (1,1),(2,2),(3,3);
+    INSERT INTO admin_emails (admin_account_id,email,slot) VALUES (1,'teacher-a@example.test',1),(2,'teacher-b@example.test',1),(3,'teacher-c@example.test',1);
     INSERT INTO user_profiles (email,display_name,school_name) VALUES
-      ('teacher-a@example.test','Teacher A','School A'),('student@example.test','Student','Independent'),('other@example.test','Other Student','School B');
+      ('teacher-a@example.test','Teacher A','School A'),('student@example.test','Student','Independent'),('other@example.test','Other Student','School B'),('teacher-c@example.test','Teacher C','School C');
     INSERT INTO students (robot_id,email,seat_number,status) VALUES (2,'other@example.test',1,'active');
     INSERT INTO progress_completed (email,activity_id) VALUES ('student@example.test','welcome'),('other@example.test','welcome');
   `);
   teacherCookie = (await createSessionCookie({ email: 'teacher-a@example.test', mode: 'admin', robotId: 1 })).split(';')[0];
   studentCookie = (await createSessionCookie({ email: 'student@example.test', mode: 'member' })).split(';')[0];
   otherCookie = (await createSessionCookie({ email: 'other@example.test', mode: 'student', robotId: 2 })).split(';')[0];
+  // Robot 3 is fully separate from 1/2 — used only by the queue-view tests
+  // near the end of this file, which insert 50+ job rows and must not
+  // disturb robot 1/2's job history that earlier tests already depend on.
+  teacherCCookie = (await createSessionCookie({ email: 'teacher-c@example.test', mode: 'admin', robotId: 3 })).split(';')[0];
 });
 after(async () => { await db.close(); delete globalThis.__portalTestSql; });
 
@@ -136,6 +142,28 @@ test('demoted admin cookie does not retain admin permissions', async () => {
   assert.equal((await call(admin, teacherCookie, undefined, 'GET')).code, 401);
 });
 
+test('concurrent set_admin_email requests for the same empty slot cannot create a duplicate admin', async () => {
+  const cookie = (await createSessionCookie({ email: 'teacher-b@example.test', mode: 'admin', robotId: 2 })).split(';')[0];
+  // Same reproduction shape as a real race: two requests for the SAME
+  // still-empty slot fired together, both allowed to interleave their own
+  // internal awaits (read, then decide, then write) via Promise.all —
+  // exactly the window the old read-then-insert code left open.
+  const [r1, r2] = await Promise.all([
+    call(admin, cookie, { action: 'set_admin_email', slot: 2, email: 'concurrent-a@example.test' }),
+    call(admin, cookie, { action: 'set_admin_email', slot: 2, email: 'concurrent-b@example.test' }),
+  ]);
+  assert.equal(r1.code, 200);
+  assert.equal(r2.code, 200);
+  const rows = await db.query(
+    "SELECT ae.email FROM admin_emails ae JOIN admin_accounts aa ON aa.id = ae.admin_account_id WHERE aa.robot_id = 2 AND ae.slot = 2"
+  );
+  // Exactly one row for (this account, slot 2) ever exists, regardless of
+  // which request's write landed last — the unique index on
+  // (admin_account_id, slot) plus ON CONFLICT DO UPDATE guarantees it.
+  assert.equal(rows.rows.length, 1);
+  assert.ok(['concurrent-a@example.test', 'concurrent-b@example.test'].includes(rows.rows[0].email));
+});
+
 const { default: agent } = await import('../api/robot/agent.js');
 const { default: queue } = await import('../api/robot/queue.js');
 process.env.BRIDGE_SERVICE_SECRET = 'synthetic-bridge-secret';
@@ -183,4 +211,76 @@ test('shared code editor rejects admins of robots without a configured isolated 
   const cookie = (await createSessionCookie({email:'teacher-b@example.test',mode:'admin',robotId:2})).split(';')[0];
   delete process.env.CODE_SERVER_ROBOT_ID;
   assert.equal((await call(admin,cookie,{action:'code-server-token'})).code,403);
+});
+
+test('the queue view always includes every non-terminal job, even past the 50-newest-submission window', async () => {
+  const { rows: [oldRunning] } = await db.query(
+    `INSERT INTO robot_jobs (robot_id,student_email,workspace_path,package,executable,code,code_sha256,status,submitted_at)
+     VALUES (3,'other@example.test','old.py','test','old','pass','hash-old','running', now() - interval '1 day')
+     RETURNING id`
+  );
+  for (let i = 0; i < 50; i++){
+    await db.query(
+      `INSERT INTO robot_jobs (robot_id,student_email,workspace_path,package,executable,code,code_sha256,status)
+       VALUES (3,'other@example.test',$1,'test',$1,'pass',$2,'succeeded')`,
+      [`newer${i}.py`, `hash-newer-${i}`]
+    );
+  }
+  const state = await call(queue, teacherCCookie, undefined, 'GET');
+  assert.equal(state.code, 200);
+  assert.ok(
+    state.data.jobs.some((j) => j.id === oldRunning.id && j.status === 'running'),
+    'a running job must never be pushed out of the queue view by 50 newer finished jobs'
+  );
+  // Clean up so the next test in this block starts from a known state.
+  await db.query('DELETE FROM robot_jobs WHERE robot_id = 3');
+});
+
+test('reordering pending jobs changes the order the queue view returns them in', async () => {
+  const ids = [];
+  for (const name of ['a.py', 'b.py', 'c.py']){
+    const { rows: [job] } = await db.query(
+      `INSERT INTO robot_jobs (robot_id,student_email,workspace_path,package,executable,code,code_sha256,status,queue_position)
+       VALUES (3,'other@example.test',$1,'test',$1,'pass',$2,'pending', (SELECT COALESCE(MAX(queue_position),0)+1 FROM robot_jobs WHERE robot_id=3))
+       RETURNING id`,
+      [name, `hash-${name}`]
+    );
+    ids.push(job.id);
+  }
+  const [aId, bId, cId] = ids; // submitted in order a, b, c — starts displayed as a, b, c
+  const reordered = await call(queue, teacherCCookie, { action: 'reorder', orderedIds: [cId, aId, bId] });
+  assert.equal(reordered.code, 200);
+  const state = await call(queue, teacherCCookie, undefined, 'GET');
+  const pendingIdsInOrder = state.data.jobs.filter((j) => j.status === 'pending').map((j) => j.id);
+  assert.deepEqual(pendingIdsInOrder, [cId, aId, bId], 'the view must reflect the saved queue_position order, not submission time');
+  await db.query('DELETE FROM robot_jobs WHERE robot_id = 3');
+});
+
+test('reactivating an archived student is not blocked by the 40-total roster cap', async () => {
+  await db.exec(`
+    INSERT INTO robots (id,serial_number,school_name) VALUES (4,'test-d','School D');
+    INSERT INTO admin_accounts (id,robot_id) VALUES (4,4);
+    INSERT INTO admin_emails (admin_account_id,email,slot) VALUES (4,'teacher-d@example.test',1);
+    INSERT INTO user_profiles (email,display_name,school_name) VALUES ('teacher-d@example.test','Teacher D','School D');
+  `);
+  for (let i = 0; i < 40; i++){
+    await db.query(
+      `INSERT INTO user_profiles (email,display_name,school_name) VALUES ($1,$2,'School D')`,
+      [`archived${i}@example.test`, `Archived ${i}`]
+    );
+    await db.query(`INSERT INTO students (robot_id,email,status) VALUES (4,$1,'archived')`, [`archived${i}@example.test`]);
+  }
+  const teacherDCookie = (await createSessionCookie({ email: 'teacher-d@example.test', mode: 'admin', robotId: 4 })).split(';')[0];
+  // Roster is already at the 40-total cap (all archived, zero active) —
+  // re-inviting one of those SAME students must still succeed, since
+  // accepting just reactivates their existing row rather than adding a new
+  // one.
+  const result = await call(admin, teacherDCookie, { action: 'add_student', email: 'archived0@example.test' });
+  assert.equal(result.code, 200);
+  assert.equal(result.data.invited, true);
+  // A genuinely NEW 41st student is still correctly refused.
+  await db.query(`INSERT INTO user_profiles (email,display_name,school_name) VALUES ('new-student@example.test','New Student','School D')`);
+  const blocked = await call(admin, teacherDCookie, { action: 'add_student', email: 'new-student@example.test' });
+  assert.equal(blocked.code, 400);
+  assert.equal(blocked.data.error, 'total_limit');
 });

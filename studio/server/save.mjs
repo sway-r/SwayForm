@@ -101,6 +101,16 @@ export async function runSave(draft) {
   const ops = draft.activeOps();
   if (!ops.length) return { ok: false, steps, message: 'No unsaved changes.' };
 
+  // Blocks any concurrent /op, /undo, /redo, /revert from mutating the draft
+  // while this save is in flight (several awaits below) — otherwise an edit
+  // accepted from another tab mid-save gets silently wiped out by this
+  // function's own final _reset() call below, having never been written to
+  // disk either. Always cleared in the finally, including on every
+  // early-return failure path (a `return` inside `try` still runs `finally`
+  // first).
+  draft.saving = true;
+  try {
+
   /* 1 — stale check (files changed outside Studio since base load?) */
   {
     const s = step('stale', 'Verify source files unchanged outside Studio');
@@ -222,8 +232,11 @@ export async function runSave(draft) {
   }
 
   /* 8 — reset draft onto the new (written, still uncommitted) base */
-  draft.discard();
+  draft._reset(); // not discard() — that's guarded by draft.saving, still true here
   await draft.reloadBase();
 
   return { ok: true, steps, summary };
+  } finally {
+    draft.saving = false;
+  }
 }

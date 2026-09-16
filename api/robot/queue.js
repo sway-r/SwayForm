@@ -59,6 +59,11 @@ function jobView(row){
     rejectReason: row.reject_reason,
     exitCode: row.exit_code,
     output: row.output,
+    // A running total of characters ever appended, independent of output's
+    // own length (which is a truncated rolling tail) — the client needs
+    // this to detect new output once a job has produced more than the
+    // retained cap. See db/migrations/006_robot_job_output_counter.sql.
+    outputTotalLen: row.output_total_len,
     submittedAt: row.submitted_at,
     decidedAt: row.decided_at,
     startedAt: row.started_at,
@@ -95,9 +100,45 @@ export default async function handler(req, res){
       return;
     }
 
+    // Two fixes folded into one query:
+    //  - Every non-terminal job (pending/approved/running) is always
+    //    included, never subject to the LIMIT — the previous single
+    //    `ORDER BY submitted_at DESC LIMIT 50` could push an older pending
+    //    or even the one running job (which holds the physical execution
+    //    lock) out of the result entirely once 50 newer jobs existed,
+    //    silently hiding it (and its Stop/Reconcile controls) from the
+    //    admin view. Only the LIMIT 50 applies, and only to already-
+    //    finished (terminal) jobs, which is the actual "recent history".
+    //  - Pending jobs are ordered by queue_position, not submitted_at —
+    //    reorder (the ↑/↓ controls) writes queue_position, but reading by
+    //    submission time meant a reorder never visibly changed anything on
+    //    refresh even though the robot's own dispatch order (which reads
+    //    queue_position) had actually changed.
     const rows = isAdmin
-      ? await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} ORDER BY submitted_at DESC LIMIT 50`
-      : await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} ORDER BY submitted_at DESC LIMIT 50`;
+      ? await sql`
+          SELECT * FROM (
+            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running'))
+            UNION ALL
+            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND status NOT IN ('pending', 'approved', 'running')
+              ORDER BY submitted_at DESC LIMIT 50)
+          ) combined
+          ORDER BY
+            CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'running' THEN 2 ELSE 3 END,
+            CASE WHEN status = 'pending' THEN queue_position END ASC,
+            submitted_at DESC
+        `
+      : await sql`
+          SELECT * FROM (
+            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status IN ('pending', 'approved', 'running'))
+            UNION ALL
+            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status NOT IN ('pending', 'approved', 'running')
+              ORDER BY submitted_at DESC LIMIT 50)
+          ) combined
+          ORDER BY
+            CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'running' THEN 2 ELSE 3 END,
+            CASE WHEN status = 'pending' THEN queue_position END ASC,
+            submitted_at DESC
+        `;
     res.status(200).json({ jobs: rows.map(jobView) });
     return;
   }

@@ -9,6 +9,7 @@ import { loadContent } from '../server/content-load.mjs';
 import { replay } from '../server/ops.mjs';
 import { generateWorkspaceConfig } from '../server/adapters/workspace-config-writer.mjs';
 import { validateModel } from '../server/validate.mjs';
+import { DraftStore } from '../server/draft.mjs';
 
 const base = await loadContent();
 
@@ -80,4 +81,24 @@ test('undo semantics: replay of a prefix equals never having applied the tail', 
   assert.equal(afterOne.curriculum.sections.find((s) => s.id === 'control').title, 'A');
   const afterBoth = replay(base, ops).model;
   assert.equal(afterBoth.curriculum.sections.find((s) => s.id === 'control').title, 'B');
+});
+
+test('every DraftStore mutator is blocked while saving is true, and recovers once cleared', () => {
+  // Deliberately skips init()/loadContent() — the guard in each method fires
+  // before any base/ops state is touched, so this stays isolated from
+  // studio/.draft.json and doesn't need real content loaded to prove the
+  // race-condition fix: runSave() (save.mjs) sets draft.saving = true for
+  // its full async duration so a concurrent /op, /undo, /redo, /revert, or
+  // /discard from another tab can't land mid-save and then get silently
+  // wiped out by the save's own final reset step.
+  const draft = new DraftStore();
+  draft.saving = true;
+  assert.throws(() => draft.apply({ type: 'noop' }), /save is in progress/);
+  assert.throws(() => draft.undo(), /save is in progress/);
+  assert.throws(() => draft.redo(), /save is in progress/);
+  assert.throws(() => draft.discard(), /save is in progress/);
+  assert.throws(() => draft.revertOp(0), /save is in progress/);
+  draft.saving = false;
+  // Guard cleared — undo() now runs its normal logic (nothing to undo) instead of throwing.
+  assert.equal(draft.undo(), false);
 });

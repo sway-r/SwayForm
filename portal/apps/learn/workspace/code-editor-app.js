@@ -45,6 +45,8 @@ export function mount(bodyEl, winApi, opts) {
   const { activity } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null;
   let saveTimer = null;
+  let pendingSave = null; // { path, value } awaiting the debounced write — flushed on dispose
+  let disposed = false;
   let hasRobot = false;
   let jobPollTimer = null;
   // Path whose current (on-disk/mock-fs) content Run has most recently
@@ -136,12 +138,17 @@ export function mount(bodyEl, winApi, opts) {
         robotValidatedPath = null;
         if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
       }
+      pendingSave = { path, value };
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => persist(path, value), 500);
+      saveTimer = setTimeout(() => { pendingSave = null; persist(path, value); }, 500);
     },
   });
   editorSurfaceEl.innerHTML = '';
   editor.mount().then(() => {
+    // Monaco loads from a CDN and can take a moment — if this window/tab
+    // was already closed (dispose() ran) before it finished, don't open a
+    // file into an editor that's about to be (or already was) torn down.
+    if (disposed) return;
     editorReady = true;
     if (pendingOpenPath) { const p = pendingOpenPath; pendingOpenPath = null; openFile(p); }
     else {
@@ -369,9 +376,27 @@ export function mount(bodyEl, winApi, opts) {
         output.appendLine(text, cls, 'output');
         output.setActive('output');
       }
-      if (job.output && job.output.length > lastOutputLen){
-        output.appendLine(job.output.slice(lastOutputLen), '', 'output');
-        lastOutputLen = job.output.length;
+      // job.output is a rolling tail capped server-side (MAX_OUTPUT_CHARS in
+      // api/robot/agent.js) — once a job's total output exceeds that, its
+      // length plateaus even as content keeps changing (old text drops off
+      // the front as fast as new text arrives), so comparing job.output's
+      // own length against lastOutputLen would go permanently false right
+      // when it matters most (a long run finally printing an error).
+      // outputTotalLen is a separate, never-truncated running counter used
+      // only to detect and size new output.
+      const outputTotalLen = job.outputTotalLen || 0;
+      if (outputTotalLen > lastOutputLen){
+        const newChars = outputTotalLen - lastOutputLen;
+        const outputText = job.output || '';
+        if (newChars <= outputText.length){
+          output.appendLine(outputText.slice(-newChars), '', 'output');
+        } else {
+          // More was written between polls than the server retained —
+          // some of it is unrecoverable. Show what's left rather than
+          // nothing, with a note instead of silently dropping the gap.
+          output.appendLine('[earlier output truncated]\n' + outputText, '', 'output');
+        }
+        lastOutputLen = outputTotalLen;
       }
       if (['succeeded', 'failed', 'rejected', 'cancelled'].includes(job.status)){
         clearInterval(jobPollTimer);
@@ -394,10 +419,24 @@ export function mount(bodyEl, winApi, opts) {
     }
   }
 
+  /** Immediately writes whatever autosave still has pending, if any — used
+   *  by the explicit Save button, a Reset that must not resurrect a stale
+   *  pending write afterward, and dispose() (closing the window/tab used to
+   *  just clearTimeout the pending write and drop it, losing up to 500ms of
+   *  the very last edit made before closing). */
+  function flushPendingSave(){
+    clearTimeout(saveTimer);
+    if (!pendingSave) return;
+    const { path, value } = pendingSave;
+    pendingSave = null;
+    persist(path, value);
+  }
+
   function saveActiveFile(){
     const path = tabs.activePath;
     if (!path) return;
     clearTimeout(saveTimer);
+    if (pendingSave && pendingSave.path === path) pendingSave = null;
     persist(path, editor.getValue());
   }
 
@@ -406,6 +445,7 @@ export function mount(bodyEl, winApi, opts) {
     if (!path) return;
     if (!window.confirm(`Reset ${path.split('/').pop()} to its starter version? Your changes to this file will be lost. This cannot be undone.`)) return;
     clearTimeout(saveTimer);
+    if (pendingSave && pendingSave.path === path) pendingSave = null;
     if (robotValidatedPath === path){ robotValidatedPath = null; toolbar.setQueueRobotReady(false); }
     fs.resetFile(path);
     const original = fs.readFile(path);
@@ -437,7 +477,8 @@ export function mount(bodyEl, winApi, opts) {
     insertCode(code){ if (editor) editor.insertAtCursor(code); },
     save: saveActiveFile,
     dispose(){
-      clearTimeout(saveTimer);
+      disposed = true;
+      flushPendingSave();
       clearInterval(jobPollTimer);
       window.removeEventListener('swayform:workspace-fs-reset', onWorkspaceFsReset);
       if (editor) editor.dispose();

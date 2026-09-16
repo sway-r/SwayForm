@@ -106,9 +106,11 @@ async function handleJobOutput(req, res){
     res.status(400).json({ error: 'missing_job_id' });
     return;
   }
+  const chunk = String(text || '');
   await sql`
     UPDATE robot_jobs
-    SET output = right(COALESCE(output, '') || ${String(text || '')}, ${MAX_OUTPUT_CHARS})
+    SET output = right(COALESCE(output, '') || ${chunk}, ${MAX_OUTPUT_CHARS}),
+        output_total_len = output_total_len + ${chunk.length}
     WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
   `;
   res.status(200).json({ ok: true });

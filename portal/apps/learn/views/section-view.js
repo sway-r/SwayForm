@@ -46,14 +46,21 @@ export function mount(container, params, nav, ctx){
   const progressRowEl = root.querySelector('[data-progress-row]');
   const itemsEl = root.querySelector('[data-items]');
 
-  Promise.all([getCompletedActivities(), getCurrentActivity()]).then(([completedIds, current]) => {
+  // Renders this section's lesson rows regardless of whether progress
+  // actually loaded — completedIds/current default to "nothing known" so a
+  // failed /api/progress request still lets the student see and open every
+  // lesson, instead of an indefinitely empty list (there was previously no
+  // .catch() at all, so a rejection here silently rendered nothing).
+  function renderItems(completedIds, current, progressNote){
     const done = new Set(completedIds);
     const { complete, total } = sectionProgress(section.id, completedIds);
     const pct = total ? Math.round((complete / total) * 100) : 0;
-    progressRowEl.innerHTML = `
-      <span class="sv-progress-bar"><span style="width:${pct}%"></span></span>
+    progressRowEl.innerHTML = progressNote
+      ? `<span class="sv-progress-text">${progressNote}</span>`
+      : `<span class="sv-progress-bar"><span style="width:${pct}%"></span></span>
       <span class="sv-progress-text">${complete} / ${total} complete</span>`;
 
+    itemsEl.innerHTML = '';
     section.items.forEach((item) => {
       const isDone = done.has(item.id);
       const isCurrent = current && current.activityId === item.id;
@@ -75,7 +82,11 @@ export function mount(container, params, nav, ctx){
       row.addEventListener('click', () => nav.activity(item.id));
       itemsEl.appendChild(row);
     });
-  });
+  }
+
+  Promise.all([getCompletedActivities(), getCurrentActivity()])
+    .then(([completedIds, current]) => renderItems(completedIds, current))
+    .catch(() => renderItems([], null, 'Progress unavailable — showing lessons only.'));
 
   ctx.setTitle && ctx.setTitle(section.title);
 

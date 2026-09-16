@@ -25,7 +25,12 @@ export function mount(container, nav, ctx){
   const summaryEl = root.querySelector('[data-summary]');
   const sectionsEl = root.querySelector('[data-sections]');
 
-  getCompletedActivities().then((completedIds) => {
+  // Renders the curriculum list regardless of whether progress actually
+  // loaded — completedIds defaults to "nothing completed" so a failed
+  // /api/progress request still lets the student navigate, instead of
+  // leaving this page permanently blank (the previous version only ever
+  // rendered inside the success branch, with no .catch() at all).
+  function renderSections(completedIds){
     let labDone = 0, labTotal = 0;
     CURRICULUM.sections.forEach((s) => { if (LAB_SECTION_IDS.includes(s.id)){ const p = sectionProgress(s.id, completedIds); labDone += p.complete; labTotal += p.total; } });
     summaryEl.textContent = `${labDone} / ${labTotal} labs complete`;
@@ -50,6 +55,11 @@ export function mount(container, nav, ctx){
       row.addEventListener('click', () => nav.section(section.id));
       sectionsEl.appendChild(row);
     });
+  }
+
+  getCompletedActivities().then(renderSections).catch(() => {
+    summaryEl.textContent = 'Progress unavailable — showing curriculum only.';
+    renderSections([]);
   });
 
   ctx.setTitle && ctx.setTitle('');

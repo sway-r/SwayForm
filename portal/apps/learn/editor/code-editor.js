@@ -49,11 +49,18 @@ export class CodeEditor {
     this.mode = 'loading';
     this.textarea = null;
     this.activePath = null;
+    this.disposed = false;
   }
 
   async mount(){
     try {
-      this.monaco = await loadMonaco();
+      const monaco = await loadMonaco();
+      // dispose() can run while the CDN load above is still in flight (the
+      // window/tab was closed before Monaco finished loading) — without this,
+      // mount() would go on to create a live editor bound to a container
+      // nobody will ever dispose, on a model nobody asked for anymore.
+      if (this.disposed) return;
+      this.monaco = monaco;
       this.mode = 'monaco';
       this.editor = this.monaco.editor.create(this.container, {
         theme: this.theme,
@@ -75,6 +82,7 @@ export class CodeEditor {
         if (this.onCursorCb) this.onCursorCb(e.position);
       });
     } catch (err){
+      if (this.disposed) return;
       this.mode = 'textarea';
       this.textarea = document.createElement('textarea');
       this.textarea.className = 'fallback-editor';
@@ -178,6 +186,7 @@ export class CodeEditor {
   }
 
   dispose(){
+    this.disposed = true;
     if (this.mode === 'monaco' && this.editor) this.editor.dispose();
     this.models.forEach((m) => m.dispose());
     this.models.clear();

@@ -29,9 +29,9 @@ export default async function handler(req, res){
     const [robotRows, emailRows, studentRows, invitations] = await Promise.all([
       sql`SELECT serial_number FROM robots WHERE id = ${robotId}`,
       sql`
-        SELECT ae.email FROM admin_emails ae
+        SELECT ae.email, ae.slot FROM admin_emails ae
         JOIN admin_accounts aa ON aa.id = ae.admin_account_id
-        WHERE aa.robot_id = ${robotId} ORDER BY ae.id
+        WHERE aa.robot_id = ${robotId}
       `,
       sql`
         SELECT id, email, seat_number, status FROM students
@@ -46,9 +46,16 @@ export default async function handler(req, res){
     const activeEmails = studentRows.filter((r) => r.status === 'active').map((r) => r.email);
     const progress = await fetchProgressSummary(activeEmails);
 
+    // Indexed by slot explicitly (not row insertion order) — filling slot 2
+    // before slot 1 is possible (fill slot 2 first, add slot 1 later), and
+    // an id-ordered read would have silently shown slot 2's email under
+    // "Admin 1" in that case.
+    const adminEmails = [null, null];
+    emailRows.forEach((r) => { if (r.slot === 1 || r.slot === 2) adminEmails[r.slot - 1] = r.email; });
+
     res.status(200).json({
       robotSerial: robotRows[0] && robotRows[0].serial_number,
-      adminEmails: emailRows.map((r) => r.email),
+      adminEmails,
       invitations,
       students: studentRows.map((r) => {
         const p = progress[r.email];
@@ -90,6 +97,15 @@ export default async function handler(req, res){
           WHERE (SELECT count(*) FROM students WHERE robot_id = ${robotId})
               + (SELECT count(*) FROM school_invitations WHERE robot_id = ${robotId} AND expires_at > now()) < ${MAX_TOTAL_STUDENTS}
             OR EXISTS (SELECT 1 FROM school_invitations WHERE robot_id = ${robotId} AND email = ${email})
+            -- Re-inviting an email that already has a roster row (active or
+            -- archived -- only the active case short-circuits earlier in
+            -- JS) never needs a NEW slot: accepting just updates that same
+            -- existing (robot_id, email) row via ON CONFLICT below, it does
+            -- not insert another one. The total-count gate above was
+            -- otherwise blocking reactivation of an already-archived
+            -- student the instant the roster (active + archived) hit the
+            -- 40-total cap, even with zero active seats.
+            OR EXISTS (SELECT 1 FROM students WHERE robot_id = ${robotId} AND email = ${email})
           ON CONFLICT (robot_id, email) DO UPDATE SET invited_by = EXCLUDED.invited_by, expires_at = now() + interval '14 days'
           RETURNING id
         `,
@@ -149,17 +165,23 @@ export default async function handler(req, res){
 
       const accountRows = await sql`SELECT id FROM admin_accounts WHERE robot_id = ${robotId}`;
       const adminAccountId = accountRows[0] && accountRows[0].id;
-      const existing = await sql`SELECT id FROM admin_emails WHERE admin_account_id = ${adminAccountId} ORDER BY id`;
 
       try {
-        if (existing[slot - 1]){
-          await sql`UPDATE admin_emails SET email = ${email} WHERE id = ${existing[slot - 1].id}`;
-        } else if (existing.length < 2){
-          await sql`INSERT INTO admin_emails (admin_account_id, email) VALUES (${adminAccountId}, ${email})`;
-        } else {
-          res.status(400).json({ error: 'slot_taken' });
-          return;
-        }
+        // A single atomic upsert keyed on (admin_account_id, slot) — the
+        // unique index on that pair (db/migrations/007_admin_email_slots.sql)
+        // makes "this slot already has a row" a database guarantee, not a
+        // read-existing-then-decide race: the previous version read existing
+        // rows, then separately inserted or updated, so two concurrent
+        // requests for the same still-empty slot could both read "not taken"
+        // and both insert, producing a 3rd admin the 2-slot UI can never
+        // show or manage. ON CONFLICT here means whichever request commits
+        // second just updates the row the first one created, instead of
+        // erroring or duplicating it.
+        await sql`
+          INSERT INTO admin_emails (admin_account_id, email, slot)
+          VALUES (${adminAccountId}, ${email}, ${slot})
+          ON CONFLICT (admin_account_id, slot) DO UPDATE SET email = EXCLUDED.email
+        `;
       } catch (e){
         if (e && e.code === '23505'){
           res.status(400).json({ error: 'email_taken', message: 'That email is already registered as an admin for another robot.' });

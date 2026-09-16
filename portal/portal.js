@@ -39,6 +39,7 @@ let activeAppId = null;
 // progress widgets, no dashboard — just shortcuts, like a real desktop.
 function renderDesktopIcons(session){
   desktopIconsEl.innerHTML = '';
+  const positions = loadIconPositions();
   visibleApps(session).forEach(mod => {
     const btn = document.createElement('button');
     btn.className = 'desktop-icon';
@@ -49,9 +50,80 @@ function renderDesktopIcons(session){
     btn.innerHTML = `
       <span class="desktop-icon-glyph">${icon(mod.meta.icon)}<span class="desktop-icon-badge" data-badge hidden></span></span>
       <span class="desktop-icon-label">${mod.meta.title}</span>`;
-    btn.addEventListener('click', () => openApp(mod.meta.id));
+    btn.addEventListener('click', () => {
+      // A drag-then-release fires a click right after mouseup on the same
+      // element — swallow exactly that one so dropping an icon doesn't also
+      // launch the app underneath your cursor.
+      if (btn._justDragged){ btn._justDragged = false; return; }
+      openApp(mod.meta.id);
+    });
+    const saved = positions[mod.meta.id];
+    if (saved){
+      btn.style.position = 'absolute';
+      btn.style.left = saved.left + 'px';
+      btn.style.top = saved.top + 'px';
+    }
+    makeIconDraggable(btn, mod.meta.id);
     desktopIconsEl.appendChild(btn);
   });
+}
+
+/** Purely cosmetic, per-browser (same as window layout below, not synced
+ * across devices) — lets someone arrange their desktop icons how they like.
+ * Nothing reads these positions except this render function. */
+const ICON_POSITIONS_KEY = 'swayform_desktop_icon_positions';
+
+function loadIconPositions(){
+  try { return JSON.parse(localStorage.getItem(ICON_POSITIONS_KEY) || '{}'); }
+  catch (e) { return {}; }
+}
+
+function saveIconPosition(appId, left, top){
+  try {
+    const positions = loadIconPositions();
+    positions[appId] = { left, top };
+    localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify(positions));
+  } catch (e) { /* storage unavailable — position just won't stick, non-fatal */ }
+}
+
+/** Free-drag a desktop icon to an absolute position within .desktop-icons.
+ * Icons nobody has ever dragged stay in the normal flex-column flow — only
+ * a moved icon gets pulled out of flow via position:absolute, so the rest
+ * of the stack reflows to fill the gap, same as a real desktop. */
+function makeIconDraggable(btn, appId){
+  let drag = null;
+  btn.addEventListener('mousedown', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const parentRect = desktopIconsEl.getBoundingClientRect();
+    drag = { sx: e.clientX, sy: e.clientY, left: rect.left - parentRect.left, top: rect.top - parentRect.top, moved: false };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+  function onMove(e){
+    if (!drag) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return; // ignore jitter — not a real drag yet
+    drag.moved = true;
+    btn.classList.add('dragging');
+    btn.style.position = 'absolute';
+    const parentRect = desktopIconsEl.getBoundingClientRect();
+    const left = Math.max(0, Math.min(drag.left + dx, parentRect.width - btn.offsetWidth));
+    const top = Math.max(0, Math.min(drag.top + dy, parentRect.height - btn.offsetHeight));
+    btn.style.left = left + 'px';
+    btn.style.top = top + 'px';
+  }
+  function onUp(){
+    if (!drag) return;
+    const wasMoved = drag.moved;
+    drag = null;
+    btn.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if (wasMoved){
+      btn._justDragged = true;
+      saveIconPosition(appId, parseFloat(btn.style.left), parseFloat(btn.style.top));
+    }
+  }
 }
 
 const BASE_TITLE = document.title;

@@ -329,7 +329,35 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, { 'content-type': 'text/plain' });
   res.end('swayform-bridge ok');
 });
-const wss = new WebSocketServer({ server, path: '/agent', maxPayload: 128 * 1024 });
+// noServer + a manual 'upgrade' handler, rather than { server, path: '/agent' }
+// -- the ws library's own path-matching rejects any non-matching upgrade
+// with a bare abortHandshake(socket, 400), and Caddy's forward_auth (gating
+// code.bridge.swayform.net) sends its /code-auth-check subrequest carrying
+// the real client's Connection/Upgrade headers straight through. That 400
+// was never reaching a browser directly -- forward_auth treated it as "auth
+// denied" and relayed it to whoever was opening the code-server websocket,
+// breaking every Live Code Editor connection with a generic "WebSocket
+// close 1006" while the plain (non-upgrade) auth checks for the page itself
+// kept working fine. See project_video_on_demand memory for the sibling
+// incident this was found alongside.
+const wss = new WebSocketServer({ noServer: true, maxPayload: 128 * 1024 });
+
+server.on('upgrade', (req, socket, head) => {
+  const { pathname } = new URL(req.url, 'http://internal');
+  if (pathname === '/agent'){
+    wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    return;
+  }
+  if (pathname === '/code-auth-check'){
+    pruneExpired(codeSessions);
+    const sessionId = parseCookies(req).swayform_code_session;
+    const ok = !!(sessionId && codeSessions.get(sessionId));
+    socket.write(`HTTP/1.1 ${ok ? '200 OK' : '401 Unauthorized'}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`);
+    socket.destroy();
+    return;
+  }
+  socket.destroy();
+});
 
 wss.on('connection', (ws, req) => {
   console.log(`raw connection opened from ${req.socket.remoteAddress}:${req.socket.remotePort}`);

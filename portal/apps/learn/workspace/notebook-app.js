@@ -7,7 +7,7 @@
 import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
 
-export const meta = { id: 'notebook', title: 'Notebook', icon: 'book' };
+export const meta = { id: 'notebook', title: 'Textbook', icon: 'book' };
 
 function diffTag(activity) {
   if (activity.kind === 'demo') return '<span class="diff-tag demo">Demo walkthrough</span>';

@@ -126,7 +126,7 @@ export default async function handler(req, res){
       if (Buffer.byteLength(code, 'utf8') > MAX_CODE_BYTES){ res.status(400).json({ error: 'code_too_large' }); return; }
 
       const check = validateAgainstCanonicalSource(path, code);
-      if (!check.valid){ res.status(400).json({ error: 'code_mismatch', reason: check.reason }); return; }
+      if (!check.valid){ res.status(400).json({ error: 'code_mismatch', reason: check.status }); return; }
 
       const [last] = await sql`
         SELECT submitted_at FROM robot_jobs

@@ -681,23 +681,21 @@ export const LEARNING_PATH = {
                       'Change `SPEED_SCALE` (line 33) to make the elbow wave faster or slower.',
                       'Change `RIPPLE_SPEED` (line 28) to make the finger ripple faster or slower.',
                     ] },
-                    { type: 'callout', tone: 'note', label: 'What can go on the real robot (for now)', text: 'Right now, only `WAVE_CYCLES` can be queued onto the physical robot, and only using a whole number from 1 to 5. `SPEED_SCALE` and `RIPPLE_SPEED` are still good to experiment with using Run, but Queue on Robot won\'t accept them changed yet.' },
+                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: 'SwayForm starts at `WAVE_CYCLES = 1` — one wave. Your job is to make it wave five times. `WAVE_CYCLES = 5` is the only value Queue on Robot will accept as finished; `SPEED_SCALE` and `RIPPLE_SPEED` are still good to experiment with using Run, but can\'t be queued yet.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) to any whole number from 1 to 5, predict how the gesture will feel, then click Run to see if you were right.' },
-                    { type: 'p', text: 'Once Run confirms your code, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue — Queue on Robot only ever sends code Run has just confirmed.' },
+                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) from 1 to 5 — that\'s the objective: make SwayForm wave five times instead of once. Click Run to check your work.' },
+                    { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `WAVE_CYCLES = 5`, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue — Queue on Robot only ever sends code Run has just confirmed.' },
                   ],
                 },
                 {
                   id: 'full-code', title: 'Full Code',
                   blocks: [
-                    { type: 'p', text: 'Run the demo from the toolbar above, or open the file to read the complete, real source.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_robot wave'] },
-                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot wave` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -774,8 +772,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'full-code', title: 'Full Code',
                   blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_robot handshake'] },
-                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot handshake` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -826,20 +823,21 @@ export const LEARNING_PATH = {
                       'Change `JERK_CYCLES` to punch more than once.',
                       'Change `RAISE_DURATION` or `RETURN_DURATION` to make the wind-up or the return slower or faster.',
                     ] },
+                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: '`ENABLE_HEAD_NOD = True` is the only value Queue on Robot will accept as finished. `JERK_CYCLES`, `RAISE_DURATION`, and `RETURN_DURATION` are still good to experiment with using Run, but can\'t be queued yet.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Stay inside the ranges already defined in `LIMITS` — do not push a target outside them, and do not shorten the torso durations enough to make its motion jerky.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Find `ENABLE_HEAD_NOD` near the top of the file — it starts as `False`, so the robot bumps fists without moving its head. Change it to `True`, save, and run the demo again to see (and predict, before you run it) what the head does differently.' },
+                    { type: 'p', text: 'Find `ENABLE_HEAD_NOD` near the top of the file — it starts as `False`, so the robot bumps fists without moving its head. Change it to `True`, then click Run to check your work.' },
+                    { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `ENABLE_HEAD_NOD = True`, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue.' },
                   ],
                 },
                 {
                   id: 'full-code', title: 'Full Code',
                   blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_robot fist_bump'] },
-                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot fist_bump` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -909,8 +907,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'run-it', title: 'Run It',
                   blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_demos pick_and_place'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Click Run in the toolbar above — SwayForm\'s `ros2 run swayform_demos pick_and_place` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -971,8 +968,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'run-it', title: 'Run It',
                   blocks: [
-                    { type: 'terminal', lines: ['ros2 run swayform_demos rock_paper_scissors'] },
-                    { type: 'p', text: 'Watch the terminal panel for the mocked run sequence, then move on when you are ready.' },
+                    { type: 'p', text: 'Click Run in the toolbar above — SwayForm\'s `ros2 run swayform_demos rock_paper_scissors` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],

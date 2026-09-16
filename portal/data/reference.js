@@ -328,7 +328,7 @@ export const REFERENCE = {
       blocks: [
         {
           type: "lead",
-          text: "Shortcuts available inside an Activity Workspace (Notebook, Code Editor, Terminal) and the Curriculum Index.",
+          text: "Shortcuts available inside an Activity Workspace (Textbook, Code Editor, Terminal) and the Curriculum Index.",
         },
         {
           type: "table",
@@ -364,7 +364,7 @@ export const REFERENCE = {
         {
           type: "steps",
           items: [
-            "Re-read the Notebook's Expected Behavior for that step — most mismatches are a small, specific difference from what's described.",
+            "Re-read the Textbook's Expected Behavior for that step — most mismatches are a small, specific difference from what's described.",
             "Check Troubleshooting for the symptom you're seeing.",
             "Check Glossary if a term in the instructions is unfamiliar.",
             "Ask your instructor — they can help directly in the classroom.",

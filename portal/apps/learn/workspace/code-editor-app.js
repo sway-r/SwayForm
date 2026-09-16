@@ -16,24 +16,29 @@ import { getSession } from '../../../services/auth-service.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
-/** Turns a failed /api/robot/queue {action:'validate'} response into a
- * message pointing at roughly where the code stops matching, instead of
- * just "doesn't match" — see canonical-source.js's firstLineDifference. */
-function describeMismatch(validateData){
-  if (validateData.reason === 'no_canonical_source'){
-    return "There's no verified working version of this file to check against yet.";
+/** One-line summary of why a validate check failed — used by Queue on
+ * Robot's own defense-in-depth re-check. Run itself shows the detailed,
+ * line-by-line breakdown in Problems (see formatDiff below); this is just
+ * enough context for the rarer case where Queue on Robot's own re-validate
+ * (right before submit) disagrees with Run's last result. */
+function describeMismatch(data){
+  if (data.status === 'no_canonical_source'){
+    return "there's no verified working version of this file to check against yet.";
   }
-  const d = validateData.diff;
-  if (!d){
-    return "This doesn't exactly match the verified working version — even a single character or whitespace difference fails this check.";
+  if (data.status === 'not_started'){
+    return data.tunable
+      ? `still at the default — change \`${data.tunable.name}\` to ${data.tunable.to}.`
+      : "this lab hasn't been changed yet.";
   }
-  if (d.kind === 'changed'){
-    return `Line ${d.line} doesn't match.\n  Yours:    ${d.yours}\n  Expected: ${d.expected}`;
-  }
-  if (d.kind === 'missing'){
-    return `Your file is missing a line at line ${d.line}.\n  Expected: ${d.expected}`;
-  }
-  return `Your file has an extra line at line ${d.line} that the verified version doesn't have:\n  ${d.yours}`;
+  return "this doesn't match the target solution — click Run to see exactly what changed.";
+}
+
+/** Formats one canonical-source diff entry (api/_lib/canonical-source.js's
+ * allLineDifferences) as a single Problems-tab line. */
+function formatDiff(d){
+  if (d.kind === 'changed') return `Line ${d.line}: expected \`${d.expected}\`, found \`${d.yours}\``;
+  if (d.kind === 'missing') return `Line ${d.line}: missing — expected \`${d.expected}\``;
+  return `Line ${d.line}: extra line not in the solution — \`${d.yours}\``;
 }
 
 export function mount(bodyEl, winApi, opts) {
@@ -212,14 +217,26 @@ export function mount(bodyEl, winApi, opts) {
           body: JSON.stringify({ action: 'validate', path, code: content }),
         });
         const data = await res.json();
-        if (res.ok && data.valid){
+        robotValidatedPath = null;
+        if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
+
+        if (data.status === 'complete'){
           robotValidatedPath = path;
           if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
-          output.appendLine('Run confirmed this matches a verified working version — Queue on Robot is now available.', 'term-ok', 'output');
+          output.appendLine('Objective complete — this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
+        } else if (data.status === 'not_started'){
+          const hint = data.tunable
+            ? `Change \`${data.tunable.name}\` from ${data.tunable.from} to ${data.tunable.to}.`
+            : "This lab hasn't been changed yet.";
+          output.appendLine(`This runs, but the lab isn't done yet. ${hint}`, 'term-err', 'output');
+          output.appendLine(hint, 'term-err', 'problems');
+          output.setActive('problems');
+        } else if (data.status === 'tampered'){
+          output.appendLine("This code doesn't match the target solution — see Problems for exactly what changed.", 'term-err', 'output');
+          (data.diffs || []).forEach((d) => output.appendLine(formatDiff(d), 'term-err', 'problems'));
+          output.setActive('problems');
         } else {
-          robotValidatedPath = null;
-          if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
-          output.appendLine(`Run could not confirm this code — ${describeMismatch(data)}`, 'term-warn', 'output');
+          output.appendLine("There's no verified working version of this file to check against yet.", 'term-warn', 'output');
         }
       } catch (e) {
         robotValidatedPath = null;

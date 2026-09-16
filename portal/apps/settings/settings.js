@@ -38,7 +38,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Appearance</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Theme</span><span class="set-row-desc">Applies across the whole portal — Learn, Notebook, Projects, Account, and Help. The Portal Desktop wallpaper and the Code Editor/Terminal stay dark either way.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Theme</span><span class="set-row-desc">Applies across the whole portal — Learn, Textbook, Projects, Account, and Help. The Portal Desktop wallpaper and the Code Editor/Terminal stay dark either way.</span></span>
             <div class="set-theme-toggle" data-theme-toggle>
               <button type="button" data-theme="light" class="${getTheme() === 'light' ? 'active' : ''}">${icon('sun')}<span>Light</span></button>
               <button type="button" data-theme="dark" class="${getTheme() === 'dark' ? 'active' : ''}">${icon('moon')}<span>Dark</span></button>
@@ -60,7 +60,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Workspace</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset window layout</span><span class="set-row-desc">Returns Notebook, Code Editor, and Terminal to the default tiled arrangement.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset window layout</span><span class="set-row-desc">Returns Textbook, Code Editor, and Terminal to the default tiled arrangement.</span></span>
             <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
           </div>
           <div class="set-row">

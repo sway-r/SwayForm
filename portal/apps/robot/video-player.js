@@ -138,17 +138,30 @@ export function mountVideoPlayer(container){
       // it doesn't wait for confirmation. The real WHIP handshake (camera
       // open, ffmpeg offer/answer/ICE/DTLS/SRTP) takes ~1.5s on real
       // hardware, so the very first WHEP request here can easily arrive
-      // before MediaMTX has a publisher on this path yet and get a 404.
-      // Retry with backoff instead of treating that as "offline."
-      let res = await postWhep();
-      for (let attempt = 0; !res.ok && attempt < 5 && active; attempt++){
-        note.textContent = 'Waiting for the robot to start streaming…';
-        await new Promise((r) => setTimeout(r, 700));
-        if (!active) return;
-        res = await postWhep();
+      // before MediaMTX has a publisher on this path yet. A "no publisher"
+      // rejection can surface as a thrown network error, not just a non-2xx
+      // response (MediaMTX resetting the connection rather than answering
+      // with a clean 404) — catch per-attempt so a throw retries too,
+      // instead of skipping the whole retry loop on the first attempt.
+      let res = null;
+      let lastError = null;
+      for (let attempt = 0; attempt < 6 && active; attempt++){
+        if (attempt > 0){
+          note.textContent = 'Waiting for the robot to start streaming…';
+          await new Promise((r) => setTimeout(r, 700));
+          if (!active) return;
+        }
+        try {
+          res = await postWhep();
+          if (res.ok) break;
+          lastError = new Error(`whep ${res.status}`);
+        } catch (e) {
+          res = null;
+          lastError = e;
+        }
       }
       if (!active) return;
-      if (!res.ok) throw new Error(`whep ${res.status}`);
+      if (!res || !res.ok) throw lastError || new Error('whep_failed');
 
       const location = res.headers.get('location');
       const resource = location ? new URL(location, whepUrl) : null;

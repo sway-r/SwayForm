@@ -18,6 +18,7 @@ export function packageAndEntry(path){
 export const CANONICAL_ROBOT_PATHS = new Set([
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py',
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py',
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py',
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py',
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py',
 ]);

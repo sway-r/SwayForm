@@ -16,9 +16,9 @@
  * Seven sections:
  *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
  *   2. Introduction to ROS 2 — the software ideas behind Control (9 items, active)
- *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave and
- *        Handshake are built; Hand Mimic, Rock Paper Scissors, and Pick and
- *        Place are honest Planned placeholders, not faked)
+ *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave,
+ *        Handshake, and Fist Bump are built; Hand Mimic and Rock Paper
+ *        Scissors are honest Planned placeholders, not faked)
  *   4. Control (Level 1)  — 10 guided labs, first joint to keyboard capstone (active)
  *   5-7. React / Perceive / Create — Levels 2-4, all Planned, no lesson
  *        content authored yet (working titles only for React).
@@ -89,19 +89,21 @@ const s2 = [
   real('navigating-the-workspace', 'ros2-intro', '2.09'),
 ];
 
-// Only Wave and Handshake are confirmed working demos with authored pages.
-// Hand Mimic, Rock Paper Scissors, and Pick and Place are marked Planned —
-// honest placeholders, not faked content — until their production robot
-// behavior is confirmed. Rock Paper Scissors / Pick and Place keep their
-// learning-path.js ids (content preserved, unlisted) in case they're
-// promoted back to full demos later; interactive-exchange was removed
-// entirely (it's not one of the 5 demos and had no content worth keeping).
+// Wave, Handshake, and Fist Bump are confirmed working demos with authored
+// pages. Hand Mimic and Rock Paper Scissors are marked Planned — honest
+// placeholders, not faked content — until their production robot behavior
+// is confirmed. Rock Paper Scissors keeps its learning-path.js id (content
+// preserved, unlisted) in case it's promoted back to a full demo later.
+// Pick and Place was removed from this section entirely (its
+// learning-path.js content stays, unlisted, same as Rock Paper Scissors);
+// interactive-exchange was removed entirely earlier (it's not one of the 5
+// demos and had no content worth keeping).
 const s3 = [
-  placeholder('hand-mimic', 'demos', '3.01', 'Hand Mimic', 'A hand open/curl mimic motion. Planned — not yet available.'),
-  demo('wave', 'demos', '3.02'),
-  demo('handshake', 'demos', '3.03'),
-  placeholder('rock-paper-scissors', 'demos', '3.04', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
-  placeholder('pick-and-place', 'demos', '3.05', 'Pick and Place', 'A full pick-and-place sequence. Planned — not yet available.'),
+  demo('wave', 'demos', '3.01'),
+  demo('handshake', 'demos', '3.02'),
+  real('fist-bump', 'demos', '3.03'),
+  placeholder('hand-mimic', 'demos', '3.04', 'Hand Mimic', 'A hand open/curl mimic motion. Planned — not yet available.'),
+  placeholder('rock-paper-scissors', 'demos', '3.05', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
 ];
 
 // Level 1 — Control: 10 guided labs, first-joint-to-capstone progression.

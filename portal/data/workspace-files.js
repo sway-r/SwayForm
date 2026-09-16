@@ -585,6 +585,244 @@ if __name__ == "__main__":
     main()
 `,
 
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `import time
+import threading
+
+import rclpy
+from rclpy.node import Node
+
+from swayform_robot.hardware import servo_control as sc
+
+ENABLE_HEAD_NOD = False  # TODO: change to True
+
+PCA_HAND = 0x40
+PCA_REACH = 0x60
+
+THUMB = 0
+FINGERS = [1, 2, 3, 4]
+WRIST = 5
+ELBOW = 6
+SHOULDER_ROLL = 7
+SHOULDER_PITCH = 1
+NECK_PITCH = 3
+
+CENTERS = {
+    (PCA_HAND, THUMB): 50,
+    (PCA_HAND, 1): 135,
+    (PCA_HAND, 2): 135,
+    (PCA_HAND, 3): 135,
+    (PCA_HAND, 4): 135,
+    (PCA_HAND, WRIST): 100,
+    (PCA_HAND, ELBOW): 130,
+    (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_REACH, SHOULDER_PITCH): 170,
+    (PCA_REACH, NECK_PITCH): 155,   # re-tested on hardware 2026-09-15
+}
+
+LIMITS = {
+    (PCA_HAND, THUMB): (50, 135),
+    (PCA_HAND, 1): (50, 135),
+    (PCA_HAND, 2): (50, 135),
+    (PCA_HAND, 3): (50, 135),
+    (PCA_HAND, 4): (50, 135),
+    (PCA_HAND, WRIST): (60, 160),
+    (PCA_HAND, ELBOW): (40, 140),
+    (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_REACH, SHOULDER_PITCH): (150, 260),
+    (PCA_REACH, NECK_PITCH): (130, 180),   # re-tested on hardware 2026-09-15
+}
+
+# ELBOW/SHOULDER_ROLL/SHOULDER_PITCH/NECK_PITCH are 270° ROM servos — see robot.yaml.
+SERVO_RANGES = {
+    (PCA_HAND, ELBOW): 270.0,
+    (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_REACH, SHOULDER_PITCH): 270.0,
+    (PCA_REACH, NECK_PITCH): 270.0,
+}
+
+FISTBUMP_PITCH_OFFSET = 35
+ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20
+FIST_ELBOW_BASE = ELBOW_BENT_IN - 10
+
+JERK_PITCH_PEAK = 245
+JERK_ELBOW_PEAK = 90
+JERK_OUT_DURATION = 0.144
+JERK_BACK_DURATION = 0.3
+JERK_CYCLES = 1
+
+NOD_UP_OFFSET = 10
+NOD_OUT_DURATION = JERK_OUT_DURATION * 1.2
+NOD_BACK_DURATION = JERK_BACK_DURATION * 1.2
+
+RAISE_DURATION = 1.5
+HOLD_BEFORE_BUMP = 0.6
+RETURN_DURATION = 2.0
+
+TICK_DELAY = 0.02
+
+# Torso motor has no encoder — open-loop timed pulses, not angle targets.
+TORSO_LEAN_DIRECTION = "right"
+TORSO_RETURN_DIRECTION = "left"
+TORSO_SPEED_PERCENT = 40
+TORSO_LEAN_DURATION = 0.3
+TORSO_SNAP_DURATION = JERK_OUT_DURATION
+TORSO_RETURN_DURATION = TORSO_LEAN_DURATION + TORSO_SNAP_DURATION
+
+
+def _mv(addr, ch, target, duration):
+    steps = max(1, round(duration / TICK_DELAY))
+    return {"addr": addr, "ch": ch, "target": target, "limits": LIMITS[(addr, ch)],
+            "steps": steps, "delay": TICK_DELAY,
+            "servo_range": SERVO_RANGES.get((addr, ch), 180.0)}
+
+
+def raise_and_curl(ctrl):
+    pitch_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + FISTBUMP_PITCH_OFFSET
+    elbow_target = FIST_ELBOW_BASE
+    ctrl.run_threads([
+        _mv(PCA_REACH, SHOULDER_PITCH, pitch_target, RAISE_DURATION),
+        _mv(PCA_HAND, ELBOW, elbow_target, RAISE_DURATION),
+        _mv(PCA_HAND, SHOULDER_ROLL, CENTERS[(PCA_HAND, SHOULDER_ROLL)], RAISE_DURATION),
+        _mv(PCA_HAND, WRIST, CENTERS[(PCA_HAND, WRIST)], RAISE_DURATION),
+        _mv(PCA_HAND, THUMB, LIMITS[(PCA_HAND, THUMB)][1], RAISE_DURATION),
+        _mv(PCA_HAND, 1, LIMITS[(PCA_HAND, 1)][0], RAISE_DURATION),
+        _mv(PCA_HAND, 2, LIMITS[(PCA_HAND, 2)][0], RAISE_DURATION),
+        _mv(PCA_HAND, 3, LIMITS[(PCA_HAND, 3)][0], RAISE_DURATION),
+        _mv(PCA_HAND, 4, LIMITS[(PCA_HAND, 4)][0], RAISE_DURATION),
+    ])
+    return pitch_target, elbow_target
+
+
+def bump_jerk(ctrl, pitch_base, elbow_base):
+    moves_out = [
+        _mv(PCA_REACH, SHOULDER_PITCH, JERK_PITCH_PEAK, JERK_OUT_DURATION),
+        _mv(PCA_HAND, ELBOW, JERK_ELBOW_PEAK, JERK_OUT_DURATION),
+    ]
+    moves_back = [
+        _mv(PCA_REACH, SHOULDER_PITCH, pitch_base, JERK_BACK_DURATION),
+        _mv(PCA_HAND, ELBOW, elbow_base, JERK_BACK_DURATION),
+    ]
+
+    if ENABLE_HEAD_NOD:
+        nod_up = CENTERS[(PCA_REACH, NECK_PITCH)] + NOD_UP_OFFSET
+        nod_center = CENTERS[(PCA_REACH, NECK_PITCH)]
+        moves_out.append(_mv(PCA_REACH, NECK_PITCH, nod_up, NOD_OUT_DURATION))
+        moves_back.append(_mv(PCA_REACH, NECK_PITCH, nod_center, NOD_BACK_DURATION))
+
+    for _ in range(JERK_CYCLES):
+        ctrl.run_threads(moves_out)
+        ctrl.run_threads(moves_back)
+
+
+def open_and_return(ctrl):
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
+
+
+class _TorsoPulse:
+    def __init__(self, mock):
+        self.mock = mock
+        self.tm = None
+        self.cfg = None
+        self.speed = TORSO_SPEED_PERCENT
+        if not mock:
+            from swayform_robot.hardware import torso_motor as tm
+            self.tm = tm
+            self.cfg = tm.load_config()
+            self.tm.setup_gpio(self.cfg)
+            self.speed = min(TORSO_SPEED_PERCENT, self.cfg["max_speed_percent"])
+
+    def pulse(self, direction, duration):
+        if self.mock:
+            print(f"[MOCK] torso {direction} @ {self.speed}% for {duration}s")
+            time.sleep(duration)
+            return
+        move = self.tm.rotate_right if direction == "right" else self.tm.rotate_left
+        move(self.cfg, self.speed)
+        time.sleep(duration)
+        self.tm.stop_motor(self.cfg)
+
+    def close(self):
+        if self.mock:
+            return
+        self.tm.stop_motor(self.cfg)
+        self.tm.cleanup_gpio(self.cfg)
+
+
+def perform_fist_bump(mock=True):
+    with sc.hardware_lock():
+        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl.current = CENTERS.copy()
+        torso = None
+        try:
+            torso = _TorsoPulse(mock)
+
+            print("Raising fist...")
+            lean = threading.Thread(target=torso.pulse, args=(TORSO_LEAN_DIRECTION, TORSO_LEAN_DURATION))
+            lean.start()
+            pitch_base, elbow_base = raise_and_curl(ctrl)
+            lean.join()
+            time.sleep(HOLD_BEFORE_BUMP)
+
+            print("Bump!")
+            snap = threading.Thread(target=torso.pulse, args=(TORSO_LEAN_DIRECTION, TORSO_SNAP_DURATION))
+            snap.start()
+            bump_jerk(ctrl, pitch_base, elbow_base)
+            snap.join()
+            time.sleep(0.1)
+
+            print("Opening hand and returning to center...")
+            recenter = threading.Thread(target=torso.pulse, args=(TORSO_RETURN_DIRECTION, TORSO_RETURN_DURATION))
+            recenter.start()
+            open_and_return(ctrl)
+            recenter.join()
+
+        finally:
+            if torso is not None:
+                torso.close()
+            ctrl.close()
+
+
+class FistBumpNode(Node):
+    def __init__(self):
+        super().__init__("fist_bump")
+        self.declare_parameter("use_mock_hardware", True)
+        self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        self._started = False
+        self.create_timer(1.0, self._start)
+
+    def _start(self):
+        if self._started:
+            return
+        self._started = True
+        self.get_logger().info("Fist bump starting.")
+        threading.Thread(target=self._run, daemon=False).start()
+
+    def _run(self):
+        try:
+            perform_fist_bump(mock=self._mock)
+            self.get_logger().info("Fist bump complete.")
+        except Exception as e:
+            self.get_logger().error(f"Fist bump failed: {e}")
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = FistBumpNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        # avoid a double shutdown() call — rclpy's SIGINT handler may have beaten us to it
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
+`,
+
   "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py": `"""
 finger_wave.py
 

@@ -781,6 +781,70 @@ export const LEARNING_PATH = {
               ],
               completionSummary: { text: 'You saw a real choreographed behavior — timed joint targets, run in sequence, protected by a cross-process lock.', conceptsUsed: ['Joint targets', 'Timed motion', 'Cross-process locking'] },
             },
+            {
+              id: 'fist-bump', title: 'Fist Bump', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
+              summary: 'Study SwayForm\'s real fist-bump behavior, then flip one switch to make it nod along with the punch.',
+              workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py',
+              relatedConcepts: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Boolean flags'],
+              steps: [
+                {
+                  id: 'what-it-does', title: 'What It Does',
+                  blocks: [
+                    { type: 'lead', text: 'SwayForm raises its arm and closes its whole hand into a fist while leaning its torso in, holds for a beat, then punches its shoulder and elbow forward for the "bump" — before opening its hand, un-twisting its torso, and returning to center. Built from the same PCA9685 servo channels as Wave and Handshake, plus the torso motor.' },
+                    { type: 'callout', tone: 'note', label: 'Honest note', text: 'Like Wave and Handshake, this is a fixed choreography, not vision-triggered — it runs the same way every time it is called, whether from the terminal, a launch file, or another program.' },
+                  ],
+                },
+                {
+                  id: 'what-to-watch', title: 'What to Watch',
+                  blocks: [
+                    { type: 'heading', level: 3, text: 'Hardware used' },
+                    { type: 'list', items: ['Shoulder pitch servo (reach_pca)', 'Elbow servo', 'Shoulder roll servo', 'Wrist servo', 'Thumb and four finger servos', 'Torso motor (no encoder — open-loop, timed motion)', 'Neck pitch servo (head nod, off by default)'] },
+                    { type: 'callout', tone: 'note', label: 'Expected behavior', text: 'The arm raises and the hand closes into a full fist together while the torso leans in, holds briefly, then the arm punches forward as the torso snaps into it, before the hand opens, the torso un-twists, and everything returns to center.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep hands and fingers clear of the fist and the torso base while this runs — the punch is a fast, deliberate motion.' },
+                  ],
+                },
+                {
+                  id: 'how-it-works', title: 'How It Works',
+                  blocks: [
+                    { type: 'p', text: '`raise_and_curl` swings the shoulder and elbow back further than Handshake\'s own reach while every finger curls into a full fist at the same time, not afterward, over `RAISE_DURATION` (1.5s) — with the torso leaning in on its own thread alongside it.' },
+                    { type: 'p', text: '`bump_jerk` punches the shoulder and elbow forward to a fixed peak — always the same landing spot no matter how far back the resting pose is — then recoils back to it, with the torso snapping into the same motion. If `ENABLE_HEAD_NOD` is `True`, the head nods up on the punch and back down on the recoil, right along with it.' },
+                    { type: 'p', text: '`open_and_return` opens the hand, and every joint — arm and torso — settles back to center. As in Wave and Handshake, `with sc.hardware_lock():` keeps another behavior from moving the same servos mid-bump, and a `finally` block always releases both the PCA9685 and torso motor handles.' },
+                  ],
+                },
+                {
+                  id: 'look-at-this-part', title: 'Look at This Part',
+                  blocks: [
+                    { type: 'code', lang: 'python', filename: 'fist_bump.py', code: 'ENABLE_HEAD_NOD = False  # TODO: change to True\n\ndef raise_and_curl(ctrl): ...\ndef bump_jerk(ctrl, pitch_base, elbow_base): ...\ndef open_and_return(ctrl): ...\ndef perform_fist_bump(mock=True): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py' },
+                    { type: 'p', text: 'Same **setup → behavior → cleanup** shape as Wave and Handshake — plus one switch sitting right at the top of the file, above every constant: `ENABLE_HEAD_NOD`.' },
+                  ],
+                },
+                {
+                  id: 'safe-things-to-change', title: 'Safe Things to Change',
+                  blocks: [
+                    { type: 'list', items: [
+                      'Change `ENABLE_HEAD_NOD` to `True` to add the head nod — today\'s exercise, see Try It below.',
+                      'Change `JERK_CYCLES` to punch more than once.',
+                      'Change `RAISE_DURATION` or `RETURN_DURATION` to make the wind-up or the return slower or faster.',
+                    ] },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Stay inside the ranges already defined in `LIMITS` — do not push a target outside them, and do not shorten the torso durations enough to make its motion jerky.' },
+                  ],
+                },
+                {
+                  id: 'try-it', title: 'Try It',
+                  blocks: [
+                    { type: 'p', text: 'Find `ENABLE_HEAD_NOD` near the top of the file — it starts as `False`, so the robot bumps fists without moving its head. Change it to `True`, save, and run the demo again to see (and predict, before you run it) what the head does differently.' },
+                  ],
+                },
+                {
+                  id: 'full-code', title: 'Full Code',
+                  blocks: [
+                    { type: 'terminal', lines: ['ros2 run swayform_robot fist_bump'] },
+                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then move on when you are ready.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You studied a real multi-part gesture — arm, hand, and torso together — and flipped a real feature flag to change what it does.', conceptsUsed: ['Joint targets', 'Timed motion', 'Cross-process locking', 'Boolean flags'] },
+            },
           ],
         },
       ],

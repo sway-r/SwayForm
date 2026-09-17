@@ -1,5 +1,7 @@
 import { invalidateSessionCache } from '../services/auth-service.js';
 import { escapeHtml } from '../utils.js';
+import { icon } from '../icons.js';
+import { getTheme, setTheme } from '../theme.js';
 
 export function mount(container, { session, onComplete }){
   // An admin may have already linked this email to a robot (added them as
@@ -39,6 +41,13 @@ export function mount(container, { session, onComplete }){
             <label for="ob-school-other">School name</label>
             <input type="text" id="ob-school-other" autocomplete="off" maxlength="100">
           </div>`}
+          <div class="login-field">
+            <label>Theme</label>
+            <div class="set-theme-toggle" data-theme-toggle>
+              <button type="button" data-theme="light" class="${getTheme() === 'light' ? 'active' : ''}">${icon('sun')}<span>Light</span></button>
+              <button type="button" data-theme="dark" class="${getTheme() === 'dark' ? 'active' : ''}">${icon('moon')}<span>Dark</span></button>
+            </div>
+          </div>
           <div class="login-note" data-onboarding-note></div>
           <button type="submit" class="login-guest">Continue</button>
         </form>
@@ -49,6 +58,13 @@ export function mount(container, { session, onComplete }){
   nameInput.value = (session && (session.displayName || session.name)) || '';
 
   const note = container.querySelector('[data-onboarding-note]');
+
+  container.querySelectorAll('[data-theme-toggle] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setTheme(btn.dataset.theme);
+      container.querySelectorAll('[data-theme-toggle] button').forEach((b) => b.classList.toggle('active', b === btn));
+    });
+  });
 
   let schoolSelect = null, notListedCheckbox = null, otherField = null, otherInput = null;
   if (!knownSchoolName){

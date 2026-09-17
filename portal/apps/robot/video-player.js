@@ -13,6 +13,10 @@
 // still-watching second viewer's feed.
 const VIDEO_BASE = 'https://video.bridge.swayform.net';
 const FEED_DURATION_MS = 30_000;
+// See the retry loop below for why this is wider than the Pi's typical
+// publish time — it needs margin, not just the happy-path estimate.
+const WHEP_MAX_ATTEMPTS = 15;
+const WHEP_RETRY_DELAY_MS = 700;
 
 function waitForIceGathering(pc){
   if (pc.iceGatheringState === 'complete') return Promise.resolve();
@@ -136,19 +140,25 @@ export function mountVideoPlayer(container){
 
       // The 'start' request above only pings the Pi to begin publishing —
       // it doesn't wait for confirmation. The real WHIP handshake (camera
-      // open, ffmpeg offer/answer/ICE/DTLS/SRTP) takes ~1.5s on real
-      // hardware, so the very first WHEP request here can easily arrive
-      // before MediaMTX has a publisher on this path yet. A "no publisher"
+      // open, ffmpeg offer/answer/ICE/DTLS/SRTP) was assumed to take ~1.5s
+      // on real hardware, but observed publish times run closer to 5s, so a
+      // 6-attempt/700ms (~4.2s) budget was giving up right as the Pi's
+      // publish came up — and the catch block's notifyBridgeStop() below
+      // then killed that just-established publish out from under it
+      // (visible in mediamtx as "is publishing" immediately followed by
+      // "closed: terminated", on a loop). WHEP_MAX_ATTEMPTS gives enough
+      // margin over that observed time that a normal-but-slow handshake
+      // doesn't get torn down by our own timeout. A "no publisher"
       // rejection can surface as a thrown network error, not just a non-2xx
       // response (MediaMTX resetting the connection rather than answering
       // with a clean 404) — catch per-attempt so a throw retries too,
       // instead of skipping the whole retry loop on the first attempt.
       let res = null;
       let lastError = null;
-      for (let attempt = 0; attempt < 6 && active; attempt++){
+      for (let attempt = 0; attempt < WHEP_MAX_ATTEMPTS && active; attempt++){
         if (attempt > 0){
           note.textContent = 'Waiting for the robot to start streaming…';
-          await new Promise((r) => setTimeout(r, 700));
+          await new Promise((r) => setTimeout(r, WHEP_RETRY_DELAY_MS));
           if (!active) return;
         }
         try {

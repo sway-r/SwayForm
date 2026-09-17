@@ -5,8 +5,33 @@ import { sql } from '../_lib/db.js';
 import { requireCurrentRobotMember } from '../_lib/authz.js';
 import { validateAgainstCanonicalSource, packageAndEntry } from '../_lib/canonical-source.js';
 import { callBridge } from '../_lib/bridge.js';
+import { logDbRead, approxBytes } from '../_lib/metrics.js';
 
 const SUBMIT_COOLDOWN_MS = 15_000;
+const DISPATCH_NOTIFY_TIMEOUT_MS = 3_000;
+
+/**
+ * Tells the bridge "this robot's dispatch queue may have work now", so it
+ * checks immediately instead of polling Neon every 4 seconds around the clock
+ * waiting for this moment.
+ *
+ * This carries no job and grants nothing: the bridge reacts by calling the
+ * same atomic claim in api/robot/agent.js it always has, which is still the
+ * only place a job can move to 'running'. A lost, duplicated, or even forged
+ * notification can therefore only cause one extra (idempotent) claim attempt,
+ * never a second dispatch. If it doesn't arrive, the bridge's once-a-minute
+ * presence write reports the waiting job and dispatch happens then — logged
+ * here rather than swallowed so a bridge that's unreachable shows up.
+ */
+async function notifyDispatch(robotId, reason){
+  try {
+    const result = await callBridge('/dispatch-notify', { robotId }, DISPATCH_NOTIFY_TIMEOUT_MS);
+    return !!(result && result.delivered);
+  } catch (e) {
+    console.warn(JSON.stringify({ evt: 'dispatch_notify_failed', robotId, reason, error: String(e && e.message || e) }));
+    return false;
+  }
+}
 const MAX_CODE_BYTES = 64 * 1024;
 
 function sha256(text){
@@ -45,20 +70,27 @@ function jobsToCsv(rows){
   return [header, ...lines].join('\r\n') + '\r\n';
 }
 
-function jobView(row){
+// How many finished jobs the live list carries. The Admin app only ever
+// renders this many ("Recent history"); the full record is the CSV export.
+const RECENT_TERMINAL_LIMIT = 15;
+
+// Everything a list row or status line needs, and nothing large: `code` and
+// `output` are deliberately absent. They're multi-KB blobs, and returning
+// them for every job on every poll (three separate pollers used to) is what
+// exhausted the Neon transfer allowance. They're served one job at a time by
+// the job view below, only when something actually asks for them.
+function jobSummary(row){
   return {
     id: row.id,
     studentEmail: row.student_email,
     workspacePath: row.workspace_path,
     package: row.package,
     executable: row.executable,
-    code: row.code,
     status: row.status,
     queuePosition: row.queue_position,
     decidedBy: row.decided_by,
     rejectReason: row.reject_reason,
     exitCode: row.exit_code,
-    output: row.output,
     // A running total of characters ever appended, independent of output's
     // own length (which is a truncated rolling tail) — the client needs
     // this to detect new output once a job has produced more than the
@@ -69,6 +101,91 @@ function jobView(row){
     startedAt: row.started_at,
     finishedAt: row.finished_at,
   };
+}
+
+// ?view=pulse — admin-only, one tiny row. Drives the desktop badge
+// (pendingCount) and tells an open Admin app whether the list is worth
+// re-fetching (version). `version` hashes exactly the fields that can change
+// on the rows the list shows — id, status, queue position, output length —
+// so any submit/approve/reorder/output/clear-history changes it, and an idle
+// queue costs ~100 bytes per poll instead of the whole list.
+async function handlePulse(res, robotId, isAdmin, started){
+  if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
+  const rows = await sql`
+    SELECT
+      (SELECT count(*) FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'pending')::int AS pending_count,
+      (SELECT count(*) FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running'))::int AS open_count,
+      (SELECT md5(COALESCE(string_agg(id || ':' || status || ':' || COALESCE(queue_position, 0) || ':' || output_total_len, ',' ORDER BY id), ''))
+        FROM (
+          (SELECT id, status, queue_position, output_total_len FROM robot_jobs
+            WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running'))
+          UNION ALL
+          (SELECT id, status, queue_position, output_total_len FROM robot_jobs
+            WHERE robot_id = ${robotId} AND status NOT IN ('pending', 'approved', 'running')
+            ORDER BY submitted_at DESC LIMIT ${RECENT_TERMINAL_LIMIT})
+        ) visible) AS version
+  `;
+  const row = rows[0];
+  logDbRead({ view: 'pulse', role: 'admin', rows: 1, dbBytes: approxBytes(rows), ms: Date.now() - started });
+  res.status(200).json({ pendingCount: row.pending_count, openCount: row.open_count, version: row.version });
+}
+
+// ?view=job&id=N[&sinceLen=M][&include=code] — one job, for the student's
+// status watcher and the Admin app's on-demand code/output panel.
+//
+// Authorization never uses anything the client sent except the job id: the
+// robot comes from the caller's current database membership, and a
+// non-admin is additionally pinned to their own session email. Every miss —
+// wrong robot, someone else's job, no such id — is the same 404, so the
+// endpoint can't be used to probe which job ids exist elsewhere.
+//
+// sinceLen is the outputTotalLen the caller already has; only output written
+// after that point is returned, so a watcher polling a long run doesn't
+// re-download the whole retained tail every few seconds.
+async function handleJobView(req, res, { robotId, isAdmin, email, started }){
+  const jobId = Number(req.query.id);
+  if (!Number.isSafeInteger(jobId) || jobId < 1){ res.status(400).json({ error: 'invalid_job_id' }); return; }
+  const sinceLen = req.query.sinceLen === undefined ? 0 : Number(req.query.sinceLen);
+  if (!Number.isSafeInteger(sinceLen) || sinceLen < 0){ res.status(400).json({ error: 'invalid_since_len' }); return; }
+  const includeCode = req.query.include === 'code';
+
+  // Two explicit shapes rather than one composed query — see the note on
+  // neon's sql tag in the cancel action below. CASE is lazy, so `code` is
+  // never even read from storage unless it was asked for.
+  const rows = isAdmin
+    ? await sql`
+        SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+               reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at,
+               CASE WHEN ${includeCode} THEN code END AS code,
+               CASE WHEN output_total_len > ${sinceLen}
+                 THEN right(COALESCE(output, ''), GREATEST(output_total_len - ${sinceLen}, 0)) ELSE '' END AS output_tail
+        FROM robot_jobs WHERE id = ${jobId} AND robot_id = ${robotId}
+      `
+    : await sql`
+        SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+               reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at,
+               CASE WHEN ${includeCode} THEN code END AS code,
+               CASE WHEN output_total_len > ${sinceLen}
+                 THEN right(COALESCE(output, ''), GREATEST(output_total_len - ${sinceLen}, 0)) ELSE '' END AS output_tail
+        FROM robot_jobs WHERE id = ${jobId} AND robot_id = ${robotId} AND student_email = ${email}
+      `;
+  logDbRead({ view: 'job', role: isAdmin ? 'admin' : 'student', rows: rows.length, dbBytes: approxBytes(rows), ms: Date.now() - started });
+  if (!rows.length){ res.status(404).json({ error: 'not_found' }); return; }
+
+  const row = rows[0];
+  // output_total_len counts JS string units (see agent.js); SQL right()
+  // counts code points, so it can only ever return slightly too much. Trim
+  // to exactly the unseen part here. If less came back than was written,
+  // the rest already rolled off the retained tail — say so, don't hide it.
+  const unseen = Math.max(row.output_total_len - sinceLen, 0);
+  const tail = row.output_tail || '';
+  const job = {
+    ...jobSummary(row),
+    outputTail: unseen > 0 ? tail.slice(-unseen) : '',
+    outputTruncated: unseen > tail.length,
+  };
+  if (includeCode) job.code = row.code;
+  res.status(200).json({ job });
 }
 
 export default async function handler(req, res){
@@ -100,27 +217,38 @@ export default async function handler(req, res){
       return;
     }
 
-    // Two fixes folded into one query:
+    const started = Date.now();
+    if (req.query.view === 'pulse') return handlePulse(res, robotId, isAdmin, started);
+    if (req.query.view === 'job') return handleJobView(req, res, { robotId, isAdmin, email: session.email, started });
+    if (req.query.view !== undefined){ res.status(400).json({ error: 'unknown_view' }); return; }
+
+    // The list itself: lightweight summaries only (see jobSummary).
     //  - Every non-terminal job (pending/approved/running) is always
-    //    included, never subject to the LIMIT — the previous single
-    //    `ORDER BY submitted_at DESC LIMIT 50` could push an older pending
+    //    included, never subject to the LIMIT — a single
+    //    `ORDER BY submitted_at DESC LIMIT n` could push an older pending
     //    or even the one running job (which holds the physical execution
-    //    lock) out of the result entirely once 50 newer jobs existed,
+    //    lock) out of the result entirely once enough newer jobs existed,
     //    silently hiding it (and its Stop/Reconcile controls) from the
-    //    admin view. Only the LIMIT 50 applies, and only to already-
-    //    finished (terminal) jobs, which is the actual "recent history".
+    //    admin view. The LIMIT applies only to already-finished (terminal)
+    //    jobs, which is the actual "recent history".
     //  - Pending jobs are ordered by queue_position, not submitted_at —
     //    reorder (the ↑/↓ controls) writes queue_position, but reading by
     //    submission time meant a reorder never visibly changed anything on
     //    refresh even though the robot's own dispatch order (which reads
     //    queue_position) had actually changed.
+    //  - Columns are named, never `SELECT *`: that is what keeps `code` and
+    //    `output` from leaving the database on a list read.
     const rows = isAdmin
       ? await sql`
           SELECT * FROM (
-            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running'))
+            (SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+                    reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at
+              FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running'))
             UNION ALL
-            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND status NOT IN ('pending', 'approved', 'running')
-              ORDER BY submitted_at DESC LIMIT 50)
+            (SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+                    reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at
+              FROM robot_jobs WHERE robot_id = ${robotId} AND status NOT IN ('pending', 'approved', 'running')
+              ORDER BY submitted_at DESC LIMIT ${RECENT_TERMINAL_LIMIT})
           ) combined
           ORDER BY
             CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'running' THEN 2 ELSE 3 END,
@@ -129,17 +257,22 @@ export default async function handler(req, res){
         `
       : await sql`
           SELECT * FROM (
-            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status IN ('pending', 'approved', 'running'))
+            (SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+                    reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at
+              FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status IN ('pending', 'approved', 'running'))
             UNION ALL
-            (SELECT * FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status NOT IN ('pending', 'approved', 'running')
-              ORDER BY submitted_at DESC LIMIT 50)
+            (SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
+                    reject_reason, exit_code, output_total_len, submitted_at, decided_at, started_at, finished_at
+              FROM robot_jobs WHERE robot_id = ${robotId} AND student_email = ${session.email} AND status NOT IN ('pending', 'approved', 'running')
+              ORDER BY submitted_at DESC LIMIT ${RECENT_TERMINAL_LIMIT})
           ) combined
           ORDER BY
             CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'running' THEN 2 ELSE 3 END,
             CASE WHEN status = 'pending' THEN queue_position END ASC,
             submitted_at DESC
         `;
-    res.status(200).json({ jobs: rows.map(jobView) });
+    logDbRead({ view: 'list', role: isAdmin ? 'admin' : 'student', rows: rows.length, dbBytes: approxBytes(rows), ms: Date.now() - started });
+    res.status(200).json({ jobs: rows.map(jobSummary) });
     return;
   }
 
@@ -225,7 +358,10 @@ export default async function handler(req, res){
       if (wasIdle){
         try { await callBridge('/idle-request', { robotId, action: 'stop' }); } catch (e) { /* best-effort */ }
       }
-      res.status(200).json({ ok: true });
+      // After the idle stop, never before it: the bridge relays frames to
+      // the agent in the order it receives them.
+      const dispatchNotified = await notifyDispatch(robotId, 'approve');
+      res.status(200).json({ ok: true, dispatchNotified });
       return;
     }
 
@@ -318,6 +454,9 @@ export default async function handler(req, res){
       if (!updated.length){ res.status(400).json({ error: 'not_running' }); return; }
       await sql`INSERT INTO portal_audit_events (robot_id, actor_email, action, subject_email)
         VALUES (${robotId}, ${session.email}, 'reconcile_job', NULL)`;
+      // Releasing the execution lock can unblock an approved job that was
+      // waiting behind the stuck one.
+      await notifyDispatch(robotId, 'reconcile');
       res.status(200).json({ ok: true });
       return;
     }

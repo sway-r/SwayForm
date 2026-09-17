@@ -13,6 +13,7 @@ import { isReadOnlyFile, defaultOpenFileFor } from '../../../data/workspace-conf
 import { packageAndEntry, isCanonicalRobotPath } from './ros-paths.js';
 import { buildRunSequence } from './mock-shell.js';
 import { getSession } from '../../../services/auth-service.js';
+import { watchJob } from '../../../services/job-watch.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -48,7 +49,7 @@ export function mount(bodyEl, winApi, opts) {
   let pendingSave = null; // { path, value } awaiting the debounced write — flushed on dispose
   let disposed = false;
   let hasRobot = false;
-  let jobPollTimer = null;
+  let jobWatch = null; // the one job currently being followed (services/job-watch.js)
   // Path whose current (on-disk/mock-fs) content Run has most recently
   // confirmed valid against the canonical source — cleared on any edit to
   // that file, so Queue on Robot always reflects the content actually in
@@ -327,7 +328,7 @@ export function mount(bodyEl, winApi, opts) {
 
       if (submitRes.ok && submitData.ok){
         output.appendLine(`Queued — position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
-        watchJob(submitData.jobId);
+        watchQueuedJob(submitData.jobId);
       } else if (submitData.error === 'cooldown'){
         const seconds = Math.ceil((submitData.retryAfterMs || 0) / 1000);
         output.appendLine(`Please wait ${seconds}s before queueing again.`, 'term-warn', 'output');
@@ -351,58 +352,42 @@ export function mount(bodyEl, winApi, opts) {
     cancelled: ['Cancelled.', 'term-warn'],
   };
 
-  /** Polls this job's status after queueing and appends a line to the
-   * output panel each time it changes, so a student watching sees real
-   * progress (approved -> running -> succeeded/failed) without needing a
-   * separate app. Stops once the job reaches a terminal status. */
-  function watchJob(jobId){
-    clearInterval(jobPollTimer);
-    let lastSeenStatus = 'pending';
-    let lastOutputLen = 0;
-    jobPollTimer = setInterval(async () => {
-      let jobs;
-      try {
-        const res = await fetch('/api/robot/queue');
-        if (!res.ok) return;
-        ({ jobs } = await res.json());
-      } catch (e) { return; }
-
-      const job = jobs.find((j) => j.id === jobId);
-      if (!job) return;
-
-      if (job.status !== lastSeenStatus){
-        lastSeenStatus = job.status;
-        const [text, cls] = JOB_STATUS_LINE[job.status] || [job.status, 'term-warn'];
+  /** Follows this job after queueing and appends a line to the output panel
+   * each time its status changes, so a student watching sees real progress
+   * (approved -> running -> succeeded/failed) without needing a separate
+   * app. The polling itself — one job, new output only, easing off while
+   * it waits for review, ending at a terminal status — lives in
+   * services/job-watch.js. Output is tracked server-side by a never-
+   * truncated running counter (outputTotalLen), so a long run that overflows
+   * the retained tail reports the gap instead of silently losing it. */
+  function watchQueuedJob(jobId){
+    if (jobWatch) jobWatch.stop();
+    jobWatch = watchJob(jobId, {
+      onStatus(status, job){
+        const [text, cls] = JOB_STATUS_LINE[status] || [status, 'term-warn'];
         output.appendLine(text, cls, 'output');
+        if (status === 'rejected' && job.rejectReason) output.appendLine(`Reason: ${job.rejectReason}`, 'term-err', 'output');
         output.setActive('output');
-      }
-      // job.output is a rolling tail capped server-side (MAX_OUTPUT_CHARS in
-      // api/robot/agent.js) — once a job's total output exceeds that, its
-      // length plateaus even as content keeps changing (old text drops off
-      // the front as fast as new text arrives), so comparing job.output's
-      // own length against lastOutputLen would go permanently false right
-      // when it matters most (a long run finally printing an error).
-      // outputTotalLen is a separate, never-truncated running counter used
-      // only to detect and size new output.
-      const outputTotalLen = job.outputTotalLen || 0;
-      if (outputTotalLen > lastOutputLen){
-        const newChars = outputTotalLen - lastOutputLen;
-        const outputText = job.output || '';
-        if (newChars <= outputText.length){
-          output.appendLine(outputText.slice(-newChars), '', 'output');
-        } else {
-          // More was written between polls than the server retained —
-          // some of it is unrecoverable. Show what's left rather than
-          // nothing, with a note instead of silently dropping the gap.
-          output.appendLine('[earlier output truncated]\n' + outputText, '', 'output');
-        }
-        lastOutputLen = outputTotalLen;
-      }
-      if (['succeeded', 'failed', 'rejected', 'cancelled'].includes(job.status)){
-        clearInterval(jobPollTimer);
-        jobPollTimer = null;
-      }
-    }, 3000);
+      },
+      onOutput(text, truncated){
+        // More was written between polls than the server retained — show
+        // what's left with a note rather than silently dropping the gap.
+        output.appendLine((truncated ? '[earlier output truncated]\n' : '') + text, '', 'output');
+      },
+      onError(error, failures){
+        // Say so once per outage (it keeps retrying, more slowly) — a student
+        // staring at a frozen panel can't tell "still waiting" from "broken".
+        if (failures === 1) output.appendLine("Lost contact with the server while following this job — still retrying. Your job is not affected.", 'term-warn', 'output');
+      },
+      onRecovered(){
+        output.appendLine('Reconnected — following your job again.', 'term-ok', 'output');
+      },
+      onGone(reason){
+        output.appendLine(reason === 'not_authorized'
+          ? "You're no longer signed in to this robot's class, so this job can't be followed from here."
+          : "This job is no longer in the queue history, so it can't be followed from here.", 'term-warn', 'output');
+      },
+    });
   }
 
   // Shared by both the debounced autosave and the explicit Save button, so
@@ -479,7 +464,7 @@ export function mount(bodyEl, winApi, opts) {
     dispose(){
       disposed = true;
       flushPendingSave();
-      clearInterval(jobPollTimer);
+      if (jobWatch) jobWatch.stop();
       window.removeEventListener('swayform:workspace-fs-reset', onWorkspaceFsReset);
       if (editor) editor.dispose();
     },

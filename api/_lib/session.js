@@ -72,6 +72,10 @@ export async function readSessionFromRequest(req){
   };
   // Available to server logout, never serialized into the browser response.
   Object.defineProperty(result, 'sessionId', { value: jti });
+  // The database role resolved for THIS request (null = no current role).
+  // authz.js reads it instead of repeating the same lookup milliseconds
+  // later; non-enumerable so it never reaches a browser response either.
+  Object.defineProperty(result, 'currentRole', { value: current || null });
   return result;
 }
 

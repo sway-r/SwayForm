@@ -12,31 +12,29 @@ export const sql = neon(connectionString);
 export async function findRoleForEmail(email){
   const normalized = email.trim().toLowerCase();
 
-  const admin = await sql`
-    SELECT r.id AS robot_id, r.serial_number AS robot_serial, r.school_name AS robot_school_name
-    FROM admin_emails ae
-    JOIN admin_accounts aa ON aa.id = ae.admin_account_id
-    JOIN robots r ON r.id = aa.robot_id
-    WHERE ae.email = ${normalized}
+  // One round trip, not an admin query followed by a student query: this
+  // runs on every authenticated request, including each poll. `pri` keeps
+  // the original precedence (admin wins, then the oldest active student row).
+  const rows = await sql`
+    SELECT role, robot_id, robot_serial, robot_school_name FROM (
+      SELECT 'admin' AS role, 0 AS pri, NULL::timestamptz AS linked_at, 0 AS link_id,
+             r.id AS robot_id, r.serial_number AS robot_serial, r.school_name AS robot_school_name
+      FROM admin_emails ae
+      JOIN admin_accounts aa ON aa.id = ae.admin_account_id
+      JOIN robots r ON r.id = aa.robot_id
+      WHERE ae.email = ${normalized}
+      UNION ALL
+      SELECT 'student', 1, s.created_at, s.id, r.id, r.serial_number, r.school_name
+      FROM students s
+      JOIN robots r ON r.id = s.robot_id
+      WHERE s.email = ${normalized} AND s.status = 'active'
+    ) memberships
+    ORDER BY pri, linked_at, link_id
+    LIMIT 1
   `;
-  if (admin.length){
-    const row = admin[0];
-    return { role: 'admin', robotId: row.robot_id, robotSerial: row.robot_serial, robotSchoolName: row.robot_school_name };
-  }
-
-  const student = await sql`
-    SELECT r.id AS robot_id, r.serial_number AS robot_serial, r.school_name AS robot_school_name
-    FROM students s
-    JOIN robots r ON r.id = s.robot_id
-    WHERE s.email = ${normalized} AND s.status = 'active'
-    ORDER BY s.created_at, s.id
-  `;
-  if (student.length){
-    const row = student[0];
-    return { role: 'student', robotId: row.robot_id, robotSerial: row.robot_serial, robotSchoolName: row.robot_school_name };
-  }
-
-  return undefined;
+  if (!rows.length) return undefined;
+  const row = rows[0];
+  return { role: row.role, robotId: row.robot_id, robotSerial: row.robot_serial, robotSchoolName: row.robot_school_name };
 }
 
 export async function findProfileForEmail(email){

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { requireMethod } from '../_lib/session.js';
 import { requireBridgeSecret } from '../_lib/bridge.js';
 import { sql } from '../_lib/db.js';
+import { logDbRead } from '../_lib/metrics.js';
 
 const MAX_OUTPUT_CHARS = 64 * 1024;
 
@@ -68,12 +69,22 @@ async function handleHeartbeat(req, res){
     return;
   }
 
-  await sql`
+  // The bridge writes presence about once a minute (plus on connect and
+  // disconnect), not on every 10s WebSocket ping — api/_lib/limits.js's
+  // ROBOT_ONLINE_CUTOFF_MS is sized to match. The same statement also reports
+  // whether an approved job is waiting, which makes this write double as the
+  // bridge's dispatch reconciliation check: it replaced a separate 4-second
+  // dispatch poll, and it only says "go look" — claiming a job still happens
+  // exclusively in handleDispatchQueue below.
+  const rows = await sql`
     UPDATE robots
     SET is_online = ${!!online}, last_seen_at = now(), agent_version = ${agentVersion || null}
     WHERE id = ${robotId}
+    RETURNING EXISTS (
+      SELECT 1 FROM robot_jobs WHERE robot_jobs.robot_id = robots.id AND robot_jobs.status = 'approved'
+    ) AS has_approved
   `;
-  res.status(200).json({ ok: true });
+  res.status(200).json({ ok: true, hasApproved: !!(rows[0] && rows[0].has_approved) });
 }
 
 // ── job lifecycle ───────────────────────────────────────────────────────
@@ -147,6 +158,14 @@ async function handleDispatchQueue(req, res){
 
   // Claim exactly one job before sending code to the Pi. A lost delivery stays
   // running for manual reconciliation; never automatically replay physical motion.
+  //
+  // The bridge calls this when something says a job may be ready (an approve
+  // notification, a finished job, a fresh connection, or the presence write
+  // reporting an approved job) rather than on a fixed 4s timer. Extra or
+  // repeated calls are harmless by construction: the robot row lock
+  // serializes concurrent claims, and a job that is already 'running' can
+  // never be selected or returned again.
+  const started = Date.now();
   const [, rows] = await sql.transaction([
     sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
     sql`UPDATE robot_jobs SET status = 'running', started_at = now()
@@ -157,6 +176,7 @@ async function handleDispatchQueue(req, res){
       ) AND robot_id = ${robotId} AND status = 'approved'
       RETURNING id, workspace_path, package, executable, code, code_sha256`,
   ]);
+  logDbRead({ view: 'dispatch', role: 'bridge', rows: rows.length, ms: Date.now() - started });
 
   res.status(200).json({
     jobs: rows.map((r) => ({

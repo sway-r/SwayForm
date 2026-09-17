@@ -4,6 +4,8 @@ import { readSessionFromRequest } from '../_lib/session.js';
 import { requireCurrentRobotMember } from '../_lib/authz.js';
 import { sql } from '../_lib/db.js';
 import { callBridge } from '../_lib/bridge.js';
+import { ROBOT_ONLINE_CUTOFF_MS } from '../_lib/limits.js';
+import { logDbRead, approxBytes } from '../_lib/metrics.js';
 
 const VIEWER_TOKEN_TTL_SECONDS = 120;
 
@@ -50,10 +52,12 @@ export default async function handler(req, res){
   }
   const robotId = member.robotId;
 
+  const started = Date.now();
   const rows = await sql`
     SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled
     FROM robots WHERE id = ${robotId}
   `;
+  if (req.method === 'GET') logDbRead({ view: 'status', role: member.role, rows: rows.length, dbBytes: approxBytes(rows), ms: Date.now() - started });
   if (!rows.length){
     res.status(404).json({ error: 'not_found' });
     return;
@@ -105,7 +109,7 @@ export default async function handler(req, res){
 
   res.status(200).json({
     robotSerial: r.serial_number,
-    online: !!r.is_online && Date.now() - new Date(r.last_seen_at).getTime() < 30_000,
+    online: !!r.is_online && Date.now() - new Date(r.last_seen_at).getTime() < ROBOT_ONLINE_CUTOFF_MS,
     lastSeenAt: r.last_seen_at,
     agentVersion: r.agent_version,
     idleSessionEnabled: r.idle_session_enabled,

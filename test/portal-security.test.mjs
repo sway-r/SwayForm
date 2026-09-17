@@ -23,6 +23,7 @@ registerHooks({ resolve(specifier, context, next){
   };
   return next(specifier, context);
 } });
+process.env.SWAYFORM_DB_METRICS = 'off'; // keep per-read log lines out of test output
 process.env.DATABASE_URL = 'postgresql://synthetic:synthetic@localhost/synthetic';
 process.env.SESSION_SECRET = 'test-only-session-secret-not-a-real-credential';
 process.env.VERCEL_ENV = 'production';

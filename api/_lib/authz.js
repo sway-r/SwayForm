@@ -1,6 +1,18 @@
 import { findRoleForEmail } from './db.js';
 
 /**
+ * The email's CURRENT database role. readSessionFromRequest() already looked
+ * this up while building the session for this same request and attached it
+ * as `currentRole`; repeating the query here doubled the auth cost of every
+ * request, which matters most on polled endpoints. Only a session object
+ * that didn't come from readSessionFromRequest() falls back to querying.
+ */
+async function currentRoleFor(session){
+  if (session.currentRole !== undefined) return session.currentRole || undefined;
+  return findRoleForEmail(session.email);
+}
+
+/**
  * Re-validates a session's admin claim against the database (the cookie JWT
  * can be up to 7 days stale) so a removed admin can't keep acting as one
  * until their cookie happens to expire. Returns the current robotId on
@@ -8,7 +20,7 @@ import { findRoleForEmail } from './db.js';
  */
 export async function requireCurrentAdmin(session){
   if (!session || session.mode !== 'admin') return null;
-  const current = await findRoleForEmail(session.email);
+  const current = await currentRoleFor(session);
   if (!current || current.role !== 'admin' || current.robotId !== session.robotId) return null;
   return current.robotId;
 }
@@ -23,7 +35,7 @@ export async function requireCurrentAdmin(session){
  */
 export async function requireCurrentRobotMember(session){
   if (!session || (session.mode !== 'admin' && session.mode !== 'student')) return null;
-  const current = await findRoleForEmail(session.email);
+  const current = await currentRoleFor(session);
   if (!current || current.robotId !== session.robotId) return null;
   return { robotId: current.robotId, role: current.role };
 }

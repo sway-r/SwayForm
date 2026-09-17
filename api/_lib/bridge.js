@@ -37,7 +37,7 @@ export function requireBridgeSecret(req, res){
  * x-bridge-secret check it already uses to gate /mediamtx-auth and
  * /_exchange from being reachable as arbitrary HTTP routes.
  */
-export async function callBridge(path, body){
+export async function callBridge(path, body, timeoutMs = 8_000){
   const base = process.env.BRIDGE_URL;
   const secret = process.env.BRIDGE_SERVICE_SECRET;
   if (!base) throw new Error('BRIDGE_URL is not set');
@@ -47,7 +47,7 @@ export async function callBridge(path, body){
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-bridge-secret': secret },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(8_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) throw new Error(`${path} -> ${res.status}`);
   return res.json();

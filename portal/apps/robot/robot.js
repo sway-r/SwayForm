@@ -1,6 +1,7 @@
 import { icon } from '../../icons.js';
 import { getSession } from '../../services/auth-service.js';
 import { mountVideoPlayer } from './video-player.js';
+import { createPoller } from '../../services/adaptive-poller.js';
 
 // The admin-only embedded code editor lives in its own desktop app
 // (apps/code-editor/code-editor.js), not as a tab here — see that file for
@@ -71,26 +72,39 @@ export async function mount(container, ctx){
   const idleToggle = container.querySelector('[data-role="idle-toggle"]');
 
   async function refreshStatus(){
-    try {
-      const res = await fetch('/api/robot/status');
-      if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = await res.json();
+    const res = await fetch('/api/robot/status');
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    const data = await res.json();
 
-      badge.textContent = data.online ? 'Online' : 'Offline';
-      badge.classList.toggle('is-online', !!data.online);
-      note.textContent = data.online
-        ? 'Robot agent connected.'
-        : `Robot agent not connected. Last seen: ${formatLastSeen(data.lastSeenAt)}.`;
+    badge.textContent = data.online ? 'Online' : 'Offline';
+    badge.classList.toggle('is-online', !!data.online);
+    note.textContent = data.online
+      ? 'Robot agent connected.'
+      : `Robot agent not connected. Last seen: ${formatLastSeen(data.lastSeenAt)}.`;
 
-      if (idleToggle && !idleToggle.disabled){
-        idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
-        idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
-      }
-    } catch (e) {
-      badge.textContent = 'Unknown';
-      note.textContent = "Couldn't reach the server to check robot status.";
+    if (idleToggle && !idleToggle.disabled){
+      idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
+      idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
     }
   }
+
+  // Still every 15s while someone can actually see the badge — that keeps
+  // online/offline reasonably current. What changed is everything around it:
+  // it pauses while the tab is hidden or this window is minimized (nobody can
+  // see it; it refreshes the moment it's back), never overlaps a slow
+  // request, and backs off while the server is failing instead of retrying
+  // at full speed.
+  const statusPoller = createPoller({
+    task: refreshStatus,
+    delayMs: () => POLL_INTERVAL_MS,
+    whenHidden: 'pause',
+    isRelevant: () => container.offsetParent !== null,
+    onError(){
+      badge.textContent = 'Unknown';
+      badge.classList.remove('is-online');
+      note.textContent = "Couldn't reach the server to check robot status. Retrying.";
+    },
+  });
 
   if (idleToggle){
     idleToggle.addEventListener('click', async () => {
@@ -122,13 +136,12 @@ export async function mount(container, ctx){
     });
   }
 
-  await refreshStatus();
-  const pollTimer = setInterval(refreshStatus, POLL_INTERVAL_MS);
+  statusPoller.start();
   const videoPlayer = mountVideoPlayer(videoPanel);
 
   return {
     unmount(){
-      clearInterval(pollTimer);
+      statusPoller.stop();
       videoPlayer.unmount();
     },
   };

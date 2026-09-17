@@ -11,10 +11,34 @@ if (!API_BASE) throw new Error('VERCEL_API_BASE is not set');
 if (!SERVICE_SECRET) throw new Error('BRIDGE_SERVICE_SECRET is not set');
 const JWT_SECRET_KEY = new TextEncoder().encode(SERVICE_SECRET);
 
-const HEARTBEAT_INTERVAL_MS = 10_000;
-const DISPATCH_POLL_INTERVAL_MS = 4_000;
+// Two different clocks that used to be one. The WebSocket ping is local
+// liveness (is this socket dead?) and costs nothing; the presence write is a
+// database UPDATE through Vercel into Neon. Tying them together meant 8,640
+// database writes per robot per day to say "still here".
+const WS_PING_INTERVAL_MS = 10_000;
+// Presence is also written on connect and on disconnect, so this only bounds
+// how stale last_seen_at gets while connected. api/_lib/limits.js's
+// ROBOT_ONLINE_CUTOFF_MS must stay above 2x this. (Env override is for tests.)
+const PRESENCE_WRITE_INTERVAL_MS = Number(process.env.PRESENCE_WRITE_INTERVAL_MS) || 60_000;
+// Dispatch is event-driven now (see requestDispatch). These two holds keep
+// the physical pacing at least as relaxed as the old 4s poll produced, rather
+// than letting "instant" become the norm on real hardware: a job never
+// starts sooner than this after the previous job's exit, or after an idle
+// session was told to stop (the agent escalates SIGINT to SIGKILL at 3s).
+const POST_JOB_SETTLE_MS = 2_000;
+const IDLE_STOP_SETTLE_MS = 4_000;
+const DISPATCH_RETRY_MS = 5_000;
+const METRICS_LOG_INTERVAL_MS = 10 * 60_000;
+
+// How many calls this process made into the API (each is at least one Neon
+// query), by action, per 10 minutes. This is the number to watch after a
+// deploy: an idle connected robot should show ~10 heartbeats and ~0
+// dispatch-queue calls per window. Counts only — never tokens or payloads.
+const apiCallCounts = new Map();
+function countApiCall(name){ apiCallCounts.set(name, (apiCallCounts.get(name) || 0) + 1); }
 
 async function callApi(path, body){
+  countApiCall(body && body.action ? body.action : path);
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-bridge-secret': SERVICE_SECRET },
@@ -25,7 +49,8 @@ async function callApi(path, body){
   return res.json();
 }
 
-async function getApi(path){
+async function getApi(path, name){
+  countApiCall(name);
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'x-bridge-secret': SERVICE_SECRET },
     signal: AbortSignal.timeout(10_000),
@@ -223,7 +248,41 @@ async function handleIdleRequest(req, res){
 
   const ws = connectedRobots.get(robotId);
   const delivered = !!(ws && ws.readyState === ws.OPEN);
-  if (delivered) ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
+  if (delivered){
+    ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
+    // Approving a job stops idle and then notifies dispatch back to back.
+    // Give the idle process time to actually exit before a job.run follows.
+    if (body.action === 'stop' && ws.dispatch) ws.dispatch.hold(IDLE_STOP_SETTLE_MS);
+  }
+
+  res.writeHead(200, { 'content-type': 'application/json' });
+  res.end(JSON.stringify({ ok: true, delivered }));
+}
+
+// "This robot's dispatch queue may have work" — sent by api/robot/queue.js
+// when an admin approves a job (or reconciles a stuck one), replacing the
+// fixed 4s poll that asked Neon the same question 21,600 times a day per
+// robot. It names a robot and nothing else: no job id, no code. All it can do
+// is make this process run the same atomic claim (api/robot/agent.js's
+// dispatch-queue) slightly sooner, so a replayed or forged notification can
+// never dispatch anything that a poll wouldn't have dispatched anyway.
+async function handleDispatchNotify(req, res){
+  const provided = req.headers['x-bridge-secret'];
+  if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const robotId = Number(body.robotId);
+  if (!Number.isSafeInteger(robotId)){
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'invalid_fields' }));
+    return;
+  }
+
+  const ws = connectedRobots.get(robotId);
+  const delivered = !!(ws && ws.readyState === ws.OPEN && ws.dispatch);
+  if (delivered) ws.dispatch.request('notify');
 
   res.writeHead(200, { 'content-type': 'application/json' });
   res.end(JSON.stringify({ ok: true, delivered }));
@@ -326,6 +385,10 @@ const server = http.createServer((req, res) => {
     handleVideoRequest(req, res);
     return;
   }
+  if (req.method === 'POST' && req.url === '/dispatch-notify'){
+    handleDispatchNotify(req, res);
+    return;
+  }
   res.writeHead(200, { 'content-type': 'text/plain' });
   res.end('swayform-bridge ok');
 });
@@ -363,8 +426,8 @@ wss.on('connection', (ws, req) => {
   console.log(`raw connection opened from ${req.socket.remoteAddress}:${req.socket.remotePort}`);
   let robotId = null;
   let agentVersion = null;
-  let heartbeatTimer = null;
-  let dispatchTimer = null;
+  let pingTimer = null;
+  let presenceTimer = null;
   let alive = true;
   let messageTail = Promise.resolve();
   let pendingMessages = 0;
@@ -398,22 +461,33 @@ wss.on('connection', (ws, req) => {
         clearTimeout(authTimer);
         agentVersion = msg.agentVersion || null;
 
-        await callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion });
+        await writePresence(robotId, { online: true, agentVersion });
         if (ws.readyState !== ws.OPEN) return;
-        ws.send(JSON.stringify({ t: 'hello.ok', robotId, heartbeatIntervalMs: HEARTBEAT_INTERVAL_MS }));
+        ws.send(JSON.stringify({ t: 'hello.ok', robotId, heartbeatIntervalMs: WS_PING_INTERVAL_MS }));
         console.log(`agent connected: serial=${msg.serial} robotId=${robotId} agentVersion=${agentVersion}`);
 
-        heartbeatTimer = setInterval(() => {
+        ws.dispatch = createDispatcher(ws, robotId, dispatchedJobIds);
+
+        // Socket liveness: local, every 10s, no database involved.
+        pingTimer = setInterval(() => {
           if (!alive){ ws.terminate(); return; }
           alive = false;
           ws.ping();
-          callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: true, agentVersion }).catch((e) => {
-            console.error('heartbeat write failed:', e.message);
-          });
-        }, HEARTBEAT_INTERVAL_MS);
+        }, WS_PING_INTERVAL_MS);
 
-        dispatchTimer = setInterval(() => pollDispatchQueue(ws, robotId, dispatchedJobIds), DISPATCH_POLL_INTERVAL_MS);
-        pollDispatchQueue(ws, robotId, dispatchedJobIds);
+        // Database presence: once a minute. Its response also says whether
+        // an approved job is waiting, which is the safety net for a dispatch
+        // notification that never arrived (bridge restart, network blip).
+        // `!== false` on purpose: an API that predates hasApproved returns
+        // no such field, and "unknown" must mean "go check", not "no work".
+        presenceTimer = setInterval(() => {
+          writePresence(robotId, { online: true, agentVersion })
+            .then((result) => { if (result.hasApproved !== false) ws.dispatch.request('presence'); })
+            .catch((e) => console.error('presence write failed:', e.message));
+        }, PRESENCE_WRITE_INTERVAL_MS);
+
+        // A job approved while the agent was offline is picked up here.
+        ws.dispatch.request('connect');
       } catch (e) {
         console.error('agent auth failed:', e.message);
         ws.close(4001, 'auth_failed');
@@ -445,6 +519,11 @@ wss.on('connection', (ws, req) => {
       await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
         console.error('job-finished failed:', e.message);
       });
+      // The execution lock just released — the next approved job, if any,
+      // can go. Nothing else would announce that; no admin action happens
+      // between two already-approved jobs.
+      ws.dispatch.hold(POST_JOB_SETTLE_MS);
+      ws.dispatch.request('job-finished');
       return;
     }
 
@@ -461,6 +540,8 @@ wss.on('connection', (ws, req) => {
       await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: 1 }).catch((e) => {
         console.error('job-finished(error) failed:', e.message);
       });
+      ws.dispatch.hold(POST_JOB_SETTLE_MS);
+      ws.dispatch.request('job-finished');
       return;
     }
 
@@ -474,39 +555,126 @@ wss.on('connection', (ws, req) => {
     clearTimeout(authTimer);
     if (connectedRobots.get(robotId) === ws) connectedRobots.delete(robotId);
     activeViewers.delete(robotId);
-    if (heartbeatTimer) clearInterval(heartbeatTimer);
-    if (dispatchTimer) clearInterval(dispatchTimer);
+    if (pingTimer) clearInterval(pingTimer);
+    if (presenceTimer) clearInterval(presenceTimer);
+    if (ws.dispatch) ws.dispatch.stop();
     if (robotId){
-      callApi('/api/robot/agent', { action: 'heartbeat', robotId, online: false }).catch((e) => {
-        console.error('offline heartbeat write failed:', e.message);
+      // Written immediately, so a normal disconnect shows as offline right
+      // away — the longer online cutoff only matters if this process dies.
+      writePresence(robotId, { online: false }).catch((e) => {
+        console.error('offline presence write failed:', e.message);
       });
     }
   });
 });
 
-async function pollDispatchQueue(ws, robotId, dispatchedJobIds){
-  if (ws.readyState !== ws.OPEN || ws.dispatchPending) return;
-  ws.dispatchPending = true;
-  try {
-    const { jobs } = await getApi(`/api/robot/agent?action=dispatch-queue&robotId=${robotId}`);
-    if (ws.readyState !== ws.OPEN) return;
-    for (const job of jobs){
-      if (dispatchedJobIds.has(job.jobId)) continue;
-      dispatchedJobIds.add(job.jobId);
-      ws.send(JSON.stringify({
-        t: 'job.run',
-        jobId: job.jobId,
-        package: job.package,
-        executable: job.executable,
-        path: job.path,
-        code: job.code,
-        sha256: job.sha256,
-        timeoutMs: 60_000,
-      }));
-    }
-  } catch (e) {
-    console.error('dispatch-queue poll failed:', e.message);
-  } finally { ws.dispatchPending = false; }
+// Presence writes for one robot are applied in the order they were issued.
+// With a write every 10s, an "offline" landing after the "online" of a quick
+// reconnect corrected itself within seconds; at once a minute it would leave
+// a connected robot showing offline for up to a minute.
+const presenceTails = new Map(); // robotId -> the last queued write, settled
+function writePresence(robotId, fields){
+  const previous = presenceTails.get(robotId) || Promise.resolve();
+  const write = previous.then(() => callApi('/api/robot/agent', { action: 'heartbeat', robotId, ...fields }));
+  const settled = write.catch(() => {});
+  presenceTails.set(robotId, settled);
+  settled.then(() => { if (presenceTails.get(robotId) === settled) presenceTails.delete(robotId); });
+  return write;
 }
+
+/**
+ * Per-connection dispatch trigger. Asking the API to claim the next approved
+ * job used to happen on a 4s timer forever; now it happens when something
+ * suggests there may be one:
+ *   connect       — a job may have been approved while the agent was away
+ *   notify        — an admin just approved (or reconciled) a job
+ *   job-finished  — the execution lock just released
+ *   presence      — the once-a-minute presence write saw an approved job
+ *                   (the fallback for a notification that never arrived)
+ *
+ * Every safety property still lives where it always did, in the claim
+ * itself (one 'running' job per robot, claimed atomically before any code is
+ * sent, never re-sent). This only decides WHEN to ask, and asking too often
+ * or twice is harmless — which is why triggers are allowed to be lossy.
+ */
+function createDispatcher(ws, robotId, dispatchedJobIds){
+  let inFlight = false;
+  let again = false;      // a trigger arrived mid-request: ask once more after it
+  let notBefore = 0;      // earliest time the next job.run may be sent (see hold)
+  let timer = null;
+  let retried = false;
+  let stopped = false;
+
+  function request(reason){
+    if (stopped || ws.readyState !== ws.OPEN) return;
+    if (inFlight){ again = true; return; }
+    const wait = notBefore - Date.now();
+    if (wait > 0){
+      if (!timer) timer = setTimeout(() => { timer = null; request(reason); }, wait);
+      return;
+    }
+    run(reason);
+  }
+
+  async function run(reason){
+    inFlight = true;
+    let failed = false;
+    try {
+      const { jobs } = await getApi(`/api/robot/agent?action=dispatch-queue&robotId=${robotId}`, 'dispatch-queue');
+      retried = false;
+      if (stopped || ws.readyState !== ws.OPEN) return;
+      for (const job of jobs){
+        // Belt and braces: the API can't return an already-running job, and
+        // this makes sure that even if it somehow did, this connection would
+        // not send the same job's code to the robot twice.
+        if (dispatchedJobIds.has(job.jobId)) continue;
+        dispatchedJobIds.add(job.jobId);
+        ws.send(JSON.stringify({
+          t: 'job.run',
+          jobId: job.jobId,
+          package: job.package,
+          executable: job.executable,
+          path: job.path,
+          code: job.code,
+          sha256: job.sha256,
+          timeoutMs: 60_000,
+        }));
+        console.log(`dispatched job ${job.jobId} to robotId=${robotId} (trigger: ${reason})`);
+      }
+    } catch (e) {
+      failed = true;
+      console.error(`dispatch-queue request failed (trigger: ${reason}):`, e.message);
+    } finally {
+      inFlight = false;
+    }
+    if (again){ again = false; request('coalesced'); }
+    else if (failed && !retried){
+      // One prompt retry for a transient failure; after that the presence
+      // write picks it up, so a down API isn't hammered.
+      retried = true;
+      hold(DISPATCH_RETRY_MS);
+      request('retry');
+    }
+  }
+
+  function hold(ms){ notBefore = Math.max(notBefore, Date.now() + ms); }
+
+  function stop(){
+    stopped = true;
+    if (timer){ clearTimeout(timer); timer = null; }
+  }
+
+  return { request, hold, stop };
+}
+
+setInterval(() => {
+  console.log(JSON.stringify({
+    evt: 'bridge_api_calls',
+    windowSec: METRICS_LOG_INTERVAL_MS / 1000,
+    connectedRobots: connectedRobots.size,
+    calls: Object.fromEntries(apiCallCounts),
+  }));
+  apiCallCounts.clear();
+}, METRICS_LOG_INTERVAL_MS).unref();
 
 server.listen(PORT, () => console.log(`swayform-bridge listening on :${PORT}`));

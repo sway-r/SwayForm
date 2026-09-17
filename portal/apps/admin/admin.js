@@ -1,4 +1,5 @@
 import { escapeHtml } from '../../utils.js';
+import { subscribeQueue, refreshQueueNow } from '../../services/robot-jobs-service.js';
 
 export const meta = {
   id: 'admin',
@@ -30,12 +31,21 @@ async function postAction(body){
   return data;
 }
 
-async function fetchQueue(){
-  const res = await fetch('/api/robot/queue');
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.jobs || [];
+// The queue list itself comes from services/robot-jobs-service.js (one
+// shared loop for this panel and the desktop badge) and carries summaries
+// only. A job's code and output are fetched here, one job at a time, when
+// its panel is opened or it's the job currently running — instead of every
+// job's code and output arriving with every 5-second poll whether anyone
+// looked at them or not.
+async function fetchJobDetail(jobId, { sinceLen, includeCode }){
+  const params = new URLSearchParams({ view: 'job', id: String(jobId), sinceLen: String(sinceLen || 0) });
+  if (includeCode) params.set('include', 'code');
+  const res = await fetch(`/api/robot/queue?${params}`);
+  if (!res.ok) throw new Error(res.status === 404 ? 'This job is no longer available.' : 'Could not load this job. Try again.');
+  return (await res.json()).job;
 }
+
+const MAX_SHOWN_OUTPUT_CHARS = 64 * 1024;
 
 async function postQueueAction(body){
   const res = await fetch('/api/robot/queue', {
@@ -54,7 +64,16 @@ const STATUS_LABEL = {
   rejected: 'Rejected', cancelled: 'Cancelled',
 };
 
-function jobRow(job, pendingJobs){
+/** What goes inside a job's code/output panel, from whatever has been
+ * loaded for it so far (see mount()'s detail cache). */
+function detailBodyHtml(job, detail){
+  if (!detail || (detail.code === null && !detail.error)) return '<p class="adm-loading">Loading…</p>';
+  if (detail.error && detail.code === null) return `<p class="adm-loading">${escapeHtml(detail.error)}</p>`;
+  const showOutputHere = job.status !== 'running' && detail.output;
+  return `<pre class="rq-code">${escapeHtml(detail.code)}</pre>${showOutputHere ? `<pre class="rq-output">${escapeHtml(detail.output)}</pre>` : ''}`;
+}
+
+function jobRow(job, pendingJobs, detail){
   const fileName = job.workspacePath.split('/').pop();
   const idx = pendingJobs.indexOf(job);
   const actions = [];
@@ -92,10 +111,10 @@ function jobRow(job, pendingJobs){
         <span class="rq-job-time">${new Date(job.submittedAt).toLocaleString()}</span>
       </div>
       <details class="rq-code-details" data-job-id="${job.id}">
-        <summary>View submitted code</summary>
-        <pre class="rq-code">${escapeHtml(job.code)}</pre>
+        <summary>View submitted code${job.status !== 'running' && job.outputTotalLen ? ' and output' : ''}</summary>
+        <div data-detail-body="${job.id}">${detailBodyHtml(job, detail)}</div>
       </details>
-      ${job.output ? `<pre class="rq-output">${escapeHtml(job.output)}</pre>` : ''}
+      ${job.status === 'running' ? `<pre class="rq-output" data-live-output="${job.id}"${detail && detail.output ? '' : ' hidden'}>${escapeHtml(detail ? detail.output : '')}</pre>` : ''}
       ${job.status === 'rejected' && job.rejectReason ? `<div class="rq-reason">Reason: ${escapeHtml(job.rejectReason)}</div>` : ''}
       ${job.status === 'failed' || job.status === 'succeeded' ? `<div class="rq-reason">Exit code: ${job.exitCode}</div>` : ''}
       <div class="rq-job-actions">${actions.join('')}</div>
@@ -103,28 +122,39 @@ function jobRow(job, pendingJobs){
 }
 
 /** Just the queue section's inner content — split out from the rest of the
- * page so the 5s poll (jobs change from student activity, not just admin
+ * page so a queue change (jobs change from student activity, not just admin
  * clicks) can refresh only this subtree instead of the whole panel. A
- * full-page re-render every 5s was interrupting anything else the admin
- * was doing (typing into a seat/email form, an open <details>, scroll
- * position) — this fixes that at the source instead of trying to detect
- * and dodge "is the admin busy right now". */
-function queueSectionHtml(jobs){
+ * full-page re-render was interrupting anything else the admin was doing
+ * (typing into a seat/email form, an open <details>, scroll position) —
+ * this fixes that at the source instead of trying to detect and dodge "is
+ * the admin busy right now".
+ *
+ * `jobs` is null until the first load. `stale` means the last refresh failed:
+ * the last known queue stays on screen, labelled as such — a failed request
+ * must never render as "No submissions waiting", which is what returning an
+ * empty list on error used to do. */
+function queueSectionHtml(jobs, details, stale){
+  const title = (pendingCount) => `
+    <div class="set-section-title">
+      Run on Robot queue ${pendingCount ? `<span class="set-mock-badge">${pendingCount} pending</span>` : ''}
+      <a class="p-btn ghost rq-export" href="/api/robot/queue?format=csv">Export CSV</a>
+    </div>
+    ${stale ? `<p class="p-muted" role="status">Couldn't refresh the queue${jobs ? ' — showing the last known state' : ''}. Retrying…</p>` : ''}`;
+
+  if (!jobs) return `${title(0)}${stale ? '' : '<div class="set-card"><p class="adm-loading">Loading queue…</p></div>'}`;
+
   const pendingJobs = jobs.filter((j) => j.status === 'pending');
   const openJobs = jobs.filter((j) => j.status === 'pending' || j.status === 'approved' || j.status === 'running');
   const closedJobs = jobs.filter((j) => !openJobs.includes(j)).slice(0, 15);
 
   return `
-    <div class="set-section-title">
-      Run on Robot queue ${pendingJobs.length ? `<span class="set-mock-badge">${pendingJobs.length} pending</span>` : ''}
-      <a class="p-btn ghost rq-export" href="/api/robot/queue?format=csv">Export CSV</a>
-    </div>
-    ${openJobs.length ? `<div class="rq-list">${openJobs.map((j) => jobRow(j, pendingJobs)).join('')}</div>` : '<div class="set-card"><p class="adm-loading">No submissions waiting right now.</p></div>'}
+    ${title(pendingJobs.length)}
+    ${openJobs.length ? `<div class="rq-list">${openJobs.map((j) => jobRow(j, pendingJobs, details.get(j.id))).join('')}</div>` : '<div class="set-card"><p class="adm-loading">No submissions waiting right now.</p></div>'}
     ${closedJobs.length ? `
       <details class="rq-history">
         <summary>Recent history (${closedJobs.length})</summary>
         <div class="rq-history-actions"><button type="button" class="p-btn ghost" data-clear-history>Clear history</button></div>
-        <div class="rq-list">${closedJobs.map((j) => jobRow(j, [])).join('')}</div>
+        <div class="rq-list">${closedJobs.map((j) => jobRow(j, [], details.get(j.id))).join('')}</div>
       </details>` : ''}
   `;
 }
@@ -339,12 +369,84 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
 export function mount(container, ctx){
   ctx.setAppTitle && ctx.setAppTitle('Admin');
 
+  let jobs = null;          // latest queue summaries from the shared service
+  let queueStale = false;   // the last refresh failed
+  let unmounted = false;
+  // jobId -> { code, output, outputLen, error, loading }. Code never changes,
+  // so it's fetched once; output is extended from where it left off.
+  const details = new Map();
+
+  function paintDetail(jobId){
+    const job = jobs && jobs.find((j) => j.id === jobId);
+    const detail = details.get(jobId);
+    if (!job || !detail) return;
+    const body = container.querySelector(`[data-detail-body="${jobId}"]`);
+    if (body) body.innerHTML = detailBodyHtml(job, detail);
+    const live = container.querySelector(`[data-live-output="${jobId}"]`);
+    if (live){ live.textContent = detail.output; live.hidden = !detail.output; }
+  }
+
+  /** Loads whatever this job's visible UI still lacks: its code (once, if
+   * its panel is open) and any output newer than what's cached. One request
+   * at a time per job, and none at all when nothing is missing. */
+  function ensureDetail(job, needCode){
+    let detail = details.get(job.id);
+    if (!detail){ detail = { code: null, output: '', outputLen: 0, error: null, loading: null }; details.set(job.id, detail); }
+    const wantCode = needCode && detail.code === null;
+    const wantOutput = job.outputTotalLen > detail.outputLen;
+    if ((!wantCode && !wantOutput) || detail.loading) return;
+    detail.loading = (async () => {
+      try {
+        const loaded = await fetchJobDetail(job.id, { sinceLen: detail.outputLen, includeCode: wantCode });
+        if (wantCode) detail.code = loaded.code || '';
+        if (loaded.outputTotalLen > detail.outputLen){
+          const gap = loaded.outputTruncated ? '\n[some output in between was not retained]\n' : '';
+          detail.output = (detail.output + gap + (loaded.outputTail || '')).slice(-MAX_SHOWN_OUTPUT_CHARS);
+          detail.outputLen = loaded.outputTotalLen;
+        }
+        detail.error = null;
+      } catch (e){
+        detail.error = e.message;
+      } finally {
+        detail.loading = null;
+      }
+      if (unmounted) return;
+      paintDetail(job.id);
+      // The panel may have been opened while an output-only load was in
+      // flight; pick up its code now. Not after an error, though — that
+      // would retry in a loop; the next toggle or queue change retries it.
+      const current = jobs && jobs.find((j) => j.id === job.id);
+      const panel = container.querySelector(`.rq-code-details[data-job-id="${job.id}"]`);
+      if (current && panel && panel.open && !detail.error) ensureDetail(current, true);
+    })();
+  }
+
+  /** After any queue render: keep the running job's live output flowing and
+   * fill in every panel that's open. Nothing is fetched for a closed panel. */
+  function syncDetails(root){
+    if (!jobs) return;
+    const ids = new Set(jobs.map((j) => j.id));
+    for (const id of details.keys()) if (!ids.has(id)) details.delete(id);
+
+    const openIds = new Set(Array.from(root.querySelectorAll('.rq-code-details[open]')).map((el) => Number(el.dataset.jobId)));
+    jobs.forEach((job) => {
+      const panelOpen = openIds.has(job.id);
+      if (panelOpen || (job.status === 'running' && job.outputTotalLen > 0)) ensureDetail(job, panelOpen);
+    });
+    root.querySelectorAll('.rq-code-details').forEach((el) => {
+      el.addEventListener('toggle', () => {
+        const job = jobs && jobs.find((j) => j.id === Number(el.dataset.jobId));
+        if (el.open && job) ensureDetail(job, true);
+      });
+    });
+  }
+
   async function fullRender(){
     container.innerHTML = `<div class="adm-root p-scroll la-surface"><p class="adm-loading">Loading…</p></div>`;
 
-    let state, jobs;
+    let state;
     try {
-      [state, jobs] = await Promise.all([fetchState(), fetchQueue()]);
+      state = await fetchState();
     } catch (e){
       container.querySelector('.adm-root').innerHTML = `<p class="adm-loading">${escapeHtml(e.message)}</p>`;
       return;
@@ -361,7 +463,7 @@ export function mount(container, ctx){
     // steady-state roster management that doesn't page an admin in.
     container.innerHTML = `
       <div class="adm-root p-scroll la-surface">
-        <div class="set-section" data-queue-root>${queueSectionHtml(jobs)}</div>
+        <div class="set-section" data-queue-root></div>
 
         <div class="set-section">
           <div class="set-section-title">Robot</div>
@@ -398,28 +500,24 @@ export function mount(container, ctx){
       </div>`;
 
     bindRosterActions(container, ctx, { fullRender });
-    bindQueueActions(container.querySelector('[data-queue-root]'), container, {
-      pendingJobs: jobs.filter((j) => j.status === 'pending'),
-      refreshQueue,
-    });
+    renderQueue();
   }
 
-  /** Re-fetches and re-renders ONLY the queue subtree — used by the 5s
-   * poll, and after any queue action, so approving/rejecting/etc. doesn't
-   * blow away seat-list scroll position or an in-progress edit elsewhere
-   * on the page. */
-  async function refreshQueue(){
+  /** Re-renders ONLY the queue subtree, from the shared service's latest
+   * data — on every real queue change and after any queue action, so
+   * approving/rejecting/etc. doesn't blow away seat-list scroll position or
+   * an in-progress edit elsewhere on the page. Makes no request itself. */
+  function renderQueue(){
     const root = container.querySelector('[data-queue-root]');
     if (!root) return; // panel isn't mounted (e.g. still on the loading state)
-    // Swapping innerHTML on every poll would otherwise silently re-collapse
-    // "Recent history" and any job's open "View submitted code" panel —
-    // carry that state across. The latter is keyed by job id (not position)
-    // since which jobs are even in the list can shift between polls.
+    // Swapping innerHTML would otherwise silently re-collapse "Recent
+    // history" and any job's open code panel — carry that state across. The
+    // latter is keyed by job id (not position) since which jobs are even in
+    // the list can shift between renders.
     const wasHistoryOpen = !!root.querySelector('.rq-history[open]');
     const openCodeJobIds = Array.from(root.querySelectorAll('.rq-code-details[open]'))
       .map((el) => el.dataset.jobId);
-    const jobs = await fetchQueue();
-    root.innerHTML = queueSectionHtml(jobs);
+    root.innerHTML = queueSectionHtml(jobs, details, queueStale);
     if (wasHistoryOpen){
       const historyEl = root.querySelector('.rq-history');
       if (historyEl) historyEl.open = true;
@@ -428,13 +526,41 @@ export function mount(container, ctx){
       const el = root.querySelector(`.rq-code-details[data-job-id="${id}"]`);
       if (el) el.open = true;
     });
+    if (!jobs) return;
+    syncDetails(root);
     bindQueueActions(root, container, {
       pendingJobs: jobs.filter((j) => j.status === 'pending'),
-      refreshQueue,
+      refreshQueue: refreshQueueNow,
     });
   }
 
   fullRender();
-  const pollTimer = setInterval(refreshQueue, 5000);
-  return { unmount(){ clearInterval(pollTimer); } };
+
+  const unsubscribe = subscribeQueue({
+    onJobs(latest){ jobs = latest; queueStale = false; renderQueue(); },
+    onError(){ if (!queueStale){ queueStale = true; renderQueue(); } },
+    // A minimized Admin window is display:none — nobody is watching the
+    // queue, so the shared loop drops to the slower badge-only cadence.
+    isViewing: () => container.offsetParent !== null,
+  });
+
+  // ...and catches up immediately when the window comes back, rather than
+  // showing a stale queue until the next slow tick.
+  let wasOnScreen = true;
+  const screenWatch = typeof IntersectionObserver === 'function'
+    ? new IntersectionObserver((entries) => {
+        const onScreen = entries.some((e) => e.isIntersecting);
+        if (onScreen && !wasOnScreen) refreshQueueNow();
+        wasOnScreen = onScreen;
+      })
+    : null;
+  if (screenWatch) screenWatch.observe(container);
+
+  return {
+    unmount(){
+      unmounted = true;
+      unsubscribe();
+      if (screenWatch) screenWatch.disconnect();
+    },
+  };
 }

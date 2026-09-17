@@ -4,9 +4,11 @@ import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
 import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js';
 
 const WAVE_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
+const HANDSHAKE_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py';
 const FIST_BUMP_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py';
 const FINGER_COUNT_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py';
 const canonicalWave = WORKSPACE_FILES[WAVE_PATH];
+const canonicalHandshake = WORKSPACE_FILES[HANDSHAKE_PATH];
 const canonicalFistBump = WORKSPACE_FILES[FIST_BUMP_PATH];
 const canonicalFingerCount = WORKSPACE_FILES[FINGER_COUNT_PATH];
 
@@ -67,6 +69,28 @@ test('trailing whitespace and a trailing blank line do not count as tampering', 
   const edited = canonicalWave.replace('WAVE_CYCLES = 1', 'WAVE_CYCLES = 5') + '\n\n  \n';
   const result = validateAgainstCanonicalSource(WAVE_PATH, edited);
   assert.deepEqual(result, { valid: true, status: 'complete' });
+});
+
+test('Handshake: the untouched default (SHAKE_CYCLES = 3) is not_started', () => {
+  const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, canonicalHandshake);
+  assert.equal(result.valid, false);
+  assert.equal(result.status, 'not_started');
+  assert.deepEqual(result.tunable, { name: 'SHAKE_CYCLES', from: '3', to: '1' });
+});
+
+test('Handshake: SHAKE_CYCLES = 1 is complete/queueable', () => {
+  const edited = canonicalHandshake.replace('SHAKE_CYCLES = 3', 'SHAKE_CYCLES = 1');
+  const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
+  assert.deepEqual(result, { valid: true, status: 'complete' });
+});
+
+test('Handshake: SHAKE_CYCLES set to anything else is tampered, not accepted', () => {
+  for (const n of [0, 2, 4, 5, -1]){
+    const edited = canonicalHandshake.replace('SHAKE_CYCLES = 3', `SHAKE_CYCLES = ${n}`);
+    const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
+    assert.equal(result.valid, false, `SHAKE_CYCLES = ${n} should not be queueable`);
+    assert.equal(result.status, 'tampered');
+  }
 });
 
 test('Fist Bump: the untouched default (ENABLE_HEAD_NOD = False) is not_started', () => {

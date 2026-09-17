@@ -21,6 +21,9 @@ const TUNABLES = {
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py': [
     { name: 'WAVE_CYCLES', pattern: /^WAVE_CYCLES = (\d+)$/, targets: ['5'] },
   ],
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py': [
+    { name: 'SHAKE_CYCLES', pattern: /^SHAKE_CYCLES = (\d+)$/, targets: ['1'] },
+  ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py': [
     { name: 'ENABLE_HEAD_NOD', pattern: /^ENABLE_HEAD_NOD = (True|False)\b.*$/, targets: ['True'] },
   ],

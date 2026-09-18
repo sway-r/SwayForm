@@ -698,11 +698,11 @@ export const LEARNING_PATH = {
     // ============================================================ LEVEL 4
     {
       id: 'coordinated-interactive-motion', number: 4, title: 'Coordinated & Interactive Motion',
-      description: 'Respond to a person’s presence and take manual input, safely.',
+      description: 'Gestures that use more of the body at once — arm, hand, torso, and head together.',
       sections: [
         {
           id: 'responding-to-people', title: 'Responding to People', difficulty: 'beginner', estimatedTime: '45–60 minutes',
-          description: 'Move toward a target and greet a person the robot detects.',
+          description: 'A handshake, a fist bump, and counting on its fingers — three ways SwayForm greets a person.',
           activities: [
             {
               id: 'handshake', title: 'Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',

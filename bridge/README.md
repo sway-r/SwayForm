@@ -1,6 +1,6 @@
 # SwayForm bridge
 
-Long-running VPS relay for authenticated Pi WebSockets, one-at-a-time robot job delivery, MediaMTX video authorization and the configured Pi's code-editor token exchange. The website APIs are consolidated at /api/robot/agent.
+Long-running VPS relay for authenticated Pi WebSockets, one-at-a-time robot job delivery, MediaMTX video authorization and the configured Pi's Workspace (admin code-server) token exchange. The website APIs are consolidated at /api/robot/agent.
 
 ## Configuration
 

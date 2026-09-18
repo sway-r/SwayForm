@@ -11,12 +11,12 @@ import { parse, print, b, findExportConst, objPropValue, setObjProp, deepEqual }
 const APP_IDENT = {
   learn: 'LearnApp', account: 'AccountApp',
   help: 'HelpApp', settings: 'SettingsApp',
-  // robot/admin/code-editor are role-gated at runtime (visibleApps() in
+  // robot/admin/workspace are role-gated at runtime (visibleApps() in
   // portal.js), not part of REGISTRY_ORDER()'s static array — registered
   // here only so a save that includes them (e.g. via allIds) doesn't throw
   // "Unknown app id"; reordering/enabling them here has no effect on real
   // visibility.
-  robot: 'RobotApp', admin: 'AdminApp', 'code-editor': 'CodeEditorApp',
+  robot: 'RobotApp', admin: 'AdminApp', workspace: 'WorkspaceApp',
 };
 
 export const APP_FILES = {
@@ -26,7 +26,7 @@ export const APP_FILES = {
   settings: 'portal/apps/settings/settings.js',
   robot: 'portal/apps/robot/robot.js',
   admin: 'portal/apps/admin/admin.js',
-  'code-editor': 'portal/apps/code-editor/code-editor.js',
+  workspace: 'portal/apps/workspace/workspace.js',
 };
 
 /** portal.js — rewrite the REGISTRY_ORDER() return array to the final

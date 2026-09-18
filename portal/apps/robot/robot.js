@@ -3,8 +3,8 @@ import { getSession } from '../../services/auth-service.js';
 import { mountVideoPlayer } from './video-player.js';
 import { createPoller } from '../../services/adaptive-poller.js';
 
-// The admin-only embedded code editor lives in its own desktop app
-// (apps/code-editor/code-editor.js), not as a tab here — see that file for
+// The admin-only embedded editor lives in its own desktop app, "Workspace"
+// (apps/workspace/workspace.js), not as a tab here — see that file for
 // the exchange-token/iframe details, unchanged from when it was a tab.
 
 export const meta = {

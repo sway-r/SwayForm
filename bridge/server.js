@@ -303,12 +303,12 @@ async function finishJob(robotId, jobId, exitCode){
 // Runs off the message queue so a long retry never backs up the agent's other frames.
 function reportJobEnd(robotId, jobId, exitCode){
   clearRunningJob(robotId, jobId);
+  // Held from the job's real end: a notify can arrive while the report below is still in flight.
+  const current = connectedRobots.get(robotId);
+  if (current && current.dispatch) current.dispatch.hold(POST_JOB_SETTLE_MS);
   finishJob(robotId, jobId, exitCode).then(() => {
     const ws = connectedRobots.get(robotId);
-    if (ws && ws.dispatch){
-      ws.dispatch.hold(POST_JOB_SETTLE_MS);
-      ws.dispatch.request('job-finished');
-    }
+    if (ws && ws.dispatch) ws.dispatch.request('job-finished');
   });
 }
 

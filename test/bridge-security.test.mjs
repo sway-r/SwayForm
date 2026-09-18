@@ -10,7 +10,7 @@ let api, child, base;
 const sockets = new Set();
 const secret = 'synthetic-bridge-test-secret';
 // Stand-in API state; `claims` counts dispatch-queue requests.
-const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false, failFinish: 0 };
+const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false, failFinish: 0, finishDelayMs: 0 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 before(async () => {
   api = http.createServer(async (req,res) => {
@@ -24,6 +24,7 @@ before(async () => {
       res.end(JSON.stringify({jobs:apiState.jobs}));
     }
     else if(body.action==='job-finished'&&apiState.failFinish>0){apiState.failFinish--;res.statusCode=500;res.end('{}');}
+    else if(body.action==='job-finished'&&apiState.finishDelayMs){await sleep(apiState.finishDelayMs);res.end(JSON.stringify({ok:true}));}
     else if(body.action==='heartbeat') res.end(JSON.stringify({ok:true,hasApproved:apiState.hasApproved}));
     else res.end(JSON.stringify({ok:true}));
   });
@@ -113,7 +114,7 @@ test('viewer JWTs require the video purpose, and editor tokens are robot-bound a
 
 // One robot slot (the stand-in API always answers robotId 1): each test disconnects before the next.
 async function agentSession(){
-  apiState.claims = 0; apiState.claimDelayMs = 0; apiState.jobs = []; apiState.hasApproved = false;
+  apiState.claims = 0; apiState.claimDelayMs = 0; apiState.jobs = []; apiState.hasApproved = false; apiState.finishDelayMs = 0;
   calls.length = 0;
   const ws = await connect();
   const frames = [];
@@ -233,6 +234,26 @@ test('when a job exits, the next claim happens by itself, after the settle delay
   assert.equal(apiState.claims, before, 'not immediately: the robot gets a moment between jobs');
   await sleep(1600);
   assert.equal(apiState.claims, before + 1, 'then exactly one claim, with no admin action needed');
+  await session.end();
+});
+
+test('a notify that lands while job-finished is still in flight waits out the settle delay too', { timeout: 10000 }, async () => {
+  const session = await agentSession();
+  apiState.jobs = [job(75)];
+  await notify(secret); await sleep(200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [75]);
+  apiState.jobs = [job(76)];
+  apiState.finishDelayMs = 1500;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 75, exitCode: 0 }));
+  await sleep(100);
+  await notify(secret);
+  await sleep(500);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [75], 'the next job is not sent straight after the exit');
+  await sleep(1900);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [75, 76], 'it goes out once the robot has had its moment');
+  apiState.jobs = []; apiState.finishDelayMs = 0;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 76, exitCode: 0 }));
+  await sleep(300);
   await session.end();
 });
 

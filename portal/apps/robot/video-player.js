@@ -61,85 +61,89 @@ export function mountVideoPlayer(container){
   const videoEl = container.querySelector('.robot-video');
   const note = container.querySelector('[data-role="video-note"]');
 
-  let pc = null;
-  let resourceUrl = null;
-  let viewerToken = null;
-  let active = false;
+  // The attempt that owns the UI. An older one may still be unwinding; it only ever touches its own state.
+  let current = null;
   let autoStopTimer = null;
   let countdownTimer = null;
   let recoveryTimer = null;
   let connectionLost = false;
-  // Names this viewer to the bridge, so our stop can only ever remove our own entry.
-  let viewerId = null;
 
-  function releaseResource(){
-    if (!resourceUrl) return;
-    const url = resourceUrl; resourceUrl = null;
-    fetch(url, { method: 'DELETE', headers: { authorization: `Bearer ${viewerToken}` }, signal: AbortSignal.timeout(5000) }).catch(() => {});
+  function releaseSession(attempt){
+    if (!attempt.resourceUrl) return;
+    const url = attempt.resourceUrl; attempt.resourceUrl = null;
+    fetch(url, { method: 'DELETE', headers: { authorization: `Bearer ${attempt.token}` }, signal: AbortSignal.timeout(5000) }).catch(() => {});
   }
 
   /** Best-effort — tells the bridge to relay video.stop to the agent once
    * refcounting says nobody's left watching. Uses keepalive so it still
    * fires if this is happening because the tab/window is closing. */
-  function notifyBridgeStop(){
+  function notifyBridgeStop(attempt){
     fetch('/api/robot/status', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'stop', viewerId }), signal: AbortSignal.timeout(5000), keepalive: true,
+      body: JSON.stringify({ action: 'stop', viewerId: attempt.viewerId }), signal: AbortSignal.timeout(5000), keepalive: true,
     }).catch(() => {});
   }
 
-  function teardown(){
+  function closeAttempt(attempt){
+    if (attempt.pc){ attempt.pc.close(); attempt.pc = null; }
+    releaseSession(attempt);
+  }
+
+  function resetUi(){
     clearTimeout(autoStopTimer); autoStopTimer = null;
     clearInterval(countdownTimer); countdownTimer = null;
     clearTimeout(recoveryTimer); recoveryTimer = null;
     connectionLost = false;
-    if (pc){ pc.close(); pc = null; }
-    releaseResource();
     videoEl.srcObject = null;
     liveWrap.hidden = true;
     showBtn.hidden = false;
   }
 
   function stopFeed(){
-    if (!active) return;
-    active = false;
-    teardown();
-    notifyBridgeStop();
+    const attempt = current;
+    if (!attempt) return;
+    current = null;
+    resetUi();
+    closeAttempt(attempt);
+    notifyBridgeStop(attempt);
   }
 
   // A dropped feed is released at once rather than sitting frozen until the 30s timer.
   function dropFeed(){
-    if (!active) return;
+    if (!current) return;
     stopFeed();
     idleNote.textContent = 'The video connection dropped. Tap Show feed to reconnect.';
   }
 
   async function startFeed(){
-    if (active) return;
-    active = true;
+    if (current) return;
+    // viewerId names this viewer to the bridge, so our stop can only ever remove our own entry.
+    const attempt = { viewerId: crypto.randomUUID(), pc: null, token: null, resourceUrl: null };
+    current = attempt;
+    const live = () => current === attempt;
     idleNote.textContent = '';
     showBtn.hidden = true;
     liveWrap.hidden = false;
     note.textContent = 'Connecting…';
-    viewerId = crypto.randomUUID();
     const connectDeadline = Date.now() + CONNECT_BUDGET_MS;
 
     try {
       const tokenRes = await fetch('/api/robot/status', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ action: 'start', viewerId }), signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify({ action: 'start', viewerId: attempt.viewerId }), signal: AbortSignal.timeout(10_000),
       });
       if (!tokenRes.ok) throw new Error(`token ${tokenRes.status}`);
       const { token, serial } = await tokenRes.json();
-      if (!active) return;
-      viewerToken = token;
+      // The stop sent at cancel time may have reached the bridge before this start did.
+      if (!live()){ notifyBridgeStop(attempt); return; }
+      attempt.token = token;
 
-      pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection();
+      attempt.pc = pc;
       pc.addTransceiver('video', { direction: 'recvonly' });
-      pc.ontrack = (event) => { videoEl.srcObject = event.streams[0]; };
-      const thisPc = pc;
+      pc.ontrack = (event) => { if (live()) videoEl.srcObject = event.streams[0]; };
       pc.onconnectionstatechange = () => {
-        if (pc !== thisPc) return;
+        if (!live()) return;
         const state = pc.connectionState;
         if (state === 'failed'){ dropFeed(); return; }
         if (state === 'disconnected'){
@@ -156,7 +160,7 @@ export function mountVideoPlayer(container){
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       await waitForIceGathering(pc);
-      if (!active) return;
+      if (!live()) return;
 
       const whepUrl = `${VIDEO_BASE}/${encodeURIComponent(serial)}/whep`;
       const postWhep = () => fetch(whepUrl, {
@@ -183,11 +187,11 @@ export function mountVideoPlayer(container){
       // instead of skipping the whole retry loop on the first attempt.
       let res = null;
       let lastError = null;
-      for (let attempt = 0; active && (attempt === 0 || Date.now() < connectDeadline); attempt++){
-        if (attempt > 0){
+      for (let tries = 0; live() && (tries === 0 || Date.now() < connectDeadline); tries++){
+        if (tries > 0){
           note.textContent = 'Waiting for the robot to start streaming…';
           await new Promise((r) => setTimeout(r, WHEP_RETRY_DELAY_MS));
-          if (!active) return;
+          if (!live()) return;
         }
         try {
           res = await postWhep();
@@ -200,16 +204,20 @@ export function mountVideoPlayer(container){
           lastError = e;
         }
       }
-      if (!active) return;
+      // A session the relay opened still has to be released, even if nobody is waiting for it any more.
+      if (res && res.ok){
+        const location = res.headers.get('location');
+        const resource = location ? new URL(location, whepUrl) : null;
+        if (resource && resource.origin !== VIDEO_BASE) throw new Error('unexpected_video_origin');
+        attempt.resourceUrl = resource ? resource.href : null;
+      }
+      if (!live()){ releaseSession(attempt); return; }
       if (!res || !res.ok) throw lastError || new Error('whep_failed');
 
-      const location = res.headers.get('location');
-      const resource = location ? new URL(location, whepUrl) : null;
-      if (resource && resource.origin !== VIDEO_BASE) throw new Error('unexpected_video_origin');
-      resourceUrl = resource ? resource.href : null;
       const answerSdp = await res.text();
-      if (!active){ releaseResource(); return; }
+      if (!live()){ releaseSession(attempt); return; }
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+      if (!live()) return;
 
       let secondsLeft = Math.round(FEED_DURATION_MS / 1000);
       note.textContent = `Feed stops automatically in ${secondsLeft}s.`;
@@ -220,14 +228,16 @@ export function mountVideoPlayer(container){
       }, 1000);
       autoStopTimer = setTimeout(stopFeed, FEED_DURATION_MS);
     } catch (e) {
-      const wasActive = active;
-      active = false;
-      teardown();
+      closeAttempt(attempt);
+      // Already stopped or replaced: whoever did that reset the UI and told the bridge.
+      if (!live()) return;
+      current = null;
+      resetUi();
       idleNote.textContent = "Couldn't connect to the robot's video feed. It may be offline.";
       // The 'start' relay may have already reached the bridge before this
       // failed further down the chain — send 'stop' so it doesn't think a
       // viewer is still watching.
-      if (wasActive) notifyBridgeStop();
+      notifyBridgeStop(attempt);
     }
   }
 

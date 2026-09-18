@@ -257,6 +257,34 @@ test('reordering pending jobs changes the order the queue view returns them in',
   await db.query('DELETE FROM robot_jobs WHERE robot_id = 3');
 });
 
+test('two reorders at once leave one of the two requested orders, never a mix', async () => {
+  const ids = [];
+  for (const name of ['a.py', 'b.py', 'c.py', 'd.py']){
+    const { rows: [job] } = await db.query(
+      `INSERT INTO robot_jobs (robot_id,student_email,workspace_path,package,executable,code,code_sha256,status,queue_position)
+       VALUES (3,'other@example.test',$1,'test',$1,'pass',$2,'pending', (SELECT COALESCE(MAX(queue_position),0)+1 FROM robot_jobs WHERE robot_id=3))
+       RETURNING id`,
+      [name, `hash-race-${name}`]
+    );
+    ids.push(job.id);
+  }
+  const [aId, bId, cId, dId] = ids;
+  const first = [cId, aId, bId], second = [bId, aId, cId]; // neither admin's list includes d
+  const results = await Promise.all([
+    call(queue, teacherCCookie, { action: 'reorder', orderedIds: first }),
+    call(queue, teacherCCookie, { action: 'reorder', orderedIds: second }),
+  ]);
+  assert.deepEqual(results.map((r) => r.code), [200, 200]);
+  const { rows } = await db.query("SELECT id, queue_position FROM robot_jobs WHERE robot_id = 3 AND status = 'pending' ORDER BY queue_position, id");
+  assert.equal(new Set(rows.map((r) => r.queue_position)).size, rows.length, 'no two jobs share a position');
+  const order = rows.map((r) => r.id);
+  assert.ok(
+    [[...first, dId], [...second, dId]].some((want) => JSON.stringify(want) === JSON.stringify(order)),
+    `got ${JSON.stringify(order)}`
+  );
+  await db.query('DELETE FROM robot_jobs WHERE robot_id = 3');
+});
+
 test('reactivating an archived student is not blocked by the 40-total roster cap', async () => {
   await db.exec(`
     INSERT INTO robots (id,serial_number,school_name) VALUES (4,'test-d','School D');

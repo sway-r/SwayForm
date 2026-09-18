@@ -423,22 +423,27 @@ export default async function handler(req, res){
 
     case 'reorder': {
       if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
-      const orderedIds = Array.isArray(body.orderedIds) ? body.orderedIds.map(Number).filter(Boolean) : [];
+      const orderedIds = Array.isArray(body.orderedIds)
+        ? [...new Set(body.orderedIds.map(Number).filter((n) => Number.isSafeInteger(n) && n > 0))] : [];
       if (!orderedIds.length){ res.status(400).json({ error: 'missing_ordered_ids' }); return; }
-      // One UPDATE per id, all pending-only and scoped to this robot — small
-      // queue sizes at this scale, matches how the admin panel already
-      // accepts a full re-fetch/re-render rather than optimizing this path.
-      // Numbered after every approved/running job, so reordering can't move a pending job ahead of those.
-      const [{ base }] = await sql`
-        SELECT COALESCE(MAX(queue_position), 0)::int AS base FROM robot_jobs
-        WHERE robot_id = ${robotId} AND status IN ('approved', 'running')
-      `;
-      for (let i = 0; i < orderedIds.length; i++){
-        await sql`
-          UPDATE robot_jobs SET queue_position = ${base + i + 1}
-          WHERE id = ${orderedIds[i]} AND robot_id = ${robotId} AND status = 'pending'
-        `;
-      }
+      // One statement under the robot lock submit and dispatch use, so two admins' reorders can't interleave.
+      // Listed jobs first, any other pending job after them, all numbered after every approved/running job.
+      await sql.transaction([
+        sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
+        sql`
+          WITH ahead AS (
+            SELECT COALESCE(MAX(queue_position), 0)::int AS base FROM robot_jobs
+            WHERE robot_id = ${robotId} AND status IN ('approved', 'running')
+          ), ranked AS (
+            SELECT j.id, ROW_NUMBER() OVER (ORDER BY o.ord NULLS LAST, j.queue_position NULLS LAST, j.id)::int AS place
+            FROM robot_jobs j
+            LEFT JOIN unnest(${orderedIds}::bigint[]) WITH ORDINALITY AS o(id, ord) ON o.id = j.id
+            WHERE j.robot_id = ${robotId} AND j.status = 'pending'
+          )
+          UPDATE robot_jobs j SET queue_position = ahead.base + ranked.place
+          FROM ranked, ahead WHERE j.id = ranked.id
+        `,
+      ]);
       res.status(200).json({ ok: true });
       return;
     }

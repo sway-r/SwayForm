@@ -152,7 +152,9 @@
   box-shadow:0 24px 64px rgba(3,5,10,.4),0 2px 8px rgba(3,5,10,.22);
   overflow:hidden;min-width:320px;min-height:220px;
 }
-.window.maximized{border-radius:0}
+.window.maximized{border-radius:0;border:none;box-shadow:none}
+.desktop.has-maximized .desktop-topline{display:none}
+.desktop.has-maximized .windows-layer{top:0}
 .window.restored{resize:both;overflow:auto}
 .window.focused{border-color:var(--la-focus-border)}
 .window.dragging,.window.resizing-anim{transition:none!important}

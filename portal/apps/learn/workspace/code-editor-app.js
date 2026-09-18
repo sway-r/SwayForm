@@ -46,7 +46,7 @@ function formatDiff(d){
 
 export function mount(bodyEl, winApi, opts) {
   const { activity } = opts;
-  let editor = null, editorReady = false, pendingOpenPath = null;
+  let editor = null, editorReady = false, pendingOpenPath = null, pendingOpenLine = null;
   let saveTimer = null;
   let pendingSave = null; // { path, value } awaiting the debounced write — flushed on dispose
   let disposed = false;
@@ -163,7 +163,7 @@ export function mount(bodyEl, winApi, opts) {
     // file into an editor that's about to be (or already was) torn down.
     if (disposed) return;
     editorReady = true;
-    if (pendingOpenPath) { const p = pendingOpenPath; pendingOpenPath = null; openFile(p); }
+    if (pendingOpenPath) { const p = pendingOpenPath, l = pendingOpenLine; pendingOpenPath = null; pendingOpenLine = null; openFile(p, { line: l }); }
     else {
       // workspace-config.js may override which file opens first for this
       // lesson; the activity's own starter file stays the fallback.
@@ -191,8 +191,9 @@ export function mount(bodyEl, winApi, opts) {
     fileOpts = fileOpts || {};
     const content = fs.readFile(path);
     if (content === null) return;
-    if (!editorReady){ pendingOpenPath = path; tabs.open(path); refreshExplorer(); return; }
+    if (!editorReady){ pendingOpenPath = path; pendingOpenLine = fileOpts.line || null; tabs.open(path); refreshExplorer(); return; }
     editor.openFile(path, content, fs.languageForPath(path));
+    if (fileOpts.line) editor.revealLine(fileOpts.line);
     const readOnly = isReadOnlyFile(activity.id, path);
     editor.setReadOnly(readOnly);
     if (!fileOpts.fromTab) tabs.open(path);

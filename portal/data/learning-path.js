@@ -662,27 +662,13 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'center\n  ↓\nopen hand\n  ↓\nwave-ready pose\n  ↓\nelbow_wave() — elbow oscillates, fingers ripple on a separate thread\n  ↓\ncenter' },
                     { type: 'callout', tone: 'note', label: 'Quick definition', text: '"Center" just means the robot\'s starting position — its arms resting at the origin pose, ready to move. You\'ll see the robot return to center at the start and end of almost every gesture.' },
-                    { type: 'p', text: 'While the elbow waves back and forth, each of the four fingers moves too — but not all at once. Each finger starts moving a little after the one before it, so the motion rolls down the hand one finger at a time instead of moving all together. That\'s what creates the "ripple" look. It all runs on its own background thread, set up inside `elbow_wave()` (line 124), so it can happen at the same time as the elbow motion, independently.' },
-                    { type: 'p', text: 'You\'ll also see `with sc.hardware_lock():` in the code (line 155). Think of it like a "busy" sign on the robot\'s arm — it makes sure nothing else (like Handshake, or another Wave) can try to move the same servos at the same time, which could cause the robot to jerk or collide with itself. When Wave finishes — or even if something goes wrong — a cleanup step called `finally` (line 178) always takes the sign back down and safely closes the connection to the servos.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...\ndef open_hand(ctrl): ...\ndef wave_ready_pose(ctrl): ...\ndef elbow_wave(ctrl, cycles): ...\ndef perform_wave(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py' },
+                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...\ndef open_hand(ctrl): ...\ndef wave_ready_pose(ctrl): ...\ndef elbow_wave(ctrl, cycles): ...\ndef perform_wave(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py', line: 80 },
                     { type: 'p', text: 'Five functions, in order: `center_all()` (line 80), `open_hand()` (line 85), `wave_ready_pose()` (line 95), `elbow_wave()` (line 124), and the top-level `perform_wave()` (line 153) that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
-                  ],
-                },
-                {
-                  id: 'safe-things-to-change', title: 'Safe Things to Change',
-                  blocks: [
-                    { type: 'list', items: [
-                      'Change `WAVE_CYCLES` (line 36) to wave more or fewer times.',
-                      'Change `SPEED_SCALE` (line 37) to make the elbow wave faster or slower.',
-                      'Change `RIPPLE_SPEED` (line 32) to make the finger ripple faster or slower.',
-                    ] },
-                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: 'SwayForm starts at `WAVE_CYCLES = 1` — one wave. Your job is to make it wave five times. `WAVE_CYCLES = 5` is the only value Queue on Robot will accept as finished; `SPEED_SCALE` and `RIPPLE_SPEED` are still good to experiment with using Run, but can\'t be queued yet.' },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
                   ],
                 },
                 {
@@ -690,12 +676,6 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'p', text: 'Change `WAVE_CYCLES` (line 36) from 1 to 5 — that\'s the objective: make SwayForm wave five times instead of once. Click Run to check your work.' },
                     { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `WAVE_CYCLES = 5`, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue — Queue on Robot only ever sends code Run has just confirmed.' },
-                  ],
-                },
-                {
-                  id: 'full-code', title: 'Full Code',
-                  blocks: [
-                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot wave` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -753,26 +733,9 @@ export const LEARNING_PATH = {
                   ],
                 },
                 {
-                  id: 'safe-things-to-change', title: 'Safe Things to Change',
-                  blocks: [
-                    { type: 'list', items: [
-                      'Change `REACH_DURATION`, `GRIP_DURATION`, or `RETURN_DURATION` to make each phase slower or faster.',
-                      'Change `SHAKE_CYCLES` to make the elbow shake more or fewer times.',
-                      'Change `FINGER_CURL_AMOUNT` for a lighter or firmer-looking grip.',
-                    ] },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep the handshake motion slow and predictable. Stay inside the ranges already defined in `LIMITS` — do not push a target outside them.' },
-                  ],
-                },
-                {
                   id: 'try-it', title: 'Try It',
                   blocks: [
                     { type: 'p', text: 'Change `SHAKE_CYCLES` from 3 to 1 and predict whether a single pump feels more natural or less — then run it and check.' },
-                  ],
-                },
-                {
-                  id: 'full-code', title: 'Full Code',
-                  blocks: [
-                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot handshake` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -816,28 +779,10 @@ export const LEARNING_PATH = {
                   ],
                 },
                 {
-                  id: 'safe-things-to-change', title: 'Safe Things to Change',
-                  blocks: [
-                    { type: 'list', items: [
-                      'Change `ENABLE_HEAD_NOD` to `True` to add the head nod — today\'s exercise, see Try It below.',
-                      'Change `JERK_CYCLES` to punch more than once.',
-                      'Change `RAISE_DURATION` or `RETURN_DURATION` to make the wind-up or the return slower or faster.',
-                    ] },
-                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: '`ENABLE_HEAD_NOD = True` is the only value Queue on Robot will accept as finished. `JERK_CYCLES`, `RAISE_DURATION`, and `RETURN_DURATION` are still good to experiment with using Run, but can\'t be queued yet.' },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Stay inside the ranges already defined in `LIMITS` — do not push a target outside them, and do not shorten the torso durations enough to make its motion jerky.' },
-                  ],
-                },
-                {
                   id: 'try-it', title: 'Try It',
                   blocks: [
                     { type: 'p', text: 'Find `ENABLE_HEAD_NOD` near the top of the file — it starts as `False`, so the robot bumps fists without moving its head. Change it to `True`, then click Run to check your work.' },
                     { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `ENABLE_HEAD_NOD = True`, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue.' },
-                  ],
-                },
-                {
-                  id: 'full-code', title: 'Full Code',
-                  blocks: [
-                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot fist_bump` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],
@@ -881,28 +826,10 @@ export const LEARNING_PATH = {
                   ],
                 },
                 {
-                  id: 'safe-things-to-change', title: 'Safe Things to Change',
-                  blocks: [
-                    { type: 'list', items: [
-                      'Set `NUMBER` to any whole number from 1 to 5 to pick which count the robot shows — today\'s exercise, see Try It below.',
-                      'Change `HOLD_SECONDS` to hold the count longer or shorter.',
-                      'Change `RAISE_DURATION` or `RETURN_DURATION` to make the raise or the return slower or faster.',
-                    ] },
-                    { type: 'callout', tone: 'note', label: 'The objective for this lab', text: 'Unlike Fist Bump\'s single on/off switch, this lab has five valid solutions — `NUMBER = 1`, `2`, `3`, `4`, or `5` all count as finished and unlock Queue on Robot. `HOLD_SECONDS`, `RAISE_DURATION`, and `RETURN_DURATION` are still good to experiment with using Run, but can\'t be queued yet.' },
-                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Stay inside the ranges already defined in `LIMITS` — do not push a target outside them, and only set `NUMBER` to a whole number 1-5 or leave it as `None`.' },
-                  ],
-                },
-                {
                   id: 'try-it', title: 'Try It',
                   blocks: [
                     { type: 'p', text: 'Find `NUMBER` near the top of the file — it starts as `None`, so the robot just holds up a closed fist. Pick any whole number from 1 to 5, set `NUMBER` to it, then click Run to check your work.' },
                     { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `NUMBER` is set to 1, 2, 3, 4, or 5, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue.' },
-                  ],
-                },
-                {
-                  id: 'full-code', title: 'Full Code',
-                  blocks: [
-                    { type: 'p', text: 'Click Run in the toolbar above to see the complete, real source execute — SwayForm\'s actual `ros2 run swayform_robot finger_count` command runs automatically, and its output streams into the Output tab below.' },
                   ],
                 },
               ],

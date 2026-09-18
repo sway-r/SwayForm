@@ -113,6 +113,27 @@ export class CodeEditor {
     }
   }
 
+  /** Scroll the active file to `line` (1-based), unfolding it if it sits
+   *  inside a collapsed function. Waits for the first-open fold pass, which
+   *  would otherwise re-collapse the region right after we revealed it. */
+  revealLine(line){
+    if (this.mode !== 'monaco' || !Number.isInteger(line) || line < 1) return;
+    const apply = () => {
+      const { editor, monaco } = this;
+      const model = editor.getModel();
+      if (!model || line > model.getLineCount()) return;
+      editor.setSelection(new monaco.Selection(line, 1, line, 1));
+      const unfold = editor.getAction('editor.unfoldRecursively');
+      const done = unfold ? unfold.run() : Promise.resolve();
+      Promise.resolve(done).then(() => {
+        editor.revealLineInCenter(line);
+        editor.setSelection(new monaco.Selection(line, 1, line, 1));
+        editor.focus();
+      });
+    };
+    if (this._foldPass) this._foldPass.then(apply); else apply();
+  }
+
   /** First time a file is opened this session, collapse every top-level
    *  function/class so students see the shape of the file first, then
    *  re-expand only the one(s) containing a `# TODO` — the part they
@@ -125,7 +146,7 @@ export class CodeEditor {
     if (!editor || !model) return;
     const foldAll = editor.getAction('editor.foldAll');
     if (!foldAll) return;
-    foldAll.run().then(() => {
+    this._foldPass = foldAll.run().then(() => {
       const todoLines = [];
       for (let i = 1; i <= model.getLineCount(); i++){
         if (/#\s*TODO/.test(model.getLineContent(i))) todoLines.push(i);

@@ -173,7 +173,22 @@ function layerBounds(){
 
 function maximizedRect(){
   const { w, h } = layerBounds();
-  return { left: 10, top: 10, w: Math.max(320, w - 20), h: Math.max(220, h - 20) };
+  return { left: 0, top: 0, w: Math.max(320, w), h: Math.max(220, h) };
+}
+
+/** A maximized window owns the whole screen above the taskbar: the brand/
+ *  clock topline is hidden while any visible window is maximized, which
+ *  changes the layer's height — so every maximized window is re-fitted
+ *  afterwards. Call after anything that changes maximized/minimized/open
+ *  state. */
+function syncMaximizedLayout(){
+  const anyMaximized = [...windows.values()].some((w) => w.maximized && !w.minimized);
+  desktopEl.classList.toggle('has-maximized', anyMaximized);
+  windows.forEach((win) => {
+    if (!win.maximized) return;
+    const r = maximizedRect();
+    Object.assign(win.el.style, { left: r.left + 'px', top: r.top + 'px', width: r.w + 'px', height: r.h + 'px' });
+  });
 }
 
 function centeredRect(defaultSize){
@@ -198,7 +213,7 @@ function openApp(appId, params, opts){
   if (opts.path) win.lastPath = opts.path;
   win.el.classList.remove('minimized');
   win.minimized = false;
-  focusWindow(appId);
+  if (!opts.noFocus) focusWindow(appId);
   renderTaskbar();
 
   if (params && win.instance && typeof win.instance.onParams === 'function'){
@@ -342,6 +357,10 @@ function focusWindow(appId){
   win.el.style.zIndex = ++zCounter;
   renderTaskbar();
   syncFocusUrl(appId, win);
+  // Every focus change is a candidate "this is what a refresh should come
+  // back to" — see restoreOpenApps()/showDesktop() for why recording this
+  // explicitly (not inferring it from window-creation order) matters.
+  persistOpenApps();
 }
 
 /** Keep the address bar pointing at whichever app is actually focused.
@@ -412,12 +431,16 @@ function toggleMaximize(appId){
     toggleBtn.innerHTML = icon('maximize');
     toggleBtn.setAttribute('aria-label', 'Maximize');
   }
+  syncMaximizedLayout();
   focusWindow(appId);
   persistOpenApps();
 }
 
 /* ---------------------------------------------------------- Taskbar */
 function renderTaskbar(){
+  // Every open/close/minimize/restore path ends here, so this is the one
+  // place that reliably sees each window-visibility change.
+  syncMaximizedLayout();
   taskbarWinsEl.innerHTML = '';
   windows.forEach((win, appId) => {
     const btn = document.createElement('button');
@@ -505,27 +528,46 @@ window.addEventListener('popstate', () => {
 // Stores each open app's full geometry (left/top/w/h/maximized), not just
 // which apps are open — otherwise every reopened window came back centered
 // at its default size, discarding any drag/resize/maximize the student did
-// before refreshing.
+// before refreshing. Also records activeAppId (called from focusWindow() on
+// every focus change) — restoreOpenApps() recreates windows in whatever
+// order they happen to iterate in, which is creation order, not "what was
+// actually on top" — without an explicit record, a refresh could resurface
+// a different app than the one you were actually looking at.
 function persistOpenApps(){
   try {
-    const state = {};
+    const windowState = {};
     windows.forEach((win, id) => {
-      state[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized };
+      windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized };
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeAppId, windows: windowState }));
   } catch (e) { /* storage unavailable — non-fatal */ }
 }
 
+/** Recreates every previously-open window (geometry restored, not focused
+ * yet — see the noFocus opt) and returns whichever app id was actually
+ * active when the state was saved, for the caller to focus once at the end
+ * instead of leaving whatever this loop's creation order happened to land
+ * on. */
 function restoreOpenApps(){
-  let state = {};
+  let windowState = {};
+  let savedActiveAppId = null;
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    // Back-compat: older sessions stored a bare array of app IDs with no geometry.
-    state = Array.isArray(raw) ? raw.reduce((m, id) => { m[id] = null; return m; }, {}) : raw;
-  } catch (e) { state = {}; }
-  Object.keys(state).filter((id) => REGISTRY[id]).forEach((id) => {
-    openApp(id, null, { silent: true, geometry: state[id] });
+    if (Array.isArray(raw)){
+      // Oldest shape: a bare array of app IDs, no geometry, no active app.
+      windowState = raw.reduce((m, id) => { m[id] = null; return m; }, {});
+    } else if (raw && raw.windows){
+      windowState = raw.windows;
+      savedActiveAppId = raw.activeAppId || null;
+    } else {
+      // Previous shape: a flat { id: geometry } map, no activeAppId recorded.
+      windowState = raw || {};
+    }
+  } catch (e) { windowState = {}; }
+  Object.keys(windowState).filter((id) => REGISTRY[id]).forEach((id) => {
+    openApp(id, null, { silent: true, geometry: windowState[id], noFocus: true });
   });
+  return savedActiveAppId;
 }
 
 /* ---------------------------------------------------------- Clock */
@@ -556,13 +598,10 @@ logoutBtnEl.addEventListener('click', async () => {
 });
 
 window.addEventListener('resize', () => {
+  syncMaximizedLayout();
   const { w: lw, h: lh } = layerBounds();
   windows.forEach((win) => {
-    if (win.maximized){
-      const r = maximizedRect();
-      Object.assign(win.el.style, { left: r.left + 'px', top: r.top + 'px', width: r.w + 'px', height: r.h + 'px' });
-      return;
-    }
+    if (win.maximized) return;
     // Reclamp restored windows too — otherwise shrinking the viewport (or
     // rotating a tablet) can strand a window's header entirely off-screen
     // with no way to grab it back, since drag/resize bounds above were only
@@ -606,11 +645,11 @@ async function showDesktop(){
     setAdminJobBadge(0);
   }
 
-  // Capture the actual refresh-time URL before restoring anything — each
-  // restored window focuses itself in turn (see focusWindow's syncFocusUrl),
-  // which would otherwise overwrite location.pathname with whichever app
-  // happened to be restored last, before we ever get to read what the
-  // browser's address bar really said when the page loaded.
+  // Capture the actual refresh-time URL before restoring anything — restored
+  // windows don't focus themselves anymore (see restoreOpenApps()'s noFocus),
+  // but this is still the most specific signal available for a deep-linked
+  // view (e.g. one particular Learn activity), so it still takes priority
+  // below when present.
   const bootPath = location.pathname;
   const initialRoute = routeFromPath(bootPath);
 
@@ -619,14 +658,25 @@ async function showDesktop(){
   // skipped this branch entirely and every window came back at its default
   // maximized bounds, discarding position/size for THIS window even though
   // the general case (refresh on the bare desktop) preserved it correctly.
-  restoreOpenApps();
+  const savedActiveAppId = restoreOpenApps();
+
   if (initialRoute){
+    // A specific deep-linked view (e.g. /learn/activity/finger-count) beats
+    // "whichever app was active" — it's more specific about what the
+    // student was actually looking at, down to the sub-view.
     openApp(initialRoute.appId, initialRoute.params, { silent: true, path: bootPath });
+    history.replaceState({}, '', bootPath);
+  } else if (savedActiveAppId && windows.has(savedActiveAppId)){
+    // No specific deep link (e.g. refreshed on the bare desktop after
+    // minimizing everything) — fall back to whichever app was actually
+    // focused when state was last saved, instead of leaving
+    // restoreOpenApps()'s creation-order artifact focused. This also fixes
+    // the URL itself via focusWindow -> syncFocusUrl, so no separate
+    // history.replaceState is needed here.
+    focusWindow(savedActiveAppId);
+  } else {
+    history.replaceState({}, '', bootPath);
   }
-  // Land back on the URL the page actually loaded with, regardless of any
-  // focus-churn above — this is the one honest signal for which app (and
-  // which of its own deep views) the student was really looking at.
-  history.replaceState({}, '', bootPath);
 }
 
 function showLogin(){

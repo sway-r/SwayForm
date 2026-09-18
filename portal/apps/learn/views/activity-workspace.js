@@ -118,7 +118,7 @@ export function mount(container, params, nav, ctx){
       initialStepIndex: resumeStep,
       isDone: resumeDone,
       lessonCtx: {
-        openFile: (path) => openInCodeEditor(path),
+        openFile: (path, line) => openInCodeEditor(path, line),
         // Must open/focus the window first like openInCodeEditor does —
         // otherwise this either no-ops entirely (window was closed, so
         // getInstance returns null) or edits an invisible, still-minimized
@@ -134,10 +134,10 @@ export function mount(container, params, nav, ctx){
     }),
   });
 
-  function openInCodeEditor(path){
+  function openInCodeEditor(path, line){
     wm.open('codeEditor');
     const inst = wm.getInstance('codeEditor');
-    if (inst) inst.openFile(path);
+    if (inst) inst.openFile(path, line ? { line } : undefined);
   }
 
   if (!isReading){

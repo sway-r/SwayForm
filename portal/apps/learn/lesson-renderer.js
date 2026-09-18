@@ -242,7 +242,7 @@ function renderBlock(block, ctx){
         const openBtn = el('button', 'cb-code-btn');
         openBtn.type = 'button';
         openBtn.innerHTML = `${icon('file')}<span>Open ${escapeHtml(block.workspaceFile.split('/').pop())}</span>`;
-        openBtn.addEventListener('click', () => ctx.openFile(block.workspaceFile));
+        openBtn.addEventListener('click', () => ctx.openFile(block.workspaceFile, block.line));
         actions.appendChild(openBtn);
       }
       if (block.insertable && ctx && ctx.insertCode){

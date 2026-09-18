@@ -662,24 +662,24 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'code', lang: 'text', filename: 'The shape of every SwayForm gesture', code: 'center\n  ↓\nopen hand\n  ↓\nwave-ready pose\n  ↓\nelbow_wave() — elbow oscillates, fingers ripple on a separate thread\n  ↓\ncenter' },
                     { type: 'callout', tone: 'note', label: 'Quick definition', text: '"Center" just means the robot\'s starting position — its arms resting at the origin pose, ready to move. You\'ll see the robot return to center at the start and end of almost every gesture.' },
-                    { type: 'p', text: 'While the elbow waves back and forth, each of the four fingers moves too — but not all at once. Each finger starts moving a little after the one before it, so the motion rolls down the hand one finger at a time instead of moving all together. That\'s what creates the "ripple" look. It all runs on its own background thread, set up inside `elbow_wave()` (line 119), so it can happen at the same time as the elbow motion, independently.' },
-                    { type: 'p', text: 'You\'ll also see `with sc.hardware_lock():` in the code (line 150). Think of it like a "busy" sign on the robot\'s arm — it makes sure nothing else (like Handshake, or another Wave) can try to move the same servos at the same time, which could cause the robot to jerk or collide with itself. When Wave finishes — or even if something goes wrong — a cleanup step called `finally` (line 173) always takes the sign back down and safely closes the connection to the servos.' },
+                    { type: 'p', text: 'While the elbow waves back and forth, each of the four fingers moves too — but not all at once. Each finger starts moving a little after the one before it, so the motion rolls down the hand one finger at a time instead of moving all together. That\'s what creates the "ripple" look. It all runs on its own background thread, set up inside `elbow_wave()` (line 124), so it can happen at the same time as the elbow motion, independently.' },
+                    { type: 'p', text: 'You\'ll also see `with sc.hardware_lock():` in the code (line 155). Think of it like a "busy" sign on the robot\'s arm — it makes sure nothing else (like Handshake, or another Wave) can try to move the same servos at the same time, which could cause the robot to jerk or collide with itself. When Wave finishes — or even if something goes wrong — a cleanup step called `finally` (line 178) always takes the sign back down and safely closes the connection to the servos.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
                     { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...\ndef open_hand(ctrl): ...\ndef wave_ready_pose(ctrl): ...\ndef elbow_wave(ctrl, cycles): ...\ndef perform_wave(mock=False): ...', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py' },
-                    { type: 'p', text: 'Five functions, in order: `center_all()` (line 76), `open_hand()` (line 81), `wave_ready_pose()` (line 91), `elbow_wave()` (line 119), and the top-level `perform_wave()` (line 149) that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
+                    { type: 'p', text: 'Five functions, in order: `center_all()` (line 80), `open_hand()` (line 85), `wave_ready_pose()` (line 95), `elbow_wave()` (line 124), and the top-level `perform_wave()` (line 153) that calls them all in sequence. That shape — **setup → behavior → cleanup** — repeats in almost every SwayForm behavior you will study.' },
                   ],
                 },
                 {
                   id: 'safe-things-to-change', title: 'Safe Things to Change',
                   blocks: [
                     { type: 'list', items: [
-                      'Change `WAVE_CYCLES` (line 32) to wave more or fewer times.',
-                      'Change `SPEED_SCALE` (line 33) to make the elbow wave faster or slower.',
-                      'Change `RIPPLE_SPEED` (line 28) to make the finger ripple faster or slower.',
+                      'Change `WAVE_CYCLES` (line 36) to wave more or fewer times.',
+                      'Change `SPEED_SCALE` (line 37) to make the elbow wave faster or slower.',
+                      'Change `RIPPLE_SPEED` (line 32) to make the finger ripple faster or slower.',
                     ] },
                     { type: 'callout', tone: 'note', label: 'The objective for this lab', text: 'SwayForm starts at `WAVE_CYCLES = 1` — one wave. Your job is to make it wave five times. `WAVE_CYCLES = 5` is the only value Queue on Robot will accept as finished; `SPEED_SCALE` and `RIPPLE_SPEED` are still good to experiment with using Run, but can\'t be queued yet.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only change the values already defined at the top of the file. Do not test new shoulder or elbow angles outside `LIMITS` — stay inside tested ranges.' },
@@ -688,7 +688,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 32) from 1 to 5 — that\'s the objective: make SwayForm wave five times instead of once. Click Run to check your work.' },
+                    { type: 'p', text: 'Change `WAVE_CYCLES` (line 36) from 1 to 5 — that\'s the objective: make SwayForm wave five times instead of once. Click Run to check your work.' },
                     { type: 'p', text: 'Run will tell you if you\'re not done yet (still at the default) or if something else changed by mistake. Once Run confirms `WAVE_CYCLES = 5`, the Queue on Robot button unlocks so you can send it to the real robot. If you edit the file again afterward, you\'ll need to click Run again before you can queue — Queue on Robot only ever sends code Run has just confirmed.' },
                   ],
                 },

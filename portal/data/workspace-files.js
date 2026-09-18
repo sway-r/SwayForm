@@ -97,7 +97,9 @@ setup(
 )
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `import time
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `"""Wave behavior: source of truth for the right-arm wave motion (channels, centers, limits)."""
+
+import time
 import math
 import threading
 
@@ -117,6 +119,7 @@ ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1
 
+# Wave pose
 SHOULDER_ROLL_WAVE = 40
 SHOULDER_PITCH_WAVE = 260
 ELBOW_WAVE_BENT = 40
@@ -124,10 +127,10 @@ ELBOW_WAVE_OPEN = 70
 WRIST_CENTER = 100
 
 FINGER_OPEN = 135
-RIPPLE_AMPLITUDE = 40   # smallest amplitude confirmed visible on hardware
-RIPPLE_SPEED = 3.0
+RIPPLE_AMPLITUDE = 40   # 40° (~47% of the fingers' full 85° range) is the
+RIPPLE_SPEED = 3.0      # radians/sec the wave rolls at
 PHASE_OFFSET = math.pi / 2
-RIPPLE_TICK = 0.02
+RIPPLE_TICK = 0.02      # seconds between position updates (~50Hz)
 
 WAVE_CYCLES = 1
 SPEED_SCALE = 0.3
@@ -156,7 +159,6 @@ LIMITS = {
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
-# ELBOW/SHOULDER_ROLL/SHOULDER_PITCH are 270° ROM servos — see robot.yaml.
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
@@ -165,6 +167,7 @@ SERVO_RANGES = {
 
 
 def _mv(addr, ch, target, steps, delay):
+    """Build a ServoController.run_threads() move scaled by SPEED_SCALE."""
     return {
         "addr": addr, "ch": ch, "target": target,
         "limits": LIMITS[(addr, ch)],
@@ -203,6 +206,7 @@ def wave_ready_pose(ctrl):
 
 
 def _ripple_tick(ctrl, t):
+    """Write each finger's ripple position for time \`t\`; THUMB is untouched."""
     for i, ch in enumerate(FINGERS):
         theta = t * RIPPLE_SPEED - i * PHASE_OFFSET
         angle = FINGER_OPEN - RIPPLE_AMPLITUDE * (0.5 + 0.5 * math.sin(theta))
@@ -217,8 +221,7 @@ def _finger_ripple_worker(ctrl, stop_event):
 
 
 def elbow_wave(ctrl, cycles=WAVE_CYCLES):
-    # ripple thread is always stopped+joined before returning, so nothing
-    # writes to ctrl after the caller moves on
+    """Run \`cycles\` elbow oscillations (forever if None) with the fingers rippling in the background."""
     stop_ripple = threading.Event()
     ripple_thread = threading.Thread(
         target=_finger_ripple_worker, args=(ctrl, stop_ripple), daemon=True
@@ -247,6 +250,7 @@ def elbow_wave(ctrl, cycles=WAVE_CYCLES):
 
 
 def perform_wave(mock=False):
+    """Run the full sequence: center -> open hand -> wave-ready pose -> elbow wave -> center."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -275,8 +279,7 @@ def perform_wave(mock=False):
 
 
 def wave_forever(mock=False, center_on_stop=False):
-    # holds hardware_lock() for the whole run — nothing else (handshake,
-    # idle, another wave) can move the robot while this is running
+    """Go to the wave-ready pose and keep waving until Ctrl+C, then settle the arm."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -305,6 +308,7 @@ def wave_forever(mock=False, center_on_stop=False):
             ctrl.close()
 
 
+# ── ROS2 node ────────────────────────────────────────────────────────────
 class WaveNode(Node):
     def __init__(self):
         super().__init__("wave")
@@ -327,8 +331,6 @@ class WaveNode(Node):
         except Exception as e:
             self.get_logger().error(f"Wave failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until
-            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
             if rclpy.ok():
                 rclpy.shutdown()
 
@@ -342,7 +344,6 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        # avoid a double shutdown() call — rclpy's SIGINT handler may have beaten us to it
         if rclpy.ok():
             rclpy.shutdown()
 
@@ -351,39 +352,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""
-handshake.py
-
-Handshake behavior — direct PCA9685 control. Reaches forward, grips,
-shakes by pumping the shoulder pitch up and down, then opens the hand and
-returns to center.
-
-Run:
-    ros2 run swayform_robot handshake                                 # mock by default
-    ros2 run swayform_robot handshake --ros-args -p use_mock_hardware:=false
-    ros2 launch swayform_bringup handshake_demo.launch.py
-    ros2 launch swayform_bringup handshake_demo.launch.py use_mock_hardware:=false
-
-Or import and trigger it programmatically:
-    from swayform_robot.behaviors.handshake import perform_handshake
-    perform_handshake()
-
-Importing this module never touches hardware — all I2C/PCA9685 setup
-happens inside perform_handshake() itself.
-
-Sequence: reach (shoulder pitch forward, elbow bent in, hand open) -> hold
-2s -> grip (fingers + thumb curl in over 2s) -> shake (elbow pumps ±5°, 3
-cycles — shoulder pitch stays put) -> open hand and return everything to
-center.
-
-CENTERS/LIMITS/SERVO_RANGES below match robot.yaml's current calibration
-(re-verified on real hardware 2026-08-14 — same values wave.py uses), not
-the pre-recalibration numbers this file carried before.
-
-This module is both the real implementation (perform_handshake, the
-function anything else calls) and the ROS2 node (HandshakeNode/main()) that
-runs it via \`ros2 run\`/\`ros2 launch\`.
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""Handshake behavior: reach forward, grip, shake, then open the hand and return to center."""
 
 import time
 import threading
@@ -428,23 +397,17 @@ LIMITS = {
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
-# ELBOW and SHOULDER_ROLL/SHOULDER_PITCH are 270 ROM servos (elbow: 60kgcm
-# replacement; both shoulder axes: 270 from the start) — see robot.yaml.
-# CENTERS/LIMITS above match the mapping re-tested on real hardware
-# 2026-08-14 (same values as wave.py).
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
 
-# Reach pose: shoulder pitch swings forward from center by this many degrees
-# (elbow's "bent all the way in" target is LIMITS[ELBOW][0] — the inward limit).
+# Reach pose: shoulder pitch swings forward from center by this many degrees.
 REACH_PITCH_OFFSET = 50
 ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # backed off 20° from the full-bend limit
 
-# Shake: shoulder pitch pumps this many degrees above/below the reach
-# position, this many up-down cycles.
+# Shake offset (degrees) and number of up-down cycles.
 SHAKE_OFFSET = 5
 SHAKE_CYCLES = 3
 
@@ -466,8 +429,7 @@ def _mv(addr, ch, target, duration):
 
 
 def reach_forward(ctrl):
-    """Shoulder pitch swings forward, elbow bends all the way in, hand
-    stays open (thumb + fingers held at their open positions)."""
+    """Shoulder pitch swings forward and the elbow bends all the way in; hand stays open."""
     reach_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + REACH_PITCH_OFFSET
     ctrl.run_threads([
         _mv(PCA_REACH, SHOULDER_PITCH, reach_target, REACH_DURATION),
@@ -483,9 +445,7 @@ def reach_forward(ctrl):
 
 
 def grip(ctrl):
-    """Thumb curls in as far as its limit allows; fingers curl in only
-    FINGER_CURL_AMOUNT degrees from open (a light grip, not a full fist),
-    over GRIP_DURATION seconds."""
+    """Thumb curls to its limit; fingers curl FINGER_CURL_AMOUNT degrees from open over GRIP_DURATION."""
     ctrl.run_threads([
         _mv(PCA_HAND, THUMB, LIMITS[(PCA_HAND, THUMB)][1], GRIP_DURATION),
         _mv(PCA_HAND, 1, CENTERS[(PCA_HAND, 1)] - FINGER_CURL_AMOUNT, GRIP_DURATION),
@@ -496,9 +456,7 @@ def grip(ctrl):
 
 
 def shake(ctrl, elbow_base):
-    """Pump the elbow ±SHAKE_OFFSET degrees around \`elbow_base\`,
-    SHAKE_CYCLES up-down cycles, then settle back on elbow_base. Shoulder
-    pitch stays put — this is elbow-only."""
+    """Pump the elbow ±SHAKE_OFFSET degrees around \`elbow_base\` for SHAKE_CYCLES cycles, then settle."""
     for _ in range(SHAKE_CYCLES):
         ctrl.run_threads([_mv(PCA_HAND, ELBOW, elbow_base + SHAKE_OFFSET, SHAKE_STEP_DURATION)])
         ctrl.run_threads([_mv(PCA_HAND, ELBOW, elbow_base - SHAKE_OFFSET, SHAKE_STEP_DURATION)])
@@ -511,12 +469,7 @@ def open_and_return(ctrl):
 
 
 def perform_handshake(mock=True):
-    """Run the full handshake sequence: reach forward -> hold -> grip ->
-    shake -> open hand and return to center.
-
-    Holds the cross-process hardware_lock() for the whole sequence, and
-    always closes its PCA9685 handles before returning, even on error.
-    """
+    """Run the full sequence: reach forward -> hold -> grip -> shake -> open hand and return to center."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -541,14 +494,6 @@ def perform_handshake(mock=True):
 
 
 # ── ROS2 node ────────────────────────────────────────────────────────────
-#
-# Thin wrapper: on startup, runs perform_handshake() once in a background
-# thread and reports success/failure — no action server, no motion_server,
-# no topics.
-#
-# Parameters:
-#     use_mock_hardware (bool): print instead of moving real servos. Default True.
-
 class HandshakeNode(Node):
     def __init__(self):
         super().__init__("handshake")
@@ -571,8 +516,6 @@ class HandshakeNode(Node):
         except Exception as e:
             self.get_logger().error(f"Handshake failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until
-            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
             if rclpy.ok():
                 rclpy.shutdown()
 
@@ -586,9 +529,6 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        # Ctrl+C already triggers rclpy's own SIGINT handler, which shuts
-        # the context down before this finally block runs — calling
-        # shutdown() again raises RCLError, so only do it if still needed.
         if rclpy.ok():
             rclpy.shutdown()
 
@@ -597,7 +537,9 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `import time
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `"""Fist bump behavior: raise the right arm with a curled fist, punch forward, then return to center."""
+
+import time
 import threading
 
 import rclpy
@@ -616,8 +558,8 @@ FINGERS = [1, 2, 3, 4]
 WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
-SHOULDER_PITCH = 1
-NECK_PITCH = 3
+SHOULDER_PITCH = 1  # on PCA_REACH
+NECK_PITCH = 3      # on PCA_REACH — head nod
 
 CENTERS = {
     (PCA_HAND, THUMB): 50,
@@ -629,7 +571,7 @@ CENTERS = {
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
     (PCA_REACH, SHOULDER_PITCH): 170,
-    (PCA_REACH, NECK_PITCH): 155,   # re-tested on hardware 2026-09-15
+    (PCA_REACH, NECK_PITCH): 155,  # re-tested on hardware 2026-09-15, was 105 (never hardware-verified)
 }
 
 LIMITS = {
@@ -642,10 +584,10 @@ LIMITS = {
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
-    (PCA_REACH, NECK_PITCH): (130, 180),   # re-tested on hardware 2026-09-15
+    (PCA_REACH, NECK_PITCH): (130, 180),  # re-tested on hardware 2026-09-15, was (95, 125)
 }
 
-# ELBOW/SHOULDER_ROLL/SHOULDER_PITCH/NECK_PITCH are 270° ROM servos — see robot.yaml.
+# ELBOW, SHOULDER_ROLL, SHOULDER_PITCH and NECK_PITCH are 270 ROM servos (see robot.yaml).
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
@@ -653,32 +595,31 @@ SERVO_RANGES = {
     (PCA_REACH, NECK_PITCH): 270.0,
 }
 
-FISTBUMP_PITCH_OFFSET = 35
-ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20
-FIST_ELBOW_BASE = ELBOW_BENT_IN - 10
+FISTBUMP_PITCH_OFFSET = 35   # was 50 (handshake-matched)
+ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # used to derive JERK_ELBOW_PEAK
+FIST_ELBOW_BASE = ELBOW_BENT_IN - 10   # 50, was ELBOW_BENT_IN itself (60, handshake-matched) — bent in 10 more
 
-JERK_PITCH_PEAK = 245
-JERK_ELBOW_PEAK = 90
-JERK_OUT_DURATION = 0.144
-JERK_BACK_DURATION = 0.3
+JERK_PITCH_PEAK = 245   # 15deg short of the 260 ceiling
+JERK_ELBOW_PEAK = 90    # 50deg short of the 140 ceiling
+JERK_OUT_DURATION = 0.144   # 20% slower than the original 0.12
+JERK_BACK_DURATION = 0.3    # 20% slower than the original 0.25
 JERK_CYCLES = 1
 
 NOD_UP_OFFSET = 10
 NOD_OUT_DURATION = JERK_OUT_DURATION * 1.2
 NOD_BACK_DURATION = JERK_BACK_DURATION * 1.2
 
-RAISE_DURATION = 1.5
-HOLD_BEFORE_BUMP = 0.6
+RAISE_DURATION = 1.5   # arm raise and hand curl run together, both finish at once
+HOLD_BEFORE_BUMP = 0.6   # beat held as a raised fist before the jerk
 RETURN_DURATION = 2.0
 
-TICK_DELAY = 0.02
+TICK_DELAY = 0.02  # ~20ms interpolation tick
 
-# Torso motor has no encoder — open-loop timed pulses, not angle targets.
 TORSO_LEAN_DIRECTION = "right"
 TORSO_RETURN_DIRECTION = "left"
-TORSO_SPEED_PERCENT = 40
-TORSO_LEAN_DURATION = 0.3
-TORSO_SNAP_DURATION = JERK_OUT_DURATION
+TORSO_SPEED_PERCENT = 40  # above default_speed_percent (35); clamped at runtime to max_speed_percent
+TORSO_LEAN_DURATION = 0.3    # gentle lean while the arm raises+curls
+TORSO_SNAP_DURATION = JERK_OUT_DURATION  # timed with the punch
 TORSO_RETURN_DURATION = TORSO_LEAN_DURATION + TORSO_SNAP_DURATION
 
 
@@ -690,6 +631,7 @@ def _mv(addr, ch, target, duration):
 
 
 def raise_and_curl(ctrl):
+    """Swing shoulder pitch and elbow to the pre-jerk pose while the thumb and fingers curl into a fist."""
     pitch_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + FISTBUMP_PITCH_OFFSET
     elbow_target = FIST_ELBOW_BASE
     ctrl.run_threads([
@@ -707,6 +649,7 @@ def raise_and_curl(ctrl):
 
 
 def bump_jerk(ctrl, pitch_base, elbow_base):
+    """One quick forward punch to JERK_PITCH_PEAK/JERK_ELBOW_PEAK, then recoil to the raised pose."""
     moves_out = [
         _mv(PCA_REACH, SHOULDER_PITCH, JERK_PITCH_PEAK, JERK_OUT_DURATION),
         _mv(PCA_HAND, ELBOW, JERK_ELBOW_PEAK, JERK_OUT_DURATION),
@@ -728,10 +671,13 @@ def bump_jerk(ctrl, pitch_base, elbow_base):
 
 
 def open_and_return(ctrl):
+    """Open the hand and bring every joint back to CENTERS."""
     ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
 
 
 class _TorsoPulse:
+    """Timed wrapper around hardware/torso_motor.py for the fist bump's lean, snap and recenter."""
+
     def __init__(self, mock):
         self.mock = mock
         self.tm = None
@@ -762,6 +708,7 @@ class _TorsoPulse:
 
 
 def perform_fist_bump(mock=True):
+    """Run the full sequence: raise and curl -> hold -> bump jerk -> open hand and return to center."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -795,6 +742,7 @@ def perform_fist_bump(mock=True):
             ctrl.close()
 
 
+# ── ROS2 node ────────────────────────────────────────────────────────────
 class FistBumpNode(Node):
     def __init__(self):
         super().__init__("fist_bump")
@@ -817,8 +765,6 @@ class FistBumpNode(Node):
         except Exception as e:
             self.get_logger().error(f"Fist bump failed: {e}")
         finally:
-            # one-shot gesture is done — shut down instead of leaving spin() blocking until
-            # timeout, but guard it: Ctrl+C can beat us to it from the main thread
             if rclpy.ok():
                 rclpy.shutdown()
 
@@ -832,7 +778,6 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        # avoid a double shutdown() call — rclpy's SIGINT handler may have beaten us to it
         if rclpy.ok():
             rclpy.shutdown()
 
@@ -841,41 +786,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py": `"""
-finger_count.py
-
-Finger-count behavior — direct PCA9685 control, right arm. Raises the arm
-to the same "wave ready" pose as wave.py (shoulder roll/pitch, elbow,
-wrist), but instead of waving, holds a closed fist and — if NUMBER (below)
-is set — extends that many fingers to show the count, holds it, then
-returns to center.
-
-Run:
-    ros2 run swayform_robot finger_count                                 # mock by default
-    ros2 run swayform_robot finger_count --ros-args -p use_mock_hardware:=false
-    ros2 launch swayform_bringup finger_count_demo.launch.py
-    ros2 launch swayform_bringup finger_count_demo.launch.py use_mock_hardware:=false
-
-Or import and trigger it programmatically:
-    from swayform_robot.behaviors.finger_count import perform_finger_count
-    perform_finger_count()
-
-Importing this module never touches hardware — all I2C/PCA9685 setup
-happens inside perform_finger_count() itself.
-
-Sequence: close the fist immediately (before the arm even moves) -> raise
-the arm to the wave-ready pose (fist stays closed through the raise,
-unlike wave.py's own open_hand()) -> show NUMBER (extend that many
-fingers, index first, thumb last at NUMBER=5) or hold the fist if NUMBER
-is None -> hold for HOLD_SECONDS -> open the hand and return everything to
-center.
-
-CENTERS/LIMITS/SERVO_RANGES below are the right-arm wave-ready values,
-copied from wave.py (same physical joints/calibration — see robot.yaml and
-docs/servo_guide.md for the source of truth). Fist/finger-extend angles
-are copied from fist_bump.py's raise_and_curl() (curled = LIMITS-min for
-fingers / LIMITS-max for the thumb; the reverse of each is "extended").
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py": `"""Finger-count behavior: raise the right arm, hold a fist or show NUMBER fingers, then return to center."""
 
 import time
 import threading
@@ -898,10 +809,6 @@ ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1  # on PCA_REACH
 
-# Wave-ready pose — identical targets to wave.py's wave_ready_pose(), copied
-# rather than imported (this workspace's pattern of each direct-hardware
-# behavior hardcoding its own CENTERS/LIMITS — see servo_control.py's
-# docstring).
 SHOULDER_ROLL_WAVE = 40
 SHOULDER_PITCH_WAVE = 260
 ELBOW_WAVE_BENT = 40
@@ -910,7 +817,7 @@ WRIST_CENTER = 100
 FINGER_EXTENDED = 135  # fully open
 FINGER_CURLED = 50     # fully curled (fist)
 THUMB_EXTENDED = 50    # fully open
-THUMB_CURLED = 135     # fully curled (fist) — thumb's range is reversed vs. the fingers, see fist_bump.py
+THUMB_CURLED = 135     # fully curled; thumb range is reversed vs. the fingers
 
 HOLD_SECONDS = 4.0
 
@@ -938,8 +845,7 @@ LIMITS = {
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
-# ELBOW and SHOULDER_ROLL/SHOULDER_PITCH are 270 ROM servos — see robot.yaml
-# and wave.py.
+# ELBOW, SHOULDER_ROLL and SHOULDER_PITCH are 270 ROM servos (see robot.yaml).
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
@@ -959,9 +865,7 @@ def _mv(addr, ch, target, duration):
 
 
 def _finger_targets(number):
-    """Angle for THUMB + each of FINGER_ORDER to show \`number\`: None/0 is a
-    closed fist, 1-4 extends that many fingers starting with the index
-    finger, 5 extends all four fingers plus the thumb."""
+    """Angles for THUMB and FINGER_ORDER to show \`number\`: None/0 is a fist, 1-5 extends that many fingers."""
     if not number:
         targets = {THUMB: THUMB_CURLED}
         targets.update({ch: FINGER_CURLED for ch in FINGER_ORDER})
@@ -974,17 +878,13 @@ def _finger_targets(number):
 
 
 def close_fist(ctrl):
-    """Curl the whole hand into a fist — called immediately on startup,
-    before the arm even raises, so the hand is already a fist by the time
-    anyone sees it move."""
+    """Curl the whole hand into a fist before the arm raises."""
     targets = _finger_targets(None)
     ctrl.run_threads([_mv(PCA_HAND, ch, target, RAISE_DURATION) for ch, target in targets.items()])
 
 
 def raise_arm(ctrl):
-    """Swing shoulder roll/pitch + elbow + wrist up to the wave-ready pose.
-    Doesn't touch the fingers/thumb, so whatever close_fist() set stays put
-    through the raise."""
+    """Swing shoulder roll/pitch, elbow and wrist up to the wave-ready pose; fingers untouched."""
     ctrl.run_threads([
         _mv(PCA_HAND, SHOULDER_ROLL, SHOULDER_ROLL_WAVE, RAISE_DURATION),
         _mv(PCA_REACH, SHOULDER_PITCH, SHOULDER_PITCH_WAVE, RAISE_DURATION),
@@ -1005,13 +905,7 @@ def open_and_return(ctrl):
 
 
 def perform_finger_count(mock=False):
-    """Run the full sequence: close fist -> raise to wave-ready pose ->
-    show NUMBER (or hold the fist, if NUMBER is None) -> hold for
-    HOLD_SECONDS -> open hand, return to center.
-
-    Holds the cross-process hardware_lock() for the whole sequence, and
-    always closes its PCA9685 handles before returning, even on error.
-    """
+    """Run the full sequence: fist -> raise -> show NUMBER -> hold -> open hand and return to center."""
     if NUMBER is not None and NUMBER not in (1, 2, 3, 4, 5):
         raise ValueError(f"NUMBER must be None or a whole number 1-5, got {NUMBER!r}")
 
@@ -1042,14 +936,6 @@ def perform_finger_count(mock=False):
 
 
 # ── ROS2 node ────────────────────────────────────────────────────────────
-#
-# Thin wrapper: on startup, runs perform_finger_count() once in a
-# background thread and reports success/failure — no action server, no
-# motion_server, no topics.
-#
-# Parameters:
-#     use_mock_hardware (bool): print instead of moving real servos. Default True.
-
 class FingerCountNode(Node):
     def __init__(self):
         super().__init__("finger_count")
@@ -1072,16 +958,6 @@ class FingerCountNode(Node):
         except Exception as e:
             self.get_logger().error(f"Finger count failed: {e}")
         finally:
-            # One-shot gesture: the motion is done (or failed) by the time
-            # we get here, so shut rclpy down instead of leaving main()'s
-            # spin() blocking until the caller times it out. main()'s own
-            # \`if rclpy.ok(): rclpy.shutdown()\` in its finally already
-            # tolerates shutdown having happened here first — but Ctrl+C
-            # can beat us to it (rclpy's own SIGINT handler shuts the
-            # context down from the main thread while we're still mid-
-            # motion here), so guard this call the same way main() does:
-            # unguarded, a second shutdown() raises RCLError from this
-            # background thread instead of exiting quietly.
             if rclpy.ok():
                 rclpy.shutdown()
 
@@ -1092,19 +968,9 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
-        # KeyboardInterrupt: the usual Ctrl+C path.
-        # ExternalShutdownException: raised by rclpy's executor instead,
-        # on some distro/executor combinations, when the context is shut
-        # down from another thread while spin() is blocked — which is
-        # exactly what _run()'s own \`finally: rclpy.shutdown()\` above does
-        # on a normal, successful one-shot gesture. Without this, a
-        # successful run could still end in an unhandled traceback here.
         pass
     finally:
         node.destroy_node()
-        # Ctrl+C already triggers rclpy's own SIGINT handler, which shuts
-        # the context down before this finally block runs — calling
-        # shutdown() again raises RCLError, so only do it if still needed.
         if rclpy.ok():
             rclpy.shutdown()
 
@@ -1113,45 +979,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py": `"""
-finger_wave.py
-
-Makes SwayForm's fingers wave — right hand. The fingers move one after
-another instead of all at once, so the motion looks like a little wave
-traveling across the hand.
-
-Run:
-    ros2 run swayform_robot finger_wave
-
-Or import and trigger a bounded run programmatically:
-    from swayform_robot.behaviors.finger_wave import perform_finger_wave
-    perform_finger_wave(seconds=5)
-
-Importing this module never touches hardware — all I2C/PCA9685 setup happens
-inside perform_finger_wave()/finger_wave_forever() themselves, so it's safe
-to import in a dry-run context.
-
-Same channels as wave.py's finger ripple (right_arm_pca/0x40, channels 0-4)
-— kept standalone here rather than imported, matching this workspace's
-existing pattern of each direct-hardware behavior hardcoding its own
-CENTERS/LIMITS (see servo_control.py's docstring).
-
-Motion: each finger follows a continuous sine curve, staggered a quarter
-cycle (90°) behind the previous one — channel 1 leads, 2/3/4 follow in turn.
-That quarter-cycle stagger is what makes finger 1 hit its peak (fully open)
-at the exact moment finger 3 hits its trough (most curled) two fingers
-later — a rolling wave down the hand, on a continuous loop. THUMB is set
-once during open_hand() and never touched again.
-
-Safe things to change:
-    speed   — how fast the wave rolls (radians/sec). Lower = slower, higher
-              = faster. Try 1.5 (slower) or 5.0 (faster) instead of the
-              default 3.0.
-    seconds — how many seconds perform_finger_wave() keeps waving before
-              stopping. Try 10.0 to let it run about twice as long.
-    reverse — True flips which finger leads, so the wave appears to travel
-              the other direction across the hand.
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_wave.py": `"""Finger wave behavior: the right hand's fingers ripple one after another."""
 
 import time
 import math
@@ -1165,10 +993,6 @@ FINGERS = [1, 2, 3, 4]  # index, middle, ring, pinky — ripple order
 
 FINGER_OPEN = 135  # fully open reference; curling decreases from here
 
-# Fingers span a full 85° (50-135) open<->curled range. 40° (~47% of that)
-# is the smallest amplitude confirmed visible on hardware — these are
-# string/tendon-driven, so smaller deltas get absorbed as cable slack before
-# producing any real motion (see wave.py).
 RIPPLE_AMPLITUDE = 40
 
 RIPPLE_SPEED = 3.0            # radians/sec the wave rolls at
@@ -1206,9 +1030,7 @@ def open_hand(ctrl):
 
 
 def _ripple_tick(ctrl, t, speed=RIPPLE_SPEED, reverse=False):
-    """Write each finger's position for time \`t\` (seconds since the wave
-    started). Direct set_servo() writes, not smooth_move — the sine curve
-    itself is already the smooth motion."""
+    """Write each finger's position for time \`t\` (seconds since the wave started)."""
     order = list(reversed(FINGERS)) if reverse else FINGERS
     for i, ch in enumerate(order):
         theta = t * speed - i * PHASE_OFFSET
@@ -1217,12 +1039,7 @@ def _ripple_tick(ctrl, t, speed=RIPPLE_SPEED, reverse=False):
 
 
 def finger_wave_forever(mock=False, speed=RIPPLE_SPEED, reverse=False):
-    """Open the hand, then wave the 4 fingers forever until Ctrl+C.
-    Settles back to fully open before closing, even on error.
-
-    Holds the cross-process hardware_lock() for the entire run — nothing
-    else (wave, handshake, idle) can move the robot while this runs.
-    """
+    """Open the hand, then ripple the four fingers until Ctrl+C; holds hardware_lock() for the run."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -1247,8 +1064,7 @@ def finger_wave_forever(mock=False, speed=RIPPLE_SPEED, reverse=False):
 
 
 def perform_finger_wave(mock=False, seconds=5.0, speed=RIPPLE_SPEED, reverse=False):
-    """Run the finger wave for a bounded duration, then return to open.
-    Holds hardware_lock() for the whole run."""
+    """Run the finger wave for a bounded duration, then return to open."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND], mock=mock)
         ctrl.current = CENTERS.copy()
@@ -1271,8 +1087,7 @@ def perform_finger_wave(mock=False, seconds=5.0, speed=RIPPLE_SPEED, reverse=Fal
 
 
 def main(args=None):
-    """Console entry point (ros2 run swayform_robot finger_wave) — plain
-    function call, no rclpy node needed for this behavior."""
+    """Console entry point (ros2 run swayform_robot finger_wave); no rclpy node needed."""
     try:
         finger_wave_forever()
     except KeyboardInterrupt:
@@ -1283,143 +1098,415 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py": `"""
-idle.py
-
-Idle behavior — direct PCA9685 control. Makes the robot feel alive with
-very subtle, slow fidgeting: each cycle nudges a handful of random joints
-(head, arms, fingers — anything in robot.yaml) a few degrees off their
-configured center.
-
-Run:
-    ros2 run swayform_robot idle                                 # mock by default
-    ros2 run swayform_robot idle --ros-args -p use_mock_hardware:=false
-    ros2 launch swayform_bringup idle_demo.launch.py
-    ros2 launch swayform_bringup idle_demo.launch.py use_mock_hardware:=false
-
-Or import and trigger single cycles programmatically:
-    from swayform_robot.behaviors.idle import run_idle_cycle
-
-Importing this module never touches hardware — all I2C/PCA9685 setup
-happens inside perform_idle()/run_idle_cycle() themselves.
-
-Lowest priority by convention: each cycle tries to acquire the shared
-hardware_lock() (see swayform_robot.hardware.servo_control) WITHOUT
-blocking, so it naturally backs off whenever wave/handshake is actively
-moving the robot.
-
-This module is both the real implementation (perform_idle/run_idle_cycle)
-and the ROS2 node (IdleNode/main()) that runs it via \`ros2 run\`/
-\`ros2 launch\`.
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py": `"""Idle behavior: random ambient gestures on the right arm and head until stopped."""
 
 import random
 import time
+import math
 import threading
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from swayform_robot.hardware import servo_control as sc
-from swayform_robot.config import load_config
 
-IDLE_REST_SECONDS = 4.0
-IDLE_MOVE_DURATION = 2.0  # base seconds per move, before IDLE_SPEED slows it down
-IDLE_SPEED = 0.3  # matches the original speed=0.3 goal param — deliberately slow/subtle
-TICK_DELAY = 0.02  # matches the old motion_server's ~20ms interpolation tick
+PCA_HAND = 0x40
+PCA_REACH = 0x60
 
-IDLE_OFFSET_RANGE = (2.0, 5.0)  # degrees off center, magnitude before random sign
-IDLE_JOINTS_PER_CYCLE = (1, 3)  # inclusive random.randint range — keeps cycles subtle
+THUMB = 0
+INDEX = 1
+MIDDLE = 2
+RING = 3
+PINKY = 4
+WRIST = 5
+ELBOW = 6
+SHOULDER_ROLL = 7
+SHOULDER_PITCH = 1
+NECK_YAW = 2
+NECK_PITCH = 3
+
+FINGER_CHANNELS = [INDEX, MIDDLE, RING, PINKY]
+
+LIMITS = {
+    (PCA_HAND, THUMB): (50, 135),
+    (PCA_HAND, INDEX): (50, 135),
+    (PCA_HAND, MIDDLE): (50, 135),
+    (PCA_HAND, RING): (50, 135),
+    (PCA_HAND, PINKY): (50, 135),
+    (PCA_HAND, WRIST): (60, 160),
+    (PCA_HAND, ELBOW): (40, 140),
+    (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_REACH, SHOULDER_PITCH): (150, 260),
+    (PCA_REACH, NECK_YAW): (120, 260),
+    (PCA_REACH, NECK_PITCH): (130, 180),
+}
+
+SERVO_RANGES = {
+    (PCA_HAND, ELBOW): 270.0,
+    (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_REACH, SHOULDER_PITCH): 270.0,
+    (PCA_REACH, NECK_YAW): 270.0,
+    (PCA_REACH, NECK_PITCH): 270.0,
+}
+
+CENTERS = {
+    (PCA_HAND, THUMB): 50,
+    (PCA_HAND, INDEX): 135,
+    (PCA_HAND, MIDDLE): 135,
+    (PCA_HAND, RING): 135,
+    (PCA_HAND, PINKY): 135,
+    (PCA_HAND, WRIST): 100,
+    (PCA_HAND, ELBOW): 130,
+    (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_REACH, SHOULDER_PITCH): 170,
+    (PCA_REACH, NECK_YAW): 190,
+    (PCA_REACH, NECK_PITCH): 155,
+}
+
+REST_ELBOW = 40
+REST_SHOULDER_PITCH = 150
+
+REST_POSE = {
+    **CENTERS,
+    (PCA_HAND, ELBOW): REST_ELBOW,
+    (PCA_REACH, SHOULDER_PITCH): REST_SHOULDER_PITCH,
+}
+
+ARM_KEYS = [
+    (PCA_HAND, THUMB), (PCA_HAND, INDEX), (PCA_HAND, MIDDLE),
+    (PCA_HAND, RING), (PCA_HAND, PINKY), (PCA_HAND, WRIST),
+    (PCA_HAND, ELBOW), (PCA_HAND, SHOULDER_ROLL), (PCA_REACH, SHOULDER_PITCH),
+]
+
+TICK_DELAY = 0.02
+
+IDLE_REST_SECONDS = (3.0, 12.0)
+
+HEAD_SPEED_DEG_PER_SEC = 33.0
+HEAD_HOLD_SECONDS = 2.0
+
+ELBOW_LIMIT_DURATION = 1.5
+ARM_RAISE_DURATION = 2.5
+ARM_RETURN_DURATION = 3.0
+CENTER_DURATION = 3.0
+
+WAVE_SHOULDER_ROLL = 40
+WAVE_SHOULDER_PITCH = 260
+WAVE_ELBOW_BENT = 40
+WAVE_ELBOW_OPEN = 70
+WAVE_STROKE_DURATION = 1.2
+
+FINGER_OPEN = 135
+RIPPLE_AMPLITUDE = 40
+RIPPLE_SPEED = 3.0
+PHASE_OFFSET = math.pi / 2
+RIPPLE_TICK = 0.02
+FINGER_CURL_SECONDS = 3.0
+
+FINGER_EXTENDED = 135
+FINGER_CURLED = 50
+THUMB_EXTENDED = 50
+THUMB_CURLED = 135
+HAND_DURATION = 1.5
+PEACE_NUMBER = 2
+PEACE_HOLD_SECONDS = 2.5
+PEACE_TORSO_SPEED_PERCENT = 30
+PEACE_TORSO_SECONDS = 0.8
 
 
-def _load_idle_joints():
-    """Read robot.yaml once and return (joints, board_addresses) — joints is
-    {name: {board: <address>, channel, center_angle, min_angle, max_angle,
-    servo_range}} for every joint in the config, addresses resolved from
-    pca_boards so callers don't need to know board names."""
-    cfg = load_config()
-    board_addrs = {name: b["address"] for name, b in cfg["pca_boards"].items()}
-    joints = {
-        name: {
-            "board": board_addrs[j["board"]],
-            "channel": j["channel"],
-            "center_angle": j["center_angle"],
-            "min_angle": j["min_angle"],
-            "max_angle": j["max_angle"],
-            "servo_range": j.get("servo_range", 180.0),
-        }
-        for name, j in cfg["joints"].items()
+class _Stopped(Exception):
+    pass
+
+
+_stop_event = threading.Event()
+
+
+def _check_stop():
+    if _stop_event.is_set():
+        raise _Stopped
+
+
+def _hold(seconds):
+    if _stop_event.wait(seconds):
+        raise _Stopped
+
+
+def _mv(addr, ch, target, duration):
+    steps = max(1, round(duration / TICK_DELAY))
+    return {
+        "addr": addr, "ch": ch, "target": target, "limits": LIMITS[(addr, ch)],
+        "steps": steps, "delay": TICK_DELAY,
+        "servo_range": SERVO_RANGES.get((addr, ch), 180.0),
     }
-    return joints, sorted(set(board_addrs.values()))
 
 
-def run_idle_cycle(ctrl, joints):
-    """Nudge a small random handful of joints a few degrees off their
-    robot.yaml center, all at once (threaded) — no automatic return to
-    center; future cycles' random picks are what bring things back.
-    Returns True if it moved, False if it skipped (hardware_lock held by
-    something else more important right now)."""
-    count = random.randint(*IDLE_JOINTS_PER_CYCLE)
-    names = random.sample(list(joints), k=min(count, len(joints)))
+def _arm_to_rest(ctrl, duration):
+    _check_stop()
+    ctrl.run_threads([_mv(addr, ch, REST_POSE[(addr, ch)], duration) for (addr, ch) in ARM_KEYS])
 
-    actual_duration = IDLE_MOVE_DURATION / IDLE_SPEED
-    steps = max(1, round(actual_duration / TICK_DELAY))
 
-    moves = []
-    for name in names:
-        j = joints[name]
-        offset = random.uniform(*IDLE_OFFSET_RANGE) * random.choice((1, -1))
-        moves.append({
-            "addr": j["board"],
-            "ch": j["channel"],
-            "target": j["center_angle"] + offset,
-            "limits": (j["min_angle"], j["max_angle"]),
-            "steps": steps,
-            "delay": TICK_DELAY,
-            "servo_range": j["servo_range"],
-        })
+def _head_move(ctrl, targets):
+    starts = {ch: ctrl.current[(PCA_REACH, ch)] for ch in targets}
+    travel = max(abs(targets[ch] - starts[ch]) for ch in targets)
+    steps = max(1, round(travel / HEAD_SPEED_DEG_PER_SEC / TICK_DELAY))
+    for i in range(1, steps + 1):
+        t = i / steps
+        for ch, target in targets.items():
+            angle = starts[ch] + (target - starts[ch]) * t
+            ctrl.set_servo(PCA_REACH, ch, angle, LIMITS[(PCA_REACH, ch)], SERVO_RANGES[(PCA_REACH, ch)])
+        time.sleep(TICK_DELAY)
 
+
+def _head_to_rest(ctrl):
+    _check_stop()
+    _head_move(ctrl, {ch: REST_POSE[(PCA_REACH, ch)] for ch in (NECK_YAW, NECK_PITCH)})
+
+
+def _center_all(ctrl):
+    arm = threading.Thread(
+        target=ctrl.run_threads,
+        args=([_mv(addr, ch, CENTERS[(addr, ch)], CENTER_DURATION) for (addr, ch) in ARM_KEYS],),
+    )
+    arm.start()
+    _head_move(ctrl, {ch: CENTERS[(PCA_REACH, ch)] for ch in (NECK_YAW, NECK_PITCH)})
+    arm.join()
+
+
+def _finger_curl_wave(ctrl, seconds):
+    _check_stop()
+    start = time.monotonic()
+    while time.monotonic() - start < seconds and not _stop_event.is_set():
+        t = time.monotonic() - start
+        for i, ch in enumerate(FINGER_CHANNELS):
+            theta = t * RIPPLE_SPEED - i * PHASE_OFFSET
+            angle = FINGER_OPEN - RIPPLE_AMPLITUDE * (0.5 + 0.5 * math.sin(theta))
+            ctrl.set_servo(PCA_HAND, ch, angle, LIMITS[(PCA_HAND, ch)])
+        time.sleep(RIPPLE_TICK)
+
+
+def _run_concurrently(*calls):
+    _check_stop()
+
+    def guarded(fn, args):
+        try:
+            fn(*args)
+        except _Stopped:
+            pass
+
+    threads = [threading.Thread(target=guarded, args=(fn, args)) for fn, args in calls]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    _check_stop()
+
+
+def _finger_targets(number):
+    if not number:
+        targets = {THUMB: THUMB_CURLED}
+        targets.update({ch: FINGER_CURLED for ch in FINGER_CHANNELS})
+        return targets
+    extended = set(FINGER_CHANNELS[:min(number, 4)])
+    targets = {ch: (FINGER_EXTENDED if ch in extended else FINGER_CURLED) for ch in FINGER_CHANNELS}
+    targets[THUMB] = THUMB_EXTENDED if number >= 5 else THUMB_CURLED
+    return targets
+
+
+def _show_fingers(ctrl, number):
+    _check_stop()
+    ctrl.run_threads([_mv(PCA_HAND, ch, t, HAND_DURATION) for ch, t in _finger_targets(number).items()])
+
+
+def _raise_arm(ctrl):
+    _check_stop()
+    ctrl.run_threads([
+        _mv(PCA_HAND, SHOULDER_ROLL, WAVE_SHOULDER_ROLL, ARM_RAISE_DURATION),
+        _mv(PCA_REACH, SHOULDER_PITCH, WAVE_SHOULDER_PITCH, ARM_RAISE_DURATION),
+        _mv(PCA_HAND, ELBOW, WAVE_ELBOW_BENT, ARM_RAISE_DURATION),
+        _mv(PCA_HAND, WRIST, REST_POSE[(PCA_HAND, WRIST)], ARM_RAISE_DURATION),
+    ])
+
+
+def _wave_stroke(ctrl):
+    _check_stop()
+    ctrl.run_threads([_mv(PCA_HAND, ELBOW, WAVE_ELBOW_OPEN, WAVE_STROKE_DURATION)])
+    _check_stop()
+    ctrl.run_threads([_mv(PCA_HAND, ELBOW, WAVE_ELBOW_BENT, WAVE_STROKE_DURATION)])
+
+
+class _TorsoPulse:
+    def __init__(self, mock):
+        self.mock = mock
+        self.tm = None
+        self.cfg = None
+        self.speed = PEACE_TORSO_SPEED_PERCENT
+        if not mock:
+            from swayform_robot.hardware import torso_motor as tm
+            self.tm = tm
+            self.cfg = tm.load_config()
+            self.tm.setup_gpio(self.cfg)
+            self.speed = min(PEACE_TORSO_SPEED_PERCENT, self.cfg["max_speed_percent"])
+
+    def pulse(self, direction, duration):
+        _check_stop()
+        if self.mock:
+            print(f"[MOCK] torso {direction} @ {self.speed}% for {duration}s")
+            _hold(duration)
+            return
+        move = self.tm.rotate_right if direction == "right" else self.tm.rotate_left
+        move(self.cfg, self.speed)
+        stopped = _stop_event.wait(duration)
+        self.tm.stop_motor(self.cfg)
+        if stopped:
+            raise _Stopped
+
+    def close(self):
+        if self.mock:
+            return
+        self.tm.stop_motor(self.cfg)
+        self.tm.cleanup_gpio(self.cfg)
+
+
+def _head_glance(ctrl, first_offset, second_offset):
+    _check_stop()
+    yaw_center = REST_POSE[(PCA_REACH, NECK_YAW)]
+    _head_move(ctrl, {NECK_YAW: yaw_center + first_offset})
+    _hold(HEAD_HOLD_SECONDS)
+    _head_move(ctrl, {NECK_YAW: yaw_center + second_offset})
+    _hold(HEAD_HOLD_SECONDS)
+    _head_to_rest(ctrl)
+
+
+def action_head_glance_right_15_5(ctrl, torso):
+    _head_glance(ctrl, -15, +5)
+
+
+def action_head_glance_right_8_12(ctrl, torso):
+    _head_glance(ctrl, -8, +12)
+
+
+def action_head_glance_left_15_5(ctrl, torso):
+    _head_glance(ctrl, +15, -5)
+
+
+def action_head_glance_left_8_12(ctrl, torso):
+    _head_glance(ctrl, +8, -12)
+
+
+_HEAD_GLANCE_ACTIONS = [
+    action_head_glance_right_15_5,
+    action_head_glance_right_8_12,
+    action_head_glance_left_15_5,
+    action_head_glance_left_8_12,
+]
+
+
+def action_head_glance(ctrl, torso):
+    glance = random.choice(_HEAD_GLANCE_ACTIONS)
+    print(f"      {glance.__name__}")
+    glance(ctrl, torso)
+
+
+def action_wave_once(ctrl, torso):
+    _raise_arm(ctrl)
+    _wave_stroke(ctrl)
+    _arm_to_rest(ctrl, ARM_RETURN_DURATION)
+
+
+def action_finger_curl_right(ctrl, torso):
+    _finger_curl_wave(ctrl, FINGER_CURL_SECONDS)
+    _arm_to_rest(ctrl, ARM_RETURN_DURATION)
+
+
+def action_look_and_curl_right(ctrl, torso):
+    head_targets = {
+        NECK_YAW: REST_POSE[(PCA_REACH, NECK_YAW)] - 15,
+        NECK_PITCH: LIMITS[(PCA_REACH, NECK_PITCH)][0],
+    }
+    elbow_in = [_mv(PCA_HAND, ELBOW, LIMITS[(PCA_HAND, ELBOW)][0], ELBOW_LIMIT_DURATION)]
+    _run_concurrently((ctrl.run_threads, (elbow_in,)), (_head_move, (ctrl, head_targets)))
+    _finger_curl_wave(ctrl, FINGER_CURL_SECONDS)
+    _run_concurrently((_arm_to_rest, (ctrl, ARM_RETURN_DURATION)), (_head_to_rest, (ctrl,)))
+
+
+def action_mix_wave_and_head(ctrl, torso):
+    head_action = random.choice(_HEAD_GLANCE_ACTIONS)
+    _run_concurrently((action_wave_once, (ctrl, torso)), (head_action, (ctrl, torso)))
+
+
+def action_peace_and_wave(ctrl, torso):
+    torso.pulse("right", PEACE_TORSO_SECONDS)
+    _show_fingers(ctrl, None)
+    _raise_arm(ctrl)
+    _show_fingers(ctrl, PEACE_NUMBER)
+    _hold(PEACE_HOLD_SECONDS)
+    torso.pulse("left", 2 * PEACE_TORSO_SECONDS)
+    _show_fingers(ctrl, 5)
+    _wave_stroke(ctrl)
+    _run_concurrently(
+        (_arm_to_rest, (ctrl, ARM_RETURN_DURATION)),
+        (torso.pulse, ("right", PEACE_TORSO_SECONDS)),
+    )
+
+
+IDLE_ACTIONS = [
+    action_head_glance,
+    action_wave_once,
+    action_finger_curl_right,
+    action_look_and_curl_right,
+    action_mix_wave_and_head,
+    action_peace_and_wave,
+]
+
+
+def perform_idle(seconds=None, mock=False, stop_event=None):
+    global _stop_event
+    _stop_event = stop_event if stop_event is not None else threading.Event()
+
+    ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+    ctrl.current = CENTERS.copy()
+    torso = _TorsoPulse(mock)
+
+    start = time.monotonic()
+    deck = []
+    last = None
     try:
         with sc.hardware_lock(blocking=False):
-            ctrl.run_threads(moves)
-        return True
-    except BlockingIOError:
-        return False  # something else is moving the robot right now — skip
-
-
-def perform_idle(cycles=None, mock=False, stop_event=None):
-    """Run idle movements forever (cycles=None) or for a fixed number of
-    cycles, pausing IDLE_REST_SECONDS between each. Ctrl+C to stop when run
-    standalone; pass a threading.Event as stop_event to stop it from
-    another thread (e.g. a ROS2 node shutting down) instead.
-    """
-    joints, board_addresses = _load_idle_joints()
-    ctrl = sc.ServoController(board_addresses, mock=mock)
-    ctrl.current = {
-        (j["board"], j["channel"]): j["center_angle"] for j in joints.values()
-    }
-    try:
-        i = 0
-        while cycles is None or i < cycles:
-            if stop_event is not None and stop_event.is_set():
+            _arm_to_rest(ctrl, ARM_RETURN_DURATION)
+        while True:
+            if _stop_event.is_set():
                 break
-            run_idle_cycle(ctrl, joints)
-            if stop_event is not None:
-                stop_event.wait(IDLE_REST_SECONDS)
-            else:
-                time.sleep(IDLE_REST_SECONDS)
-            i += 1
+            if seconds is not None and time.monotonic() - start >= seconds:
+                break
+
+            if not deck:
+                deck = random.sample(IDLE_ACTIONS, len(IDLE_ACTIONS))
+                if deck[0] is last and len(deck) > 1:
+                    deck.append(deck.pop(0))
+            action = deck.pop(0)
+            try:
+                with sc.hardware_lock(blocking=False):
+                    print(f"Idle: {action.__name__}")
+                    action(ctrl, torso)
+                last = action
+            except BlockingIOError:
+                deck.insert(0, action)
+
+            if _stop_event.wait(random.uniform(*IDLE_REST_SECONDS)):
+                break
+    except (_Stopped, BlockingIOError):
+        pass
     finally:
+        try:
+            with sc.hardware_lock(blocking=False):
+                print("Idle: centering")
+                _center_all(ctrl)
+        except BlockingIOError:
+            pass
+        torso.close()
         ctrl.close()
 
-
-# ── ROS2 node ────────────────────────────────────────────────────────────
-#
-# Runs perform_idle() continuously on a background thread until the node
-# shuts down — no action server, no motion_server, no RobotState topic.
-#
-# Parameters:
-#     use_mock_hardware (bool): print instead of moving real servos. Default True.
 
 class IdleNode(Node):
     def __init__(self):
@@ -1434,11 +1521,11 @@ class IdleNode(Node):
             daemon=False,
         )
         self._thread.start()
-        self.get_logger().info("Idle running (lowest priority — yields via hardware_lock).")
+        self.get_logger().info("Idle running.")
 
     def destroy_node(self):
         self._stop_event.set()
-        self._thread.join(timeout=10.0)
+        self._thread.join(timeout=20.0)
         super().destroy_node()
 
 
@@ -1447,13 +1534,10 @@ def main(args=None):
     node = IdleNode()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()
-        # Ctrl+C already triggers rclpy's own SIGINT handler, which shuts
-        # the context down before this finally block runs — calling
-        # shutdown() again raises RCLError, so only do it if still needed.
         if rclpy.ok():
             rclpy.shutdown()
 
@@ -1462,12 +1546,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/config/__init__.py": `"""
-config/__init__.py
-
-Loads robot.yaml from the installed package share directory.
-All nodes that need robot configuration call load_config() from here.
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/config/__init__.py": `"""Loads robot.yaml from the installed package share directory."""
 
 import os
 import yaml
@@ -1475,15 +1554,7 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def load_config(config_file: str = "robot.yaml") -> dict:
-    """
-    Load a robot config YAML from the installed share directory.
-
-    The config file lives at:
-        src/swayform_robot/swayform_robot/config/robot.yaml
-
-    After building, it is installed to:
-        install/swayform_robot/share/swayform_robot/config/robot.yaml
-    """
+    """Load a robot config YAML from the installed share directory."""
     share_dir = get_package_share_directory("swayform_robot")
     path = os.path.join(share_dir, "config", config_file)
 
@@ -1509,41 +1580,16 @@ def load_pose(pose_name: str, config_file: str = "robot.yaml") -> dict:
     return dict(poses[pose_name])
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# robot.yaml
-#
-# Central servo and hardware configuration for SwayForm.
-# Edit this file to:
-#   - Calibrate servo positions (home_angle, center_angle, min_angle, max_angle)
-#   - Change I2C addresses after reflashing a PCA9685 board
-#   - Add new joints
-#   - Adjust named poses
-#
-# After editing, rebuild and re-source for changes to take effect:
-#   cd ~/ros2_ws && colcon build && source install/setup.bash
-#
-# See docs/servo_guide.md for full calibration and testing instructions.
+  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# robot.yaml — central servo and hardware configuration. Rebuild + re-source after editing.
 
-# ─────────────────────────────────────────────────
-# HARDWARE MODE
-# ─────────────────────────────────────────────────
-# Set mock_mode: false when PCA9685 boards are physically connected.
-# In mock mode all servo commands are logged to the terminal only.
+# ─── HARDWARE MODE ───
+# mock_mode: true logs servo commands instead of moving anything
 hardware:
   mock_mode: true
   i2c_bus: 1
 
-# ─────────────────────────────────────────────────
-# PCA9685 BOARDS
-# ─────────────────────────────────────────────────
-# Verify addresses with:  i2cdetect -y 1
-#
-# IMPORTANT: 0x70 is the PCA9685 all-call broadcast address.
-# Never configure 0x70 as an individual board address.
-#
-# Address quick reference (solder-pad combinations):
-#   No pads: 0x40   A0: 0x41   A1: 0x42   A0+A1: 0x43
-#   A2: 0x44   A0+A2: 0x45   A1+A2: 0x46   A0+A1+A2: 0x47
-#   A3: 0x48   ...  A3+A2+A1+A0: 0x4F   (then skip 0x70, use 0x60-0x6F range)
+# ─── PCA9685 BOARDS ───
+# Verify addresses with: i2cdetect -y 1. Never use 0x70 (all-call broadcast).
 pca_boards:
   right_arm_pca:
     address: 0x40
@@ -1560,21 +1606,8 @@ pca_boards:
     frequency_hz: 50
     notes: "Left hand fingers (ch0-4), wrist (ch5), elbow (ch6), shoulder_roll (ch7)"
 
-# ─────────────────────────────────────────────────
-# JOINTS
-# ─────────────────────────────────────────────────
-# Fields:
-#   board:        PCA board key (must match a key in pca_boards above)
-#   channel:      PCA9685 channel 0-15
-#   home_angle:   Safe starting / resting position (degrees)
-#   center_angle: Neutral reference used for direction inversion
-#   min_angle:    Hardware minimum — software enforces this limit
-#   max_angle:    Hardware maximum — software enforces this limit
-#   direction:    1 = normal,  -1 = inverted (mirrors around center_angle)
-#   servo_range:  Pulse-width mapping range in degrees.
-#                 Use 180 for standard 180° servos (500–2500µs mapped over 0–180°).
-#                 Use 270 for wide-range servos (500–2500µs mapped over 0–270°).
-#   notes:        Human-readable description
+# ─── JOINTS ───
+# servo_range: 180 for standard servos, 270 for wide-range servos
 
 joints:
 
@@ -1657,7 +1690,7 @@ joints:
     max_angle: 140.0
     direction: 1
     servo_range: 270
-    notes: "Elbow. Center 130. Inward limit 40, backward limit 140. Wave oscillates between 40-70. Wide-range (270) servo — 60kgcm/270 ROM unit. Re-tested on real hardware 2026-08-14 against the 270 mapping via try.py (was 90/20/110, an unverified carryover from the old 180 mapping)."
+    notes: "Elbow. Center 130. Inward limit 40, backward limit 140. Wave oscillates between 40-70. Wide-range (270) servo."
 
   shoulder_roll:
     board: right_arm_pca
@@ -1668,7 +1701,7 @@ joints:
     max_angle: 170.0
     direction: 1
     servo_range: 270
-    notes: "Shoulder roll. Center 160. Outer limit 40 (also the wave pose target), inner limit 170. Wide-range (270) servo. Re-tested on real hardware 2026-08-14 against the 270 mapping via try.py (was 110/30/120, an unverified carryover from the old 180 mapping)."
+    notes: "Shoulder roll. Center 160. Outer limit 40 (also the wave pose target), inner limit 170. Wide-range (270) servo."
 
   # ─── REACH AXIS  (board: reach_pca / 0x60) ───────────────────────────────
   # ch0 = left arm shoulder pitch
@@ -1682,7 +1715,7 @@ joints:
     max_angle: 260.0
     direction: 1
     servo_range: 270
-    notes: "Right arm shoulder pitch. Center 170. Back limit 150. Forward limit 260 — also the wave pose target, re-tested on real hardware 2026-08-14 via try.py against the 270 mapping (was 115/80/200, itself only a rough estimate before this proper try.py test pass). Handshake pose target (150 in the handshake_ready pose below) now falls on the BACK limit under this calibration and needs its own re-test — it no longer represents a forward reach. Wide-range (270) servo. Renamed from shoulder_reach 2026-08-14 to match left_shoulder_pitch."
+    notes: "Right arm shoulder pitch. Center 170. Back limit 150. Forward limit 260 (also the wave pose target). Wide-range (270) servo."
 
   left_shoulder_pitch:
     board: reach_pca
@@ -1693,30 +1726,31 @@ joints:
     max_angle: 170.0
     direction: 1
     servo_range: 270
-    notes: "Left shoulder pitch. Center 135. Forward limit ~90, back limit ~170. Wide-range (270) servo — has been 270 from the start, previously mis-documented as 180. servo_range corrected; center/min/max angles are UNVERIFIED against this new mapping and need re-testing on hardware before real use."
+    notes: "Left shoulder pitch. Center 135. Forward limit ~90, back limit ~170. Wide-range (270) servo. Angles unverified on hardware."
 
   # ─── HEAD  (board: reach_pca / 0x60) ─────────────────────────────────────
+  # re-tested on real hardware 2026-09-15
   neck_pitch:
     board: reach_pca
     channel: 3
-    home_angle: 105.0
-    center_angle: 105.0
-    min_angle: 95.0
-    max_angle: 125.0
+    home_angle: 155.0
+    center_angle: 155.0
+    min_angle: 130.0
+    max_angle: 180.0
     direction: 1
     servo_range: 270
-    notes: "Head nod (pitch). Center 105. Down limit 95, back/up limit 125."
+    notes: "Head nod (pitch). Center 155. Down limit 130, up limit 180."
 
   neck_yaw:
     board: reach_pca
     channel: 2
-    home_angle: 135.0
-    center_angle: 135.0
-    min_angle: 100.0
-    max_angle: 180.0
+    home_angle: 190.0
+    center_angle: 190.0
+    min_angle: 120.0
+    max_angle: 260.0
     direction: 1
     servo_range: 270
-    notes: "Head turn (yaw). Center 135. Left limit 180, right limit 100."
+    notes: "Head turn (yaw). Center 190. Right limit 120, left limit 260."
 
   # ─── LEFT ARM  (board: left_arm_pca / 0x50) ──────────────────────────────
   left_thumb:
@@ -1794,7 +1828,7 @@ joints:
     max_angle: 120.0
     direction: 1
     servo_range: 270
-    notes: "Left elbow. Center 105. Front (straight) limit 30, back (bent) limit 120. Wide-range (270) servo — upgraded to a 60kgcm/270 ROM unit (not fully used). servo_range corrected from 180; center/min/max angles are UNVERIFIED against this new mapping and need re-testing on hardware before real use."
+    notes: "Left elbow. Center 105. Front (straight) limit 30, back (bent) limit 120. Wide-range (270) servo. Angles unverified on hardware."
 
   left_shoulder_roll:
     board: left_arm_pca
@@ -1805,15 +1839,10 @@ joints:
     max_angle: 190.0
     direction: 1
     servo_range: 270
-    notes: "Left shoulder roll. Center 130. Inner limit 120, outer limit ~190. Wide-range (270) servo — do not set servo_range to 180 here or the outer limit will be silently clamped to 180."
+    notes: "Left shoulder roll. Center 130. Inner limit 120, outer limit ~190. Wide-range (270) servo — must stay 270 or the outer limit clamps to 180."
 
-# ─────────────────────────────────────────────────
-# NAMED POSES
-# ─────────────────────────────────────────────────
-# Each pose is a dict of {joint_name: angle_degrees}.
-# Use load_pose("hand_open") from swayform_robot.config to get the dict.
-# All angles must be within the joint's min_angle / max_angle — limits are enforced
-# in the motion server regardless, but it's good practice to keep them in range here.
+# ─── NAMED POSES ───
+# {joint_name: angle_degrees} — read with load_pose("hand_open")
 poses:
 
   hand_open:
@@ -1836,11 +1865,7 @@ poses:
     shoulder_roll: 160.0
     right_shoulder_pitch: 170.0
 
-  # NOTE: elbow/shoulder_roll/right_shoulder_pitch below are UNVERIFIED
-  # against the 2026-08-14 recalibration above — they were tuned against the
-  # old numbers and have not been re-tested since. right_shoulder_pitch: 150
-  # in particular now sits on the BACK limit, not a forward reach. Re-test
-  # on hardware before using this pose.
+  # unverified against the current calibration — re-test on hardware before using
   handshake_ready:
     right_shoulder_pitch: 150.0
     elbow: 110.0
@@ -1875,20 +1900,8 @@ poses:
   left_elbow_bent_after_grab:
     left_elbow: 90.0
 
-# ─────────────────────────────────────────────────
-# TORSO MOTOR (DC motor via BTS7960 / IBT-2)
-# ─────────────────────────────────────────────────
-# All GPIO numbers use BCM numbering (not physical pin numbers).
-# Wiring:
-#   RPWM  → GPIO 18    LPWM  → GPIO 19
-#   R_EN  → GPIO 23    L_EN  → GPIO 24
-#   VCC   → Pi 5V      GND   → Pi GND (common ground)
-#   R_IS / L_IS not connected.
-#
-# Direction logic:
-#   Rotate right: RPWM active (PWM), LPWM low
-#   Rotate left:  LPWM active (PWM), RPWM low
-#   Stop:         both PWM pins low
+# ─── TORSO MOTOR (DC motor via BTS7960 / IBT-2) ───
+# GPIO numbers are BCM, not physical pins
 torso_motor:
   type: dc_motor
   driver: BTS7960 / IBT-2
@@ -1908,9 +1921,7 @@ torso_motor:
   pwm_frequency_hz: 1000
   notes: "Torso rotation DC motor. Controlled by rotate.py."
 
-# ─────────────────────────────────────────────────
-# CAMERA
-# ─────────────────────────────────────────────────
+# ─── CAMERA ───
 camera:
   enabled: false
   type: realsense_d435i
@@ -1924,35 +1935,7 @@ camera:
   notes: "Intel RealSense D435i. Enable when camera is connected."
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/hardware/servo_control.py": `"""
-servo_control.py
-
-Shared PCA9685 hardware-control layer: pulse-width math, smooth threaded
-moves, and a cross-process hardware lock. Used by
-swayform_robot.behaviors.wave/handshake/idle/finger_wave and by
-swayform_robot.vision.grab.
-
-The pulse-width math below (angle -> 16-bit duty cycle, unclamped to
-[0, servo_range]) is copied verbatim from wave.py's original implementation
-— that's the one implementation that's actually been validated on real
-hardware, so this extraction changes structure, not numbers. In particular
-it deliberately does NOT clamp the angle/servo_range fraction to [0, 1] —
-kept in case a future target needs to push past the nominal 2500us pulse
-ceiling, as the right-arm wave pose's shoulder-pitch target once did under
-the old (incorrect) 180-range mapping for that joint. Since that mapping
-was corrected to 270 (2026-08-14) the current wave target (260 degrees,
-see wave.py) sits well within range and no longer relies on this. Each
-behavior's own CENTERS/LIMITS dict is what keeps angles sane before they
-ever reach this module.
-
-Cross-process safety: any script that moves servos — a standalone script
-run directly, or a thin ROS2 node wrapper — should wrap the move in
-hardware_lock() so two things can never write to the same boards at once.
-This replaces the old behavior_lock.py, but works across separate OS
-processes (behavior_lock only worked within one process), which is what
-this workspace actually needs since standalone scripts and ROS2 nodes are
-separate processes.
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/hardware/servo_control.py": `"""Shared PCA9685 control layer: pulse-width math, smooth threaded moves, and the cross-process hardware lock."""
 
 import time
 import threading
@@ -1968,13 +1951,7 @@ _LOCK_PATH = "/tmp/swayform_servo.lock"
 
 @contextlib.contextmanager
 def hardware_lock(blocking: bool = True):
-    """Cross-process mutex over physical servo access.
-
-    blocking=True (default): wait until the lock is free.
-    blocking=False: raise BlockingIOError immediately if something else
-    currently holds it — used by low-priority behaviors (idle) that should
-    skip a cycle rather than queue up behind a real behavior.
-    """
+    """Cross-process mutex over physical servo access; blocking=False raises BlockingIOError if held."""
     f = open(_LOCK_PATH, "w")
     try:
         fcntl.flock(f, fcntl.LOCK_EX if blocking else fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -1985,26 +1962,13 @@ def hardware_lock(blocking: bool = True):
 
 
 def angle_to_duty(angle: float, servo_range: float = 180.0) -> int:
-    """Angle in degrees -> 16-bit PCA9685 duty cycle. Matches wave.py's
-    original math exactly for servo_range=180 (the default)."""
+    """Angle in degrees -> 16-bit PCA9685 duty cycle."""
     pulse_us = MIN_US + (angle / servo_range) * (MAX_US - MIN_US)
     return int((pulse_us / 20000.0) * 65535)
 
 
 class ServoController:
-    """Owns PCA9685 board handles for one or more boards and moves servos
-    smoothly. Each behavior creates its own instance inside its
-    perform_*()/run_*() function and closes it when done — mirrors
-    wave.py's existing per-call open/close pattern, so nothing holds an
-    I2C connection open when it isn't actively moving something.
-
-    CENTERS/LIMITS/SERVO_RANGES are keyed by (board_address, channel),
-    matching wave.py's existing style. SERVO_RANGES defaults to 180 for
-    any key not present. 270 applies to: the head (neck_yaw, neck_pitch),
-    both elbows (60kgcm replacements, 270 ROM though not fully used), and
-    all 4 shoulder motors (left/right shoulder_roll, left/right
-    shoulder_pitch — these have been 270 servos from the start).
-    """
+    """Owns PCA9685 board handles for one or more boards and moves servos smoothly."""
 
     def __init__(self, board_addresses, mock: bool = False):
         self.mock = mock
@@ -2044,8 +2008,7 @@ class ServoController:
             time.sleep(delay)
 
     def run_threads(self, moves):
-        """moves: list of kwargs-dicts for smooth_move, e.g.
-        {"addr": 0x40, "ch": 5, "target": 100, "limits": (60, 160)}."""
+        """Run several smooth_move() calls concurrently; \`moves\` is a list of smooth_move kwargs dicts."""
         threads = [threading.Thread(target=self.smooth_move, kwargs=m) for m in moves]
         for t in threads:
             t.start()
@@ -2058,20 +2021,7 @@ class ServoController:
                 pca.deinit()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/hardware/torso_motor.py": `"""
-torso_motor.py
-
-Torso DC motor control (BTS7960/IBT-2 over GPIO) — renamed from the
-workspace-root rotate.py during the package migration for a clearer name.
-Same GPIO logic, same PWM/direction behavior; only the config lookup
-changed, from a hand-rolled relative-path YAML read to the package's
-regular installed-share-directory loader (see swayform_robot.config),
-since this module now lives inside the installed package rather than at
-the workspace root.
-
-Run directly for manual arrow-key torso testing:
-    ros2 run swayform_robot torso_control
-"""
+  "swayform_ws/src/swayform_robot/swayform_robot/hardware/torso_motor.py": `"""Torso DC motor control (BTS7960/IBT-2 over GPIO)."""
 
 import sys
 import tty
@@ -2246,25 +2196,14 @@ if __name__ == "__main__":
   "swayform_ws/src/swayform_demos/package.xml": PACKAGE_XML("swayform_demos", "Planned demos: Pick and Place, Rock Paper Scissors. Wave and Handshake moved to swayform_robot/ — see the real source there."),
   "swayform_ws/src/swayform_demos/setup.py": SETUP_PY("swayform_demos"),
 
-  "swayform_ws/src/swayform_demos/pick_and_place.py": `"""
-Demo: Pick and Place
-
-Purpose:
-Pick up a light object from a fixed pickup zone and place it in a
-fixed place zone.
-
-Important:
-Pickup and place positions are tested, fixed poses in this version,
-not general-purpose object localization.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_demos/pick_and_place.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
 LIFT_HOLD_SECONDS = 0.6
 TRANSPORT_HOLD_SECONDS = 0.8
 
+# fixed, tested poses — not object localization
 PICKUP_APPROACH = {"shoulder_pitch": 30, "shoulder_roll": 5, "elbow_pitch": 55, "wrist_yaw": 0}
 PICKUP_GRASP    = {"shoulder_pitch": 34, "shoulder_roll": 5, "elbow_pitch": 62, "wrist_yaw": 0}
 LIFT_POSE       = {"shoulder_pitch": 10, "shoulder_roll": 5, "elbow_pitch": 40, "wrist_yaw": 0}
@@ -2272,13 +2211,11 @@ PLACE_APPROACH  = {"shoulder_pitch": 20, "shoulder_roll": -25, "elbow_pitch": 55
 
 
 def approach_object(motion: MotionClient) -> None:
-    """Move over the pickup zone before descending to grasp."""
     motion.move_joint_group("right_arm", PICKUP_APPROACH)
     sleep(0.5)
 
 
 def grasp_object(motion: MotionClient) -> None:
-    """Descend to the object and close the hand."""
     motion.move_joint_group("right_arm", PICKUP_GRASP)
     sleep(0.4)
     motion.set_hand_pose("right_hand", "gentle_close")
@@ -2286,7 +2223,7 @@ def grasp_object(motion: MotionClient) -> None:
 
 
 def lift_and_transport(motion: MotionClient) -> None:
-    """Lift clear of the table before moving sideways to the place zone."""
+    # lift clear of the table before moving sideways
     motion.move_joint_group("right_arm", LIFT_POSE)
     sleep(LIFT_HOLD_SECONDS)
 
@@ -2295,7 +2232,6 @@ def lift_and_transport(motion: MotionClient) -> None:
 
 
 def release_object(motion: MotionClient) -> None:
-    """Open the hand to release the object in the place zone."""
     motion.set_hand_pose("right_hand", "open")
     sleep(0.4)
 
@@ -2319,19 +2255,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_demos/rock_paper_scissors.py": `"""
-Demo: Rock Paper Scissors
-
-Purpose:
-Play a round of rock-paper-scissors with the user. The robot picks randomly.
-
-Important:
-This version uses keyboard input for the user's choice.
-A camera-assisted version can be added later using gesture detection.
-Do not describe this as hand-recognition unless that is implemented.
-"""
-
-import random
+  "swayform_ws/src/swayform_demos/rock_paper_scissors.py": `import random
 from time import sleep
 from swayform.motion import MotionClient
 from swayform.audio import AudioPrompt
@@ -2350,14 +2274,13 @@ WINS_AGAINST = {
 
 
 def countdown(audio: AudioPrompt) -> None:
-    """Say rock, paper, scissors aloud before the reveal."""
     for word in ["Rock", "Paper", "Scissors", "Shoot!"]:
         audio.say(word)
         sleep(COUNTDOWN_SECONDS)
 
 
 def get_user_choice() -> str:
-    """Prompt the user and validate their choice."""
+    # keyboard input — no camera/gesture detection in this version
     while True:
         raw = input("Your move (rock / paper / scissors): ").strip().lower()
         if raw in VALID_CHOICES:
@@ -2366,7 +2289,7 @@ def get_user_choice() -> str:
 
 
 def judge(robot: str, user: str) -> str:
-    """Return 'robot', 'user', or 'tie'."""
+    # returns 'robot', 'user', or 'tie'
     if robot == user:
         return "tie"
     if WINS_AGAINST[robot] == user:
@@ -2375,7 +2298,6 @@ def judge(robot: str, user: str) -> str:
 
 
 def play_round(motion: MotionClient, audio: AudioPrompt) -> str:
-    """Run one complete round. Returns winner: 'robot', 'user', or 'tie'."""
     robot_choice = random.choice(VALID_CHOICES)
     user_choice = get_user_choice()
 
@@ -2422,31 +2344,11 @@ if __name__ == "__main__":
      CURRICULUM and unreferenced, they only cluttered the File Explorer;
      recoverable via git history if that content is ever revived.) === */
 
-  "swayform_ws/src/swayform_labs/lab_01_finger_curl.py": `"""
-Lab 01: Finger Curl
-
-Goal:
-Curl one finger, hold it, then return it to its starting position —
-the smallest possible robot-control program.
-
-Concepts:
-- Choosing a joint
-- Sending a movement
-- Waiting for the servo to arrive
-- Returning to a safe starting position
-
-What to edit:
-Finish curl_finger() by sending FINGER_JOINT back to START_ANGLE.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_01_finger_curl.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 FINGER_JOINT = "right_index_finger"
 START_ANGLE = 10
 CURL_ANGLE = 80
@@ -2454,9 +2356,6 @@ HOLD_SECONDS = 1.0
 
 
 def curl_finger(motion: MotionClient) -> None:
-    """
-    Curl the finger, hold briefly, then return it to START_ANGLE.
-    """
     motion.move_joint(FINGER_JOINT, CURL_ANGLE)
     sleep(HOLD_SECONDS)
 
@@ -2479,30 +2378,11 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_02_nod_yes.py": `"""
-Lab 02: Nod Yes
-
-Goal:
-Move the head through a short center -> down -> up -> center sequence
-that reads as a "yes" nod.
-
-Concepts:
-- Sequences
-- Timing
-- Symmetric motion around a center position
-
-What to edit:
-Add the missing NOD_UP step in nod_yes(), matching the NOD_DOWN step above it.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_02_nod_yes.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 HEAD_PITCH = "head_pitch"
 CENTER = 0
 NOD_DOWN = -20
@@ -2511,9 +2391,6 @@ NOD_HOLD_SECONDS = 0.4
 
 
 def nod_yes(motion: MotionClient) -> None:
-    """
-    Tilt the head down, then up, then return to center.
-    """
     motion.move_joint(HEAD_PITCH, NOD_DOWN)
     sleep(NOD_HOLD_SECONDS)
 
@@ -2538,30 +2415,11 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_03_timed_torso_rotation.py": `"""
-Lab 03: Timed Torso Rotation
-
-Goal:
-Rotate the torso through a predictable center -> right -> left -> center
-sequence, always passing back through a known position.
-
-Concepts:
-- Sequences
-- Pauses between steps
-- Predictable motion
-
-What to edit:
-Finish rotate_torso() by pausing, then returning TORSO_YAW to CENTER.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_03_timed_torso_rotation.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 TORSO_YAW = "torso_yaw"
 CENTER = 0
 ROTATE_RIGHT = 30
@@ -2570,9 +2428,6 @@ PAUSE_SECONDS = 0.6
 
 
 def rotate_torso(motion: MotionClient) -> None:
-    """
-    Rotate right, pause, rotate left, pause, then return to center.
-    """
     motion.move_joint(TORSO_YAW, ROTATE_RIGHT)
     sleep(PAUSE_SECONDS)
 
@@ -2597,30 +2452,11 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_04_basic_handshake.py": `"""
-Lab 04: Basic Handshake
-
-Goal:
-Combine two joints — bend the elbow, then close the hand. Just those
-two moves, no camera, no waiting for a person.
-
-Concepts:
-- Combining joints
-- Hand poses
-- Order of operations
-
-What to edit:
-Add the hand-close call in basic_handshake(), right after the elbow bends.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_04_basic_handshake.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 RIGHT_ELBOW = "right_elbow"
 ELBOW_BEND = 60
 ELBOW_START = 0
@@ -2628,9 +2464,6 @@ HOLD_SECONDS = 1.5
 
 
 def basic_handshake(motion: MotionClient) -> None:
-    """
-    Bend the elbow, close the hand, hold, then release and return.
-    """
     motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)
 
     # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")
@@ -2656,29 +2489,10 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_05_keyboard_torso_control.py": `"""
-Lab 05: Keyboard Torso Control
-
-Goal:
-Drive the torso left and right from live keyboard input, with the
-angle always clamped inside a safe range.
-
-Concepts:
-- Keyboard input
-- Clamping
-- Safe limits
-
-What to edit:
-Clamp current_angle between TORSO_MIN and TORSO_MAX in handle_key().
-"""
-
-from swayform.motion import MotionClient
+  "swayform_ws/src/swayform_labs/lab_05_keyboard_torso_control.py": `from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 TORSO_YAW = "torso_yaw"
 TORSO_STEP = 10
 TORSO_MIN = -45
@@ -2687,9 +2501,6 @@ STOP_KEY = "q"
 
 
 def handle_key(motion: MotionClient, key: str, current_angle: int) -> int:
-    """
-    Step current_angle left or right, clamp it to a safe range, then move.
-    """
     if key == "LEFT":
         current_angle -= TORSO_STEP
     elif key == "RIGHT":
@@ -2719,29 +2530,10 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_06_keyboard_head_control.py": `"""
-Lab 06: Keyboard Head Control
-
-Goal:
-Drive head pitch and yaw from the keyboard — UP/DOWN tilts, LEFT/RIGHT
-turns — as two independent, clamped axes.
-
-Concepts:
-- Keyboard input
-- Two independent axes
-- Clamping
-
-What to edit:
-Add the LEFT/RIGHT branches in handle_key(), mirroring UP/DOWN.
-"""
-
-from swayform.motion import MotionClient
+  "swayform_ws/src/swayform_labs/lab_06_keyboard_head_control.py": `from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 HEAD_PITCH = "head_pitch"
 HEAD_YAW = "head_yaw"
 STEP = 8
@@ -2751,9 +2543,6 @@ STOP_KEY = "q"
 
 
 def handle_key(motion: MotionClient, key: str, current_pitch: int, current_yaw: int):
-    """
-    Route UP/DOWN to pitch and LEFT/RIGHT to yaw, each clamped independently.
-    """
     if key == "UP":
         current_pitch = max(min(current_pitch + STEP, PITCH_MAX), PITCH_MIN)
         motion.move_joint(HEAD_PITCH, current_pitch)
@@ -2783,38 +2572,17 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_07_full_handshake.py": `"""
-Lab 07: Full Handshake
-
-Goal:
-Command the complete handshake behavior directly through code —
-raise, close, hold, release, return home — no camera involved.
-
-Concepts:
-- Setup -> behavior -> cleanup
-- finally blocks
-
-What to edit:
-Return the arm home inside the finally block of full_handshake().
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_07_full_handshake.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 RIGHT_ARM_RAISED = {"right_shoulder": 45, "right_elbow": 60}
 RIGHT_ARM_HOME = {"right_shoulder": 0, "right_elbow": 0}
 HOLD_SECONDS = 1.5
 
 
 def full_handshake(motion: MotionClient) -> None:
-    """
-    Raise the arm, close the hand, hold, release — always return home.
-    """
     try:
         motion.move_joint_group("right_arm", RIGHT_ARM_RAISED)
         motion.set_hand_pose("right_hand", "gentle_close")
@@ -2841,38 +2609,16 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_08_wave.py": `"""
-Lab 08: Wave
-
-Goal:
-Write the repeating loop behind SwayForm's wave yourself, after
-studying the finished Wave demo.
-
-Concepts:
-- Loops
-- Repetition
-
-What to edit:
-Replace the "pass" in wave() with a for loop that calls wave_once()
-WAVE_CYCLES times.
-"""
-
-from time import sleep
+  "swayform_ws/src/swayform_labs/lab_08_wave.py": `from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 WAVE_CYCLES = 3
 WAVE_DELAY_SECONDS = 0.3
 
 
 def wave_once(motion: MotionClient) -> None:
-    """
-    One wrist-left, wrist-right cycle.
-    """
     motion.move_joint("right_wrist", -20)
     sleep(WAVE_DELAY_SECONDS)
     motion.move_joint("right_wrist", 20)
@@ -2880,9 +2626,6 @@ def wave_once(motion: MotionClient) -> None:
 
 
 def wave(motion: MotionClient) -> None:
-    """
-    Repeat wave_once() WAVE_CYCLES times.
-    """
     # TODO: for _ in range(WAVE_CYCLES): wave_once(motion)
     pass
 
@@ -2904,47 +2647,23 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_09_rock_paper_scissors.py": `"""
-Lab 09: Rock Paper Scissors
-
-Goal:
-A timed reveal: ready, countdown, then a randomly chosen hand pose.
-No camera, no scoring against a person — that's the Demos version.
-
-Concepts:
-- Timing
-- Randomness
-
-What to edit:
-Pause COUNTDOWN_SECONDS after each printed number in countdown().
-"""
-
-import random
+  "swayform_ws/src/swayform_labs/lab_09_rock_paper_scissors.py": `import random
 from time import sleep
 from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 CHOICES = ["rock", "paper", "scissors"]
 COUNTDOWN_SECONDS = 1.0
 
 
 def countdown() -> None:
-    """
-    Print 3, 2, 1 with a pause between each number.
-    """
     for number in (3, 2, 1):
         print(number)
         # TODO: sleep(COUNTDOWN_SECONDS)
 
 
 def play(motion: MotionClient) -> None:
-    """
-    Choose randomly, count down, then show the chosen hand pose.
-    """
     choice = random.choice(CHOICES)
     countdown()
     motion.set_hand_pose("right_hand", choice)
@@ -2967,29 +2686,10 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py": `"""
-Lab 10: Combined Keyboard Control (Control Level 1 capstone)
-
-Goal:
-Control the head and torso from the keyboard at the same time —
-W A S D moves the head, arrow keys move the torso. A challenge,
-not a graded submission.
-
-Concepts:
-- Combining independent systems
-- Input routing
-
-What to edit:
-Add the TORSO_KEYS branch in handle_key(), mirroring the HEAD_KEYS branch.
-"""
-
-from swayform.motion import MotionClient
+  "swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py": `from swayform.motion import MotionClient
 
 
-# -----------------------------
 # Student-adjustable settings
-# -----------------------------
-
 HEAD_KEYS = {"w", "a", "s", "d"}
 TORSO_KEYS = {"LEFT", "RIGHT"}
 STOP_KEY = "q"
@@ -3006,9 +2706,6 @@ def handle_torso_key(motion: MotionClient, key: str, current_angle: int) -> int:
 
 
 def handle_key(motion: MotionClient, key: str, state: dict) -> dict:
-    """
-    Route a keypress to the head or torso handler, based on which set it's in.
-    """
     if key in HEAD_KEYS:
         state["head"] = handle_head_key(motion, key, state["head"])
     # TODO: elif key in TORSO_KEYS: state["torso"] = handle_torso_key(motion, key, state["torso"])

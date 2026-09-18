@@ -27,8 +27,25 @@
 .nb-toc-item.active .nb-toc-num{color:var(--la-accent)}
 .nb-toc-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.nb-scroll{flex:1;min-height:0;overflow-y:auto}
+.nb-scroll{flex:1;min-height:0;overflow-y:auto;container-type:inline-size}
 .nb-doc{max-width:700px;margin:0 auto;padding:32px 32px 80px}
+
+/* Wide window (Learn Focus / maximized): grow the column and step the type
+   up together, so the extra room becomes larger, easier reading rather than
+   the same small text on longer lines. */
+@container (min-width: 1100px){
+  .nb-doc{max-width:880px;padding:40px 40px 96px}
+  .nb-title{margin-bottom:34px}
+  .nb-section-title{font-size:20px}
+  .nb-doc .cb-lead{font-size:17.5px}
+  .nb-doc .cb-h2{font-size:21px}
+  .nb-doc .cb-h3{font-size:16px}
+  .nb-doc .cb-p,.nb-doc .cb-li,.nb-doc .cb-step,.nb-doc .cb-check{font-size:15.5px;line-height:1.8}
+  .nb-doc .cb-p code,.nb-doc .cb-li code{font-size:13px}
+  .nb-doc .cb-callout p{font-size:15px;line-height:1.7}
+  .nb-doc .cb-callout-lbl{font-size:10.5px}
+  .nb-doc .cb-code pre{font-size:13px}
+}
 
 .nb-crumb{font-size:11.5px;color:var(--la-muted);margin-bottom:8px}
 .nb-title{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;line-height:1.15;color:var(--la-ink);margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--la-border)}

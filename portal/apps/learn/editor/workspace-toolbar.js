@@ -1,10 +1,11 @@
 import { icon } from '../../../icons.js';
 
 export class WorkspaceToolbar {
-  constructor(container, { onRun, onSave, onReset, onCheck, onQueueOnRobot } = {}){
+  constructor(container, { onRun, onSave, onReset, onCheck, onQueueOnRobot, onToggleExplorer } = {}){
     this.container = container;
     container.innerHTML = `
       <div class="wt-left">
+        <button type="button" class="p-btn ghost wt-explorer-toggle" data-act="toggle-explorer" title="Show or hide the file explorer">${icon('sidebar')}</button>
         <button type="button" class="p-btn primary" data-act="run">${icon('play')}<span>Run</span></button>
         <button type="button" class="p-btn" data-act="check">${icon('checkCircle')}<span>Check</span></button>
         <div class="wt-divider"></div>
@@ -18,6 +19,7 @@ export class WorkspaceToolbar {
         <button type="button" class="p-btn ghost wt-sim" disabled title="Cloud simulation will appear here.">${icon('cloud')}<span>Simulation</span></button>
       </div>`;
 
+    container.querySelector('[data-act="toggle-explorer"]').addEventListener('click', () => onToggleExplorer && onToggleExplorer());
     container.querySelector('[data-act="run"]').addEventListener('click', () => onRun && onRun());
     container.querySelector('[data-act="check"]').addEventListener('click', () => onCheck && onCheck());
     container.querySelector('[data-act="save"]').addEventListener('click', () => onSave && onSave());
@@ -25,6 +27,7 @@ export class WorkspaceToolbar {
     container.querySelector('[data-act="queue-robot"]').addEventListener('click', () => onQueueOnRobot && onQueueOnRobot());
 
     this.statusEl = container.querySelector('[data-file-status]');
+    this.explorerToggleBtn = container.querySelector('[data-act="toggle-explorer"]');
     this.runBtn = container.querySelector('[data-act="run"]');
     this.checkBtn = container.querySelector('[data-act="check"]');
     this.queueRobotBtn = container.querySelector('[data-act="queue-robot"]');
@@ -42,6 +45,11 @@ export class WorkspaceToolbar {
 
   setFileStatus(text){
     this.statusEl.textContent = text || '';
+  }
+
+  setExplorerVisible(visible){
+    this.explorerToggleBtn.classList.toggle('active', visible);
+    this.explorerToggleBtn.setAttribute('aria-pressed', String(visible));
   }
 
   setBusy(busy){

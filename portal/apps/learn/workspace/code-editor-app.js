@@ -17,6 +17,8 @@ import { watchJob } from '../../../services/job-watch.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
+const EXPLORER_VISIBLE_KEY = 'swayform.portal.codeEditor.explorerVisible';
+
 /** One-line summary of why a validate check failed — used by Queue on
  * Robot's own defense-in-depth re-check. Run itself shows the detailed,
  * line-by-line breakdown in Problems (see formatDiff below); this is just
@@ -125,7 +127,17 @@ export function mount(bodyEl, winApi, opts) {
   const toolbar = new WorkspaceToolbar(toolbarEl, {
     onRun: runActiveFile, onCheck: checkActiveFile, onSave: saveActiveFile, onReset: resetActiveFile,
     onQueueOnRobot: queueOnRobot,
+    onToggleExplorer: () => setExplorerVisible(explorerEl.hidden),
   });
+
+  function setExplorerVisible(visible){
+    explorerEl.hidden = !visible;
+    toolbar.setExplorerVisible(visible);
+    try { localStorage.setItem(EXPLORER_VISIBLE_KEY, visible ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+  }
+  let explorerVisible = true;
+  try { explorerVisible = localStorage.getItem(EXPLORER_VISIBLE_KEY) !== '0'; } catch (e) { /* storage unavailable */ }
+  setExplorerVisible(explorerVisible);
 
   editorSurfaceEl.innerHTML = '<div class="editor-loading">Loading editor…</div>';
   editor = new CodeEditor(editorSurfaceEl, {

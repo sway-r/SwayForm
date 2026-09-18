@@ -111,6 +111,10 @@
 .wt-right{display:flex;align-items:center;gap:12px;min-width:0}
 .wt-divider{width:1px;height:20px;background:var(--p-border);margin:0 2px}
 .wt-file-status{font-size:11px;font-family:var(--mono);color:var(--p-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.wt-explorer-toggle{width:30px;padding:0;justify-content:center;color:var(--p-muted)}
+.wt-explorer-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+.wt-explorer-toggle.active{color:var(--p-ink)}
+.learn-explorer[hidden]{display:none}
 .wt-sim{cursor:not-allowed}
 .wt-sim:hover{background:none;border-color:rgba(255,255,255,.09)}
 

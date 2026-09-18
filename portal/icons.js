@@ -43,6 +43,7 @@ const PATHS = {
   layers:       '<polygon points="12 3 21 8 12 13 3 8"/><polyline points="3 13 12 18 21 13" opacity=".6"/><polyline points="3 17.5 12 22.5 21 17.5" opacity=".3"/>',
   target:       '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/>',
   menu:         '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
+  sidebar:      '<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><line x1="9.5" y1="5" x2="9.5" y2="19"/>',
   logout:       '<path d="M9 4H6a1.5 1.5 0 0 0-1.5 1.5v13A1.5 1.5 0 0 0 6 20h3"/><line x1="20" y1="12" x2="10.5" y2="12"/><polyline points="16 7.5 20.5 12 16 16.5"/>',
   eye:          '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3.2"/>',
   robot:        '<rect x="6" y="8.5" width="12" height="10" rx="2"/><line x1="12" y1="8.5" x2="12" y2="5"/><circle cx="12" cy="4" r="1" fill="currentColor" stroke="none"/><circle cx="9.5" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13.5" r="1" fill="currentColor" stroke="none"/><line x1="9" y1="17" x2="15" y2="17"/>',

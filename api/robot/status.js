@@ -36,7 +36,10 @@ function bridgeSecretKey(){
  * toggle — loops idle.py on the physical robot so it looks alive between
  * real jobs. 'idle-on' is refused (409) if any job is pending/approved/
  * running for this robot, so idle can never start into a race with a job
- * about to be dispatched. Persisted in robots.idle_session_enabled (the
+ * about to be dispatched, and (502) if the robot couldn't be told to start,
+ * so "on" never shows for a session that isn't running. 'idle-off' reports
+ * `delivered` so the UI can say when the stop didn't reach the robot.
+ * Persisted in robots.idle_session_enabled (the
  * admin's intent, not a live status report) and reset to false server-side
  * by api/robot/queue.js's approve action the moment a job is approved —
  * see db/migrations/008_robot_idle_session.sql.
@@ -69,27 +72,48 @@ export default async function handler(req, res){
     const enable = req.body.action === 'idle-on';
 
     if (enable){
-      const [openJob] = await sql`
-        SELECT id FROM robot_jobs
-        WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
-        LIMIT 1
-      `;
-      if (openJob){ res.status(409).json({ error: 'job_in_progress' }); return; }
+      // Same robot-row lock as submit, so the open-job check and the flag flip can't straddle one.
+      const [, turnedOn] = await sql.transaction([
+        sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
+        sql`
+          UPDATE robots SET idle_session_enabled = true
+          WHERE id = ${robotId} AND NOT EXISTS (
+            SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
+          )
+          RETURNING id
+        `,
+      ]);
+      if (!turnedOn.length){ res.status(409).json({ error: 'job_in_progress' }); return; }
+
+      let relay = null;
+      try { relay = await callBridge('/idle-request', { robotId, action: 'start' }); } catch (e) { /* handled below */ }
+      if (!relay || !relay.delivered){
+        // "On" must mean the robot was actually told; otherwise the toggle lies.
+        await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId}`;
+        if (relay && relay.reason === 'job_running'){ res.status(409).json({ error: 'job_in_progress' }); return; }
+        res.status(502).json({ error: 'robot_unreachable', message: "Couldn't reach the robot to start the live session. Check that it's online." });
+        return;
+      }
+      res.status(200).json({ ok: true, idleSessionEnabled: true });
+      return;
     }
 
-    await sql`UPDATE robots SET idle_session_enabled = ${enable} WHERE id = ${robotId}`;
-    try { await callBridge('/idle-request', { robotId, action: enable ? 'start' : 'stop' }); } catch (e) { /* best-effort */ }
-    res.status(200).json({ ok: true, idleSessionEnabled: enable });
+    await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId}`;
+    let delivered = false;
+    try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
+    res.status(200).json({ ok: true, idleSessionEnabled: false, delivered });
     return;
   }
 
   if (req.method === 'POST'){
     const action = req.body && req.body.action === 'stop' ? 'stop' : 'start';
+    const rawViewerId = req.body && req.body.viewerId;
+    const viewerId = typeof rawViewerId === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(rawViewerId) ? rawViewerId : undefined;
     // Best-effort: a bridge hiccup here must never block the viewer JWT
     // below — worst case the Pi doesn't get the memo to start encoding and
     // the WHEP connection just fails to find a path (viewer sees "offline"),
     // same as if the bridge were unreachable before this feature existed.
-    try { await callBridge('/video-request', { robotId, action }); } catch (e) { /* best-effort */ }
+    try { await callBridge('/video-request', { robotId, action, viewerId }); } catch (e) { /* best-effort */ }
 
     if (action === 'stop'){ res.status(200).json({ ok: true }); return; }
 

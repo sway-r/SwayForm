@@ -19,6 +19,12 @@ const POST_JOB_SETTLE_MS = 2_000;
 const IDLE_STOP_SETTLE_MS = 4_000;
 const DISPATCH_RETRY_MS = 5_000;
 const METRICS_LOG_INTERVAL_MS = 10 * 60_000;
+// A lost job-finished leaves the row 'running' and blocks the whole queue, so it is retried. Env override is for tests.
+const FINISH_RETRY_BASE_MS = Number(process.env.FINISH_RETRY_BASE_MS) || 1_000;
+const FINISH_RETRY_MAX_MS = 60_000;
+const FINISH_RETRY_GIVE_UP_MS = 30 * 60_000;
+// How long a dispatched job blocks idle.start: the 60s job timeout plus kill grace and build time.
+const JOB_GUARD_MS = 90_000;
 
 // API calls by action per window; counts only.
 const apiCallCounts = new Map();
@@ -32,8 +38,13 @@ async function callApi(path, body){
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(10_000),
   });
-  if (!res.ok) throw new Error(`${path} -> ${res.status}`);
+  if (!res.ok) throw Object.assign(new Error(`${path} -> ${res.status}`), { status: res.status });
   return res.json();
+}
+
+// A 4xx means the API understood and refused; retrying can't change that.
+function isPermanentApiError(e){
+  return !!(e && e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429);
 }
 
 async function getApi(path, name){
@@ -233,15 +244,72 @@ async function handleIdleRequest(req, res){
     return;
   }
 
+  // Last-hop guard: a delayed idle.start must never land on top of a dispatched job.
+  if (body.action === 'start' && jobGuardActive(robotId)){
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, delivered: false, reason: 'job_running' }));
+    return;
+  }
+
   const ws = connectedRobots.get(robotId);
   const delivered = !!(ws && ws.readyState === ws.OPEN);
   if (delivered){
     ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
-    if (body.action === 'stop' && ws.dispatch) ws.dispatch.hold(IDLE_STOP_SETTLE_MS);
+    if (body.action === 'start') idleStopped.delete(robotId);
+    else {
+      idleStopped.add(robotId);
+      if (ws.dispatch) ws.dispatch.hold(IDLE_STOP_SETTLE_MS);
+    }
   }
 
   res.writeHead(200, { 'content-type': 'application/json' });
   res.end(JSON.stringify({ ok: true, delivered }));
+}
+
+// Robots this process has stopped idle on since last starting it; any other may be idling. Survives reconnects.
+const idleStopped = new Set();
+const runningJobs = new Map(); // robotId -> { jobId, since }
+
+function jobGuardActive(robotId){
+  const running = runningJobs.get(robotId);
+  return !!running && Date.now() - running.since < JOB_GUARD_MS;
+}
+
+function clearRunningJob(robotId, jobId){
+  const running = runningJobs.get(robotId);
+  if (running && running.jobId === jobId) runningJobs.delete(robotId);
+}
+
+// Reports a job's end to the API, retrying until it lands; the dispatcher is nudged once it does.
+async function finishJob(robotId, jobId, exitCode){
+  const started = Date.now();
+  for (let attempt = 0; ; attempt++){
+    try {
+      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId, exitCode });
+      if (attempt > 0) console.log(`job-finished for job ${jobId} landed after ${attempt} retries`);
+      return true;
+    } catch (e) {
+      console.error(`job-finished failed for job ${jobId} (attempt ${attempt + 1}):`, e.message);
+      if (isPermanentApiError(e)) return false;
+      if (Date.now() - started > FINISH_RETRY_GIVE_UP_MS){
+        console.error(`giving up on job-finished for job ${jobId}: reconcile it in the Admin app`);
+        return false;
+      }
+      await new Promise((r) => setTimeout(r, Math.min(FINISH_RETRY_BASE_MS * 2 ** attempt, FINISH_RETRY_MAX_MS)));
+    }
+  }
+}
+
+// Runs off the message queue so a long retry never backs up the agent's other frames.
+function reportJobEnd(robotId, jobId, exitCode){
+  clearRunningJob(robotId, jobId);
+  finishJob(robotId, jobId, exitCode).then(() => {
+    const ws = connectedRobots.get(robotId);
+    if (ws && ws.dispatch){
+      ws.dispatch.hold(POST_JOB_SETTLE_MS);
+      ws.dispatch.request('job-finished');
+    }
+  });
 }
 
 // Sent by api/robot/queue.js on approve/reconcile. Only triggers the normal claim.
@@ -283,15 +351,16 @@ async function handleDispatchNotify(req, res){
 // video.start on this process until it's restarted (see the incident this
 // was found from, in project_video_on_demand memory). Pruning expired
 // entries before every read bounds that wedge to VIEWER_TTL_MS instead.
-const VIEWER_TTL_MS = 60_000; // generous margin over the client's 30s FEED_DURATION_MS plus WHEP connect/retry time
-const activeViewers = new Map(); // robotId -> expiry timestamps (ms epoch), oldest first
+const VIEWER_TTL_MS = 60_000; // must stay above the client's CONNECT_BUDGET_MS + FEED_DURATION_MS (25s + 30s)
+// robotId -> Map(viewerId -> expiry ms epoch), oldest first; a stop only removes its own viewer.
+const activeViewers = new Map();
 
 function pruneViewers(robotId){
-  const list = activeViewers.get(robotId);
-  if (!list) return [];
-  const kept = list.filter((exp) => exp > Date.now());
-  if (kept.length) activeViewers.set(robotId, kept); else activeViewers.delete(robotId);
-  return kept;
+  const viewers = activeViewers.get(robotId);
+  if (!viewers) return new Map();
+  for (const [id, exp] of viewers) if (exp <= Date.now()) viewers.delete(id);
+  if (!viewers.size) activeViewers.delete(robotId);
+  return viewers;
 }
 
 async function handleVideoRequest(req, res){
@@ -308,16 +377,21 @@ async function handleVideoRequest(req, res){
     return;
   }
 
+  const viewerId = typeof body.viewerId === 'string' && body.viewerId ? body.viewerId.slice(0, 64) : null;
   const current = pruneViewers(robotId);
-  const wasZero = current.length === 0;
+  const wasZero = current.size === 0;
   if (body.action === 'start'){
-    current.push(Date.now() + VIEWER_TTL_MS);
+    const id = viewerId || crypto.randomUUID();
+    current.delete(id); // a repeated start renews, and moves to the back
+    current.set(id, Date.now() + VIEWER_TTL_MS);
     activeViewers.set(robotId, current);
-  } else if (current.length){
-    current.shift();
-    if (current.length) activeViewers.set(robotId, current); else activeViewers.delete(robotId);
+  } else if (viewerId){
+    current.delete(viewerId); // unknown id: that viewer's start never landed, nothing to undo
+  } else if (current.size){
+    current.delete(current.keys().next().value); // older API with no viewerId: drop the oldest
   }
-  const nowZero = !activeViewers.get(robotId)?.length;
+  if (!current.size) activeViewers.delete(robotId);
+  const nowZero = current.size === 0;
 
   const ws = connectedRobots.get(robotId);
   let delivered = false;
@@ -468,14 +542,19 @@ wss.on('connection', (ws, req) => {
       return;
     }
 
-    if (msg.t.startsWith('job.') && (!Number.isSafeInteger(msg.jobId) || !dispatchedJobIds.has(msg.jobId))){
-      ws.close(4003, 'job_not_dispatched'); return;
+    if (msg.t.startsWith('job.')){
+      if (!Number.isSafeInteger(msg.jobId)){ ws.close(4003, 'job_not_dispatched'); return; }
+      // A job's end may arrive on a later connection; the API only finishes this robot's own running row.
+      const lateEnd = msg.t === 'job.exit' || msg.t === 'job.error';
+      if (!dispatchedJobIds.has(msg.jobId) && !lateEnd){ ws.close(4003, 'job_not_dispatched'); return; }
     }
     if (msg.t === 'job.accepted'){
       // Dispatch already claimed this job in the database before sending code.
       // Acceptance confirms the claim; it never starts an unclaimed job.
       await callApi('/api/robot/agent', { action: 'job-started', robotId, jobId: msg.jobId }).catch((e) => {
-        console.error('job-started failed:', e.message, '— telling agent to cancel');
+        // Only a refusal (the row is no longer running) cancels; an API blip must not kill a claimed job.
+        if (!isPermanentApiError(e)){ console.error('job-started failed:', e.message); return; }
+        console.error('job-started refused:', e.message, '— telling agent to cancel');
         if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ t: 'job.cancel', robotId, jobId: msg.jobId }));
       });
       return;
@@ -489,11 +568,7 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.t === 'job.exit'){
-      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
-        console.error('job-finished failed:', e.message);
-      });
-      ws.dispatch.hold(POST_JOB_SETTLE_MS);
-      ws.dispatch.request('job-finished');
+      reportJobEnd(robotId, msg.jobId, msg.exitCode);
       return;
     }
 
@@ -507,11 +582,7 @@ wss.on('connection', (ws, req) => {
       await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text: line }).catch((e) => {
         console.error('job-output(error) failed:', e.message);
       });
-      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: 1 }).catch((e) => {
-        console.error('job-finished(error) failed:', e.message);
-      });
-      ws.dispatch.hold(POST_JOB_SETTLE_MS);
-      ws.dispatch.request('job-finished');
+      reportJobEnd(robotId, msg.jobId, 1);
       return;
     }
 
@@ -574,10 +645,28 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
     try {
       const { jobs } = await getApi(`/api/robot/agent?action=dispatch-queue&robotId=${robotId}`, 'dispatch-queue');
       retried = false;
-      if (stopped || ws.readyState !== ws.OPEN) return;
+      const open = () => !stopped && ws.readyState === ws.OPEN;
       for (const job of jobs){
         if (dispatchedJobIds.has(job.jobId)) continue;
         dispatchedJobIds.add(job.jobId);
+        runningJobs.set(robotId, { jobId: job.jobId, since: Date.now() });
+        // Never job.run unless this process itself stopped idle, whatever the API's relay delivered.
+        if (open() && !idleStopped.has(robotId)){
+          ws.send(JSON.stringify({ t: 'idle.stop' }));
+          idleStopped.add(robotId);
+          hold(IDLE_STOP_SETTLE_MS);
+        }
+        // A hold can start while the claim is in flight: keep the claim, delay the send.
+        while (open() && notBefore > Date.now()){
+          await new Promise((r) => setTimeout(r, notBefore - Date.now()));
+        }
+        if (!open()){
+          // Claimed but never sent, so nothing moved: fail it rather than leave it blocking the queue.
+          console.error(`job ${job.jobId} was claimed but robotId=${robotId} disconnected before delivery`);
+          await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: job.jobId, text: '[bridge] The robot disconnected before this job could be delivered. Nothing ran — submit it again.\n' }).catch(() => {});
+          reportJobEnd(robotId, job.jobId, 1);
+          continue;
+        }
         ws.send(JSON.stringify({
           t: 'job.run',
           jobId: job.jobId,

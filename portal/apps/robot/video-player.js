@@ -15,8 +15,12 @@ const VIDEO_BASE = 'https://video.bridge.swayform.net';
 const FEED_DURATION_MS = 30_000;
 // See the retry loop below for why this is wider than the Pi's typical
 // publish time — it needs margin, not just the happy-path estimate.
-const WHEP_MAX_ATTEMPTS = 15;
+// A time budget, not an attempt count; plus FEED_DURATION_MS it must stay under the bridge's VIEWER_TTL_MS.
+const CONNECT_BUDGET_MS = 25_000;
+const WHEP_ATTEMPT_TIMEOUT_MS = 5_000;
 const WHEP_RETRY_DELAY_MS = 700;
+// How long a 'disconnected' feed gets to recover by itself before it's torn down.
+const RECOVERY_GRACE_MS = 6_000;
 
 function waitForIceGathering(pc){
   if (pc.iceGatheringState === 'complete') return Promise.resolve();
@@ -63,6 +67,10 @@ export function mountVideoPlayer(container){
   let active = false;
   let autoStopTimer = null;
   let countdownTimer = null;
+  let recoveryTimer = null;
+  let connectionLost = false;
+  // Names this viewer to the bridge, so our stop can only ever remove our own entry.
+  let viewerId = null;
 
   function releaseResource(){
     if (!resourceUrl) return;
@@ -76,13 +84,15 @@ export function mountVideoPlayer(container){
   function notifyBridgeStop(){
     fetch('/api/robot/status', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'stop' }), signal: AbortSignal.timeout(5000), keepalive: true,
+      body: JSON.stringify({ action: 'stop', viewerId }), signal: AbortSignal.timeout(5000), keepalive: true,
     }).catch(() => {});
   }
 
   function teardown(){
     clearTimeout(autoStopTimer); autoStopTimer = null;
     clearInterval(countdownTimer); countdownTimer = null;
+    clearTimeout(recoveryTimer); recoveryTimer = null;
+    connectionLost = false;
     if (pc){ pc.close(); pc = null; }
     releaseResource();
     videoEl.srcObject = null;
@@ -97,6 +107,13 @@ export function mountVideoPlayer(container){
     notifyBridgeStop();
   }
 
+  // A dropped feed is released at once rather than sitting frozen until the 30s timer.
+  function dropFeed(){
+    if (!active) return;
+    stopFeed();
+    idleNote.textContent = 'The video connection dropped. Tap Show feed to reconnect.';
+  }
+
   async function startFeed(){
     if (active) return;
     active = true;
@@ -104,11 +121,13 @@ export function mountVideoPlayer(container){
     showBtn.hidden = true;
     liveWrap.hidden = false;
     note.textContent = 'Connecting…';
+    viewerId = crypto.randomUUID();
+    const connectDeadline = Date.now() + CONNECT_BUDGET_MS;
 
     try {
       const tokenRes = await fetch('/api/robot/status', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ action: 'start' }), signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify({ action: 'start', viewerId }), signal: AbortSignal.timeout(10_000),
       });
       if (!tokenRes.ok) throw new Error(`token ${tokenRes.status}`);
       const { token, serial } = await tokenRes.json();
@@ -118,10 +137,19 @@ export function mountVideoPlayer(container){
       pc = new RTCPeerConnection();
       pc.addTransceiver('video', { direction: 'recvonly' });
       pc.ontrack = (event) => { videoEl.srcObject = event.streams[0]; };
+      const thisPc = pc;
       pc.onconnectionstatechange = () => {
-        if (!pc) return;
-        if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected'){
-          note.textContent = 'Connection lost.';
+        if (pc !== thisPc) return;
+        const state = pc.connectionState;
+        if (state === 'failed'){ dropFeed(); return; }
+        if (state === 'disconnected'){
+          // Often a blip ICE recovers from on its own; give it a moment first.
+          connectionLost = true;
+          note.textContent = 'Connection interrupted — trying to recover…';
+          if (!recoveryTimer) recoveryTimer = setTimeout(() => { recoveryTimer = null; if (connectionLost) dropFeed(); }, RECOVERY_GRACE_MS);
+        } else if (state === 'connected' && connectionLost){
+          connectionLost = false;
+          clearTimeout(recoveryTimer); recoveryTimer = null;
         }
       };
 
@@ -135,7 +163,7 @@ export function mountVideoPlayer(container){
         method: 'POST',
         headers: { 'content-type': 'application/sdp', authorization: `Bearer ${token}` },
         body: pc.localDescription.sdp,
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(Math.max(1_000, Math.min(WHEP_ATTEMPT_TIMEOUT_MS, connectDeadline - Date.now()))),
       });
 
       // The 'start' request above only pings the Pi to begin publishing —
@@ -146,7 +174,7 @@ export function mountVideoPlayer(container){
       // publish came up — and the catch block's notifyBridgeStop() below
       // then killed that just-established publish out from under it
       // (visible in mediamtx as "is publishing" immediately followed by
-      // "closed: terminated", on a loop). WHEP_MAX_ATTEMPTS gives enough
+      // "closed: terminated", on a loop). CONNECT_BUDGET_MS gives enough
       // margin over that observed time that a normal-but-slow handshake
       // doesn't get torn down by our own timeout. A "no publisher"
       // rejection can surface as a thrown network error, not just a non-2xx
@@ -155,7 +183,7 @@ export function mountVideoPlayer(container){
       // instead of skipping the whole retry loop on the first attempt.
       let res = null;
       let lastError = null;
-      for (let attempt = 0; attempt < WHEP_MAX_ATTEMPTS && active; attempt++){
+      for (let attempt = 0; active && (attempt === 0 || Date.now() < connectDeadline); attempt++){
         if (attempt > 0){
           note.textContent = 'Waiting for the robot to start streaming…';
           await new Promise((r) => setTimeout(r, WHEP_RETRY_DELAY_MS));
@@ -165,6 +193,8 @@ export function mountVideoPlayer(container){
           res = await postWhep();
           if (res.ok) break;
           lastError = new Error(`whep ${res.status}`);
+          // A rejected token won't start working; "no publisher yet" (404) is the case worth waiting on.
+          if (res.status === 401 || res.status === 403) break;
         } catch (e) {
           res = null;
           lastError = e;
@@ -186,7 +216,7 @@ export function mountVideoPlayer(container){
       countdownTimer = setInterval(() => {
         secondsLeft -= 1;
         if (secondsLeft <= 0){ clearInterval(countdownTimer); countdownTimer = null; return; }
-        note.textContent = `Feed stops automatically in ${secondsLeft}s.`;
+        if (!connectionLost) note.textContent = `Feed stops automatically in ${secondsLeft}s.`;
       }, 1000);
       autoStopTimer = setTimeout(stopFeed, FEED_DURATION_MS);
     } catch (e) {

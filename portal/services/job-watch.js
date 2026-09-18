@@ -20,22 +20,26 @@ export function watchJob(jobId, { onStatus, onOutput, onError, onRecovered, onGo
   let status = 'pending';
   let outputLen = 0;
   let failing = false;
+  let stopped = false; // a response already in flight when stop() is called must not reach the callbacks
 
   const poller = createPoller({
     whenHidden: 'slow',
     delayMs: () => (status === 'pending' ? pendingDelay(Date.now() - startedAt) : ACTIVE_MS),
     onError(error, failures){
+      if (stopped) return;
       failing = true;
       if (onError) onError(error, failures);
     },
     async task(){
       const res = await fetch(`/api/robot/queue?view=job&id=${jobId}&sinceLen=${outputLen}`);
+      if (stopped) return STOP;
       if (res.status === 404 || res.status === 401){ // gone for good; don't retry forever
         if (onGone) onGone(res.status === 404 ? 'not_found' : 'not_authorized');
         return STOP;
       }
       if (!res.ok) throw new Error(`job status -> ${res.status}`);
       const { job } = await res.json();
+      if (stopped) return STOP;
 
       if (failing){ failing = false; if (onRecovered) onRecovered(); }
       if (job.status !== status){
@@ -50,5 +54,5 @@ export function watchJob(jobId, { onStatus, onOutput, onError, onRecovered, onGo
     },
   });
   poller.start();
-  return { stop: () => poller.stop() };
+  return { stop(){ stopped = true; poller.stop(); } };
 }

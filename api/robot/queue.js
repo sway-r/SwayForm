@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readSessionFromRequest } from '../_lib/session.js';
 import { sql } from '../_lib/db.js';
 import { requireCurrentRobotMember } from '../_lib/authz.js';
-import { validateAgainstCanonicalSource, packageAndEntry } from '../_lib/canonical-source.js';
+import { validateAgainstCanonicalSource, canonicalVariantFor, packageAndEntry } from '../_lib/canonical-source.js';
 import { callBridge } from '../_lib/bridge.js';
 import { logDbRead, approxBytes } from '../_lib/metrics.js';
 
@@ -273,18 +273,32 @@ export default async function handler(req, res){
       }
 
       const { pkg, file } = packageAndEntry(path);
-      // Robot row lock + position computed inside the insert: simultaneous submits get distinct positions.
+      // Queue the canonical variant, not the raw text (which may differ in trailing whitespace).
+      const queuedCode = canonicalVariantFor(path, code);
+      // Under the robot lock: position after every unfinished job, and the cooldown re-checked for simultaneous submits.
       const [, inserted] = await sql.transaction([
         sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
         sql`
-          INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, queue_position)
-          SELECT ${robotId}, ${session.email}, ${path}, ${pkg}, ${file}, ${code}, ${sha256(code)},
-                 COALESCE(MAX(queue_position), 0) + 1
-          FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'pending'
-          RETURNING id, queue_position
+          WITH line AS (
+            SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position, COUNT(*)::int + 1 AS place
+            FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
+          ), ins AS (
+            INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, queue_position)
+            SELECT ${robotId}, ${session.email}, ${path}, ${pkg}, ${file}, ${queuedCode}, ${sha256(queuedCode)}, line.next_position
+            FROM line
+            WHERE NOT EXISTS (
+              SELECT 1 FROM robot_jobs
+              WHERE robot_id = ${robotId} AND student_email = ${session.email}
+                AND submitted_at > now() - make_interval(secs => ${SUBMIT_COOLDOWN_MS / 1000})
+            )
+            RETURNING id
+          )
+          SELECT ins.id, line.place FROM ins, line
         `,
       ]);
-      res.status(200).json({ ok: true, jobId: inserted[0].id, queuePosition: inserted[0].queue_position });
+      if (!inserted.length){ res.status(400).json({ error: 'cooldown', retryAfterMs: SUBMIT_COOLDOWN_MS }); return; }
+      // queuePosition is the student's place in line, not the stored sort key.
+      res.status(200).json({ ok: true, jobId: inserted[0].id, queuePosition: inserted[0].place });
       return;
     }
 
@@ -414,9 +428,14 @@ export default async function handler(req, res){
       // One UPDATE per id, all pending-only and scoped to this robot — small
       // queue sizes at this scale, matches how the admin panel already
       // accepts a full re-fetch/re-render rather than optimizing this path.
+      // Numbered after every approved/running job, so reordering can't move a pending job ahead of those.
+      const [{ base }] = await sql`
+        SELECT COALESCE(MAX(queue_position), 0)::int AS base FROM robot_jobs
+        WHERE robot_id = ${robotId} AND status IN ('approved', 'running')
+      `;
       for (let i = 0; i < orderedIds.length; i++){
         await sql`
-          UPDATE robot_jobs SET queue_position = ${i + 1}
+          UPDATE robot_jobs SET queue_position = ${base + i + 1}
           WHERE id = ${orderedIds[i]} AND robot_id = ${robotId} AND status = 'pending'
         `;
       }

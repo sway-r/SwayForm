@@ -10,7 +10,7 @@ let api, child, base;
 const sockets = new Set();
 const secret = 'synthetic-bridge-test-secret';
 // Stand-in API state; `claims` counts dispatch-queue requests.
-const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false };
+const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false, failFinish: 0 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 before(async () => {
   api = http.createServer(async (req,res) => {
@@ -23,6 +23,7 @@ before(async () => {
       if(apiState.claimDelayMs) await sleep(apiState.claimDelayMs);
       res.end(JSON.stringify({jobs:apiState.jobs}));
     }
+    else if(body.action==='job-finished'&&apiState.failFinish>0){apiState.failFinish--;res.statusCode=500;res.end('{}');}
     else if(body.action==='heartbeat') res.end(JSON.stringify({ok:true,hasApproved:apiState.hasApproved}));
     else res.end(JSON.stringify({ok:true}));
   });
@@ -30,7 +31,7 @@ before(async () => {
   const holder=http.createServer(); holder.listen(0,'127.0.0.1'); await once(holder,'listening');
   const port=holder.address().port; await new Promise(r=>holder.close(r));
   base=`http://127.0.0.1:${port}`;
-  child=spawn(process.execPath,['bridge/server.js'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:String(port),VERCEL_API_BASE:`http://127.0.0.1:${api.address().port}`,BRIDGE_SERVICE_SECRET:secret,CODE_SERVER_ROBOT_ID:'1',PRESENCE_WRITE_INTERVAL_MS:'400'},stdio:['ignore','pipe','pipe']});
+  child=spawn(process.execPath,['bridge/server.js'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:String(port),VERCEL_API_BASE:`http://127.0.0.1:${api.address().port}`,BRIDGE_SERVICE_SECRET:secret,CODE_SERVER_ROBOT_ID:'1',PRESENCE_WRITE_INTERVAL_MS:'400',FINISH_RETRY_BASE_MS:'200'},stdio:['ignore','pipe','pipe']});
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(Error('bridge startup timeout')),5000);
     child.stdout.on('data',data=>{if(String(data).includes('listening')){clearTimeout(timer);resolve();}});
@@ -232,5 +233,119 @@ test('when a job exits, the next claim happens by itself, after the settle delay
   assert.equal(apiState.claims, before, 'not immediately: the robot gets a moment between jobs');
   await sleep(1600);
   assert.equal(apiState.claims, before + 1, 'then exactly one claim, with no admin action needed');
+  await session.end();
+});
+
+const idleRequest = async (action) => (await fetch(base + '/idle-request', {
+  method: 'POST', headers: { 'content-type': 'application/json', 'x-bridge-secret': secret }, body: JSON.stringify({ robotId: 1, action }),
+})).json();
+
+test('a failed job-finished is retried until it lands, and the queue moves on afterwards', { timeout: 15000 }, async () => {
+  const session = await agentSession();
+  apiState.jobs = [job(90)];
+  await notify(secret); await sleep(200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [90]);
+  apiState.jobs = [];
+  apiState.failFinish = 2;
+  const before = apiState.claims;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 90, exitCode: 0 }));
+  await sleep(1200);
+  assert.equal(calls.filter((c) => c.action === 'job-finished' && c.jobId === 90).length, 3, 'two failures, then the one that landed');
+  assert.equal(apiState.failFinish, 0);
+  await sleep(2300);
+  assert.equal(apiState.claims, before + 1, 'the next claim follows the successful report');
+  await session.end();
+});
+
+test('an agent that reconnects can still report the end of a job from its previous connection', { timeout: 10000 }, async () => {
+  let session = await agentSession();
+  apiState.jobs = [job(91)];
+  await notify(secret); await sleep(200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [91]);
+  apiState.jobs = [];
+  await session.end();
+
+  session = await agentSession();
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 91, exitCode: 130 }));
+  await sleep(300);
+  assert.ok(calls.some((c) => c.action === 'job-finished' && c.jobId === 91 && c.exitCode === 130));
+  assert.equal(session.ws.readyState, WebSocket.OPEN, 'and the connection is kept');
+  await session.end();
+});
+
+test('idle.start is refused while a job is dispatched, and idle is always stopped before job.run', { timeout: 15000 }, async () => {
+  const session = await agentSession();
+  apiState.jobs = [job(92)];
+  await notify(secret); await sleep(200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [92]);
+  apiState.jobs = [];
+  assert.deepEqual(await idleRequest('start'), { ok: true, delivered: false, reason: 'job_running' });
+  assert.equal(session.frames.some((f) => f.t === 'idle.start'), false);
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 92, exitCode: 0 }));
+  await sleep(300);
+
+  // Idle on, then a job shows up without the API's idle.stop relay ever arriving.
+  assert.deepEqual(await idleRequest('start'), { ok: true, delivered: true });
+  apiState.jobs = [job(93)];
+  await sleep(2000); // past the post-job settle hold
+  await notify(secret); await sleep(1500);
+  const order = () => session.frames.filter((f) => ['idle.start', 'idle.stop', 'job.run'].includes(f.t)).map((f) => f.t);
+  assert.deepEqual(order(), ['job.run', 'idle.start', 'idle.stop'], 'the bridge stops idle itself and holds job.run back');
+  await sleep(3200);
+  assert.deepEqual(order(), ['job.run', 'idle.start', 'idle.stop', 'job.run']);
+  apiState.jobs = [];
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 93, exitCode: 0 }));
+  await sleep(300);
+  await session.end();
+});
+
+test('a job claimed for a robot that drops before delivery is failed instead of blocking the queue', { timeout: 15000 }, async () => {
+  const session = await agentSession();
+  assert.deepEqual(await idleRequest('start'), { ok: true, delivered: true });
+  apiState.jobs = [job(94)];
+  await sleep(2000);
+  await notify(secret); await sleep(500);
+  apiState.jobs = [];
+  await session.end(); // drops during the idle settle wait, before job.run
+  await sleep(4200);
+  assert.equal(session.runs().some((f) => f.jobId === 94), false);
+  assert.ok(calls.some((c) => c.action === 'job-finished' && c.jobId === 94 && c.exitCode === 1));
+});
+
+test('a video stop only ever removes the viewer that sent it', { timeout: 5000 }, async () => {
+  const post = async (action, viewerId) => (await fetch(base + '/video-request', {
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-bridge-secret': secret }, body: JSON.stringify({ robotId: 1, action, viewerId }),
+  })).json();
+  const session = await agentSession();
+  const video = () => session.frames.filter((f) => f.t.startsWith('video.')).map((f) => f.t);
+  await post('start', 'viewer-aaaa');
+  // A second viewer whose start never landed sends its stop anyway.
+  await post('stop', 'viewer-bbbb');
+  await sleep(100);
+  assert.deepEqual(video(), ['video.start'], 'the first viewer keeps the feed');
+  await post('start', 'viewer-aaaa'); // repeated start renews, it does not count twice
+  await post('stop', 'viewer-aaaa');
+  await sleep(100);
+  assert.deepEqual(video(), ['video.start', 'video.stop']);
+  await session.end();
+});
+
+test('an idle.stop that arrives while a claim is in flight still delays that claim\'s job.run', { timeout: 15000 }, async () => {
+  const session = await agentSession();
+  const at = {};
+  session.ws.on('message', (raw) => { const f = JSON.parse(raw.toString()); if (!(f.t in at)) at[f.t] = Date.now(); });
+  apiState.jobs = [job(95)];
+  apiState.claimDelayMs = 500;
+  await notify(secret); // the claim is now waiting on the API
+  await sleep(100);
+  assert.equal((await idleRequest('stop')).delivered, true);
+  await sleep(1500);
+  assert.equal(session.runs().length, 0, 'the claim came back, but job.run is held');
+  await sleep(3200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [95], 'the claimed job is kept and sent once the hold is over');
+  assert.ok(at['job.run'] - at['idle.stop'] >= 3900, `job.run came ${at['job.run'] - at['idle.stop']}ms after idle.stop`);
+  apiState.jobs = []; apiState.claimDelayMs = 0;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 95, exitCode: 0 }));
+  await sleep(300);
   await session.end();
 });

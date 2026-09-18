@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
+import { createHash } from 'node:crypto';
 
 // A full classroom at once: real handlers on an isolated PostgreSQL.
 const db = new PGlite();
@@ -168,4 +169,64 @@ test('a whole class polling status and progress at once stays within the rate li
   assert.equal(limited, 12, `60/min per student: 2 submits earlier + 70 here = 12 refused (got ${limited})`);
   // ...and it is per student: the others are unaffected.
   assert.equal((await post(queue, students[1].cookie, { action: 'cancel', jobId: 999999 })).code, 400);
+});
+
+test('two simultaneous submits from one student create one job, not two', async () => {
+  await db.exec("DELETE FROM robot_jobs");
+  const s = students[2];
+  const both = await Promise.all([1, 2].map(() => post(queue, s.cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave })));
+  assert.deepEqual(both.map((r) => r.code).sort(), [200, 400]);
+  assert.equal(both.find((r) => r.code === 400).data.error, 'cooldown');
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM robot_jobs WHERE student_email=$1', [s.email])).rows[0].n, 1);
+});
+
+test('a job submitted later never runs ahead of one that was already approved', async () => {
+  await db.exec("DELETE FROM robot_jobs");
+  const warn = console.warn; console.warn = () => {};
+  const submit = async (s) => (await post(queue, s.cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave })).data.jobId;
+  const a = await submit(students[3]); const b = await submit(students[4]);
+  await post(queue, teacher, { action: 'approve', jobId: a });
+  await post(queue, teacher, { action: 'approve', jobId: b });
+  const claim = async () => (await agentCall(null, { action: 'dispatch-queue', robotId: '1' }, 'GET')).data.jobs.map((j) => j.jobId);
+  assert.deepEqual(await claim(), [a]);
+  // C arrives while A runs and nothing is pending; it is told it's third in line.
+  const third = await post(queue, students[5].cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave });
+  assert.equal(third.data.queuePosition, 3);
+  // Reordering the pending list doesn't let it jump the approved job either.
+  await post(queue, teacher, { action: 'reorder', orderedIds: [third.data.jobId] });
+  await post(queue, teacher, { action: 'approve', jobId: third.data.jobId });
+  console.warn = warn;
+  await agentCall({ action: 'job-finished', robotId: 1, jobId: a, exitCode: 0 });
+  assert.deepEqual(await claim(), [b], 'B was approved first and runs first');
+  await agentCall({ action: 'job-finished', robotId: 1, jobId: b, exitCode: 0 });
+  assert.deepEqual(await claim(), [third.data.jobId]);
+  await agentCall({ action: 'job-finished', robotId: 1, jobId: third.data.jobId, exitCode: 0 });
+});
+
+test('the queued code is the canonical variant, so its hash is one the robot can derive itself', async () => {
+  await db.exec("DELETE FROM robot_jobs");
+  const messy = solvedWave.replace('WAVE_CYCLES = 5', 'WAVE_CYCLES = 5   ') + '\n\n';
+  const r = await post(queue, students[6].cookie, { action: 'submit', path: WAVE_PATH, code: messy });
+  assert.equal(r.code, 200, JSON.stringify(r.data));
+  const row = (await db.query('SELECT code, code_sha256 FROM robot_jobs WHERE id=$1', [r.data.jobId])).rows[0];
+  assert.equal(row.code, solvedWave);
+  assert.equal(row.code_sha256, createHash('sha256').update(solvedWave, 'utf8').digest('hex'));
+});
+
+test('Live Robot Session only turns on when no job is open and the robot was actually told', async () => {
+  await db.exec("DELETE FROM robot_jobs");
+  const idleFlag = async () => (await db.query('SELECT idle_session_enabled AS on FROM robots WHERE id=1')).rows[0].on;
+  // No bridge configured in this test process: the robot can't be reached, so "on" is refused and not persisted.
+  const unreachable = await post(status, teacher, { action: 'idle-on' });
+  assert.equal(unreachable.code, 502);
+  assert.equal(await idleFlag(), false);
+  // A pending job blocks it outright.
+  await post(queue, students[7].cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave });
+  const blocked = await post(status, teacher, { action: 'idle-on' });
+  assert.equal(blocked.code, 409);
+  assert.equal(blocked.data.error, 'job_in_progress');
+  // Turning it off always works, and says whether the robot heard it.
+  const off = await post(status, teacher, { action: 'idle-off' });
+  assert.deepEqual([off.code, off.data.idleSessionEnabled, off.data.delivered], [200, false, false]);
+  assert.equal((await post(status, students[7].cookie, { action: 'idle-on' })).code, 403);
 });

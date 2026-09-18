@@ -121,6 +121,9 @@ export async function mount(container, ctx){
         } else {
           idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
           idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
+          if (!turningOn && data.delivered === false){
+            note.textContent = "Turned off here, but the robot couldn't be reached to confirm it stopped moving. Check on it.";
+          }
         }
       } catch (e) {
         note.textContent = "Couldn't reach the server to change the live session.";

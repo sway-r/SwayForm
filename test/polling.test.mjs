@@ -221,6 +221,17 @@ test('job watch: a job that is gone ends the loop; an outage is reported once, r
   assert.equal(requests.length, 5);
 });
 
+test('job watch: a response that arrives after stop() reaches no callback', async () => {
+  let release;
+  globalThis.fetch = () => new Promise((resolve) => { release = () => resolve(jsonResponse(200, { job: { status: 'succeeded', outputTotalLen: 4, outputTail: 'done' } })); });
+  const events = [];
+  const watch = watchJob(7, { onStatus: (st) => events.push(`status:${st}`), onOutput: (text) => events.push(`out:${text}`), onGone: () => events.push('gone') });
+  await flush();
+  watch.stop(); // the student submitted another job; this watcher was replaced
+  release(); await flush(); await advance(10_000, 1000);
+  assert.deepEqual(events, [], "the old job's result never reaches the panel now following the new one");
+});
+
 // ── the shared admin queue service ─────────────────────────────────────────
 test('queue service: the badge alone never downloads the list; an open Admin app gets it only when the queue changes', async () => {
   const state = { pendingCount: 2, openCount: 2, version: 'v1', fail: false };

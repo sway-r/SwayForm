@@ -23,26 +23,39 @@ export async function mount(container, ctx){
     return;
   }
 
-  container.innerHTML = `<div class="code-editor-root">
-      <p class="code-editor-note" data-role="note">Connecting…</p>
-    </div>`;
+  container.innerHTML = '<div class="code-editor-root la-surface"></div>';
   const rootEl = container.querySelector('.code-editor-root');
 
-  try {
-    const res = await fetch('/api/admin', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'code-server-token' }),
-    });
-    if (!res.ok) throw new Error(`token ${res.status}`);
-    const { token } = await res.json();
-    // Without an explicit allow list, the workbench's terminal can write to
-    // the clipboard (browsers allow that from any user gesture) but can't
-    // read it back for paste -- Chrome blocks clipboard-read in iframes
-    // unless it's delegated here, surfacing as its own in-workbench error
-    // dialog rather than anything visibly wrong on the portal's side.
-    rootEl.innerHTML = `<iframe class="code-editor-frame" allow="clipboard-read; clipboard-write" src="https://code.bridge.swayform.net/_exchange?token=${encodeURIComponent(token)}"></iframe>`;
-  } catch (e) {
-    rootEl.innerHTML = '<p class="code-editor-note">Couldn\'t connect to the robot\'s code editor.</p>';
+  // Single-use link, 30-min session, cross-origin frame: Reconnect is the only way back from a dead one.
+  async function connect(){
+    rootEl.innerHTML = '<p class="code-editor-note">Connecting…</p>';
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'code-server-token' }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!res.ok) throw new Error(`token ${res.status}`);
+      const { token } = await res.json();
+      // Without an explicit allow list, the workbench's terminal can write to
+      // the clipboard (browsers allow that from any user gesture) but can't
+      // read it back for paste -- Chrome blocks clipboard-read in iframes
+      // unless it's delegated here, surfacing as its own in-workbench error
+      // dialog rather than anything visibly wrong on the portal's side.
+      rootEl.innerHTML = `<iframe class="code-editor-frame" allow="clipboard-read; clipboard-write" src="https://code.bridge.swayform.net/_exchange?token=${encodeURIComponent(token)}"></iframe>
+        <div class="code-editor-bar">
+          <span>Blank, stuck, or "invalid or expired link"? Sessions last 30 minutes.</span>
+          <button type="button" class="p-btn ghost" data-role="reconnect">Reconnect</button>
+        </div>`;
+    } catch (e) {
+      rootEl.innerHTML = `<div class="code-editor-note">
+          <p>Couldn't connect to the robot's code editor.</p>
+          <button type="button" class="p-btn ghost" data-role="reconnect">Try again</button>
+        </div>`;
+    }
+    rootEl.querySelector('[data-role="reconnect"]').addEventListener('click', connect);
   }
+
+  await connect();
 }

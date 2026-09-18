@@ -81,6 +81,14 @@ export function validateAgainstCanonicalSource(path, code){
   return { valid: false, status: 'tampered', diffs };
 }
 
+/** The byte-exact variant a 'complete' submission matched (or null): what gets queued, so the robot can re-derive its sha256. */
+export function canonicalVariantFor(path, code){
+  if (!isCanonicalRobotPath(path) || typeof WORKSPACE_FILES[path] !== 'string') return null;
+  const normalizedCode = normalize(code);
+  const match = allCompleteVariants(WORKSPACE_FILES[path], TUNABLES[path] || []).find((v) => normalizedCode === normalize(v));
+  return match === undefined ? null : match;
+}
+
 /** Trailing whitespace per line and a trailing run of blank lines are the
  * only things a submission may differ on incidentally — everything else
  * that matters is a real content difference. */

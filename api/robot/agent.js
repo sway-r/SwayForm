@@ -69,13 +69,7 @@ async function handleHeartbeat(req, res){
     return;
   }
 
-  // The bridge writes presence about once a minute (plus on connect and
-  // disconnect), not on every 10s WebSocket ping — api/_lib/limits.js's
-  // ROBOT_ONLINE_CUTOFF_MS is sized to match. The same statement also reports
-  // whether an approved job is waiting, which makes this write double as the
-  // bridge's dispatch reconciliation check: it replaced a separate 4-second
-  // dispatch poll, and it only says "go look" — claiming a job still happens
-  // exclusively in handleDispatchQueue below.
+  // has_approved lets the bridge's presence write double as its dispatch check.
   const rows = await sql`
     UPDATE robots
     SET is_online = ${!!online}, last_seen_at = now(), agent_version = ${agentVersion || null}
@@ -158,13 +152,6 @@ async function handleDispatchQueue(req, res){
 
   // Claim exactly one job before sending code to the Pi. A lost delivery stays
   // running for manual reconciliation; never automatically replay physical motion.
-  //
-  // The bridge calls this when something says a job may be ready (an approve
-  // notification, a finished job, a fresh connection, or the presence write
-  // reporting an approved job) rather than on a fixed 4s timer. Extra or
-  // repeated calls are harmless by construction: the robot row lock
-  // serializes concurrent claims, and a job that is already 'running' can
-  // never be selected or returned again.
   const started = Date.now();
   const [, rows] = await sql.transaction([
     sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,

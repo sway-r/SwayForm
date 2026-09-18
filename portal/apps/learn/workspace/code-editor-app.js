@@ -352,14 +352,7 @@ export function mount(bodyEl, winApi, opts) {
     cancelled: ['Cancelled.', 'term-warn'],
   };
 
-  /** Follows this job after queueing and appends a line to the output panel
-   * each time its status changes, so a student watching sees real progress
-   * (approved -> running -> succeeded/failed) without needing a separate
-   * app. The polling itself — one job, new output only, easing off while
-   * it waits for review, ending at a terminal status — lives in
-   * services/job-watch.js. Output is tracked server-side by a never-
-   * truncated running counter (outputTotalLen), so a long run that overflows
-   * the retained tail reports the gap instead of silently losing it. */
+  // Status and new output lines for the queued job land in the output panel.
   function watchQueuedJob(jobId){
     if (jobWatch) jobWatch.stop();
     jobWatch = watchJob(jobId, {
@@ -370,13 +363,9 @@ export function mount(bodyEl, winApi, opts) {
         output.setActive('output');
       },
       onOutput(text, truncated){
-        // More was written between polls than the server retained — show
-        // what's left with a note rather than silently dropping the gap.
         output.appendLine((truncated ? '[earlier output truncated]\n' : '') + text, '', 'output');
       },
       onError(error, failures){
-        // Say so once per outage (it keeps retrying, more slowly) — a student
-        // staring at a frozen panel can't tell "still waiting" from "broken".
         if (failures === 1) output.appendLine("Lost contact with the server while following this job — still retrying. Your job is not affected.", 'term-warn', 'output');
       },
       onRecovered(){

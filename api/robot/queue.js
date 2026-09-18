@@ -10,19 +10,8 @@ import { logDbRead, approxBytes } from '../_lib/metrics.js';
 const SUBMIT_COOLDOWN_MS = 15_000;
 const DISPATCH_NOTIFY_TIMEOUT_MS = 3_000;
 
-/**
- * Tells the bridge "this robot's dispatch queue may have work now", so it
- * checks immediately instead of polling Neon every 4 seconds around the clock
- * waiting for this moment.
- *
- * This carries no job and grants nothing: the bridge reacts by calling the
- * same atomic claim in api/robot/agent.js it always has, which is still the
- * only place a job can move to 'running'. A lost, duplicated, or even forged
- * notification can therefore only cause one extra (idempotent) claim attempt,
- * never a second dispatch. If it doesn't arrive, the bridge's once-a-minute
- * presence write reports the waiting job and dispatch happens then — logged
- * here rather than swallowed so a bridge that's unreachable shows up.
- */
+// Only nudges the bridge to run its normal atomic claim; carries no job. Missed
+// notifications are covered by the bridge's presence write.
 async function notifyDispatch(robotId, reason){
   try {
     const result = await callBridge('/dispatch-notify', { robotId }, DISPATCH_NOTIFY_TIMEOUT_MS);
@@ -70,15 +59,9 @@ function jobsToCsv(rows){
   return [header, ...lines].join('\r\n') + '\r\n';
 }
 
-// How many finished jobs the live list carries. The Admin app only ever
-// renders this many ("Recent history"); the full record is the CSV export.
-const RECENT_TERMINAL_LIMIT = 15;
+const RECENT_TERMINAL_LIMIT = 15; // what the Admin app renders; the CSV export is unlimited
 
-// Everything a list row or status line needs, and nothing large: `code` and
-// `output` are deliberately absent. They're multi-KB blobs, and returning
-// them for every job on every poll (three separate pollers used to) is what
-// exhausted the Neon transfer allowance. They're served one job at a time by
-// the job view below, only when something actually asks for them.
+// No code/output here — those are served per job by the job view.
 function jobSummary(row){
   return {
     id: row.id,
@@ -91,11 +74,8 @@ function jobSummary(row){
     decidedBy: row.decided_by,
     rejectReason: row.reject_reason,
     exitCode: row.exit_code,
-    // A running total of characters ever appended, independent of output's
-    // own length (which is a truncated rolling tail) — the client needs
-    // this to detect new output once a job has produced more than the
-    // retained cap. See db/migrations/006_robot_job_output_counter.sql.
-    outputTotalLen: row.output_total_len,
+    outputTotalLen: row.output_total_len, // never truncated, unlike output itself
+
     submittedAt: row.submitted_at,
     decidedAt: row.decided_at,
     startedAt: row.started_at,
@@ -103,12 +83,7 @@ function jobSummary(row){
   };
 }
 
-// ?view=pulse — admin-only, one tiny row. Drives the desktop badge
-// (pendingCount) and tells an open Admin app whether the list is worth
-// re-fetching (version). `version` hashes exactly the fields that can change
-// on the rows the list shows — id, status, queue position, output length —
-// so any submit/approve/reorder/output/clear-history changes it, and an idle
-// queue costs ~100 bytes per poll instead of the whole list.
+// ?view=pulse: pending count plus a version hash of the visible queue, one row.
 async function handlePulse(res, robotId, isAdmin, started){
   if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
   const rows = await sql`
@@ -130,18 +105,8 @@ async function handlePulse(res, robotId, isAdmin, started){
   res.status(200).json({ pendingCount: row.pending_count, openCount: row.open_count, version: row.version });
 }
 
-// ?view=job&id=N[&sinceLen=M][&include=code] — one job, for the student's
-// status watcher and the Admin app's on-demand code/output panel.
-//
-// Authorization never uses anything the client sent except the job id: the
-// robot comes from the caller's current database membership, and a
-// non-admin is additionally pinned to their own session email. Every miss —
-// wrong robot, someone else's job, no such id — is the same 404, so the
-// endpoint can't be used to probe which job ids exist elsewhere.
-//
-// sinceLen is the outputTotalLen the caller already has; only output written
-// after that point is returned, so a watcher polling a long run doesn't
-// re-download the whole retained tail every few seconds.
+// ?view=job&id=N[&sinceLen=M][&include=code]: one job, only output past sinceLen.
+// Robot and email come from the session, never the client; every miss is the same 404.
 async function handleJobView(req, res, { robotId, isAdmin, email, started }){
   const jobId = Number(req.query.id);
   if (!Number.isSafeInteger(jobId) || jobId < 1){ res.status(400).json({ error: 'invalid_job_id' }); return; }
@@ -149,9 +114,6 @@ async function handleJobView(req, res, { robotId, isAdmin, email, started }){
   if (!Number.isSafeInteger(sinceLen) || sinceLen < 0){ res.status(400).json({ error: 'invalid_since_len' }); return; }
   const includeCode = req.query.include === 'code';
 
-  // Two explicit shapes rather than one composed query — see the note on
-  // neon's sql tag in the cancel action below. CASE is lazy, so `code` is
-  // never even read from storage unless it was asked for.
   const rows = isAdmin
     ? await sql`
         SELECT id, student_email, workspace_path, package, executable, status, queue_position, decided_by,
@@ -173,10 +135,7 @@ async function handleJobView(req, res, { robotId, isAdmin, email, started }){
   if (!rows.length){ res.status(404).json({ error: 'not_found' }); return; }
 
   const row = rows[0];
-  // output_total_len counts JS string units (see agent.js); SQL right()
-  // counts code points, so it can only ever return slightly too much. Trim
-  // to exactly the unseen part here. If less came back than was written,
-  // the rest already rolled off the retained tail — say so, don't hide it.
+  // SQL right() counts code points, output_total_len counts JS units; trim to exact.
   const unseen = Math.max(row.output_total_len - sinceLen, 0);
   const tail = row.output_tail || '';
   const job = {
@@ -243,22 +202,7 @@ export default async function handler(req, res){
     if (req.query.view === 'job') return handleJobView(req, res, { robotId, isAdmin, email: session.email, started });
     if (req.query.view !== undefined){ res.status(400).json({ error: 'unknown_view' }); return; }
 
-    // The list itself: lightweight summaries only (see jobSummary).
-    //  - Every non-terminal job (pending/approved/running) is always
-    //    included, never subject to the LIMIT — a single
-    //    `ORDER BY submitted_at DESC LIMIT n` could push an older pending
-    //    or even the one running job (which holds the physical execution
-    //    lock) out of the result entirely once enough newer jobs existed,
-    //    silently hiding it (and its Stop/Reconcile controls) from the
-    //    admin view. The LIMIT applies only to already-finished (terminal)
-    //    jobs, which is the actual "recent history".
-    //  - Pending jobs are ordered by queue_position, not submitted_at —
-    //    reorder (the ↑/↓ controls) writes queue_position, but reading by
-    //    submission time meant a reorder never visibly changed anything on
-    //    refresh even though the robot's own dispatch order (which reads
-    //    queue_position) had actually changed.
-    //  - Columns are named, never `SELECT *`: that is what keeps `code` and
-    //    `output` from leaving the database on a list read.
+    // All open jobs always, LIMIT only on finished ones; pending ordered by queue_position.
     const rows = isAdmin
       ? await sql`
           SELECT * FROM (
@@ -361,8 +305,7 @@ export default async function handler(req, res){
       if (wasIdle){
         try { await callBridge('/idle-request', { robotId, action: 'stop' }); } catch (e) { /* best-effort */ }
       }
-      // After the idle stop, never before it: the bridge relays frames to
-      // the agent in the order it receives them.
+      // After the idle stop, so the bridge relays them in that order.
       const dispatchNotified = await notifyDispatch(robotId, 'approve');
       res.status(200).json({ ok: true, dispatchNotified });
       return;
@@ -457,8 +400,6 @@ export default async function handler(req, res){
       if (!updated.length){ res.status(400).json({ error: 'not_running' }); return; }
       await sql`INSERT INTO portal_audit_events (robot_id, actor_email, action, subject_email)
         VALUES (${robotId}, ${session.email}, 'reconcile_job', NULL)`;
-      // Releasing the execution lock can unblock an approved job that was
-      // waiting behind the stuck one.
       await notifyDispatch(robotId, 'reconcile');
       res.status(200).json({ ok: true });
       return;

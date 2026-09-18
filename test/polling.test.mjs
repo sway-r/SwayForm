@@ -1,10 +1,7 @@
 import { test, mock, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 
-// The portal's pollers are plain ES modules; they need only a clock, a
-// `document` to ask about visibility, and `fetch`. All three are stand-ins
-// here, so a day of polling can be replayed in milliseconds and every request
-// the browser would have made is counted.
+// Fake clock, document and fetch, so a day of polling replays in milliseconds.
 function makeDocument(){
   const listeners = new Map();
   return {
@@ -17,7 +14,6 @@ function makeDocument(){
   };
 }
 const flush = () => new Promise((resolve) => setImmediate(resolve));
-/** Advance the fake clock in small steps, letting promise callbacks run in between. */
 async function advance(ms, step = 250){
   for (let t = 0; t < ms; t += step){ mock.timers.tick(Math.min(step, ms - t)); await flush(); }
 }

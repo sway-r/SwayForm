@@ -9,9 +9,7 @@ const calls = [];
 let api, child, base;
 const sockets = new Set();
 const secret = 'synthetic-bridge-test-secret';
-// What the stand-in API answers. `claims` counts dispatch-queue requests —
-// each one is a Neon transaction in production, so it is the number the
-// dispatch tests below are about.
+// Stand-in API state; `claims` counts dispatch-queue requests.
 const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 before(async () => {
@@ -112,9 +110,7 @@ test('viewer JWTs require the video purpose, and editor tokens are robot-bound a
   assert.equal((await exchange(t)).status,302);assert.equal((await exchange(t)).status,401);
 });
 
-// ── Dispatch and presence: event-driven, not a fixed-interval database poll ──
-// One robot slot (the stand-in API always answers robotId 1), so each test
-// fully disconnects before the next one connects.
+// One robot slot (the stand-in API always answers robotId 1): each test disconnects before the next.
 async function agentSession(){
   apiState.claims = 0; apiState.claimDelayMs = 0; apiState.jobs = []; apiState.hasApproved = false;
   calls.length = 0;

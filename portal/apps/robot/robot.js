@@ -88,12 +88,7 @@ export async function mount(container, ctx){
     }
   }
 
-  // Still every 15s while someone can actually see the badge — that keeps
-  // online/offline reasonably current. What changed is everything around it:
-  // it pauses while the tab is hidden or this window is minimized (nobody can
-  // see it; it refreshes the moment it's back), never overlaps a slow
-  // request, and backs off while the server is failing instead of retrying
-  // at full speed.
+  // Pauses while hidden or minimized; refreshes as soon as it's back.
   const statusPoller = createPoller({
     task: refreshStatus,
     delayMs: () => POLL_INTERVAL_MS,

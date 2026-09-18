@@ -1,12 +1,6 @@
 import { findRoleForEmail } from './db.js';
 
-/**
- * The email's CURRENT database role. readSessionFromRequest() already looked
- * this up while building the session for this same request and attached it
- * as `currentRole`; repeating the query here doubled the auth cost of every
- * request, which matters most on polled endpoints. Only a session object
- * that didn't come from readSessionFromRequest() falls back to querying.
- */
+// readSessionFromRequest() already resolved the role for this request.
 async function currentRoleFor(session){
   if (session.currentRole !== undefined) return session.currentRole || undefined;
   return findRoleForEmail(session.email);

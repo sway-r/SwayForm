@@ -12,9 +12,7 @@ export const sql = neon(connectionString);
 export async function findRoleForEmail(email){
   const normalized = email.trim().toLowerCase();
 
-  // One round trip, not an admin query followed by a student query: this
-  // runs on every authenticated request, including each poll. `pri` keeps
-  // the original precedence (admin wins, then the oldest active student row).
+  // One query; pri keeps the precedence: admin first, then the oldest active seat.
   const rows = await sql`
     SELECT role, robot_id, robot_serial, robot_school_name FROM (
       SELECT 'admin' AS role, 0 AS pri, NULL::timestamptz AS linked_at, 0 AS link_id,

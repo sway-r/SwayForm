@@ -11,29 +11,16 @@ if (!API_BASE) throw new Error('VERCEL_API_BASE is not set');
 if (!SERVICE_SECRET) throw new Error('BRIDGE_SERVICE_SECRET is not set');
 const JWT_SECRET_KEY = new TextEncoder().encode(SERVICE_SECRET);
 
-// Two different clocks that used to be one. The WebSocket ping is local
-// liveness (is this socket dead?) and costs nothing; the presence write is a
-// database UPDATE through Vercel into Neon. Tying them together meant 8,640
-// database writes per robot per day to say "still here".
-const WS_PING_INTERVAL_MS = 10_000;
-// Presence is also written on connect and on disconnect, so this only bounds
-// how stale last_seen_at gets while connected. api/_lib/limits.js's
-// ROBOT_ONLINE_CUTOFF_MS must stay above 2x this. (Env override is for tests.)
+const WS_PING_INTERVAL_MS = 10_000; // socket liveness only, no database
+// api/_lib/limits.js ROBOT_ONLINE_CUTOFF_MS must stay above 2x this. Env override is for tests.
 const PRESENCE_WRITE_INTERVAL_MS = Number(process.env.PRESENCE_WRITE_INTERVAL_MS) || 60_000;
-// Dispatch is event-driven now (see requestDispatch). These two holds keep
-// the physical pacing at least as relaxed as the old 4s poll produced, rather
-// than letting "instant" become the norm on real hardware: a job never
-// starts sooner than this after the previous job's exit, or after an idle
-// session was told to stop (the agent escalates SIGINT to SIGKILL at 3s).
+// Minimum gaps before the next job.run, so event-driven dispatch is never tighter than the old 4s poll.
 const POST_JOB_SETTLE_MS = 2_000;
 const IDLE_STOP_SETTLE_MS = 4_000;
 const DISPATCH_RETRY_MS = 5_000;
 const METRICS_LOG_INTERVAL_MS = 10 * 60_000;
 
-// How many calls this process made into the API (each is at least one Neon
-// query), by action, per 10 minutes. This is the number to watch after a
-// deploy: an idle connected robot should show ~10 heartbeats and ~0
-// dispatch-queue calls per window. Counts only — never tokens or payloads.
+// API calls by action per window; counts only.
 const apiCallCounts = new Map();
 function countApiCall(name){ apiCallCounts.set(name, (apiCallCounts.get(name) || 0) + 1); }
 
@@ -250,8 +237,6 @@ async function handleIdleRequest(req, res){
   const delivered = !!(ws && ws.readyState === ws.OPEN);
   if (delivered){
     ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
-    // Approving a job stops idle and then notifies dispatch back to back.
-    // Give the idle process time to actually exit before a job.run follows.
     if (body.action === 'stop' && ws.dispatch) ws.dispatch.hold(IDLE_STOP_SETTLE_MS);
   }
 
@@ -259,13 +244,7 @@ async function handleIdleRequest(req, res){
   res.end(JSON.stringify({ ok: true, delivered }));
 }
 
-// "This robot's dispatch queue may have work" — sent by api/robot/queue.js
-// when an admin approves a job (or reconciles a stuck one), replacing the
-// fixed 4s poll that asked Neon the same question 21,600 times a day per
-// robot. It names a robot and nothing else: no job id, no code. All it can do
-// is make this process run the same atomic claim (api/robot/agent.js's
-// dispatch-queue) slightly sooner, so a replayed or forged notification can
-// never dispatch anything that a poll wouldn't have dispatched anyway.
+// Sent by api/robot/queue.js on approve/reconcile. Only triggers the normal claim.
 async function handleDispatchNotify(req, res){
   const provided = req.headers['x-bridge-secret'];
   if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
@@ -468,25 +447,19 @@ wss.on('connection', (ws, req) => {
 
         ws.dispatch = createDispatcher(ws, robotId, dispatchedJobIds);
 
-        // Socket liveness: local, every 10s, no database involved.
         pingTimer = setInterval(() => {
           if (!alive){ ws.terminate(); return; }
           alive = false;
           ws.ping();
         }, WS_PING_INTERVAL_MS);
 
-        // Database presence: once a minute. Its response also says whether
-        // an approved job is waiting, which is the safety net for a dispatch
-        // notification that never arrived (bridge restart, network blip).
-        // `!== false` on purpose: an API that predates hasApproved returns
-        // no such field, and "unknown" must mean "go check", not "no work".
+        // `!== false`: an older API returns no hasApproved, and unknown must mean "check".
         presenceTimer = setInterval(() => {
           writePresence(robotId, { online: true, agentVersion })
             .then((result) => { if (result.hasApproved !== false) ws.dispatch.request('presence'); })
             .catch((e) => console.error('presence write failed:', e.message));
         }, PRESENCE_WRITE_INTERVAL_MS);
 
-        // A job approved while the agent was offline is picked up here.
         ws.dispatch.request('connect');
       } catch (e) {
         console.error('agent auth failed:', e.message);
@@ -519,9 +492,6 @@ wss.on('connection', (ws, req) => {
       await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId: msg.jobId, exitCode: msg.exitCode }).catch((e) => {
         console.error('job-finished failed:', e.message);
       });
-      // The execution lock just released — the next approved job, if any,
-      // can go. Nothing else would announce that; no admin action happens
-      // between two already-approved jobs.
       ws.dispatch.hold(POST_JOB_SETTLE_MS);
       ws.dispatch.request('job-finished');
       return;
@@ -559,8 +529,6 @@ wss.on('connection', (ws, req) => {
     if (presenceTimer) clearInterval(presenceTimer);
     if (ws.dispatch) ws.dispatch.stop();
     if (robotId){
-      // Written immediately, so a normal disconnect shows as offline right
-      // away — the longer online cutoff only matters if this process dies.
       writePresence(robotId, { online: false }).catch((e) => {
         console.error('offline presence write failed:', e.message);
       });
@@ -568,11 +536,8 @@ wss.on('connection', (ws, req) => {
   });
 });
 
-// Presence writes for one robot are applied in the order they were issued.
-// With a write every 10s, an "offline" landing after the "online" of a quick
-// reconnect corrected itself within seconds; at once a minute it would leave
-// a connected robot showing offline for up to a minute.
-const presenceTails = new Map(); // robotId -> the last queued write, settled
+// Presence writes per robot are applied in order, so a reconnect's "online" can't be overtaken by the old "offline".
+const presenceTails = new Map();
 function writePresence(robotId, fields){
   const previous = presenceTails.get(robotId) || Promise.resolve();
   const write = previous.then(() => callApi('/api/robot/agent', { action: 'heartbeat', robotId, ...fields }));
@@ -582,25 +547,12 @@ function writePresence(robotId, fields){
   return write;
 }
 
-/**
- * Per-connection dispatch trigger. Asking the API to claim the next approved
- * job used to happen on a 4s timer forever; now it happens when something
- * suggests there may be one:
- *   connect       — a job may have been approved while the agent was away
- *   notify        — an admin just approved (or reconciled) a job
- *   job-finished  — the execution lock just released
- *   presence      — the once-a-minute presence write saw an approved job
- *                   (the fallback for a notification that never arrived)
- *
- * Every safety property still lives where it always did, in the claim
- * itself (one 'running' job per robot, claimed atomically before any code is
- * sent, never re-sent). This only decides WHEN to ask, and asking too often
- * or twice is harmless — which is why triggers are allowed to be lossy.
- */
+// Decides when to ask the API for the next job (connect, notify, job-finished, presence).
+// Asking too often is harmless; the claim itself is what's atomic.
 function createDispatcher(ws, robotId, dispatchedJobIds){
   let inFlight = false;
-  let again = false;      // a trigger arrived mid-request: ask once more after it
-  let notBefore = 0;      // earliest time the next job.run may be sent (see hold)
+  let again = false;
+  let notBefore = 0;
   let timer = null;
   let retried = false;
   let stopped = false;
@@ -624,9 +576,6 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
       retried = false;
       if (stopped || ws.readyState !== ws.OPEN) return;
       for (const job of jobs){
-        // Belt and braces: the API can't return an already-running job, and
-        // this makes sure that even if it somehow did, this connection would
-        // not send the same job's code to the robot twice.
         if (dispatchedJobIds.has(job.jobId)) continue;
         dispatchedJobIds.add(job.jobId);
         ws.send(JSON.stringify({
@@ -649,8 +598,7 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
     }
     if (again){ again = false; request('coalesced'); }
     else if (failed && !retried){
-      // One prompt retry for a transient failure; after that the presence
-      // write picks it up, so a down API isn't hammered.
+      // One retry; after that the presence write picks it up.
       retried = true;
       hold(DISPATCH_RETRY_MS);
       request('retry');

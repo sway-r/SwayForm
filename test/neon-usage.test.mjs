@@ -6,10 +6,7 @@ import { registerHooks } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 
-// Same approach as portal-security.test.mjs: the production handlers and
-// their real SQL run against an isolated PostgreSQL engine. Only the Neon
-// transport is replaced — here it also counts queries, because "how many
-// database round trips does one poll cost" is the thing under test.
+// Real handlers and SQL on an isolated PostgreSQL; the Neon transport is replaced and counts queries.
 const db = new PGlite();
 let queryCount = 0;
 function query(strings, ...params){
@@ -73,8 +70,7 @@ async function insertJob(robotId, email, jobStatus, extra = {}){
   return job.id;
 }
 
-// Two separate schools: robot 5 (teacher E, students E1 and E2) and robot 6
-// (teacher F, student F1), plus a signed-in account that belongs to neither.
+// Robot 5: teacher E, students E1/E2. Robot 6: teacher F, student F1. Plus a stranger.
 let teacherE, stuE1, stuE2, teacherF, stuF1, stranger;
 before(async () => {
   await db.exec(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8'));

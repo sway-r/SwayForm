@@ -273,15 +273,17 @@ export default async function handler(req, res){
       }
 
       const { pkg, file } = packageAndEntry(path);
-      const [posRow] = await sql`
-        SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
-        FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'pending'
-      `;
-      const inserted = await sql`
-        INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, queue_position)
-        VALUES (${robotId}, ${session.email}, ${path}, ${pkg}, ${file}, ${code}, ${sha256(code)}, ${posRow.next_position})
-        RETURNING id, queue_position
-      `;
+      // Robot row lock + position computed inside the insert: simultaneous submits get distinct positions.
+      const [, inserted] = await sql.transaction([
+        sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
+        sql`
+          INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, queue_position)
+          SELECT ${robotId}, ${session.email}, ${path}, ${pkg}, ${file}, ${code}, ${sha256(code)},
+                 COALESCE(MAX(queue_position), 0) + 1
+          FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'pending'
+          RETURNING id, queue_position
+        `,
+      ]);
       res.status(200).json({ ok: true, jobId: inserted[0].id, queuePosition: inserted[0].queue_position });
       return;
     }

@@ -192,6 +192,27 @@ export default async function handler(req, res){
   privateResponse(res);
   if (req.method === 'POST' && !requireBrowserMutation(req, res)) return;
   const session = await readSessionFromRequest(req);
+
+  // 'validate' is a stateless comparison against the canonical source
+  // (validateAgainstCanonicalSource never reads robotId or anything else
+  // robot-specific) and fires automatically on every Run click, including
+  // from accounts with no robot/school link yet ('member' sessions). Gating
+  // it behind requireCurrentRobotMember like the actions below — which
+  // genuinely do need a current robot linkage — meant an unregistered
+  // email got a bare 401 here, and the client had no case for that, so it
+  // silently rendered as "no verified working version of this file": Run
+  // appeared to behave differently depending on school registration when
+  // the check itself never depended on it. Only a signed-in session is
+  // needed here, to key the rate limit on.
+  if (req.method === 'POST' && req.body?.action === 'validate'){
+    if (!session){ res.status(401).json({ error: 'not_authorized' }); return; }
+    if (!await rateLimit(res, 'robot-queue-validate', session.email, 120)) return;
+    const path = String(req.body.path || '');
+    const code = String(req.body.code || '');
+    res.status(200).json(validateAgainstCanonicalSource(path, code));
+    return;
+  }
+
   const member = await requireCurrentRobotMember(session);
   if (!member){
     res.status(401).json({ error: 'not_authorized' });
@@ -282,27 +303,9 @@ export default async function handler(req, res){
   }
 
   const body = req.body || {};
-  // 'validate' is read-only and fires on every Run click (Wave/Fist Bump's
-  // Run flow calls it automatically) — sharing one 60/min bucket with the
-  // mutating actions (submit/approve/reject/...) meant a student iterating
-  // quickly could burn the whole class's submit budget just from clicking
-  // Run, or hit a rate limit that then rendered as "no verified working
-  // version of this file" client-side (no `status` field on a 429) instead
-  // of a rate-limit message. Its own, higher-ceiling bucket fixes both.
-  const limited = body.action === 'validate'
-    ? !await rateLimit(res, 'robot-queue-validate', session.email, 120)
-    : !await rateLimit(res, 'robot-queue', session.email, 60);
-  if (limited) return;
+  if (!await rateLimit(res, 'robot-queue', session.email, 60)) return;
 
   switch (body.action){
-    case 'validate': {
-      const path = String(body.path || '');
-      const code = String(body.code || '');
-      const result = validateAgainstCanonicalSource(path, code);
-      res.status(200).json(result);
-      return;
-    }
-
     case 'submit': {
       const path = String(body.path || '');
       const code = String(body.code || '');

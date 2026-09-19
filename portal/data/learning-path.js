@@ -687,6 +687,14 @@ export const LEARNING_PATH = {
                     { type: 'callout', tone: 'note', label: 'That\'s the whole lesson', text: 'One number, one visible change in the physical world. Every lab from here on is a bigger version of exactly that.' },
                   ],
                 },
+                {
+                  id: 'run-and-queue', title: 'Run & Queue',
+                  blocks: [
+                    { type: 'p', text: 'Run the demo from the toolbar above, or open the file to read the complete, real source.' },
+                    { type: 'terminal', lines: ['ros2 run swayform_robot wave'] },
+                    { type: 'p', text: 'Watch the terminal panel for the run sequence. When Run confirms the change, use **Queue on Robot** to send it to the real robot.' },
+                  ],
+                },
               ],
               completionSummary: { text: 'You read a real robot gesture as a simple list of steps, and changed one number to make the robot do something different in the real world.', conceptsUsed: ['Sequences', 'Repetition'] },
             },
@@ -713,8 +721,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: 'Handshake is SwayForm meeting you. It reaches its arm out with an open hand, waits a moment like it\'s expecting you to take it, closes its fingers into a gentle grip, shakes a few times, then lets go and settles back. It\'s slow and deliberate on purpose — a handshake that\'s too fast feels wrong, on a robot or a person.' },
-                    { type: 'callout', tone: 'note', label: 'Good to know', text: 'The robot doesn\'t see you. It does the exact same handshake every time whether someone\'s there or not — it\'s a performance, not a reaction. Teaching it to actually notice a hand comes later, with the camera.' },
+                    { type: 'lead', text: 'SwayForm reaches out and gives a handshake — a short, friendly gesture built right into its code.' },
                   ],
                 },
                 {
@@ -725,7 +732,7 @@ export const LEARNING_PATH = {
                       'The arm reaches forward, hand open — about a second and a half.',
                       'It holds there for two full seconds. This is the "go ahead, take it" moment.',
                       'The fingers close into a soft grip — not a fist, just enough to hold a hand.',
-                      'The forearm pumps up and down three times. That\'s the shake.',
+                      'The forearm pumps up and down the number of times chosen in `SHAKE_CYCLES`. That\'s the shake.',
                       'The hand opens and everything drifts back home.',
                     ] },
                     { type: 'callout', tone: 'note', label: 'Look closely', text: 'Only the forearm moves during the shake. The shoulder stays put, which is what keeps it from looking like the whole arm is flailing. Real handshakes work the same way.' },
@@ -735,29 +742,34 @@ export const LEARNING_PATH = {
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: 'Same idea as Wave: a handshake is a list of steps the robot follows top to bottom. The difference is that this one has waiting built in. Some of the most important lines in this file don\'t move anything — they just say "hold still for two seconds."' },
-                    { type: 'code', lang: 'text', filename: 'The recipe for a handshake', code: 'reach forward, hand open\n  ↓\nwait two seconds\n  ↓\nclose into a gentle grip\n  ↓\nshake — up, down, up, down, up, down\n  ↓\nopen hand and go home' },
-                    { type: 'p', text: 'Timing is half of what makes a gesture feel natural. The robot could do all of this in under a second, and it would look like a twitch. The pauses are choices someone made, and you can change them.' },
+                    { type: 'p', text: '`reach_forward` swings the shoulder forward and bends the elbow in, hand still open — every joint arriving together. Then `grip` curls the thumb and each finger in by `FINGER_CURL_AMOUNT` degrees — a light grip, not a full fist.' },
+                    { type: 'p', text: '`shake` pumps just the elbow back and forth around the reach position for `SHAKE_CYCLES` — shoulder stays put, this is elbow-only. `open_and_return` opens the hand again and brings every joint back to center.' },
+                    { type: 'p', text: '`with sc.hardware_lock():` keeps anything else from moving the same servos mid-handshake, and a `finally` block always closes the PCA9685 handles, even on error.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'p', text: 'Open the file and you\'ll find the recipe as four named pieces, plus one that runs them in order:' },
                     { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=True): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 77 },
-                    { type: 'p', text: 'Near the top, above those, is a short list of numbers with names like `SHAKE_CYCLES` — how many times to shake. Those numbers are the dials for this gesture, and one of them is yours to turn next.' },
+                    { type: 'p', text: 'Four functions, called in order by `perform_handshake()`: reach forward, grip, shake, open and return — a **setup → behavior → cleanup** shape.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Right now SwayForm shakes three times. Some people think one firm shake feels more natural. Let\'s find out.' },
-                    { type: 'p', text: 'Find the line `SHAKE_CYCLES = 3` near the top of the file. Change the `3` to a `1`, then click **Run**.' },
-                    { type: 'p', text: 'When Run says you\'re done, **Queue on Robot** lights up — send it, then watch the real handshake and decide for yourself: is one shake better, or was three right all along? There\'s no wrong answer. That\'s the point.' },
+                    { type: 'p', text: 'Try changing `SHAKE_CYCLES` from `1` to any whole number from `2` through `10`, and predict how your choice will change the handshake — then click **Run** to check.' },
+                  ],
+                },
+                {
+                  id: 'run-and-queue', title: 'Run & Queue',
+                  blocks: [
+                    { type: 'p', text: 'When your changes are ready, check the code with **Run**. If everything is valid, use **Queue on Robot** and watch your result.' },
+                    { type: 'terminal', lines: ['ros2 run swayform_robot handshake'] },
+                    { type: 'p', text: 'The starter value is `1`; any whole number from `2` through `10` is a valid completed choice.' },
                   ],
                 },
               ],
-              completionSummary: { text: 'You saw how pauses and timing are what make a robot gesture feel natural — and you changed one to see the difference yourself.', conceptsUsed: ['Sequences', 'Timing'] },
+              completionSummary: { text: 'You chose how many shake cycles the robot performs and saw how one variable changes the whole gesture.', conceptsUsed: ['Sequences', 'Timing', 'Variables'] },
             },
             {
               id: 'fist-bump', title: 'Fist Bump', kind: 'activity', difficulty: 'beginner', estimatedTime: '10–15 minutes',
@@ -768,8 +780,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'what-it-does', title: 'What It Does',
                   blocks: [
-                    { type: 'lead', text: 'Fist Bump is the fun one. SwayForm makes a fist, leans its whole body in, pauses for a beat — then punches forward for the bump and rocks back. It\'s the first gesture where more than the arm moves: the torso twists into it, and if you turn it on, the head nods too. It has attitude.' },
-                    { type: 'callout', tone: 'note', label: 'Good to know', text: 'Like Handshake, it doesn\'t know if your fist is there. It bumps the same way every time. Hold yours out anyway — it\'s more fun.' },
+                    { type: 'lead', text: 'SwayForm winds up, leans in, and throws a fist bump — a quick, energetic gesture built right into its code.' },
                   ],
                 },
                 {
@@ -790,25 +801,30 @@ export const LEARNING_PATH = {
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: 'Still a list of steps — but now two parts of the body are moving at the same time. The arm has its list, the torso has its own, and the robot runs them side by side so the lean happens *during* the raise, not before or after. That\'s what makes it look like one motion instead of two.' },
-                    { type: 'code', lang: 'text', filename: 'The recipe for a fist bump', code: 'make a fist + lift arm     (torso leans in at the same time)\n  ↓\npause\n  ↓\npunch forward, snap back   (torso snaps with it; head nods, if switched on)\n  ↓\nopen hand and go home      (torso un-twists)' },
-                    { type: 'p', text: 'And there\'s one new idea: a switch. Some things in a gesture aren\'t numbers, they\'re just on or off. The head nod is one of those. Flip it on and the head joins the punch; leave it off and it doesn\'t. Nothing else changes.' },
+                    { type: 'p', text: '`raise_and_curl` swings the shoulder and elbow back, curls every finger into a full fist at the same time, and leans the torso in — all over `RAISE_DURATION`, each on its own thread.' },
+                    { type: 'p', text: '`bump_jerk` punches the shoulder and elbow forward to a fixed peak, then recoils back, torso snapping into the same motion. If `ENABLE_HEAD_NOD` is `True`, the head nods up on the punch and back down on the recoil.' },
+                    { type: 'p', text: '`open_and_return` opens the hand and settles every joint — arm and torso — back to center. `with sc.hardware_lock():` keeps another behavior from moving the same servos mid-bump, and a `finally` block always releases both the PCA9685 and torso motor handles.' },
                   ],
                 },
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'p', text: 'Open the file. The very first thing after the imports is that switch — before any of the moves:' },
                     { type: 'code', lang: 'python', filename: 'fist_bump.py', code: 'ENABLE_HEAD_NOD = False   # the switch — off right now\n\ndef raise_and_curl(ctrl): ...     # fist + lift\ndef bump_jerk(ctrl, pitch_base, elbow_base): ...  # the punch\ndef open_and_return(ctrl): ...    # go home\ndef perform_fist_bump(mock=True): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py', line: 12 },
-                    { type: 'p', text: '`False` means off. `True` means on. That\'s the whole language of a switch.' },
+                    { type: 'p', text: 'A **setup → behavior → cleanup** shape, plus one switch sitting right at the top of the file: `ENABLE_HEAD_NOD`.' },
                   ],
                 },
                 {
                   id: 'try-it', title: 'Try It',
                   blocks: [
-                    { type: 'p', text: 'Let\'s give it the nod.' },
-                    { type: 'p', text: 'Find `ENABLE_HEAD_NOD = False` at the top of the file. Change `False` to `True` — capital T, exactly like that — then click **Run**.' },
-                    { type: 'p', text: 'When Run says you\'re done, **Queue on Robot** lights up. Send it, hold your fist out, and watch the head come up with the punch. Same robot, same bump, one word different.' },
+                    { type: 'p', text: 'Try changing `ENABLE_HEAD_NOD` from `False` to `True`, and predict what the head will do differently — then click **Run** to check.' },
+                  ],
+                },
+                {
+                  id: 'run-and-queue', title: 'Run & Queue',
+                  blocks: [
+                    { type: 'p', text: 'When your changes are ready, check the code with **Run**. If everything is valid, use **Queue on Robot** and watch your result.' },
+                    { type: 'terminal', lines: ['ros2 run swayform_robot fist_bump'] },
+                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then watch for the added head nod on the real robot.' },
                   ],
                 },
               ],
@@ -1768,4 +1784,3 @@ export function flattenActivities(){
 export function findActivity(activityId){
   return flattenActivities().find((e) => e.activity.id === activityId) || null;
 }
-

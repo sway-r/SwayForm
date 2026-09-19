@@ -11,7 +11,8 @@ export { packageAndEntry, isCanonicalRobotPath };
  * one target (the historical behavior); finger_count.py's NUMBER is the
  * first with several (1-5 are all valid "solutions" — the lab is "pick a
  * number to show," not "reach one specific number"). Everything else in the
- * file must match byte-for-byte (modulo incidental whitespace — see
+ * file must match byte-for-byte (modulo trailing whitespace and blank-line
+ * placement — see
  * normalize()), always, regardless of how many targets a tunable has.
  * `pattern` must match the constant's canonical line and capture the
  * current value in group 1. Keep in sync with the "Safe Things to Change"/
@@ -22,7 +23,7 @@ const TUNABLES = {
     { name: 'WAVE_CYCLES', pattern: /^WAVE_CYCLES = (\d+)$/, targets: ['5'] },
   ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py': [
-    { name: 'SHAKE_CYCLES', pattern: /^SHAKE_CYCLES = (\d+)$/, targets: ['1'] },
+    { name: 'SHAKE_CYCLES', pattern: /^SHAKE_CYCLES = (\d+)$/, targets: ['2', '3', '4', '5', '6', '7', '8', '9', '10'] },
   ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py': [
     { name: 'ENABLE_HEAD_NOD', pattern: /^ENABLE_HEAD_NOD = (True|False)\b.*$/, targets: ['True'] },
@@ -89,11 +90,16 @@ export function canonicalVariantFor(path, code){
   return match === undefined ? null : match;
 }
 
-/** Trailing whitespace per line and a trailing run of blank lines are the
- * only things a submission may differ on incidentally — everything else
- * that matters is a real content difference. */
+/** Blank or whitespace-only lines do not change Python behavior in these
+ * controlled files, so students may add or remove them. Trailing whitespace
+ * on nonblank lines is incidental too. The canonical variant is still what
+ * gets queued, so formatting differences never reach the physical robot. */
 function normalize(text){
-  return text.split('\n').map((l) => l.replace(/[ \t]+$/, '')).join('\n').replace(/\n+$/, '\n');
+  return text
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/, ''))
+    .filter((line) => line.trim() !== '')
+    .join('\n');
 }
 
 function currentTunableValue(canonical, tunable){
@@ -141,17 +147,22 @@ function allCompleteVariants(canonical, tunables){
  * restructured.
  */
 function allLineDifferences(code, target){
-  const yoursLines = code.split('\n');
-  const targetLines = target.split('\n');
+  // Align significant lines so adding/removing a blank line does not make
+  // every subsequent line look changed in the student's error report.
+  const significantLines = (text) => text.split('\n')
+    .map((line, index) => ({ text: line.replace(/[ \t]+$/, ''), line: index + 1 }))
+    .filter((entry) => entry.text.trim() !== '');
+  const yoursLines = significantLines(code);
+  const targetLines = significantLines(target);
   const max = Math.max(yoursLines.length, targetLines.length);
   const diffs = [];
   for (let i = 0; i < max; i++){
     const yours = yoursLines[i];
     const expected = targetLines[i];
-    if (yours === expected) continue;
-    if (yours === undefined) diffs.push({ line: i + 1, kind: 'missing', expected });
-    else if (expected === undefined) diffs.push({ line: i + 1, kind: 'extra', yours });
-    else diffs.push({ line: i + 1, kind: 'changed', yours, expected });
+    if (yours?.text === expected?.text) continue;
+    if (yours === undefined) diffs.push({ line: expected.line, kind: 'missing', expected: expected.text });
+    else if (expected === undefined) diffs.push({ line: yours.line, kind: 'extra', yours: yours.text });
+    else diffs.push({ line: yours.line, kind: 'changed', yours: yours.text, expected: expected.text });
   }
   return diffs;
 }

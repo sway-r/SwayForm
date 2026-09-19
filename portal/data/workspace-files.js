@@ -409,7 +409,7 @@ ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # backed off 20° from the fu
 
 # Shake offset (degrees) and number of up-down cycles.
 SHAKE_OFFSET = 5
-SHAKE_CYCLES = 3
+SHAKE_CYCLES = 1
 
 REACH_DURATION = 1.5
 HOLD_BEFORE_GRIP = 2.0  # pause at the reach pose before closing the hand

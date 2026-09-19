@@ -273,7 +273,7 @@ export default async function handler(req, res){
       }
 
       const { pkg, file } = packageAndEntry(path);
-      // Queue the canonical variant, not the raw text (which may differ in trailing whitespace).
+      // Queue the canonical variant, not raw text that may differ only in blank-line placement or trailing whitespace.
       const queuedCode = canonicalVariantFor(path, code);
       // Under the robot lock: position after every unfinished job, and the cooldown re-checked for simultaneous submits.
       const [, inserted] = await sql.transaction([

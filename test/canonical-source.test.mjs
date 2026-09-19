@@ -71,22 +71,44 @@ test('trailing whitespace and a trailing blank line do not count as tampering', 
   assert.deepEqual(result, { valid: true, status: 'complete' });
 });
 
-test('Handshake: the untouched default (SHAKE_CYCLES = 3) is not_started', () => {
+test('removing or adding empty lines does not block an otherwise correct submission', () => {
+  const solved = canonicalHandshake.replace('SHAKE_CYCLES = 1', 'SHAKE_CYCLES = 7');
+  const withoutEmptyLines = solved.split('\n').filter((line) => line.trim() !== '').join('\n');
+  const withExtraEmptyLines = solved.replace('SHAKE_CYCLES = 7', 'SHAKE_CYCLES = 7\n\n   \n');
+  assert.deepEqual(validateAgainstCanonicalSource(HANDSHAKE_PATH, withoutEmptyLines), { valid: true, status: 'complete' });
+  assert.deepEqual(validateAgainstCanonicalSource(HANDSHAKE_PATH, withExtraEmptyLines), { valid: true, status: 'complete' });
+});
+
+test('blank-line changes do not shift the line reported for a real code error', () => {
+  const edited = canonicalHandshake
+    .replace('SHAKE_CYCLES = 1', 'SHAKE_CYCLES = 7')
+    .replace(/\n\s*\n/g, '\n')
+    .replace('SHAKE_OFFSET = 5', 'SHAKE_OFFSET = 999');
+  const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
+  assert.equal(result.status, 'tampered');
+  assert.equal(result.diffs.length, 1);
+  assert.equal(result.diffs[0].yours, 'SHAKE_OFFSET = 999');
+  assert.equal(result.diffs[0].expected, 'SHAKE_OFFSET = 5');
+});
+
+test('Handshake: the untouched default (SHAKE_CYCLES = 1) is not_started', () => {
   const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, canonicalHandshake);
   assert.equal(result.valid, false);
   assert.equal(result.status, 'not_started');
-  assert.deepEqual(result.tunable, { name: 'SHAKE_CYCLES', from: '3', to: '1' });
+  assert.deepEqual(result.tunable, { name: 'SHAKE_CYCLES', from: '1', to: '2, 3, 4, 5, 6, 7, 8, 9, or 10' });
 });
 
-test('Handshake: SHAKE_CYCLES = 1 is complete/queueable', () => {
-  const edited = canonicalHandshake.replace('SHAKE_CYCLES = 3', 'SHAKE_CYCLES = 1');
-  const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
-  assert.deepEqual(result, { valid: true, status: 'complete' });
+test('Handshake: every SHAKE_CYCLES value from 2 through 10 is complete/queueable', () => {
+  for (let n = 2; n <= 10; n++){
+    const edited = canonicalHandshake.replace('SHAKE_CYCLES = 1', `SHAKE_CYCLES = ${n}`);
+    const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
+    assert.deepEqual(result, { valid: true, status: 'complete' });
+  }
 });
 
 test('Handshake: SHAKE_CYCLES set to anything else is tampered, not accepted', () => {
-  for (const n of [0, 2, 4, 5, -1]){
-    const edited = canonicalHandshake.replace('SHAKE_CYCLES = 3', `SHAKE_CYCLES = ${n}`);
+  for (const n of [0, 11, 20, -1]){
+    const edited = canonicalHandshake.replace('SHAKE_CYCLES = 1', `SHAKE_CYCLES = ${n}`);
     const result = validateAgainstCanonicalSource(HANDSHAKE_PATH, edited);
     assert.equal(result.valid, false, `SHAKE_CYCLES = ${n} should not be queueable`);
     assert.equal(result.status, 'tampered');

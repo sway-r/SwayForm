@@ -750,7 +750,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=True): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 77 },
+                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 77 },
                     { type: 'p', text: 'Four functions, called in order by `perform_handshake()`: reach forward, grip, shake, open and return — a **setup → behavior → cleanup** shape.' },
                   ],
                 },
@@ -809,7 +809,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'fist_bump.py', code: 'ENABLE_HEAD_NOD = False   # the switch — off right now\n\ndef raise_and_curl(ctrl): ...     # fist + lift\ndef bump_jerk(ctrl, pitch_base, elbow_base): ...  # the punch\ndef open_and_return(ctrl): ...    # go home\ndef perform_fist_bump(mock=True): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py', line: 12 },
+                    { type: 'code', lang: 'python', filename: 'fist_bump.py', code: 'ENABLE_HEAD_NOD = False   # the switch — off right now\n\ndef raise_and_curl(ctrl): ...     # fist + lift\ndef bump_jerk(ctrl, pitch_base, elbow_base): ...  # the punch\ndef open_and_return(ctrl): ...    # go home\ndef perform_fist_bump(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py', line: 12 },
                     { type: 'p', text: 'A **setup → behavior → cleanup** shape, plus one switch sitting right at the top of the file: `ENABLE_HEAD_NOD`.' },
                   ],
                 },

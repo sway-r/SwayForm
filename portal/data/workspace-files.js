@@ -312,15 +312,19 @@ def wave_forever(mock=False, center_on_stop=False):
 class WaveNode(Node):
     def __init__(self):
         super().__init__("wave")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         self._started = False
+        self.failed = False
         self.create_timer(1.0, self._start)
 
     def _start(self):
         if self._started:
             return
         self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
         self.get_logger().info("Wave starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
@@ -329,6 +333,7 @@ class WaveNode(Node):
             perform_wave(mock=self._mock)
             self.get_logger().info("Wave complete.")
         except Exception as e:
+            self.failed = True
             self.get_logger().error(f"Wave failed: {e}")
         finally:
             if rclpy.ok():
@@ -346,6 +351,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
@@ -468,7 +475,7 @@ def open_and_return(ctrl):
     ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
 
 
-def perform_handshake(mock=True):
+def perform_handshake(mock=False):
     """Run the full sequence: reach forward -> hold -> grip -> shake -> open hand and return to center."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
@@ -497,15 +504,19 @@ def perform_handshake(mock=True):
 class HandshakeNode(Node):
     def __init__(self):
         super().__init__("handshake")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         self._started = False
+        self.failed = False
         self.create_timer(1.0, self._start)
 
     def _start(self):
         if self._started:
             return
         self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
         self.get_logger().info("Handshake starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
@@ -514,6 +525,7 @@ class HandshakeNode(Node):
             perform_handshake(mock=self._mock)
             self.get_logger().info("Handshake complete.")
         except Exception as e:
+            self.failed = True
             self.get_logger().error(f"Handshake failed: {e}")
         finally:
             if rclpy.ok():
@@ -531,6 +543,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
@@ -707,7 +721,7 @@ class _TorsoPulse:
         self.tm.cleanup_gpio(self.cfg)
 
 
-def perform_fist_bump(mock=True):
+def perform_fist_bump(mock=False):
     """Run the full sequence: raise and curl -> hold -> bump jerk -> open hand and return to center."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
@@ -746,15 +760,19 @@ def perform_fist_bump(mock=True):
 class FistBumpNode(Node):
     def __init__(self):
         super().__init__("fist_bump")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         self._started = False
+        self.failed = False
         self.create_timer(1.0, self._start)
 
     def _start(self):
         if self._started:
             return
         self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
         self.get_logger().info("Fist bump starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
@@ -763,6 +781,7 @@ class FistBumpNode(Node):
             perform_fist_bump(mock=self._mock)
             self.get_logger().info("Fist bump complete.")
         except Exception as e:
+            self.failed = True
             self.get_logger().error(f"Fist bump failed: {e}")
         finally:
             if rclpy.ok():
@@ -780,6 +799,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
@@ -939,15 +960,19 @@ def perform_finger_count(mock=False):
 class FingerCountNode(Node):
     def __init__(self):
         super().__init__("finger_count")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         self._started = False
+        self.failed = False
         self.create_timer(1.0, self._start)
 
     def _start(self):
         if self._started:
             return
         self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
         self.get_logger().info("Finger count starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
@@ -956,6 +981,7 @@ class FingerCountNode(Node):
             perform_finger_count(mock=self._mock)
             self.get_logger().info("Finger count complete.")
         except Exception as e:
+            self.failed = True
             self.get_logger().error(f"Finger count failed: {e}")
         finally:
             if rclpy.ok():
@@ -973,6 +999,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
@@ -1018,15 +1046,19 @@ def perform_target_lock(mock=False):
 class TargetLockNode(Node):
     def __init__(self):
         super().__init__("target_lock")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         self._started = False
+        self.failed = False
         self.create_timer(1.0, self._start)
 
     def _start(self):
         if self._started:
             return
         self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
         self.get_logger().info("Target Lock starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
@@ -1035,6 +1067,7 @@ class TargetLockNode(Node):
             perform_target_lock(mock=self._mock)
             self.get_logger().info("Target Lock complete.")
         except Exception as e:
+            self.failed = True
             self.get_logger().error(f"Target Lock failed: {e}")
         finally:
             if rclpy.ok():
@@ -1052,6 +1085,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
@@ -1590,8 +1625,11 @@ def perform_idle(seconds=None, mock=False, stop_event=None):
 class IdleNode(Node):
     def __init__(self):
         super().__init__("idle")
-        self.declare_parameter("use_mock_hardware", True)
+        self.declare_parameter("use_mock_hardware", False)
         mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        if mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
 
         self._stop_event = threading.Event()
         self._thread = threading.Thread(

@@ -211,9 +211,6 @@
 .taskbar-win:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
 .taskbar-win.active{background:var(--p-accent-dim);border-color:var(--p-accent-line);color:#eaf2ff}
 .taskbar-spacer{flex:1}
-.taskbar-status{display:flex;align-items:center;gap:7px;padding:0 10px;flex-shrink:0}
-.taskbar-status-dot{width:6px;height:6px;border-radius:50%;background:var(--p-green);box-shadow:0 0 0 3px rgba(47,191,116,.15)}
-.taskbar-status-text{font-size:11px;color:var(--p-muted);font-weight:500;white-space:nowrap}
 
 /* ── Logout — a persistent system control, bottom-right of the taskbar.
    Subtle by default; only leans toward "warning red" on hover, not at rest. ── */

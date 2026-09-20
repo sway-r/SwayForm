@@ -9,8 +9,22 @@ const MAX_RECONNECTS = 3;
 
 const KEY_AXES = { ArrowLeft: ['dx', -1], ArrowRight: ['dx', 1], ArrowUp: ['dy', 1], ArrowDown: ['dy', -1] };
 const LIMIT_KEYS = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' };
-const CHECK_LABELS ={ camera: 'Camera', robot: 'Robot', motion: 'Motion' };
+const CHECK_LABELS = { camera: 'Camera', robot: 'Robot', motion: 'Motion', target: 'Target system' };
+const STAGE_TEXT = {
+  crosshair: 'Crosshair activated.',
+  controls: 'Controls loaded.',
+  locked: 'Target locked — calculating reach…',
+  reaching: 'Reaching for the target…',
+  shaking: 'Handshake!',
+  done: 'Handshake complete.',
+};
+const TARGET_FAIL_TEXT = {
+  no_depth: "Couldn't measure the distance to that point — re-aim and press Enter again.",
+  out_of_reach: 'That point is out of reach — re-aim and press Enter again.',
+};
 const ENDED_TEXT = {
+  done: 'Handshake complete — session finished.',
+  stopped: 'Session stopped from the admin workspace.',
   user: 'Session ended.',
   abandoned: 'Session ended — no input for a while.',
   max_time: 'Session ended — time limit reached.',
@@ -91,6 +105,15 @@ export function openTargetLockPopup(){
 
   function onKeyDown(event){
     if (event.key === 'Escape'){ event.preventDefault(); if (ready) send({ t: 'head.center' }); return; }
+    if (event.key === 'Enter'){
+      event.preventDefault();
+      if (!ready || event.repeat) return;
+      ready = false;
+      releaseKeys();
+      send({ t: 'head.move', dx: 0, dy: 0 });
+      send({ t: 'target.lock' });
+      return;
+    }
     if (!KEY_AXES[event.key]) return;
     event.preventDefault();
     if (held.has(event.key)) return;
@@ -114,10 +137,22 @@ export function openTargetLockPopup(){
       if (!row){ row = document.createElement('li'); row.dataset.check = a; checksEl.appendChild(row); }
       row.textContent = `${CHECK_LABELS[a]} ${b === 'ok' ? '✓' : '✕'}`;
       row.className = b === 'ok' ? 'is-ok' : 'is-fail';
+    } else if (kind === 'crosshair' || kind === 'controls'){
+      root.classList.add(`has-${kind}`);
+      statusEl.textContent = STAGE_TEXT[kind];
     } else if (kind === 'ready'){
       ready = true;
       root.classList.add('is-live');
-      statusEl.textContent = 'Movement unlocked — arrow keys turn the head, Esc re-centres.';
+      root.classList.remove('is-locked');
+      statusEl.textContent = 'Movement unlocked — proceed. Arrow keys aim, Esc re-centres, Enter locks the target.';
+    } else if (kind === 'locked' || kind === 'reaching' || kind === 'shaking' || kind === 'done'){
+      ready = false;
+      root.classList.remove('is-live');
+      root.classList.add('is-locked');
+      statusEl.textContent = STAGE_TEXT[kind];
+    } else if (kind === 'target' && a === 'fail'){
+      root.classList.remove('is-locked');
+      statusEl.textContent = TARGET_FAIL_TEXT[b] || 'That target did not work — re-aim and press Enter again.';
     } else if (kind === 'head'){
       readoutEl.textContent = `pan ${a}°  tilt ${b}°`;
     } else if (kind === 'limit' && LIMIT_KEYS[a]){
@@ -152,7 +187,8 @@ export function openTargetLockPopup(){
 
       const socket = new WebSocket(`${TELEOP_URL}?token=${encodeURIComponent(token)}`);
       ws = socket;
-      socket.onopen = () => { reconnects = 0; if (!ready) statusEl.textContent = 'Connected — running system check…'; };
+      // The robot program holds step 1 until it hears from this view, so the whole sequence is seen.
+      socket.onopen = () => { reconnects = 0; send({ t: 'ping' }); if (!ready) statusEl.textContent = 'Connected — starting the sequence…'; };
       socket.onmessage = (event) => {
         let msg;
         try { msg = JSON.parse(event.data); } catch { return; }

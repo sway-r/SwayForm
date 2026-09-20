@@ -30,11 +30,20 @@ function describeMismatch(data){
     return "there's no verified working version of this file to check against yet.";
   }
   if (data.status === 'not_started'){
+    if (data.blanks) return describeBlanks(data);
     return data.tunable
       ? `still at the default — change \`${data.tunable.name}\` to ${data.tunable.to}.`
       : "this lab hasn't been changed yet.";
   }
+  if (data.status === 'wrong_order') return describeBlanks(data);
   return "this doesn't match the target solution — click Run to see exactly what changed.";
+}
+
+/** A sequencing lab's feedback: how far along, never which function goes where. */
+function describeBlanks(data){
+  if (data.blanks) return `the ${data.blanks} steps are still empty — put one function name inside each pair of parentheses.`;
+  if (data.filled < data.total) return `${data.filled} of ${data.total} steps are filled in — every step needs a function.`;
+  return `the steps aren't in the right order yet — ${data.correct} of ${data.total} are in the right place.`;
 }
 
 /** Formats one canonical-source diff entry (api/_lib/canonical-source.js's
@@ -256,6 +265,11 @@ export function mount(bodyEl, winApi, opts) {
           robotValidatedPath = path;
           if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
           output.appendLine('Objective complete — this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
+        } else if (data.status === 'wrong_order' || (data.status === 'not_started' && data.blanks)){
+          const hint = describeBlanks(data);
+          output.appendLine(`Not yet — ${hint}`, 'term-err', 'output');
+          output.appendLine(hint[0].toUpperCase() + hint.slice(1), 'term-err', 'problems');
+          output.setActive('problems');
         } else if (data.status === 'not_started'){
           const hint = data.tunable
             ? `Change \`${data.tunable.name}\` from ${data.tunable.from} to ${data.tunable.to}.`

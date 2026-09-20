@@ -31,6 +31,7 @@ const INTERACTIVE_JOBS = new Map([
   ['swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', { timeoutMs: 240_000 }],
 ]);
 const TELEOP_MAX_FRAMES_PER_SEC = 30;
+const TELEOP_UI_LOG_MAX = 40;
 
 // API calls by action per window; counts only.
 const apiCallCounts = new Map();
@@ -314,14 +315,29 @@ function closeTeleop(robotId, jobId, reason){
 function relayUiLines(robotId, jobId, text){
   if (!text.includes('ui:')) return text;
   const driver = teleopDrivers.get(robotId);
+  const running = runningJobs.get(robotId);
   const kept = [];
-  for (const line of text.split('\n')){
-    if (!line.startsWith('ui:')){ kept.push(line); continue; }
+  for (const raw of text.split('\n')){
+    if (!raw.startsWith('ui:')){ kept.push(raw); continue; }
+    const line = raw.trimEnd();
+    if (running && running.jobId === jobId) rememberUiLine(running, line);
     if (driver && driver.jobId === jobId && driver.ws.readyState === driver.ws.OPEN){
-      driver.ws.send(JSON.stringify({ t: 'job.line', text: line.trimEnd() }));
+      driver.ws.send(JSON.stringify({ t: 'job.line', text: line }));
     }
   }
   return kept.join('\n');
+}
+
+// Kept per running job and replayed to a driver that attaches late or reconnects; only the newest head/limit line matters.
+function rememberUiLine(running, line){
+  const log = running.uiLog || (running.uiLog = []);
+  const kind = line.split(' ')[0];
+  if (kind === 'ui:head' || kind === 'ui:limit'){
+    const i = log.findIndex((l) => l.split(' ')[0] === kind);
+    if (i !== -1) log.splice(i, 1);
+  }
+  log.push(line);
+  if (log.length > TELEOP_UI_LOG_MAX) log.shift();
 }
 
 async function handleTeleopUpgrade(req, socket, head){
@@ -347,6 +363,10 @@ function attachTeleopDriver(ws, robotId, jobId){
   if (previous && previous.ws.readyState === previous.ws.OPEN) previous.ws.close(4008, 'replaced');
   teleopDrivers.set(robotId, { ws, jobId });
   console.log(`teleop driver attached: robotId=${robotId} jobId=${jobId}`);
+  const attachedTo = runningJobs.get(robotId);
+  for (const line of (attachedTo && attachedTo.jobId === jobId && attachedTo.uiLog) || []){
+    ws.send(JSON.stringify({ t: 'job.line', text: line }));
+  }
 
   let windowStart = Date.now();
   let framesInWindow = 0;

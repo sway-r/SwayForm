@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
-import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js';
+import { validateAgainstCanonicalSource, canonicalVariantFor } from '../api/_lib/canonical-source.js';
 
 const WAVE_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
 const HANDSHAKE_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py';
@@ -154,4 +154,45 @@ test('Finger Count: tampering elsewhere is caught even with a valid NUMBER, diff
   assert.equal(result.status, 'tampered');
   assert.equal(result.diffs.length, 1);
   assert.equal(result.diffs[0].expected, 'HOLD_SECONDS = 4.0');
+});
+
+const TARGET_LOCK_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py';
+const canonicalTargetLock = WORKSPACE_FILES[TARGET_LOCK_PATH];
+const TARGET_LOCK_ORDER = ['activate_crosshair', 'load_controls', 'run_system_check', 'unlock_movement', 'lock_and_shake'];
+const fillSteps = (names, open = '(', close = ')') => names.reduce(
+  (code, name, i) => code.replace(`STEP_${i + 1} = ()`, `STEP_${i + 1} = ${open}${name}${close}`), canonicalTargetLock);
+
+test('Target Lock: the untouched file is not_started and says nothing about the answer', () => {
+  const result = validateAgainstCanonicalSource(TARGET_LOCK_PATH, canonicalTargetLock);
+  assert.deepEqual(result, { valid: false, status: 'not_started', tunable: null, blanks: 5 });
+});
+
+test('Target Lock: only the one correct order is complete, spacing inside the blanks aside', () => {
+  assert.deepEqual(validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER)), { valid: true, status: 'complete' });
+  assert.deepEqual(validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER, '( ', ' )')), { valid: true, status: 'complete' });
+  assert.equal(canonicalVariantFor(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER, '( ', ' )')), fillSteps(TARGET_LOCK_ORDER), 'what gets queued is the byte-exact variant');
+});
+
+test('Target Lock: a wrong or partial order reports counts only, never a function name', () => {
+  const swapped = ['load_controls', 'activate_crosshair', 'run_system_check', 'unlock_movement', 'lock_and_shake'];
+  const wrong = validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(swapped));
+  assert.deepEqual(wrong, { valid: false, status: 'wrong_order', filled: 5, correct: 3, total: 5 });
+
+  const partial = validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER.slice(0, 2)));
+  assert.deepEqual(partial, { valid: false, status: 'wrong_order', filled: 2, correct: 2, total: 5 });
+
+  const called = validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER, '(', '())'));
+  assert.deepEqual(called, { valid: false, status: 'wrong_order', filled: 5, correct: 0, total: 5 });
+  assert.equal(canonicalVariantFor(TARGET_LOCK_PATH, fillSteps(swapped)), null);
+});
+
+test('Target Lock: tampering elsewhere is diffed without leaking the order', () => {
+  const edited = fillSteps(TARGET_LOCK_ORDER).replace('if not step(session):', 'if step(session):');
+  const result = validateAgainstCanonicalSource(TARGET_LOCK_PATH, edited);
+  assert.equal(result.status, 'tampered');
+  assert.equal(result.diffs.length, 1);
+  assert.equal(result.diffs[0].expected.trim(), 'if not step(session):');
+  const leaked = JSON.stringify(result);
+  // The function names appear in the import block either way; the blanks themselves must come back empty.
+  assert.equal(/STEP_\d = \(\w+\)/.test(leaked), false);
 });

@@ -375,8 +375,10 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   const token = (payload) => new SignJWT(payload).setProtectedHeader({ alg: 'HS256' }).setIssuedAt().setExpirationTime('60s').sign(new TextEncoder().encode(secret));
   const open = async (t) => {
     const ws = new WebSocket(base.replace('http:', 'ws:') + '/teleop?token=' + t); sockets.add(ws);
+    const got = [];
+    ws.on('message', (raw) => got.push(JSON.parse(raw.toString())));
     const result = await Promise.race([once(ws, 'open').then(() => 'open'), once(ws, 'unexpected-response').then(([, res]) => res.statusCode)]);
-    return { ws, result };
+    return { ws, result, got };
   };
   const session = await agentSession();
   const livePath = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py';
@@ -413,10 +415,18 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   const stored = calls.filter((c) => c.action === 'job-output').map((c) => c.text);
   assert.deepEqual(stored, ['System check passed.\n'], 'ui: lines never reach the database');
 
-  const closed = once(driver.ws, 'close');
+  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:head 9 0\n' }));
+  await sleep(150);
+  const replaced = once(driver.ws, 'close');
+  const second = await open(await token({ purpose: 'teleop', robotId: 1, jobId: 96 }));
+  assert.equal((await replaced)[0], 4008, 'one driver at a time');
+  await sleep(200);
+  assert.deepEqual(second.got.map((l) => l.text), ['ui:check camera ok', 'ui:ready', 'ui:head 9 0'], 'a late or reconnecting view is caught up, newest head position only');
+
+  const closed = once(second.ws, 'close');
   session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 96, exitCode: 0 }));
   await closed;
-  assert.equal(lines.at(-1).t, 'job.ended');
+  assert.equal(second.got.at(-1).t, 'job.ended');
   await sleep(300);
   await session.end();
 });

@@ -18,6 +18,15 @@ export { packageAndEntry, isCanonicalRobotPath };
  * current value in group 1. Keep in sync with the "Safe Things to Change"/
  * "Look at This Part" copy in portal/data/learning-path.js.
  */
+// One ordered blank in a sequencing lab. `secret`: the answer is never echoed back to the browser.
+const step = (n, target) => ({
+  name: `STEP_${n}`,
+  pattern: new RegExp(`^STEP_${n} = \\((\\w*)\\)$`),
+  loose: new RegExp(`^(STEP_${n} = )\\(\\s*(.*?)\\s*\\)\\s*$`),
+  targets: [target],
+  secret: true,
+});
+
 const TUNABLES = {
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py': [
     { name: 'WAVE_CYCLES', pattern: /^WAVE_CYCLES = (\d+)$/, targets: ['5'] },
@@ -30,6 +39,13 @@ const TUNABLES = {
   ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py': [
     { name: 'NUMBER', pattern: /^NUMBER = (None|[1-5])$/, targets: ['1', '2', '3', '4', '5'] },
+  ],
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py': [
+    step(1, 'activate_crosshair'),
+    step(2, 'load_controls'),
+    step(3, 'run_system_check'),
+    step(4, 'unlock_movement'),
+    step(5, 'lock_and_shake'),
   ],
 };
 
@@ -57,18 +73,38 @@ export function validateAgainstCanonicalSource(path, code){
   if (typeof canonical !== 'string') return { valid: false, status: 'no_canonical_source' };
 
   const tunables = TUNABLES[path] || [];
+  const secret = tunables.filter((t) => t.secret);
   const variants = allCompleteVariants(canonical, tunables);
+  code = tidySecretLines(code, secret);
   const normalizedCode = normalize(code);
 
   if (variants.some((v) => normalizedCode === normalize(v))) return { valid: true, status: 'complete' };
 
   if (normalizedCode === normalize(canonical)){
+    if (secret.length) return { valid: false, status: 'not_started', tunable: null, blanks: secret.length };
     const t = tunables[0];
     return {
       valid: false,
       status: 'not_started',
       tunable: t ? { name: t.name, from: currentTunableValue(canonical, t), to: formatTargets(t.targets) } : null,
     };
+  }
+
+  if (secret.length){
+    const blanked = blankSecretLines(code, secret);
+    if (normalize(blanked) === normalize(canonical)){
+      const lines = code.split('\n');
+      const answers = secret.map((t) => (lines.map((l) => l.match(t.loose)).find(Boolean) || [])[2] || '');
+      return {
+        valid: false,
+        status: 'wrong_order',
+        filled: answers.filter((a) => a).length,
+        correct: answers.filter((a, i) => a === secret[i].targets[0]).length,
+        total: secret.length,
+      };
+    }
+    // Something else changed too: diff with the blanks emptied, so no answer is ever sent back.
+    return { valid: false, status: 'tampered', diffs: allLineDifferences(blanked, canonical) };
   }
 
   // Diff against whichever acceptable variant is closest to what was
@@ -85,8 +121,9 @@ export function validateAgainstCanonicalSource(path, code){
 /** The byte-exact variant a 'complete' submission matched (or null): what gets queued, so the robot can re-derive its sha256. */
 export function canonicalVariantFor(path, code){
   if (!isCanonicalRobotPath(path) || typeof WORKSPACE_FILES[path] !== 'string') return null;
-  const normalizedCode = normalize(code);
-  const match = allCompleteVariants(WORKSPACE_FILES[path], TUNABLES[path] || []).find((v) => normalizedCode === normalize(v));
+  const tunables = TUNABLES[path] || [];
+  const normalizedCode = normalize(tidySecretLines(code, tunables.filter((t) => t.secret)));
+  const match = allCompleteVariants(WORKSPACE_FILES[path], tunables).find((v) => normalizedCode === normalize(v));
   return match === undefined ? null : match;
 }
 
@@ -102,6 +139,27 @@ function normalize(text){
     .join('\n');
 }
 
+/** `STEP_1 = ( name )` -> `STEP_1 = (name)`, so spacing inside a blank never counts against a student. */
+function tidySecretLines(code, secret){
+  return rewriteSecretLines(code, secret, (m) => `${m[1]}(${m[2]})`);
+}
+
+/** Empties every secret blank, whatever is in it. */
+function blankSecretLines(code, secret){
+  return rewriteSecretLines(code, secret, (m) => `${m[1]}()`);
+}
+
+function rewriteSecretLines(code, secret, rewrite){
+  if (!secret.length) return code;
+  return code.split('\n').map((line) => {
+    for (const t of secret){
+      const m = line.match(t.loose);
+      if (m) return rewrite(m);
+    }
+    return line;
+  }).join('\n');
+}
+
 function currentTunableValue(canonical, tunable){
   for (const line of canonical.split('\n')){
     const m = line.match(tunable.pattern);
@@ -113,10 +171,11 @@ function currentTunableValue(canonical, tunable){
 /** Substitutes one specific value for one tunable into canonical, line for line. */
 function applyTunableValue(canonical, tunable, value){
   return canonical.split('\n').map((line) => {
-    if (!tunable.pattern.test(line)) return line;
-    const m = line.match(tunable.pattern);
-    const valueStart = line.indexOf(m[1]);
-    return line.slice(0, valueStart) + value + line.slice(valueStart + m[1].length);
+    // Match indices, not indexOf: a blank's current value can be the empty string.
+    const m = line.match(new RegExp(tunable.pattern.source, tunable.pattern.flags + 'd'));
+    if (!m) return line;
+    const [valueStart, valueEnd] = m.indices[1];
+    return line.slice(0, valueStart) + value + line.slice(valueEnd);
   }).join('\n');
 }
 

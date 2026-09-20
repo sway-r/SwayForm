@@ -979,115 +979,63 @@ if __name__ == "__main__":
     main()
 `,
 
-  // PROVISIONAL until the Pi's Phase 1 file lands: replace byte-for-byte, then add the path to ros-paths.js and TUNABLES.
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py": `"""Target Lock behavior: steer the head from the live view to aim the camera's center circle at a target."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py": `"""Target Lock: put the five steps in the right order, then aim the robot's head and shake a hand."""
 
-import sys
-import time
 import threading
-import queue
 
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
-from swayform_robot.hardware import servo_control as sc
+from swayform_robot.targeting.steps import (
+    TargetLockSession,
+    activate_crosshair,
+    load_controls,
+    lock_and_shake,
+    run_system_check,
+    unlock_movement,
+)
 
-HEAD_CONTROL = False
-
-PCA_REACH = 0x60
-NECK_YAW = 2
-NECK_PITCH = 3
-
-CENTERS = {NECK_YAW: 190, NECK_PITCH: 155}
-LIMITS = {NECK_YAW: (120, 260), NECK_PITCH: (130, 180)}
-
-HEAD_SPEED_DEG_PER_SEC = 33.0
-TICK_DELAY = 0.02
-DEADMAN_SECONDS = 0.3
-ABANDON_SECONDS = 30
-MAX_SESSION_SECONDS = 180
-
-
-def ui(line):
-    print("ui:" + line, flush=True)
-
-
-def read_commands(commands):
-    for line in sys.stdin:
-        commands.put(line.strip())
-
-
-def run_system_check(ctrl):
-    for name in ("camera", "robot", "motion"):
-        ui("check " + name + " ok")
-        time.sleep(0.5)
-    return True
-
-
-def head_control_loop(ctrl):
-    commands = queue.Queue()
-    threading.Thread(target=read_commands, args=(commands,), daemon=True).start()
-    angles = dict(CENTERS)
-    move = (0, 0)
-    started = last_input = last_move = time.monotonic()
-    ui("ready")
-    while True:
-        now = time.monotonic()
-        while not commands.empty():
-            parts = commands.get().split()
-            last_input = now
-            if parts[:1] == ["head.move"] and len(parts) == 3:
-                move, last_move = (int(parts[1]), int(parts[2])), now
-            elif parts == ["head.center"]:
-                angles, move = dict(CENTERS), (0, 0)
-            elif parts == ["session.end"]:
-                return "user"
-        if now - last_move > DEADMAN_SECONDS:
-            move = (0, 0)
-        if now - last_input > ABANDON_SECONDS:
-            return "abandoned"
-        if now - started > MAX_SESSION_SECONDS:
-            return "max_time"
-        step = HEAD_SPEED_DEG_PER_SEC * TICK_DELAY
-        for channel, direction in ((NECK_YAW, -move[0]), (NECK_PITCH, move[1])):
-            low, high = LIMITS[channel]
-            angles[channel] = min(high, max(low, angles[channel] + direction * step))
-            ctrl.set_angle(PCA_REACH, channel, angles[channel])
-        time.sleep(TICK_DELAY)
+# Put one function name inside each pair of parentheses.
+STEP_1 = ()
+STEP_2 = ()
+STEP_3 = ()
+STEP_4 = ()
+STEP_5 = ()
 
 
 def perform_target_lock(mock=False):
-    with sc.hardware_lock():
-        ctrl = sc.ServoController(mock=mock)
-        try:
-            if not run_system_check(ctrl):
-                ui("ended error")
+    steps = [STEP_1, STEP_2, STEP_3, STEP_4, STEP_5]
+    with TargetLockSession(mock=mock) as session:
+        for number, step in enumerate(steps, start=1):
+            if not callable(step):
+                print(f"Step {number} is empty.", flush=True)
                 return
-            print("System check passed.", flush=True)
-            if not HEAD_CONTROL:
-                print("Head control is off. Set HEAD_CONTROL = True to steer the head.", flush=True)
+            if not step(session):
                 return
-            print("Head control active - use the arrow keys.", flush=True)
-            ui("ended " + head_control_loop(ctrl))
-        finally:
-            for channel, angle in CENTERS.items():
-                ctrl.set_angle(PCA_REACH, channel, angle)
-            ctrl.close()
-            print("Session ended.", flush=True)
 
 
-# ── ROS2 node ────────────────────────────────────────────────────────────
 class TargetLockNode(Node):
     def __init__(self):
         super().__init__("target_lock")
         self.declare_parameter("use_mock_hardware", True)
         self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        self._started = False
+        self.create_timer(1.0, self._start)
+
+    def _start(self):
+        if self._started:
+            return
+        self._started = True
+        self.get_logger().info("Target Lock starting.")
         threading.Thread(target=self._run, daemon=False).start()
 
     def _run(self):
         try:
             perform_target_lock(mock=self._mock)
+            self.get_logger().info("Target Lock complete.")
+        except Exception as e:
+            self.get_logger().error(f"Target Lock failed: {e}")
         finally:
             if rclpy.ok():
                 rclpy.shutdown()

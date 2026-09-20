@@ -21,6 +21,8 @@ const WHEP_ATTEMPT_TIMEOUT_MS = 5_000;
 const WHEP_RETRY_DELAY_MS = 700;
 // How long a 'disconnected' feed gets to recover by itself before it's torn down.
 const RECOVERY_GRACE_MS = 6_000;
+// keepOpen feeds re-send 'start' this often; must stay under the bridge's VIEWER_TTL_MS and the agent's 120s watchdog.
+const RENEW_INTERVAL_MS = 45_000;
 
 function waitForIceGathering(pc){
   if (pc.iceGatheringState === 'complete') return Promise.resolve();
@@ -43,7 +45,7 @@ function waitForIceGathering(pc){
  * connection (each open WHEP session holds a slot on the relay) and tell
  * the Pi to stop encoding if this was the last viewer watching.
  */
-export function mountVideoPlayer(container){
+export function mountVideoPlayer(container, { autoStart = false, keepOpen = false } = {}){
   container.innerHTML = `
     <div class="robot-video-wrap">
       <div class="robot-video-idle" data-role="idle">
@@ -66,6 +68,7 @@ export function mountVideoPlayer(container){
   let autoStopTimer = null;
   let countdownTimer = null;
   let recoveryTimer = null;
+  let renewTimer = null;
   let connectionLost = false;
 
   function releaseSession(attempt){
@@ -93,6 +96,7 @@ export function mountVideoPlayer(container){
     clearTimeout(autoStopTimer); autoStopTimer = null;
     clearInterval(countdownTimer); countdownTimer = null;
     clearTimeout(recoveryTimer); recoveryTimer = null;
+    clearInterval(renewTimer); renewTimer = null;
     connectionLost = false;
     videoEl.srcObject = null;
     liveWrap.hidden = true;
@@ -137,6 +141,14 @@ export function mountVideoPlayer(container){
       // The stop sent at cancel time may have reached the bridge before this start did.
       if (!live()){ notifyBridgeStop(attempt); return; }
       attempt.token = token;
+      if (keepOpen){
+        renewTimer = setInterval(() => {
+          fetch('/api/robot/status', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ action: 'start', viewerId: attempt.viewerId }), signal: AbortSignal.timeout(10_000),
+          }).catch(() => {});
+        }, RENEW_INTERVAL_MS);
+      }
 
       const pc = new RTCPeerConnection();
       attempt.pc = pc;
@@ -219,6 +231,7 @@ export function mountVideoPlayer(container){
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
       if (!live()) return;
 
+      if (keepOpen){ note.textContent = ''; return; }
       let secondsLeft = Math.round(FEED_DURATION_MS / 1000);
       note.textContent = `Feed stops automatically in ${secondsLeft}s.`;
       countdownTimer = setInterval(() => {
@@ -242,6 +255,7 @@ export function mountVideoPlayer(container){
   }
 
   showBtn.addEventListener('click', startFeed);
+  if (autoStart) startFeed();
 
   return {
     unmount(){

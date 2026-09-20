@@ -25,6 +25,12 @@ const FINISH_RETRY_MAX_MS = 60_000;
 const FINISH_RETRY_GIVE_UP_MS = 30 * 60_000;
 // How long a dispatched job blocks idle.start: the 60s job timeout plus kill grace and build time.
 const JOB_GUARD_MS = 90_000;
+const JOB_TIMEOUT_MS = 60_000;
+// Jobs driven live from the browser over /teleop; keep in sync with ros-paths.js INTERACTIVE_ROBOT_PATHS.
+const INTERACTIVE_JOBS = new Map([
+  ['swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', { timeoutMs: 240_000 }],
+]);
+const TELEOP_MAX_FRAMES_PER_SEC = 30;
 
 // API calls by action per window; counts only.
 const apiCallCounts = new Map();
@@ -268,16 +274,101 @@ async function handleIdleRequest(req, res){
 
 // Robots this process has stopped idle on since last starting it; any other may be idling. Survives reconnects.
 const idleStopped = new Set();
-const runningJobs = new Map(); // robotId -> { jobId, since }
+const runningJobs = new Map(); // robotId -> { jobId, since, guardMs, interactive }
 
 function jobGuardActive(robotId){
   const running = runningJobs.get(robotId);
-  return !!running && Date.now() - running.since < JOB_GUARD_MS;
+  return !!running && Date.now() - running.since < running.guardMs;
 }
 
 function clearRunningJob(robotId, jobId){
   const running = runningJobs.get(robotId);
   if (running && running.jobId === jobId) runningJobs.delete(robotId);
+  closeTeleop(robotId, jobId, 'job_ended');
+}
+
+// ── /teleop: the browser driving an interactive job. Frames become stdin lines; the job's ui: lines come back.
+const teleopDrivers = new Map(); // robotId -> { ws, jobId }
+
+function teleopLine(msg){
+  const step = (v) => (v === -1 || v === 0 || v === 1 ? v : null);
+  if (msg.t === 'head.move'){
+    const dx = step(msg.dx), dy = step(msg.dy);
+    return dx === null || dy === null ? null : `head.move ${dx} ${dy}`;
+  }
+  if (msg.t === 'head.center' || msg.t === 'session.end' || msg.t === 'target.lock' || msg.t === 'ping') return msg.t;
+  return null;
+}
+
+function closeTeleop(robotId, jobId, reason){
+  const driver = teleopDrivers.get(robotId);
+  if (!driver || driver.jobId !== jobId) return;
+  teleopDrivers.delete(robotId);
+  if (driver.ws.readyState === driver.ws.OPEN){
+    driver.ws.send(JSON.stringify({ t: 'job.ended', reason }));
+    driver.ws.close(1000, reason);
+  }
+}
+
+// Sends the job's ui: lines to its driver and returns whatever is left for the database.
+function relayUiLines(robotId, jobId, text){
+  if (!text.includes('ui:')) return text;
+  const driver = teleopDrivers.get(robotId);
+  const kept = [];
+  for (const line of text.split('\n')){
+    if (!line.startsWith('ui:')){ kept.push(line); continue; }
+    if (driver && driver.jobId === jobId && driver.ws.readyState === driver.ws.OPEN){
+      driver.ws.send(JSON.stringify({ t: 'job.line', text: line.trimEnd() }));
+    }
+  }
+  return kept.join('\n');
+}
+
+async function handleTeleopUpgrade(req, socket, head){
+  const deny = (status) => { socket.write(`HTTP/1.1 ${status}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`); socket.destroy(); };
+  let claims;
+  try {
+    const token = new URL(req.url, 'http://internal').searchParams.get('token') || '';
+    const { payload } = await jwtVerify(token, JWT_SECRET_KEY, { algorithms: ['HS256'], requiredClaims: ['exp', 'iat'] });
+    if (payload.purpose !== 'teleop' || !Number.isSafeInteger(payload.robotId) || !Number.isSafeInteger(payload.jobId)) throw new Error('wrong_purpose');
+    claims = payload;
+  } catch (e) {
+    console.error('teleop auth failed:', e.message);
+    deny('401 Unauthorized');
+    return;
+  }
+  const running = runningJobs.get(claims.robotId);
+  if (!running || running.jobId !== claims.jobId || !running.interactive){ deny('409 Conflict'); return; }
+  teleopWss.handleUpgrade(req, socket, head, (ws) => attachTeleopDriver(ws, claims.robotId, claims.jobId));
+}
+
+function attachTeleopDriver(ws, robotId, jobId){
+  const previous = teleopDrivers.get(robotId);
+  if (previous && previous.ws.readyState === previous.ws.OPEN) previous.ws.close(4008, 'replaced');
+  teleopDrivers.set(robotId, { ws, jobId });
+  console.log(`teleop driver attached: robotId=${robotId} jobId=${jobId}`);
+
+  let windowStart = Date.now();
+  let framesInWindow = 0;
+  ws.on('error', (e) => console.error('teleop socket error:', e.message));
+  ws.on('message', (raw) => {
+    const now = Date.now();
+    if (now - windowStart >= 1000){ windowStart = now; framesInWindow = 0; }
+    if (++framesInWindow > TELEOP_MAX_FRAMES_PER_SEC) return;
+    let msg;
+    try { msg = JSON.parse(raw.toString()); }
+    catch { return; }
+    const line = msg && typeof msg === 'object' ? teleopLine(msg) : null;
+    if (!line) return;
+    const running = runningJobs.get(robotId);
+    const agent = connectedRobots.get(robotId);
+    if (!running || running.jobId !== jobId || !agent || agent.readyState !== agent.OPEN) return;
+    agent.send(JSON.stringify({ t: 'job.input', jobId, line }));
+  });
+  ws.on('close', () => {
+    const driver = teleopDrivers.get(robotId);
+    if (driver && driver.ws === ws) teleopDrivers.delete(robotId);
+  });
 }
 
 // Reports a job's end to the API, retrying until it lands; the dispatcher is nudged once it does.
@@ -380,8 +471,10 @@ async function handleVideoRequest(req, res){
   const viewerId = typeof body.viewerId === 'string' && body.viewerId ? body.viewerId.slice(0, 64) : null;
   const current = pruneViewers(robotId);
   const wasZero = current.size === 0;
+  let renewal = false;
   if (body.action === 'start'){
     const id = viewerId || crypto.randomUUID();
+    renewal = current.has(id);
     current.delete(id); // a repeated start renews, and moves to the back
     current.set(id, Date.now() + VIEWER_TTL_MS);
     activeViewers.set(robotId, current);
@@ -396,7 +489,8 @@ async function handleVideoRequest(req, res){
   const ws = connectedRobots.get(robotId);
   let delivered = false;
   if (ws && ws.readyState === ws.OPEN){
-    if (body.action === 'start' && wasZero){
+    // A renewal is re-sent so a feed held open for minutes keeps resetting the agent's own watchdog.
+    if (body.action === 'start' && (wasZero || renewal)){
       ws.send(JSON.stringify({ t: 'video.start' }));
       delivered = true;
     } else if (body.action === 'stop' && !wasZero && nowZero){
@@ -457,11 +551,16 @@ const server = http.createServer((req, res) => {
 // kept working fine. See project_video_on_demand memory for the sibling
 // incident this was found alongside.
 const wss = new WebSocketServer({ noServer: true, maxPayload: 128 * 1024 });
+const teleopWss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
 
 server.on('upgrade', (req, socket, head) => {
   const { pathname } = new URL(req.url, 'http://internal');
   if (pathname === '/agent'){
     wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
+    return;
+  }
+  if (pathname === '/teleop'){
+    handleTeleopUpgrade(req, socket, head);
     return;
   }
   if (pathname === '/code-auth-check'){
@@ -561,7 +660,9 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.t === 'job.output'){
-      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text: msg.text || '' }).catch((e) => {
+      const text = relayUiLines(robotId, msg.jobId, typeof msg.text === 'string' ? msg.text : '');
+      if (!text.trim()) return;
+      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text }).catch((e) => {
         console.error('job-output failed:', e.message);
       });
       return;
@@ -649,7 +750,9 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
       for (const job of jobs){
         if (dispatchedJobIds.has(job.jobId)) continue;
         dispatchedJobIds.add(job.jobId);
-        runningJobs.set(robotId, { jobId: job.jobId, since: Date.now() });
+        const live = INTERACTIVE_JOBS.get(job.path);
+        const timeoutMs = live ? live.timeoutMs : JOB_TIMEOUT_MS;
+        runningJobs.set(robotId, { jobId: job.jobId, since: Date.now(), guardMs: timeoutMs + (JOB_GUARD_MS - JOB_TIMEOUT_MS), interactive: !!live });
         // Never job.run unless this process itself stopped idle, whatever the API's relay delivered.
         if (open() && !idleStopped.has(robotId)){
           ws.send(JSON.stringify({ t: 'idle.stop' }));
@@ -675,7 +778,8 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
           path: job.path,
           code: job.code,
           sha256: job.sha256,
-          timeoutMs: 60_000,
+          timeoutMs,
+          ...(live ? { interactive: true } : {}),
         }));
         console.log(`dispatched job ${job.jobId} to robotId=${robotId} (trigger: ${reason})`);
       }

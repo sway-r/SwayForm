@@ -7,7 +7,10 @@ import { callBridge } from '../_lib/bridge.js';
 import { ROBOT_ONLINE_CUTOFF_MS } from '../_lib/limits.js';
 import { logDbRead, approxBytes } from '../_lib/metrics.js';
 
+import { isInteractiveRobotPath } from '../../portal/apps/learn/workspace/ros-paths.js';
+
 const VIEWER_TOKEN_TTL_SECONDS = 120;
+const TELEOP_TOKEN_TTL_SECONDS = 60; // only has to survive the WebSocket handshake
 
 function bridgeSecretKey(){
   const secret = process.env.BRIDGE_SERVICE_SECRET;
@@ -102,6 +105,25 @@ export default async function handler(req, res){
     let delivered = false;
     try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
     res.status(200).json({ ok: true, idleSessionEnabled: false, delivered });
+    return;
+  }
+
+  // Only the running interactive job's own submitter (or an admin) may drive it.
+  if (req.method === 'POST' && req.body?.action === 'teleop-token'){
+    const jobs = await sql`
+      SELECT id, student_email, workspace_path FROM robot_jobs
+      WHERE robot_id = ${robotId} AND status = 'running' LIMIT 1
+    `;
+    const job = jobs[0];
+    if (!job || !isInteractiveRobotPath(job.workspace_path)){ res.status(409).json({ error: 'no_interactive_job' }); return; }
+    if (member.role !== 'admin' && job.student_email !== session.email){ res.status(403).json({ error: 'not_authorized' }); return; }
+
+    const token = await new SignJWT({ robotId, jobId: job.id, purpose: 'teleop' })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(`${TELEOP_TOKEN_TTL_SECONDS}s`)
+      .sign(bridgeSecretKey());
+    res.status(200).json({ token, jobId: job.id });
     return;
   }
 

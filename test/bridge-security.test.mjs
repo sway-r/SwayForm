@@ -344,10 +344,10 @@ test('a video stop only ever removes the viewer that sent it', { timeout: 5000 }
   await post('stop', 'viewer-bbbb');
   await sleep(100);
   assert.deepEqual(video(), ['video.start'], 'the first viewer keeps the feed');
-  await post('start', 'viewer-aaaa'); // repeated start renews, it does not count twice
+  await post('start', 'viewer-aaaa'); // a repeated start renews: re-sent to reset the agent's watchdog, but it does not count twice
   await post('stop', 'viewer-aaaa');
   await sleep(100);
-  assert.deepEqual(video(), ['video.start', 'video.stop']);
+  assert.deepEqual(video(), ['video.start', 'video.start', 'video.stop']);
   await session.end();
 });
 
@@ -367,6 +367,56 @@ test('an idle.stop that arrives while a claim is in flight still delays that cla
   assert.ok(at['job.run'] - at['idle.stop'] >= 3900, `job.run came ${at['job.run'] - at['idle.stop']}ms after idle.stop`);
   apiState.jobs = []; apiState.claimDelayMs = 0;
   session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 95, exitCode: 0 }));
+  await sleep(300);
+  await session.end();
+});
+
+test('teleop: only a token for the running interactive job may drive it, and ui: lines bypass the database', { timeout: 15000 }, async () => {
+  const token = (payload) => new SignJWT(payload).setProtectedHeader({ alg: 'HS256' }).setIssuedAt().setExpirationTime('60s').sign(new TextEncoder().encode(secret));
+  const open = async (t) => {
+    const ws = new WebSocket(base.replace('http:', 'ws:') + '/teleop?token=' + t); sockets.add(ws);
+    const result = await Promise.race([once(ws, 'open').then(() => 'open'), once(ws, 'unexpected-response').then(([, res]) => res.statusCode)]);
+    return { ws, result };
+  };
+  const session = await agentSession();
+  const livePath = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py';
+  apiState.jobs = [{ ...job(96), path: livePath }];
+  await notify(secret);
+  while (!session.runs().length) await sleep(50);
+  apiState.jobs = [];
+  const run = session.runs()[0];
+  assert.equal(run.interactive, true);
+  assert.equal(run.timeoutMs, 240000);
+
+  assert.equal((await open(await token({ purpose: 'video-viewer', robotId: 1, jobId: 96 }))).result, 401, 'wrong purpose');
+  assert.equal((await open(await token({ purpose: 'teleop', robotId: 1, jobId: 97 }))).result, 409, 'not the running job');
+
+  const driver = await open(await token({ purpose: 'teleop', robotId: 1, jobId: 96 }));
+  assert.equal(driver.result, 'open');
+  const lines = [];
+  driver.ws.on('message', (raw) => lines.push(JSON.parse(raw.toString())));
+
+  driver.ws.send(JSON.stringify({ t: 'head.move', dx: 1, dy: -1 }));
+  driver.ws.send(JSON.stringify({ t: 'head.move', dx: 5, dy: 0 }));
+  driver.ws.send(JSON.stringify({ t: 'rm -rf', dx: 0, dy: 0 }));
+  driver.ws.send(JSON.stringify({ t: 'head.center' }));
+  await sleep(200);
+  assert.deepEqual(session.frames.filter((f) => f.t === 'job.input'), [
+    { t: 'job.input', jobId: 96, line: 'head.move 1 -1' },
+    { t: 'job.input', jobId: 96, line: 'head.center' },
+  ], 'only well-formed commands become stdin lines');
+
+  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:check camera ok\nSystem check passed.\nui:ready\n' }));
+  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:head 4 -2\n' }));
+  await sleep(300);
+  assert.deepEqual(lines.map((l) => l.text), ['ui:check camera ok', 'ui:ready', 'ui:head 4 -2']);
+  const stored = calls.filter((c) => c.action === 'job-output').map((c) => c.text);
+  assert.deepEqual(stored, ['System check passed.\n'], 'ui: lines never reach the database');
+
+  const closed = once(driver.ws, 'close');
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 96, exitCode: 0 }));
+  await closed;
+  assert.equal(lines.at(-1).t, 'job.ended');
   await sleep(300);
   await session.end();
 });

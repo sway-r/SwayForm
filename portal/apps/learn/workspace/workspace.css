@@ -129,3 +129,32 @@ body.ww-resizing-cursor-nw,body.ww-resizing-cursor-se{cursor:nwse-resize!importa
   .aw-dock-label{display:none}
   .ww-window{min-width:220px}
 }
+
+/* Target Lock live popup — the stage is 4:3 like the camera frame, so the reticle's 50%/50% is the picture's exact centre */
+.tl-backdrop{position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;background:rgba(6,9,18,.72);backdrop-filter:blur(3px)}
+.tl-popup{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#0b0f1a;border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 80px rgba(0,0,0,.5);color:#e8ecf5}
+.tl-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tl-title{font-size:13.5px;font-weight:600;letter-spacing:.02em}
+.tl-close{font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:inherit;cursor:pointer}
+.tl-close:hover{background:rgba(255,255,255,.1)}
+.tl-stage{position:relative;aspect-ratio:4/3;width:min(880px,92vw,calc((100vh - 150px) * 4 / 3));overflow:hidden;border-radius:10px;background:#05070d}
+.tl-video,.tl-video .robot-video-wrap,.tl-video .robot-video-live{position:absolute;inset:0;padding:0;gap:0}
+.tl-video .robot-video{width:100%;height:100%;max-width:none;border-radius:0}
+.tl-video .robot-video-note{position:absolute;left:0;right:0;bottom:10px;color:#cfd6e6}
+.tl-reticle{position:absolute;left:50%;top:50%;width:12%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid #ff3b30;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);pointer-events:none;opacity:.55}
+.tl-reticle::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;transform:translate(-50%,-50%);border-radius:50%;background:#ff3b30}
+.tl-backdrop.is-live .tl-reticle{opacity:1}
+.tl-checks{position:absolute;left:12px;top:12px;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.tl-checks .is-ok{color:#4ade80}
+.tl-checks .is-fail{color:#ff6b6b}
+.tl-readout{position:absolute;right:12px;top:12px;font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#e8ecf5;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.tl-keys{position:absolute;right:14px;bottom:14px;display:grid;grid-template-columns:repeat(3,34px);grid-template-rows:repeat(2,34px);gap:4px;opacity:.35}
+.tl-backdrop.is-live .tl-keys{opacity:1}
+.tl-key{display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:13px;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);transition:background .08s,transform .08s}
+.tl-key[data-key="ArrowUp"]{grid-column:2;grid-row:1}
+.tl-key[data-key="ArrowLeft"]{grid-column:1;grid-row:2}
+.tl-key[data-key="ArrowDown"]{grid-column:2;grid-row:2}
+.tl-key[data-key="ArrowRight"]{grid-column:3;grid-row:2}
+.tl-key.is-held{background:#fff;color:#0b0f1a;transform:scale(.94)}
+.tl-key.is-limit{background:#ff3b30;border-color:#ff3b30}
+.tl-status{margin:0;font-size:12.5px;color:#aab3c7;text-align:center}

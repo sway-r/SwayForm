@@ -24,9 +24,9 @@ const LAYOUT_STORAGE_PREFIX = 'swayform.portal.workspace.layout';
 // student un-minimizes Terminal without dragging) still reserve a sensible
 // tile rather than a centered float.
 const LEARN_CODE_LAYOUT = {
-  notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 37,   hPct: 99 },
-  codeEditor: { xPct: 37.6, yPct: 0.5, wPct: 62.1, hPct: 99 },
-  terminal:   { xPct: 37.6, yPct: 68.9, wPct: 62.1, hPct: 30.6, minimized: true },
+  notebook:   { xPct: 0.3,  yPct: 0.5, wPct: 47.2, hPct: 99 },
+  codeEditor: { xPct: 47.8, yPct: 0.5, wPct: 51.9, hPct: 99 },
+  terminal:   { xPct: 47.8, yPct: 68.9, wPct: 51.9, hPct: 30.6, minimized: true },
 };
 
 // "Workspace" preset: the one arrangement that actually shows all three
@@ -37,9 +37,9 @@ const LEARN_CODE_LAYOUT = {
 // as LEARN_CODE_LAYOUT; codeEditor just gives up its bottom third so the
 // terminal has real, un-minimized space instead of sitting stacked behind it.
 const WORKSPACE_LAYOUT = {
-  notebook:   { xPct: 0.3,  yPct: 0.5,  wPct: 37,   hPct: 99 },
-  codeEditor: { xPct: 37.6, yPct: 0.5,  wPct: 62.1, hPct: 65 },
-  terminal:   { xPct: 37.6, yPct: 66.3, wPct: 62.1, hPct: 33.2 },
+  notebook:   { xPct: 0.3,  yPct: 0.5,  wPct: 47.2, hPct: 99 },
+  codeEditor: { xPct: 47.8, yPct: 0.5,  wPct: 51.9, hPct: 65 },
+  terminal:   { xPct: 47.8, yPct: 66.3, wPct: 51.9, hPct: 33.2 },
 };
 
 const READING_DEFAULT_LAYOUT = {

@@ -885,6 +885,58 @@ export const LEARNING_PATH = {
               ],
               completionSummary: { text: 'You filled in a blank in a robot\'s instructions and picked your own answer — the first gesture where there was more than one right way to finish.', conceptsUsed: ['Sequences', 'Choosing a value'] },
             },
+            {
+              id: 'target-lock', title: 'Target Lock', kind: 'activity', difficulty: 'intermediate', estimatedTime: '15–20 minutes',
+              summary: 'See through SwayForm\'s eyes, steer its head with your arrow keys, and put the red circle on a target.',
+              workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py',
+              relatedConcepts: ['Live control', 'Camera view', 'Aiming'],
+              steps: [
+                {
+                  id: 'what-it-does', title: 'What It Does',
+                  blocks: [
+                    { type: 'lead', text: 'Every gesture so far has been a recording: you press go, SwayForm plays it back. Target Lock is different — while your program runs, you are driving. A window opens showing exactly what the robot\'s camera sees, with a red circle in the middle of the picture, and your arrow keys turn its head.' },
+                    { type: 'p', text: 'Your job is to aim: move the head until the red circle sits on a person\'s outstretched hand. That circle is the robot\'s answer to the question "where, exactly, am I looking?"' },
+                  ],
+                },
+                {
+                  id: 'what-to-watch', title: 'What to Watch',
+                  blocks: [
+                    { type: 'list', items: [
+                      'The live view opens by itself the moment your program starts on the robot.',
+                      'Three checks tick green in the corner — camera, robot, motion — before anything is allowed to move.',
+                      '"Movement unlocked" appears and the arrow keys on screen light up as you press yours.',
+                      'Hold a key and the head glides; let go and it stops. Esc brings it back to the middle.',
+                      'An arrow flashes red when the head has reached as far as it safely turns.',
+                    ] },
+                    { type: 'callout', tone: 'note', label: 'Look closely', text: 'The picture moves the opposite way to the things in it: turn the head right, and everything in view slides left.' },
+                    { type: 'callout', tone: 'safety', label: 'Safety', text: 'Only the person holding out their hand stands near the robot, and they keep still. Everyone else watches the screen.' },
+                  ],
+                },
+                {
+                  id: 'how-it-works', title: 'How It Works',
+                  blocks: [
+                    { type: 'p', text: 'Your key presses travel from your laptop to the robot many times a second. The program on the robot listens for them and nudges the head a little each time — and if the messages ever stop arriving, it stops moving on its own. A robot should never keep going just because it lost contact with you.' },
+                    { type: 'code', lang: 'text', filename: 'The recipe for Target Lock', code: 'check camera, robot, motion\n  ↓\nunlock movement\n  ↓\nlisten for arrow keys  →  turn the head  →  repeat\n  ↓\nsession ends: head returns to center' },
+                  ],
+                },
+                {
+                  id: 'look-at-this-part', title: 'Look at This Part',
+                  blocks: [
+                    { type: 'p', text: 'Open the file. Near the top there is a switch, and right now it is off:' },
+                    { type: 'code', lang: 'python', filename: 'target_lock.py', code: 'HEAD_CONTROL = False   # the switch\n\ndef run_system_check(ctrl): ...     # camera, robot, motion\ndef head_control_loop(ctrl): ...    # listen for keys, turn the head\ndef perform_target_lock(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', line: 14 },
+                    { type: 'p', text: 'With the switch off, the program runs its checks and then stops — it never listens for your keys.' },
+                  ],
+                },
+                {
+                  id: 'try-it', title: 'Try It',
+                  blocks: [
+                    { type: 'p', text: 'Change `HEAD_CONTROL = False` to `HEAD_CONTROL = True`, then click **Run**.' },
+                    { type: 'p', text: 'When Run says you\'re done, **Queue on Robot** lights up. Send it. Once it\'s approved and starts running, the live view opens on this page — use your arrow keys to put the red circle on the target, and press **End session** when you\'re finished.' },
+                  ],
+                },
+              ],
+              completionSummary: { text: 'You controlled a robot live, through its own camera — the first program that listened to you while it was running.', conceptsUsed: ['Live control', 'Camera view', 'Aiming'] },
+            },
           ],
         },
       ],

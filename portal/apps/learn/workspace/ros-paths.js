@@ -27,3 +27,11 @@ export const CANONICAL_ROBOT_PATHS = new Set([
 export function isCanonicalRobotPath(path){
   return CANONICAL_ROBOT_PATHS.has(path);
 }
+
+// Jobs driven live from the browser while they run; keep in sync with bridge/server.js INTERACTIVE_JOBS.
+export const TARGET_LOCK_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py';
+export const INTERACTIVE_ROBOT_PATHS = new Set([TARGET_LOCK_PATH]);
+
+export function isInteractiveRobotPath(path){
+  return INTERACTIVE_ROBOT_PATHS.has(path);
+}

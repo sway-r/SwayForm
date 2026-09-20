@@ -10,7 +10,8 @@ import { OutputPanel } from '../editor/terminal-panel.js';
 import { WorkspaceToolbar } from '../editor/workspace-toolbar.js';
 import * as fs from '../editor/mock-fs.js';
 import { isReadOnlyFile, defaultOpenFileFor } from '../../../data/workspace-config.js';
-import { packageAndEntry, isCanonicalRobotPath } from './ros-paths.js';
+import { packageAndEntry, isCanonicalRobotPath, isInteractiveRobotPath } from './ros-paths.js';
+import { openTargetLockPopup } from './target-lock-popup.js';
 import { buildRunSequence } from './mock-shell.js';
 import { getSession } from '../../../services/auth-service.js';
 import { watchJob } from '../../../services/job-watch.js';
@@ -341,7 +342,7 @@ export function mount(bodyEl, winApi, opts) {
 
       if (submitRes.ok && submitData.ok){
         output.appendLine(`Queued — position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
-        watchQueuedJob(submitData.jobId);
+        watchQueuedJob(submitData.jobId, path);
       } else if (submitData.error === 'cooldown'){
         const seconds = Math.ceil((submitData.retryAfterMs || 0) / 1000);
         output.appendLine(`Please wait ${seconds}s before queueing again.`, 'term-warn', 'output');
@@ -366,12 +367,18 @@ export function mount(bodyEl, winApi, opts) {
   };
 
   // Status and new output lines for the queued job land in the output panel.
-  function watchQueuedJob(jobId){
+  function watchQueuedJob(jobId, path){
     if (jobWatch) jobWatch.stop();
+    let livePopup = null;
     jobWatch = watchJob(jobId, {
       onStatus(status, job){
         const [text, cls] = JOB_STATUS_LINE[status] || [status, 'term-warn'];
         output.appendLine(text, cls, 'output');
+        // An interactive job is driven from its own live view, opened the moment it starts on the robot.
+        if (isInteractiveRobotPath(path)){
+          if (status === 'running') livePopup = openTargetLockPopup();
+          else if (livePopup) livePopup.jobEnded();
+        }
         if (status === 'rejected' && job.rejectReason) output.appendLine(`Reason: ${job.rejectReason}`, 'term-err', 'output');
         output.setActive('output');
       },

@@ -90,10 +90,9 @@ const s2 = [
 ];
 
 // Wave, Handshake, Fist Bump, and Finger Count are confirmed working demos
-// with authored pages. Rock Paper Scissors is marked Planned — an honest
-// placeholder, not faked content — until its production robot behavior is
-// confirmed; it keeps its learning-path.js id (content preserved, unlisted)
-// in case it's promoted back to a full demo later. Hand Mimic (formerly this
+// with authored pages. Target Lock (live head control from the camera view)
+// took the 3.05 slot from the Rock Paper Scissors placeholder, whose
+// learning-path.js content stays, unlisted. Hand Mimic (formerly this
 // slot) was replaced outright by Finger Count, a real confirmed behavior,
 // rather than kept alongside it as a second placeholder. Pick and Place was
 // removed from this section entirely (its learning-path.js content stays,
@@ -105,7 +104,7 @@ const s3 = [
   demo('handshake', 'demos', '3.02'),
   real('fist-bump', 'demos', '3.03'),
   real('finger-count', 'demos', '3.04'),
-  placeholder('rock-paper-scissors', 'demos', '3.05', 'Rock Paper Scissors', 'A timed rock/paper/scissors gesture. Planned — not yet available.'),
+  real('target-lock', 'demos', '3.05'),
 ];
 
 // Level 1 — Control: 10 guided labs, first-joint-to-capstone progression.

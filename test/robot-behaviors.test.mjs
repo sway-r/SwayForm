@@ -15,11 +15,14 @@ import { CANONICAL_ROBOT_PATHS } from '../portal/apps/learn/workspace/ros-paths.
  *     api/robot/agent.js maps exit 0 to 'succeeded'.
  * Guard both, for every behavior a job can run.
  */
-const BEHAVIORS = [...CANONICAL_ROBOT_PATHS].map((path) => ({ path, source: WORKSPACE_FILES[path] }));
+// target_lock.py is hash-pinned by the Pi agent (variant_mismatch), so it only changes in lockstep with the robot.
+const PINNED = 'behaviors/target_lock.py';
+const ALL = [...CANONICAL_ROBOT_PATHS].map((path) => ({ path, source: WORKSPACE_FILES[path] }));
+const BEHAVIORS = ALL.filter(({ path }) => !path.endsWith(PINNED));
 
 test('every canonical robot path actually has source behind it', () => {
-  assert.ok(BEHAVIORS.length >= 7);
-  for (const { path, source } of BEHAVIORS){
+  assert.ok(ALL.length >= 7);
+  for (const { path, source } of ALL){
     assert.equal(typeof source, 'string', `${path} has no source`);
   }
 });

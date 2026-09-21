@@ -1338,6 +1338,7 @@ class _RightArm:
     wave_pitch = 260
     wave_elbow_bent = 40
     wave_elbow_open = 70
+    counter_roll = 130   # shoulder roll while the other arm gestures: 30 outward of rest, mirrors the labs' 150
     look_yaw_offset = -15
     torso_out = "right"
     torso_back = "left"
@@ -1356,6 +1357,7 @@ class _LeftArm:
     wave_pitch = 125
     wave_elbow_bent = 65
     wave_elbow_open = 95
+    counter_roll = 150   # LEFT_SHOULDER_ROLL_LIFT in wave.py / finger_count.py
     look_yaw_offset = 15
     torso_out = "left"
     torso_back = "right"
@@ -1366,6 +1368,14 @@ LEFT = _LeftArm
 ARMS = [RIGHT, LEFT]
 
 _active_arms = list(ARMS)
+
+
+def _counterweight(arms):
+    """The arm that lifts against a one-arm gesture, or None (both arms gesturing, or its board is missing)."""
+    if len(arms) != 1:
+        return None
+    other = LEFT if arms[0] is RIGHT else RIGHT
+    return other if other in _active_arms else None
 
 
 def _arm_keys(arm):
@@ -1434,6 +1444,9 @@ def _mv(addr, ch, target, duration):
 
 def _arm_to_rest(ctrl, duration, *arms):
     _check_stop()
+    other = _counterweight(arms)
+    if other is not None:
+        arms = (*arms, other)
     keys = [key for arm in arms for key in _arm_keys(arm)]
     ctrl.run_threads([_mv(addr, ch, REST_POSE[(addr, ch)], duration) for (addr, ch) in keys])
 
@@ -1519,6 +1532,12 @@ def _raise_arm(ctrl, *arms):
             _mv(PCA_REACH, arm.pitch, arm.wave_pitch, ARM_RAISE_DURATION),
             _mv(arm.hand, ELBOW, arm.wave_elbow_bent, ARM_RAISE_DURATION),
             _mv(arm.hand, WRIST, REST_POSE[(arm.hand, WRIST)], ARM_RAISE_DURATION),
+        ]
+    other = _counterweight(arms)
+    if other is not None:
+        moves += [
+            _mv(other.hand, SHOULDER_ROLL, other.counter_roll, ARM_RAISE_DURATION),
+            _mv(other.hand, ELBOW, REST_POSE[(other.hand, ELBOW)], ARM_RAISE_DURATION),
         ]
     ctrl.run_threads(moves)
 
@@ -1691,8 +1710,23 @@ IDLE_ACTIONS = [
 
 ARMS_NEEDED = {action_head_glance: 0, action_wave_both: 2}
 
+BOARD_SCAN_ATTEMPTS = 5
+BOARD_SCAN_INTERVAL = 0.5
 
-def perform_idle(seconds=None, mock=False, stop_event=None, movement_event=None, stay=True):
+
+def _find_boards(wanted, mock):
+    """Boards that answer on the bus; a missing one is retried for ~2 s before it counts as absent."""
+    for attempt in range(1, BOARD_SCAN_ATTEMPTS + 1):
+        found = sc.present_boards(wanted, mock=mock)
+        missing = [hex(addr) for addr in wanted if addr not in found]
+        if not missing:
+            return found
+        print(f"Idle: board {', '.join(missing)} not answering (scan {attempt}/{BOARD_SCAN_ATTEMPTS})")
+        time.sleep(BOARD_SCAN_INTERVAL)
+    return found
+
+
+def perform_idle(seconds=None, mock=False, stop_event=None, movement_event=None, stay=True, straighten=False):
     global _stop_event, _movement_event, _active_arms
     _stop_event = stop_event if stop_event is not None else threading.Event()
     if movement_event is None:
@@ -1700,14 +1734,19 @@ def perform_idle(seconds=None, mock=False, stop_event=None, movement_event=None,
         movement_event.set()
     _movement_event = movement_event
 
-    boards = sc.present_boards([arm.hand for arm in ARMS], mock=mock)
+    wanted = [PCA_REACH] + [arm.hand for arm in ARMS]
+    boards = _find_boards(wanted, mock)
+    missing = [hex(addr) for addr in wanted if addr not in boards]
+    # A park (stay off) has to reach every joint in the pose; a session can carry on without one arm.
+    if PCA_REACH not in boards or (missing and not stay):
+        raise RuntimeError(f"board {', '.join(missing)} not found; the robot was not moved")
     _active_arms = [arm for arm in ARMS if arm.hand in boards]
     for arm in ARMS:
         if arm not in _active_arms:
             print(f"Idle: {arm.name} arm board not found, skipping its gestures")
     actions = [a for a in IDLE_ACTIONS if ARMS_NEEDED.get(a, 1) <= len(_active_arms)]
 
-    ctrl = sc.ServoController([PCA_REACH] + boards, mock=mock)
+    ctrl = sc.ServoController(boards, mock=mock)
     ctrl.current = dict(REST_POSE)
     torso = _TorsoPulse(mock)
 
@@ -1761,6 +1800,13 @@ def perform_idle(seconds=None, mock=False, stop_event=None, movement_event=None,
         pass
     finally:
         rest("back to the rest pose")
+        if straighten:
+            try:
+                with sc.hardware_lock(blocking=False):
+                    print("Idle: straightening the arms")
+                    sc.go_to_straight(ctrl)
+            except BlockingIOError:
+                pass
         torso.close()
         ctrl.close()
 
@@ -1771,25 +1817,32 @@ class IdleNode(Node):
         self.declare_parameter("use_mock_hardware", False)
         self.declare_parameter("movement", True)
         self.declare_parameter("stay", True)
+        self.declare_parameter("straighten", False)
         mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
         stay = self.get_parameter("stay").get_parameter_value().bool_value
+        straighten = self.get_parameter("straighten").get_parameter_value().bool_value
         if mock:
             print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
             self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
 
         self.done = False
+        self.failed = False
         self._stop_event = threading.Event()
         self._movement_event = threading.Event()
         if self.get_parameter("movement").get_parameter_value().bool_value:
             self._movement_event.set()
-        self._thread = threading.Thread(target=self._run, args=(mock, stay), daemon=False)
+        self._thread = threading.Thread(target=self._run, args=(mock, stay, straighten), daemon=False)
         self._thread.start()
         threading.Thread(target=self._read_commands, daemon=True).start()
         self.get_logger().info("Idle running.")
 
-    def _run(self, mock, stay):
+    def _run(self, mock, stay, straighten):
         try:
-            perform_idle(mock=mock, stop_event=self._stop_event, movement_event=self._movement_event, stay=stay)
+            perform_idle(mock=mock, stop_event=self._stop_event, movement_event=self._movement_event, stay=stay,
+                         straighten=straighten)
+        except Exception as e:
+            print(f"Idle: ERROR {e}", file=sys.stderr, flush=True)
+            self.failed = True
         finally:
             self.done = True
 
@@ -1822,6 +1875,8 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+    if node.failed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -2276,7 +2331,17 @@ _JOINTS = {
     (0x60, 3): (161, 130, 180, 270.0),   # neck pitch
 }
 REST_POSE = {key: float(joint[0]) for key, joint in _JOINTS.items()}
+# Session-off pose: elbows straight, everything else at its centre. A straight elbow with the shoulder at its centre
+# puts the forearm into the table, so the shoulders sit 15 forward of centre. go_to_straight() moves the elbows last.
+STRAIGHT_POSE = {
+    **REST_POSE,
+    (0x40, 6): 130.0,   # right elbow, centre
+    (0x50, 6): 155.0,   # left elbow, centre
+    (0x60, 0): 200.0,   # left shoulder pitch, 15 forward of centre (215)
+    (0x60, 1): 185.0,   # right shoulder pitch, 15 forward of centre (170)
+}
 SHOULDER_PITCH_KEYS = {(0x60, 0), (0x60, 1)}
+ELBOW_KEYS = {(0x40, 6), (0x50, 6)}
 REST_TOLERANCE_DEG = 0.7
 
 
@@ -2390,30 +2455,38 @@ class ServoController:
                 pca.deinit()
 
 
+def _go_to_pose(ctrl, pose, keys, last_keys, seconds, tick, last_scale):
+    keys = [key for key in keys if key in pose and key[0] in ctrl.boards]
+
+    def away(key):
+        now = ctrl.position(*key, _JOINTS[key][3])
+        return now is None or abs(now - pose[key]) > REST_TOLERANCE_DEG
+
+    def move(key, duration):
+        _, low, high, servo_range = _JOINTS[key]
+        return {"addr": key[0], "ch": key[1], "target": pose[key], "limits": (low, high),
+                "steps": max(1, round(duration / tick)), "delay": tick, "servo_range": servo_range}
+
+    first = [key for key in keys if key not in last_keys and away(key)]
+    if first:
+        ctrl.run_threads([move(key, seconds) for key in first])
+    last = [key for key in keys if key in last_keys and away(key)]
+    if last:
+        ctrl.run_threads([move(key, seconds * last_scale) for key in last])
+
+
 def go_to_rest(ctrl, keys=None, seconds=2.0, tick=0.02):
     """Move joints to REST_POSE from wherever they are: elbows, hands and head first, shoulders back last.
 
     \`keys\` defaults to every joint on the controller's boards. Joints already at rest are left alone, so
     calling this on a resting robot does nothing.
     """
-    wanted = REST_POSE if keys is None else keys
-    keys = [key for key in wanted if key in REST_POSE and key[0] in ctrl.boards]
+    _go_to_pose(ctrl, REST_POSE, REST_POSE if keys is None else keys, SHOULDER_PITCH_KEYS, seconds, tick, 0.6)
 
-    def away(key):
-        now = ctrl.position(*key, _JOINTS[key][3])
-        return now is None or abs(now - REST_POSE[key]) > REST_TOLERANCE_DEG
 
-    def move(key, duration):
-        rest, low, high, servo_range = _JOINTS[key]
-        return {"addr": key[0], "ch": key[1], "target": rest, "limits": (low, high),
-                "steps": max(1, round(duration / tick)), "delay": tick, "servo_range": servo_range}
-
-    first = [key for key in keys if key not in SHOULDER_PITCH_KEYS and away(key)]
-    if first:
-        ctrl.run_threads([move(key, seconds) for key in first])
-    last = [key for key in keys if key in SHOULDER_PITCH_KEYS and away(key)]
-    if last:
-        ctrl.run_threads([move(key, seconds * 0.6) for key in last])
+def go_to_straight(ctrl, seconds=1.5, tick=0.02):
+    """Move joints to STRAIGHT_POSE: shoulders forward and everything else centred first, then the elbows straight."""
+    _go_to_pose(ctrl, STRAIGHT_POSE, STRAIGHT_POSE, ELBOW_KEYS, seconds, tick, 2.0)
 `,
 
   "swayform_ws/src/swayform_robot/swayform_robot/hardware/torso_motor.py": `"""Torso DC motor control (BTS7960/IBT-2 over GPIO)."""

@@ -51,9 +51,9 @@ test('a behavior that defaults its own mock kwarg defaults it to real hardware t
 test('a behavior whose motion raises exits non-zero, so the queue cannot call it succeeded', () => {
   for (const { path, source } of BEHAVIORS){
     if (!/except Exception as e:/.test(source)) continue; // no swallowing, nothing to guard
-    assert.match(source, /except Exception as e:\n\s+self\.failed = True\n/,
+    assert.match(source, /except Exception as e:\n(?:[ \t]+print\([^\n]*\n)?\s+self\.failed = True\n/,
       `${path} swallows the motion's exception without recording it`);
-    assert.match(source, /\n {4}if node\.failed:\n {8}raise SystemExit\(1\)\n/,
+    assert.match(source, /\n {4}if node\.failed:\n {8}(?:raise SystemExit\(1\)|sys\.exit\(1\))\n/,
       `${path}'s main() returns normally after a failed motion, which the queue reads as exit 0 / succeeded`);
   }
 });

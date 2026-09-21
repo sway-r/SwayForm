@@ -966,33 +966,26 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 
   <!-- ═══ LEARNING EXPERIENCE PREVIEW ═══ -->
   <style>
-  /* ── preview section: light background, video in a framed card ── */
+  /* ── preview section: text on the left, the video fills the whole right side ── */
   #demo-preview{
     position:relative;
     overflow:hidden;
     background:var(--bg2);
-    min-height:640px;
+    min-height:calc(56vw * 9 / 16); /* the video's own height at its width, so it is not cropped */
     display:flex;
     align-items:center;
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
   }
-  /* video sits on the right — the box's own aspect-ratio matches the source
-     file (1280x720, 16:9) exactly, so it's never cropped or letterboxed.
-     The left edge is masked to a fade instead of a hard border, so it bleeds
-     into the section background rather than reading as a boxed-in card. */
+  /* edge to edge: top, bottom and right of the section, no card, no fade. The section is as tall as the
+     16:9 source at this width; only when the text needs more room is a sliver cropped off the sides. */
   .dp-video-bg{
     position:absolute;
-    top:50%;right:48px;
-    transform:translateY(-50%);
-    width:53%;
-    aspect-ratio:16/9;
+    top:0;right:0;bottom:0;
+    width:56%;
     z-index:1;
-    border-radius:0 20px 20px 0;
     overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.16);
-    -webkit-mask-image:linear-gradient(to right, transparent 0%, black 9%);
-    mask-image:linear-gradient(to right, transparent 0%, black 9%);
+    background:#0b0f1a;
   }
   .dp-video-bg video{
     width:100%;height:100%;
@@ -1007,10 +1000,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     width:100%;
     max-width:1440px;
     margin:0 auto;
-    padding:80px 48px;
+    padding:48px; /* the video sets the section's height now, so the text needs less air */
   }
   .dp-text{
-    max-width:440px;
+    max-width:min(440px, 34vw); /* stays clear of the video on narrow desktops */
   }
   /* fallback card when video errors */
   .dp-fallback{
@@ -1022,8 +1015,8 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     color:var(--faint);
     font-size:14px;
   }
-  /* ── mobile ── */
-  @media(max-width:768px){
+  /* ── stacked: below this width the right side is too narrow to show the recording uncropped ── */
+  @media(max-width:1024px){
     #demo-preview{
       flex-direction:column;
       align-items:stretch;
@@ -1031,14 +1024,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     }
     .dp-video-bg{
       position:relative;
-      top:auto;right:auto;bottom:auto;transform:none;
-      width:calc(100% - 40px);
-      margin:0 20px;
+      top:auto;right:auto;bottom:auto;
+      width:100%;
       aspect-ratio:16/9;
-      border-radius:20px;
-      -webkit-mask-image:none;
-      mask-image:none;
-      order:2; /* video below text on mobile */
+      order:2; /* video below text on mobile, full width */
     }
     .dp-content{
       position:relative;
@@ -1766,7 +1755,10 @@ window.addEventListener('scroll', function() {
 /* hero panel image — swap <img> for <video> when demo ready */
 .hero-visual-panel .robot-img{height:clamp(500px,60vh,720px);width:auto;object-fit:contain;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,.08);position:relative;z-index:1}
 .hero-visual-panel .robot-frame.has-video{width:100%;max-width:720px}
-.hero-visual-panel .robot-video{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,.08);position:relative;z-index:1;background:var(--bg3)}
+.hero-visual-panel .robot-video{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:0 8px 8px 0;position:relative;z-index:1;-webkit-mask-image:linear-gradient(to right, transparent 0%, black 9%);mask-image:linear-gradient(to right, transparent 0%, black 9%)}
+@media(max-width:1024px){
+  .hero-visual-panel .robot-video{border-radius:8px;-webkit-mask-image:none;mask-image:none} /* stacked under the text: a fade on one side reads as a glitch */
+}
 .hero-cinema-gradient{position:absolute;inset:0;background:linear-gradient(to right,#040608 0%,#040608 25%,rgba(4,6,8,.9) 42%,rgba(4,6,8,.52) 58%,rgba(4,6,8,.1) 78%,transparent 100%)}
 
 /* ── HERO RESPONSIVE ── */

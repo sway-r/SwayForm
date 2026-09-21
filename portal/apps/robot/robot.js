@@ -73,18 +73,26 @@ export async function mount(container, ctx){
   const idleToggle = container.querySelector('[data-role="idle-toggle"]');
   const movementToggle = container.querySelector('[data-role="movement-toggle"]');
   let busy = false; // one change at a time: the two toggles depend on each other
+  const SESSION_TITLE = idleToggle ? idleToggle.title : '';
+  const PAUSED_TITLE = 'Paused while a lab runs on the robot. It turns back on by itself when the run ends. Click to keep it off instead.';
 
   // Movement is the ambient gestures; it only exists inside a live session, so it is locked while the session is off.
   function showToggles(data){
     if (!idleToggle || busy) return;
     const sessionOn = !!data.idleSessionEnabled;
     const movementOn = sessionOn && !!data.movementEnabled;
-    idleToggle.textContent = `Live Robot Session: ${sessionOn ? 'on' : 'off'}`;
+    // Paused: a lab run has the robot, and the server turns these back on when it ends. A click keeps them off instead.
+    const paused = !sessionOn && !!data.resumeSession;
+    const movementPaused = paused && !!data.resumeMovement;
+    idleToggle.textContent = `Live Robot Session: ${sessionOn ? 'on' : paused ? 'paused for a lab run' : 'off'}`;
     idleToggle.classList.toggle('is-on', sessionOn);
-    movementToggle.textContent = `Movement: ${movementOn ? 'on' : 'off'}`;
+    idleToggle.classList.toggle('is-paused', paused);
+    idleToggle.title = paused ? PAUSED_TITLE : SESSION_TITLE;
+    movementToggle.textContent = `Movement: ${movementOn ? 'on' : movementPaused ? 'paused' : 'off'}`;
     movementToggle.classList.toggle('is-on', movementOn);
-    movementToggle.disabled = !sessionOn;
-    movementToggle.title = sessionOn
+    movementToggle.classList.toggle('is-paused', movementPaused);
+    movementToggle.disabled = !sessionOn && !movementPaused;
+    movementToggle.title = movementPaused ? PAUSED_TITLE : sessionOn
       ? 'Small ambient gestures (glances, waves) while the session is on. Off keeps the robot still in its rest pose.'
       : 'Turn Live Robot Session on first';
   }
@@ -146,13 +154,13 @@ export async function mount(container, ctx){
       idleToggle.disabled = false;
       if (shown) showToggles(shown);
       // Re-read either way: a refusal can mean the saved state was stale, and a success clears an old message.
-      await refreshStatus({ keepNote }).catch(() => { movementToggle.disabled = !idleToggle.classList.contains('is-on'); });
+      await refreshStatus({ keepNote }).catch(() => { movementToggle.disabled = !idleToggle.classList.contains('is-on') && !movementToggle.classList.contains('is-paused'); });
     }
   }
 
   if (idleToggle){
     idleToggle.addEventListener('click', () => {
-      const turningOn = !idleToggle.classList.contains('is-on');
+      const turningOn = !idleToggle.classList.contains('is-on') && !idleToggle.classList.contains('is-paused');
       change(idleToggle, turningOn ? 'idle-on' : 'idle-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
         data.error === 'job_in_progress'
           ? "Can't start — a student's job is pending, approved, or running right now."
@@ -160,7 +168,7 @@ export async function mount(container, ctx){
       ));
     });
     movementToggle.addEventListener('click', () => {
-      const turningOn = !movementToggle.classList.contains('is-on');
+      const turningOn = !movementToggle.classList.contains('is-on') && !movementToggle.classList.contains('is-paused');
       change(movementToggle, turningOn ? 'movement-on' : 'movement-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
         data.error === 'job_in_progress'
           ? "Can't start Movement — a student's job is running right now."

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS robots (
   agent_version TEXT,
   idle_session_enabled BOOLEAN NOT NULL DEFAULT FALSE, -- admin's "Live Robot Session" toggle intent; see db/migrations/008_robot_idle_session.sql
   movement_enabled BOOLEAN NOT NULL DEFAULT FALSE,     -- admin's "Movement" toggle intent; see db/migrations/009_robot_movement.sql
+  resume_session BOOLEAN NOT NULL DEFAULT FALSE,       -- the session was on when a job was approved; see db/migrations/010_robot_session_resume.sql
+  resume_movement BOOLEAN NOT NULL DEFAULT FALSE,      -- same, for Movement
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT robots_movement_needs_session CHECK (NOT movement_enabled OR idle_session_enabled)
 );

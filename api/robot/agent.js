@@ -35,6 +35,7 @@ export default async function handler(req, res){
     case 'job-started': return handleJobStarted(req, res);
     case 'job-output': return handleJobOutput(req, res);
     case 'job-finished': return handleJobFinished(req, res);
+    case 'session-resumed': return handleSessionResumed(req, res);
     default:
       res.status(400).json({ error: 'unknown_action' });
   }
@@ -135,11 +136,40 @@ async function handleJobFinished(req, res){
   // no longer strand a row in 'approved' the way it did under the old
   // accept-then-claim ordering (found + patched narrowly 2026-09-15, job id
   // 14; superseded here by claiming at dispatch time instead).
-  await sql`
+  const finished = await sql`
     UPDATE robot_jobs SET status = ${status}, exit_code = ${code}, finished_at = now()
     WHERE id = ${jobId} AND robot_id = ${robotId} AND status = 'running'
+    RETURNING id
   `;
-  res.status(200).json({ ok: true });
+  // What approve paused for this job is due back once nothing else is about to run.
+  // The bridge starts it and reports with session-resumed; nothing is switched on here.
+  const [paused] = finished.length ? await sql`
+    SELECT resume_movement FROM robots
+    WHERE id = ${robotId} AND resume_session = true AND NOT EXISTS (
+      SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('approved', 'running')
+    )
+  ` : [];
+  res.status(200).json({ ok: true, ...(paused ? { resume: { movement: paused.resume_movement } } : {}) });
+}
+
+// The bridge's report of what it actually restarted after a job; "on" is only ever written from that.
+async function handleSessionResumed(req, res){
+  const { robotId, session, movement } = req.body || {};
+  if (!Number.isSafeInteger(robotId) || robotId < 1){
+    res.status(400).json({ error: 'missing_robot_id' });
+    return;
+  }
+  const sessionOn = session === true;
+  const movementOn = sessionOn && movement === true;
+  // A job approved in the meantime keeps the memory: the dispatcher stops idle again and this repeats after it.
+  const updated = await sql`
+    UPDATE robots SET idle_session_enabled = ${sessionOn}, movement_enabled = ${movementOn}, resume_session = false, resume_movement = false
+    WHERE id = ${robotId} AND resume_session = true AND NOT EXISTS (
+      SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('approved', 'running')
+    )
+    RETURNING id
+  `;
+  res.status(200).json({ ok: true, applied: updated.length > 0 });
 }
 
 // ── dispatch queue (GET) ────────────────────────────────────────────────

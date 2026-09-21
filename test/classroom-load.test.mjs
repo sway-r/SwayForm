@@ -303,3 +303,63 @@ test('Movement only turns on inside a live session, only when the robot confirms
     await db.exec("DELETE FROM robot_jobs");
   }
 });
+
+test('approving a job pauses the session and Movement, and they come back only when the last approved job has ended', async () => {
+  await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=true, movement_enabled=true, resume_session=false, resume_movement=false WHERE id=1");
+  const flags = async () => (await db.query('SELECT idle_session_enabled AS session, movement_enabled AS movement, resume_session AS rs, resume_movement AS rm FROM robots WHERE id=1')).rows[0];
+  const claim = async () => (await agentCall(null, { action: 'dispatch-queue', robotId: '1' }, 'GET')).data.jobs.map((j) => j.jobId);
+  const submit = async (n) => {
+    const r = await post(queue, students[n].cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave });
+    assert.equal(r.code, 200, JSON.stringify(r.data));
+    return r.data.jobId;
+  };
+  try {
+    const [first, second] = [await submit(9), await submit(10)];
+    assert.equal((await post(queue, teacher, { action: 'approve', jobId: first })).code, 200);
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: true, rm: true });
+    const paused = (await get(status, teacher)).data;
+    assert.deepEqual([paused.idleSessionEnabled, paused.movementEnabled, paused.resumeSession, paused.resumeMovement], [false, false, true, true]);
+
+    // A second approve while the first runs finds the session already off, and must not forget what was on.
+    assert.deepEqual(await claim(), [first]);
+    assert.equal((await post(queue, teacher, { action: 'approve', jobId: second })).code, 200);
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: true, rm: true });
+
+    // Another job is about to run: no comeback between the two.
+    assert.equal((await agentCall({ action: 'job-finished', robotId: 1, jobId: first, exitCode: 0 })).data.resume, undefined);
+    assert.deepEqual(await claim(), [second]);
+    // A report that arrives while a job is open changes nothing.
+    assert.equal((await agentCall({ action: 'session-resumed', robotId: 1, session: true, movement: true })).data.applied, false);
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: true, rm: true });
+
+    // The last one ends, even badly: the bridge is told what to bring back, and only its report turns anything on.
+    const last = await agentCall({ action: 'job-finished', robotId: 1, jobId: second, exitCode: 1 });
+    assert.deepEqual(last.data.resume, { movement: true });
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: true, rm: true });
+    assert.equal((await agentCall({ action: 'job-finished', robotId: 1, jobId: second, exitCode: 1 })).data.resume, undefined, 'a repeated report is not a second comeback');
+    assert.equal((await agentCall({ action: 'session-resumed', robotId: 1, session: true, movement: false })).data.applied, true);
+    assert.deepEqual(await flags(), { session: true, movement: false, rs: false, rm: false }, 'Movement the robot did not confirm stays off');
+
+    // A robot that could not be told stays off, and the memory is spent either way.
+    await db.exec('UPDATE robots SET idle_session_enabled=false, resume_session=true, resume_movement=true WHERE id=1');
+    await agentCall({ action: 'session-resumed', robotId: 1, session: false, movement: true });
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: false, rm: false });
+
+    // Off by hand while paused means it stays off after the job.
+    await db.exec('UPDATE robots SET resume_session=true, resume_movement=true WHERE id=1');
+    await post(status, teacher, { action: 'movement-off' });
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: true, rm: false });
+    await post(status, teacher, { action: 'idle-off' });
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: false, rm: false });
+
+    // A reconciled job never reported its end, so nothing restarts by itself after it.
+    await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=true WHERE id=1");
+    const stuck = await submit(11);
+    await post(queue, teacher, { action: 'approve', jobId: stuck });
+    assert.deepEqual(await claim(), [stuck]);
+    assert.equal((await post(queue, teacher, { action: 'reconcile', jobId: stuck, outcome: 'failed' })).code, 200);
+    assert.deepEqual(await flags(), { session: false, movement: false, rs: false, rm: false });
+  } finally {
+    await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=false, movement_enabled=false, resume_session=false, resume_movement=false WHERE id=1");
+  }
+});

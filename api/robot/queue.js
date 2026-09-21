@@ -315,9 +315,14 @@ export default async function handler(req, res){
       // A real job is about to be dispatched — the admin's "Live Robot
       // Session" (and Movement with it) must yield so it can never overlap with an
       // actual job on the physical robot. Turn off the DB intent and relay
-      // best-effort; it does not auto-resume once the job finishes, the
-      // admin re-enables it manually. See db/migrations/008_robot_idle_session.sql.
-      const [wasIdle] = await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false WHERE id = ${robotId} AND idle_session_enabled = true RETURNING id`;
+      // best-effort. What was on is remembered (resume_*) and put back by the
+      // bridge once the last approved job has ended; a second approve while
+      // one is running finds the session already off and keeps that memory.
+      // See db/migrations/010_robot_session_resume.sql.
+      const [wasIdle] = await sql`
+        UPDATE robots SET resume_session = true, resume_movement = movement_enabled, idle_session_enabled = false, movement_enabled = false
+        WHERE id = ${robotId} AND idle_session_enabled = true RETURNING id
+      `;
       if (wasIdle){
         try { await callBridge('/idle-request', { robotId, action: 'stop' }); } catch (e) { /* best-effort */ }
       }
@@ -414,6 +419,8 @@ export default async function handler(req, res){
         RETURNING id
       `;
       if (!updated.length){ res.status(400).json({ error: 'not_running' }); return; }
+      // The robot never reported this job's end, so nothing starts moving by itself afterwards.
+      await sql`UPDATE robots SET resume_session = false, resume_movement = false WHERE id = ${robotId}`;
       await sql`INSERT INTO portal_audit_events (robot_id, actor_email, action, subject_email)
         VALUES (${robotId}, ${session.email}, 'reconcile_job', NULL)`;
       await notifyDispatch(robotId, 'reconcile');

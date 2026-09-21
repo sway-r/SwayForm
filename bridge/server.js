@@ -18,6 +18,8 @@ const PRESENCE_WRITE_INTERVAL_MS = Number(process.env.PRESENCE_WRITE_INTERVAL_MS
 const POST_JOB_SETTLE_MS = 2_000;
 const IDLE_STOP_SETTLE_MS = 4_000;
 const MOVEMENT_CONFIRM_MS = 4_000; // how long movement.start waits for the agent's robot.state reply
+// After a job, the session is back up this long before Movement is asked for. Env override is for tests.
+const SESSION_RESUME_SETTLE_MS = Number(process.env.SESSION_RESUME_SETTLE_MS) || 3_000;
 const DISPATCH_RETRY_MS = 5_000;
 const METRICS_LOG_INTERVAL_MS = 10 * 60_000;
 // A lost job-finished leaves the row 'running' and blocks the whole queue, so it is retried. Env override is for tests.
@@ -27,6 +29,7 @@ const FINISH_RETRY_GIVE_UP_MS = 30 * 60_000;
 // How long a dispatched job blocks idle.start: the 60s job timeout plus kill grace and build time.
 const JOB_GUARD_MS = 90_000;
 const JOB_TIMEOUT_MS = 60_000;
+const JOB_OUTPUT_BUFFER_CHARS = 64 * 1024; // api/robot/agent.js keeps this much per job
 // Jobs driven live from the browser over /teleop; keep in sync with ros-paths.js INTERACTIVE_ROBOT_PATHS.
 // Target Lock: up to 45s waiting for the popup + a 900s session + ~10s to park; the agent honors up to 1200000.
 const INTERACTIVE_JOBS = new Map([
@@ -307,7 +310,13 @@ async function handleMovementRequest(req, res){
   if (idleStopped.has(robotId)){ reply({ delivered: false, movement: false, reason: 'session_off' }); return; }
   if (!open){ reply({ delivered: false, movement: false }); return; }
 
-  const state = await new Promise((resolve) => {
+  const state = await startMovement(robotId, ws);
+  reply({ delivered: true, movement: state.movement === true, reason: state.reason || undefined });
+}
+
+// Sends movement.start and resolves with the robot's own answer (its robot.state), or no_reply.
+function startMovement(robotId, ws){
+  return new Promise((resolve) => {
     const previous = movementWaiters.get(robotId);
     if (previous) previous.finish({ movement: false, reason: 'superseded' });
     const waiter = {
@@ -322,7 +331,33 @@ async function handleMovementRequest(req, res){
     movementWaiters.set(robotId, waiter);
     ws.send(JSON.stringify({ t: 'movement.start' }));
   });
-  reply({ delivered: true, movement: state.movement === true, reason: state.reason || undefined });
+}
+
+// Approve paused the session (and maybe Movement) for a job; once the last one has ended they come back.
+// Only what the robot was really told is written back, so the toggles never show an "on" that didn't happen.
+async function resumeSession(robotId, resume){
+  const ready = () => {
+    const ws = connectedRobots.get(robotId);
+    return ws && ws.readyState === ws.OPEN && !jobGuardActive(robotId) ? ws : null;
+  };
+  let session = false;
+  let movement = false;
+  const ws = ready();
+  if (ws){
+    ws.send(JSON.stringify({ t: 'idle.start' }));
+    idleStopped.delete(robotId);
+    session = true;
+    if (resume.movement){
+      await new Promise((r) => setTimeout(r, SESSION_RESUME_SETTLE_MS));
+      // A job dispatched meanwhile has stopped idle again; leave it be.
+      const still = ready();
+      if (still && !idleStopped.has(robotId)) movement = (await startMovement(robotId, still)).movement === true;
+    }
+  }
+  console.log(`session resumed after job: robotId=${robotId} session=${session} movement=${movement}`);
+  await callApi('/api/robot/agent', { action: 'session-resumed', robotId, session, movement }).catch((e) => {
+    console.error('session-resumed failed:', e.message);
+  });
 }
 
 const movementWaiters = new Map(); // robotId -> the pending movement.start waiting for robot.state
@@ -500,14 +535,14 @@ function attachTeleopDriver(ws, robotId, jobId){
   });
 }
 
-// Reports a job's end to the API, retrying until it lands; the dispatcher is nudged once it does.
+// Reports a job's end to the API, retrying until it lands; resolves with the API's answer, or false.
 async function finishJob(robotId, jobId, exitCode){
   const started = Date.now();
   for (let attempt = 0; ; attempt++){
     try {
-      await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId, exitCode });
+      const result = await callApi('/api/robot/agent', { action: 'job-finished', robotId, jobId, exitCode });
       if (attempt > 0) console.log(`job-finished for job ${jobId} landed after ${attempt} retries`);
-      return true;
+      return result || {};
     } catch (e) {
       console.error(`job-finished failed for job ${jobId} (attempt ${attempt + 1}):`, e.message);
       if (isPermanentApiError(e)) return false;
@@ -520,13 +555,41 @@ async function finishJob(robotId, jobId, exitCode){
   }
 }
 
+// A crash prints its traceback as dozens of tiny frames at once, so output is buffered and written one batch at a time.
+const jobOutput = new Map(); // jobId -> { robotId, text, draining }
+function queueJobOutput(robotId, jobId, text){
+  let buf = jobOutput.get(jobId);
+  if (!buf){ buf = { robotId, text: '', draining: null }; jobOutput.set(jobId, buf); }
+  buf.text = (buf.text + text).slice(-JOB_OUTPUT_BUFFER_CHARS);
+  flushJobOutput(jobId);
+}
+
+// Resolves once everything buffered for the job has been written (or has failed; output is best-effort).
+function flushJobOutput(jobId){
+  const buf = jobOutput.get(jobId);
+  if (!buf) return Promise.resolve();
+  if (!buf.draining) buf.draining = (async () => {
+    while (buf.text){
+      const text = buf.text;
+      buf.text = '';
+      await callApi('/api/robot/agent', { action: 'job-output', robotId: buf.robotId, jobId, text }).catch((e) => {
+        console.error('job-output failed:', e.message);
+      });
+    }
+    jobOutput.delete(jobId);
+  })();
+  return buf.draining;
+}
+
 // Runs off the message queue so a long retry never backs up the agent's other frames.
 function reportJobEnd(robotId, jobId, exitCode){
   clearRunningJob(robotId, jobId);
   // Held from the job's real end: a notify can arrive while the report below is still in flight.
   const current = connectedRobots.get(robotId);
   if (current && current.dispatch) current.dispatch.hold(POST_JOB_SETTLE_MS);
-  finishJob(robotId, jobId, exitCode).then(() => {
+  // The API only appends output to a running row, so the last of it goes first.
+  flushJobOutput(jobId).then(() => finishJob(robotId, jobId, exitCode)).then((result) => {
+    if (result && result.resume) resumeSession(robotId, result.resume);
     const ws = connectedRobots.get(robotId);
     if (ws && ws.dispatch) ws.dispatch.request('job-finished');
   });
@@ -725,15 +788,22 @@ wss.on('connection', (ws, req) => {
   // approved while the agent was briefly offline still gets delivered).
   const dispatchedJobIds = new Set();
 
+  const takeOutput = (msg) => {
+    const text = relayUiLines(robotId, msg.jobId, typeof msg.text === 'string' ? msg.text : '');
+    if (text) queueJobOutput(robotId, msg.jobId, text);
+  };
+
   ws.on('message', (raw) => {
-    if (++pendingMessages > 32){ ws.close(1008, 'message_backlog'); return; }
-    messageTail = messageTail.then(async () => {
-    if (ws.readyState !== ws.OPEN) return;
     let msg;
     try { msg = JSON.parse(raw.toString()); }
     catch { return; }
-
     if (!msg || typeof msg !== 'object' || Array.isArray(msg) || typeof msg.t !== 'string') return;
+    // Output is only buffered, so a burst of it is not backlog; closing on one used to lose the job's exit. Anything unchecked takes the queue below.
+    if (msg.t === 'job.output' && robotId && dispatchedJobIds.has(msg.jobId)){ takeOutput(msg); return; }
+
+    if (++pendingMessages > 32){ ws.close(1008, 'message_backlog'); return; }
+    messageTail = messageTail.then(async () => {
+    if (ws.readyState !== ws.OPEN) return;
     if (!robotId && msg.t !== 'hello'){ ws.close(4001, 'authenticate_first'); return; }
     if (msg.t === 'hello'){
       if (robotId){ ws.close(4001, 'already_authenticated'); return; }
@@ -793,11 +863,7 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.t === 'job.output'){
-      const text = relayUiLines(robotId, msg.jobId, typeof msg.text === 'string' ? msg.text : '');
-      if (!text.trim()) return;
-      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text }).catch((e) => {
-        console.error('job-output failed:', e.message);
-      });
+      takeOutput(msg);
       return;
     }
 
@@ -812,10 +878,7 @@ wss.on('connection', (ws, req) => {
       // run's stdout uses — otherwise a rejection (bad hash, joint-limit
       // violation, anything) reaches the student/admin as a bare "Exit code:
       // 1" with no explanation at all.
-      const line = `[agent error] ${msg.code || 'error'}: ${msg.message || 'unknown error'}\n`;
-      await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: msg.jobId, text: line }).catch((e) => {
-        console.error('job-output(error) failed:', e.message);
-      });
+      queueJobOutput(robotId, msg.jobId, `[agent error] ${msg.code || 'error'}: ${msg.message || 'unknown error'}\n`);
       reportJobEnd(robotId, msg.jobId, 1);
       return;
     }

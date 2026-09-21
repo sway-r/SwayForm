@@ -18,6 +18,7 @@
 .robot-status-spacer{flex:1 1 auto}
 .robot-idle-toggle{flex:0 0 auto;white-space:nowrap}
 .robot-idle-toggle.is-on{color:#0a7a3d;background:rgba(10,122,61,.08);border-color:rgba(10,122,61,.25)}
+.robot-idle-toggle.is-paused{color:#8a5a00;background:rgba(200,130,0,.1);border-color:rgba(200,130,0,.3)}
 
 .robot-video-panel{flex:1 1 auto;min-height:0;display:flex}
 .robot-video-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;flex:1 1 auto;min-height:0}

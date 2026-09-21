@@ -54,6 +54,10 @@ function bridgeSecretKey(){
  * confirmed it, so an older agent or a robot whose session is really off
  * never shows "on". Turning the session off turns Movement off with it.
  * Persisted in robots.movement_enabled; see db/migrations/009_robot_movement.sql.
+ *
+ * Approving a job pauses both and remembers them (resume_session /
+ * resume_movement); the bridge puts them back when the last approved job
+ * ends. Turning either off here clears that memory too.
  */
 export default async function handler(req, res){
   privateResponse(res);
@@ -68,7 +72,7 @@ export default async function handler(req, res){
 
   const started = Date.now();
   const rows = await sql`
-    SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled, movement_enabled
+    SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled, movement_enabled, resume_session, resume_movement
     FROM robots WHERE id = ${robotId}
   `;
   if (req.method === 'GET') logDbRead({ view: 'status', role: member.role, rows: rows.length, dbBytes: approxBytes(rows), ms: Date.now() - started });
@@ -87,7 +91,7 @@ export default async function handler(req, res){
       const [, turnedOn] = await sql.transaction([
         sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
         sql`
-          UPDATE robots SET idle_session_enabled = true, movement_enabled = false
+          UPDATE robots SET idle_session_enabled = true, movement_enabled = false, resume_session = false, resume_movement = false
           WHERE id = ${robotId} AND NOT EXISTS (
             SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
           )
@@ -110,7 +114,8 @@ export default async function handler(req, res){
     }
 
     // One statement: Movement never outlives the session (the robot drops it on idle.stop too).
-    await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false WHERE id = ${robotId}`;
+    // Off by hand also means "don't bring it back after the running job".
+    await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false, resume_session = false, resume_movement = false WHERE id = ${robotId}`;
     let delivered = false;
     try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
     res.status(200).json({ ok: true, idleSessionEnabled: false, movementEnabled: false, delivered });
@@ -154,7 +159,7 @@ export default async function handler(req, res){
       return;
     }
 
-    await sql`UPDATE robots SET movement_enabled = false WHERE id = ${robotId}`;
+    await sql`UPDATE robots SET movement_enabled = false, resume_movement = false WHERE id = ${robotId}`;
     let delivered = false;
     try { delivered = !!(await callBridge('/movement-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
     res.status(200).json({ ok: true, idleSessionEnabled: r.idle_session_enabled, movementEnabled: false, delivered });
@@ -214,5 +219,8 @@ export default async function handler(req, res){
     agentVersion: r.agent_version,
     idleSessionEnabled: r.idle_session_enabled,
     movementEnabled: r.idle_session_enabled && r.movement_enabled,
+    // Paused for a job and due back when it ends; see db/migrations/010_robot_session_resume.sql.
+    resumeSession: !r.idle_session_enabled && r.resume_session,
+    resumeMovement: !r.idle_session_enabled && r.resume_session && r.resume_movement,
   });
 }

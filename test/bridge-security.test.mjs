@@ -10,7 +10,7 @@ let api, child, base;
 const sockets = new Set();
 const secret = 'synthetic-bridge-test-secret';
 // Stand-in API state; `claims` counts dispatch-queue requests.
-const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false, failFinish: 0, finishDelayMs: 0 };
+const apiState = { claims: 0, claimDelayMs: 0, jobs: [], hasApproved: false, failFinish: 0, finishDelayMs: 0, resume: null };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 before(async () => {
   api = http.createServer(async (req,res) => {
@@ -24,7 +24,11 @@ before(async () => {
       res.end(JSON.stringify({jobs:apiState.jobs}));
     }
     else if(body.action==='job-finished'&&apiState.failFinish>0){apiState.failFinish--;res.statusCode=500;res.end('{}');}
-    else if(body.action==='job-finished'&&apiState.finishDelayMs){await sleep(apiState.finishDelayMs);res.end(JSON.stringify({ok:true}));}
+    else if(body.action==='job-finished'){
+      if(apiState.finishDelayMs) await sleep(apiState.finishDelayMs);
+      const resume=apiState.resume; apiState.resume=null;
+      res.end(JSON.stringify(resume?{ok:true,resume}:{ok:true}));
+    }
     else if(body.action==='heartbeat') res.end(JSON.stringify({ok:true,hasApproved:apiState.hasApproved}));
     else res.end(JSON.stringify({ok:true}));
   });
@@ -32,7 +36,7 @@ before(async () => {
   const holder=http.createServer(); holder.listen(0,'127.0.0.1'); await once(holder,'listening');
   const port=holder.address().port; await new Promise(r=>holder.close(r));
   base=`http://127.0.0.1:${port}`;
-  child=spawn(process.execPath,['bridge/server.js'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:String(port),VERCEL_API_BASE:`http://127.0.0.1:${api.address().port}`,BRIDGE_SERVICE_SECRET:secret,CODE_SERVER_ROBOT_ID:'1',PRESENCE_WRITE_INTERVAL_MS:'400',FINISH_RETRY_BASE_MS:'200'},stdio:['ignore','pipe','pipe']});
+  child=spawn(process.execPath,['bridge/server.js'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:String(port),VERCEL_API_BASE:`http://127.0.0.1:${api.address().port}`,BRIDGE_SERVICE_SECRET:secret,CODE_SERVER_ROBOT_ID:'1',PRESENCE_WRITE_INTERVAL_MS:'400',FINISH_RETRY_BASE_MS:'200',SESSION_RESUME_SETTLE_MS:'300'},stdio:['ignore','pipe','pipe']});
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(Error('bridge startup timeout')),5000);
     child.stdout.on('data',data=>{if(String(data).includes('listening')){clearTimeout(timer);resolve();}});
@@ -294,6 +298,25 @@ test('an agent that reconnects can still report the end of a job from its previo
   await session.end();
 });
 
+test('a burst of output frames (a traceback) keeps the connection, and the exit lands after all of it', { timeout: 10000 }, async () => {
+  const session = await agentSession();
+  apiState.jobs = [job(92)];
+  await notify(secret); await sleep(200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [92]);
+  apiState.jobs = [];
+  for (let i = 0; i < 120; i++) session.ws.send(JSON.stringify({ t: 'job.output', jobId: 92, text: i % 2 ? '\n' : `line ${i}` }));
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 92, exitCode: 1 }));
+  await sleep(600);
+  assert.equal(session.ws.readyState, WebSocket.OPEN, 'not closed as message_backlog');
+  const mine = calls.filter((c) => c.jobId === 92 && (c.action === 'job-output' || c.action === 'job-finished'));
+  assert.equal(mine.at(-1).action, 'job-finished', 'the API only appends output to a running row');
+  assert.equal(mine.filter((c) => c.action === 'job-finished').length, 1);
+  const expected = Array.from({ length: 120 }, (_, i) => (i % 2 ? '\n' : `line ${i}`)).join('');
+  assert.equal(mine.filter((c) => c.action === 'job-output').map((c) => c.text).join(''), expected, 'nothing dropped or reordered, bare newlines included');
+  assert.ok(mine.length < 30, 'written in batches, not one API call per frame');
+  await session.end();
+});
+
 test('idle.start is refused while a job is dispatched, and idle is always stopped before job.run', { timeout: 15000 }, async () => {
   const session = await agentSession();
   apiState.jobs = [job(92)];
@@ -515,4 +538,63 @@ test('movement-request needs the secret, reports on only once the robot confirms
   assert.deepEqual([silent.data.delivered, silent.data.movement, silent.data.reason], [true, false, 'no_reply']);
   await idleRequest('stop');
   await old.end();
+});
+
+test('after a job, the bridge brings back the session and Movement it was told were paused, and reports what the robot confirmed', { timeout: 20000 }, async () => {
+  const session = await agentSession();
+  const resumed = () => calls.filter((c) => c.action === 'session-resumed');
+  const since = (n) => session.frames.slice(n).map((f) => f.t).filter((t) => t === 'idle.start' || t === 'movement.start');
+  session.ws.on('message', (raw) => {
+    if (JSON.parse(raw.toString()).t === 'movement.start') session.ws.send(JSON.stringify({ t: 'robot.state', session: true, movement: true }));
+  });
+
+  // Nothing was paused: a job's end starts nothing.
+  apiState.jobs = [job(97)];
+  await notify(secret); await sleep(4500);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [97]);
+  apiState.jobs = [];
+  let mark = session.frames.length;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 97, exitCode: 0 }));
+  await sleep(700);
+  assert.deepEqual(since(mark), []);
+  assert.equal(resumed().length, 0);
+
+  // Session and Movement were paused: the session first, Movement once it has had a moment, then the report.
+  apiState.jobs = [job(98)];
+  await sleep(2000); await notify(secret); await sleep(300);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [97, 98]);
+  apiState.jobs = [];
+  apiState.resume = { movement: true };
+  mark = session.frames.length;
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 98, exitCode: 1 }));
+  await sleep(150);
+  assert.deepEqual(since(mark), ['idle.start'], 'Movement waits for the session to be up');
+  await sleep(700);
+  assert.deepEqual(since(mark), ['idle.start', 'movement.start']);
+  assert.deepEqual(resumed().map((c) => [c.robotId, c.session, c.movement]), [[1, true, true]]);
+
+  // The session is running again, so the next job stops it first, exactly as if an admin had turned it on.
+  apiState.jobs = [job(99)];
+  mark = session.frames.length;
+  await sleep(2000); await notify(secret); await sleep(300);
+  assert.deepEqual(session.frames.slice(mark).map((f) => f.t), ['idle.stop'], 'idle.stop goes out alone, job.run waits');
+  await sleep(4200);
+  assert.deepEqual(session.runs().map((f) => f.jobId), [97, 98, 99]);
+  apiState.jobs = [];
+  session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 99, exitCode: 0 }));
+  await sleep(300);
+  await session.end();
+
+  // A robot that has gone by the time the end lands is not claimed to be back on.
+  const late = await agentSession();
+  apiState.resume = { movement: true };
+  apiState.finishDelayMs = 600;
+  late.ws.send(JSON.stringify({ t: 'job.exit', jobId: 99, exitCode: 0 }));
+  await sleep(150);
+  await late.end();
+  await sleep(700);
+  assert.deepEqual(resumed().map((c) => [c.session, c.movement]), [[false, false]]);
+  assert.equal(late.frames.some((f) => f.t === 'idle.start'), false);
+  apiState.finishDelayMs = 0;
+  apiState.resume = null;
 });

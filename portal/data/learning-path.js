@@ -687,14 +687,6 @@ export const LEARNING_PATH = {
                     { type: 'callout', tone: 'note', label: 'That\'s the whole lesson', text: 'One number, one visible change in the physical world. Every lab from here on is a bigger version of exactly that.' },
                   ],
                 },
-                {
-                  id: 'run-and-queue', title: 'Run & Queue',
-                  blocks: [
-                    { type: 'p', text: 'Run the demo from the toolbar above, or open the file to read the complete, real source.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_robot wave'] },
-                    { type: 'p', text: 'Watch the terminal panel for the run sequence. When Run confirms the change, use **Queue on Robot** to send it to the real robot.' },
-                  ],
-                },
               ],
               completionSummary: { text: 'You read a real robot gesture as a simple list of steps, and changed one number to make the robot do something different in the real world.', conceptsUsed: ['Sequences', 'Repetition'] },
             },
@@ -760,14 +752,6 @@ export const LEARNING_PATH = {
                     { type: 'p', text: 'Try changing `SHAKE_CYCLES` from `1` to any whole number from `2` through `10`, and predict how your choice will change the handshake — then click **Run** to check.' },
                   ],
                 },
-                {
-                  id: 'run-and-queue', title: 'Run & Queue',
-                  blocks: [
-                    { type: 'p', text: 'When your changes are ready, check the code with **Run**. If everything is valid, use **Queue on Robot** and watch your result.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_robot handshake'] },
-                    { type: 'p', text: 'The starter value is `1`; any whole number from `2` through `10` is a valid completed choice.' },
-                  ],
-                },
               ],
               completionSummary: { text: 'You chose how many shake cycles the robot performs and saw how one variable changes the whole gesture.', conceptsUsed: ['Sequences', 'Timing', 'Variables'] },
             },
@@ -817,14 +801,6 @@ export const LEARNING_PATH = {
                   id: 'try-it', title: 'Try It',
                   blocks: [
                     { type: 'p', text: 'Try changing `ENABLE_HEAD_NOD` from `False` to `True`, and predict what the head will do differently — then click **Run** to check.' },
-                  ],
-                },
-                {
-                  id: 'run-and-queue', title: 'Run & Queue',
-                  blocks: [
-                    { type: 'p', text: 'When your changes are ready, check the code with **Run**. If everything is valid, use **Queue on Robot** and watch your result.' },
-                    { type: 'terminal', lines: ['ros2 run swayform_robot fist_bump'] },
-                    { type: 'p', text: 'Watch the terminal panel for the run sequence, then watch for the added head nod on the real robot.' },
                   ],
                 },
               ],

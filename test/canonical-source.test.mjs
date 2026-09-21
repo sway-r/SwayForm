@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
 import { validateAgainstCanonicalSource, canonicalVariantFor } from '../api/_lib/canonical-source.js';
 
@@ -158,9 +159,16 @@ test('Finger Count: tampering elsewhere is caught even with a valid NUMBER, diff
 
 const TARGET_LOCK_PATH = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py';
 const canonicalTargetLock = WORKSPACE_FILES[TARGET_LOCK_PATH];
-const TARGET_LOCK_ORDER = ['activate_crosshair', 'load_controls', 'run_system_check', 'unlock_movement', 'lock_and_shake'];
+const TARGET_LOCK_ORDER = ['activate_crosshair', 'load_controls', 'run_system_check', 'unlock_movement', 'unlock_arm'];
 const fillSteps = (names, open = '(', close = ')') => names.reduce(
   (code, name, i) => code.replace(`STEP_${i + 1} = ()`, `STEP_${i + 1} = ${open}${name}${close}`), canonicalTargetLock);
+
+// The Pi agent re-derives these from its own copy (sway-r/swayform_ws 9e5de54); any drift is a variant_mismatch on the robot.
+test('Target Lock: the mirrored file and the queued variant hash to what the robot agent expects', () => {
+  const sha256 = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
+  assert.equal(sha256(canonicalTargetLock), '1331369bb3eadc0f7e76b18eff9563adda32549e5c11b8393935994dcee2394d');
+  assert.equal(sha256(canonicalVariantFor(TARGET_LOCK_PATH, fillSteps(TARGET_LOCK_ORDER))), 'cfd5054dbf2359cf8e24e8393463a4b364c8eec00602975da66f3ed744df332d');
+});
 
 test('Target Lock: the untouched file is not_started and says nothing about the answer', () => {
   const result = validateAgainstCanonicalSource(TARGET_LOCK_PATH, canonicalTargetLock);
@@ -174,7 +182,7 @@ test('Target Lock: only the one correct order is complete, spacing inside the bl
 });
 
 test('Target Lock: a wrong or partial order reports counts only, never a function name', () => {
-  const swapped = ['load_controls', 'activate_crosshair', 'run_system_check', 'unlock_movement', 'lock_and_shake'];
+  const swapped = ['load_controls', 'activate_crosshair', 'run_system_check', 'unlock_movement', 'unlock_arm'];
   const wrong = validateAgainstCanonicalSource(TARGET_LOCK_PATH, fillSteps(swapped));
   assert.deepEqual(wrong, { valid: false, status: 'wrong_order', filled: 5, correct: 3, total: 5 });
 

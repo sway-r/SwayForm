@@ -45,7 +45,7 @@ const TUNABLES = {
     step(2, 'load_controls'),
     step(3, 'run_system_check'),
     step(4, 'unlock_movement'),
-    step(5, 'lock_and_shake'),
+    step(5, 'unlock_arm'),
   ],
 };
 

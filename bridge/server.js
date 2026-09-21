@@ -30,7 +30,8 @@ const JOB_TIMEOUT_MS = 60_000;
 const INTERACTIVE_JOBS = new Map([
   ['swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', { timeoutMs: 240_000 }],
 ]);
-const TELEOP_MAX_FRAMES_PER_SEC = 30;
+// Five hold-to-move lines (head, arm.move, arm.lift, torso, hand) each repeat at 10/s, plus key changes.
+const TELEOP_MAX_FRAMES_PER_SEC = 80;
 const TELEOP_UI_LOG_MAX = 40;
 
 // API calls by action per window; counts only.
@@ -297,7 +298,16 @@ function teleopLine(msg){
     const dx = step(msg.dx), dy = step(msg.dy);
     return dx === null || dy === null ? null : `head.move ${dx} ${dy}`;
   }
-  if (msg.t === 'head.center' || msg.t === 'session.end' || msg.t === 'target.lock' || msg.t === 'ping') return msg.t;
+  if (msg.t === 'arm.move'){
+    const a = step(msg.a), b = step(msg.b);
+    return a === null || b === null ? null : `arm.move ${a} ${b}`;
+  }
+  if (msg.t === 'arm.lift' || msg.t === 'torso.turn'){
+    const v = step(msg.v);
+    return v === null ? null : `${msg.t} ${v}`;
+  }
+  if (msg.t === 'hand.close') return msg.v === 0 || msg.v === 1 ? `hand.close ${msg.v}` : null;
+  if (msg.t === 'head.center' || msg.t === 'hand.open' || msg.t === 'session.end' || msg.t === 'ping') return msg.t;
   return null;
 }
 
@@ -328,11 +338,12 @@ function relayUiLines(robotId, jobId, text){
   return kept.join('\n');
 }
 
-// Kept per running job and replayed to a driver that attaches late or reconnects; only the newest head/limit line matters.
+// Kept per running job and replayed to a driver that attaches late or reconnects; only the newest of each position line matters.
+const UI_LATEST_ONLY = new Set(['ui:head', 'ui:arm', 'ui:hand', 'ui:limit']);
 function rememberUiLine(running, line){
   const log = running.uiLog || (running.uiLog = []);
   const kind = line.split(' ')[0];
-  if (kind === 'ui:head' || kind === 'ui:limit'){
+  if (UI_LATEST_ONLY.has(kind)){
     const i = log.findIndex((l) => l.split(' ')[0] === kind);
     if (i !== -1) log.splice(i, 1);
   }

@@ -402,11 +402,22 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   driver.ws.send(JSON.stringify({ t: 'head.move', dx: 5, dy: 0 }));
   driver.ws.send(JSON.stringify({ t: 'rm -rf', dx: 0, dy: 0 }));
   driver.ws.send(JSON.stringify({ t: 'head.center' }));
+  driver.ws.send(JSON.stringify({ t: 'target.lock' }));
+  driver.ws.send(JSON.stringify({ t: 'arm.move', a: -1, b: 1 }));
+  driver.ws.send(JSON.stringify({ t: 'arm.move', a: 2, b: 0 }));
+  driver.ws.send(JSON.stringify({ t: 'arm.lift', v: 1 }));
+  driver.ws.send(JSON.stringify({ t: 'arm.lift' }));
+  driver.ws.send(JSON.stringify({ t: 'torso.turn', v: -1 }));
+  driver.ws.send(JSON.stringify({ t: 'torso.turn', v: '1; reboot' }));
+  driver.ws.send(JSON.stringify({ t: 'hand.close', v: 1 }));
+  driver.ws.send(JSON.stringify({ t: 'hand.close', v: -1 }));
+  driver.ws.send(JSON.stringify({ t: 'hand.close', v: 0 }));
+  driver.ws.send(JSON.stringify({ t: 'hand.open' }));
   await sleep(200);
-  assert.deepEqual(session.frames.filter((f) => f.t === 'job.input'), [
-    { t: 'job.input', jobId: 96, line: 'head.move 1 -1' },
-    { t: 'job.input', jobId: 96, line: 'head.center' },
-  ], 'only well-formed commands become stdin lines');
+  assert.deepEqual(session.frames.filter((f) => f.t === 'job.input').map((f) => f.line), [
+    'head.move 1 -1', 'head.center', 'arm.move -1 1', 'arm.lift 1', 'torso.turn -1', 'hand.close 1', 'hand.close 0', 'hand.open',
+  ], 'only well-formed commands become stdin lines, and target.lock is gone');
+  assert.ok(session.frames.filter((f) => f.t === 'job.input').every((f) => f.jobId === 96));
 
   session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:check camera ok\nSystem check passed.\nui:ready\n' }));
   session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:head 4 -2\n' }));
@@ -415,13 +426,13 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   const stored = calls.filter((c) => c.action === 'job-output').map((c) => c.text);
   assert.deepEqual(stored, ['System check passed.\n'], 'ui: lines never reach the database');
 
-  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:head 9 0\n' }));
+  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:unlocked\nui:arm 90 40 120\nui:hand 60\nui:head 9 0\nui:arm 88 40 118\nui:hand 72\n' }));
   await sleep(150);
   const replaced = once(driver.ws, 'close');
   const second = await open(await token({ purpose: 'teleop', robotId: 1, jobId: 96 }));
   assert.equal((await replaced)[0], 4008, 'one driver at a time');
   await sleep(200);
-  assert.deepEqual(second.got.map((l) => l.text), ['ui:check camera ok', 'ui:ready', 'ui:head 9 0'], 'a late or reconnecting view is caught up, newest head position only');
+  assert.deepEqual(second.got.map((l) => l.text), ['ui:check camera ok', 'ui:ready', 'ui:unlocked', 'ui:head 9 0', 'ui:arm 88 40 118', 'ui:hand 72'], 'a late or reconnecting view is caught up, newest head, arm and hand positions only');
 
   const closed = once(second.ws, 'close');
   session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 96, exitCode: 0 }));

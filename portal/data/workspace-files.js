@@ -1007,7 +1007,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py": `"""Target Lock: put the five steps in the right order, then aim the robot's head and shake a hand."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py": `"""Target Lock: put the five steps in the right order, then steer the robot to grab an object and lift it."""
 
 import threading
 
@@ -1019,8 +1019,8 @@ from swayform_robot.targeting.steps import (
     TargetLockSession,
     activate_crosshair,
     load_controls,
-    lock_and_shake,
     run_system_check,
+    unlock_arm,
     unlock_movement,
 )
 

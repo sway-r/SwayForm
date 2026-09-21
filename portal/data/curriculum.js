@@ -90,7 +90,7 @@ const s2 = [
 ];
 
 // Wave, Handshake, Fist Bump, and Finger Count are confirmed working demos
-// with authored pages. Target Lock (live head control from the camera view)
+// with authored pages. Target Lock (live keyboard driving from the camera view)
 // took the 3.05 slot from the Rock Paper Scissors placeholder, whose
 // learning-path.js content stays, unlisted. Hand Mimic (formerly this
 // slot) was replaced outright by Finger Count, a real confirmed behavior,

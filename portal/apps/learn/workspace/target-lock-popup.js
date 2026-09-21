@@ -1,4 +1,4 @@
-// Target Lock's live view: camera feed, the staged unlock, then keyboard driving (head, torso, left arm, hand) over the bridge's /teleop socket.
+// Target Lock's live view: camera feed, the staged unlock, then keyboard driving (head, torso, right arm, hand) over the bridge's /teleop socket.
 import { mountVideoPlayer } from '../../robot/video-player.js';
 
 const TELEOP_URL = 'wss://bridge.swayform.net/teleop';
@@ -72,7 +72,7 @@ export function openTargetLockPopup({ spectate = false } = {}){
             <div class="tl-arrows">${key('ArrowUp', '▲')}${key('ArrowLeft', '◀')}${key('ArrowDown', '▼')}${key('ArrowRight', '▶')}</div>
           </div>
           <div class="tl-group" data-group="arm">
-            <div class="tl-group-title">Left arm</div>
+            <div class="tl-group-title">Right arm</div>
             <div class="tl-row">${key('KeyR', 'R')}${key('KeyF', 'F')}<span class="tl-label">Shoulder up / down</span></div>
             <div class="tl-row">${key('KeyW', 'W')}${key('KeyS', 'S')}<span class="tl-label">Elbow bend / straighten</span></div>
             <div class="tl-row">${key('KeyA', 'A')}${key('KeyD', 'D')}<span class="tl-label">Shoulder out / in</span></div>

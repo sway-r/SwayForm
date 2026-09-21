@@ -870,7 +870,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'what-it-does', title: 'The Final Challenge',
                   blocks: [
-                    { type: 'lead', text: 'The program has five empty steps and five functions to fill them with. Put the functions in the right order. The first group to get it right drives SwayForm live on the projector — head, torso, left arm, and hand, all from the keyboard. The challenge: grab the object in front of the robot and lift it into the air.' },
+                    { type: 'lead', text: 'The program has five empty steps and five functions to fill them with. Put the functions in the right order. The first group to get it right drives SwayForm live on the projector — head, torso, right arm, and hand, all from the keyboard. The challenge: grab the object in front of the robot and lift it into the air.' },
                     { type: 'p', text: 'A wrong order never moves the robot, so there is nothing to break. Run tells you how close you are, and you can try as many times as you like.' },
                   ],
                 },

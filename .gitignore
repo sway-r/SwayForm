@@ -7,3 +7,6 @@ docs/
 
 .vercel
 .env*
+
+# raw screen recordings; the web cut is videos/lab5-target-lock.mp4
+videos/Lab.mp4

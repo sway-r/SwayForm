@@ -389,10 +389,27 @@ function closeWindow(appId){
   if (win.instance && typeof win.instance.unmount === 'function') win.instance.unmount();
   win.el.remove();
   windows.delete(appId);
-  if (activeAppId === appId) activeAppId = null;
+  if (activeAppId === appId) focusNextOrDesktop();
   persistOpenApps();
   renderTaskbar();
   if (windows.size === 0) navigateTo('/');
+}
+
+/** The front window went away (minimized or closed): the next visible one takes over, or nothing does.
+ * Without this the saved active app and the URL kept naming the hidden window, so a refresh brought it back. */
+function focusNextOrDesktop(){
+  let next = null;
+  let top = -1;
+  windows.forEach((w, id) => {
+    const z = Number(w.el.style.zIndex) || 0;
+    if (!w.minimized && z > top){ top = z; next = id; }
+  });
+  if (next){ focusWindow(next); return; }
+  activeAppId = null;
+  windows.forEach((w) => w.el.classList.remove('focused'));
+  if (location.pathname !== '/') history.replaceState({}, '', '/');
+  persistOpenApps();
+  renderTaskbar();
 }
 
 function minimizeWindow(appId){
@@ -400,7 +417,8 @@ function minimizeWindow(appId){
   if (!win) return;
   win.minimized = true;
   win.el.classList.add('minimized');
-  renderTaskbar();
+  if (activeAppId === appId) focusNextOrDesktop();
+  else { persistOpenApps(); renderTaskbar(); }
 }
 
 /** "Show desktop" — minimizes every open window in one shot, without
@@ -412,7 +430,7 @@ function minimizeAllWindows(){
     win.minimized = true;
     win.el.classList.add('minimized');
   });
-  renderTaskbar();
+  focusNextOrDesktop();
 }
 
 function toggleMaximize(appId){
@@ -542,7 +560,7 @@ function persistOpenApps(){
     const windowState = {};
     windows.forEach((win, id) => {
       // path: where inside the app the student was (e.g. one Learn activity), so a refresh returns there.
-      windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized, path: win.lastPath || null };
+      windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized, minimized: !!win.minimized, path: win.lastPath || null };
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeAppId, windows: windowState }));
   } catch (e) { /* storage unavailable — non-fatal */ }
@@ -574,7 +592,15 @@ function restoreOpenApps(){
     const route = saved && typeof saved.path === 'string' ? routeFromPath(saved.path) : null;
     const here = route && route.appId === id ? route : null;
     openApp(id, here ? here.params : null, { silent: true, geometry: saved, noFocus: true, path: here ? saved.path : null });
+    const win = windows.get(id);
+    if (win && saved && saved.minimized){
+      win.minimized = true;
+      win.el.classList.add('minimized');
+    }
   });
+  // openApp saved each window as visible while creating it; save again now that the hidden ones are hidden.
+  persistOpenApps();
+  renderTaskbar();
   return savedActiveAppId;
 }
 
@@ -674,10 +700,10 @@ async function showDesktop(){
     // student was actually looking at, down to the sub-view.
     openApp(initialRoute.appId, initialRoute.params, { silent: true, path: bootPath });
     history.replaceState({}, '', bootPath);
-  } else if (savedActiveAppId && windows.has(savedActiveAppId)){
-    // No specific deep link (e.g. refreshed on the bare desktop after
-    // minimizing everything) — fall back to whichever app was actually
-    // focused when state was last saved, instead of leaving
+  } else if (savedActiveAppId && windows.has(savedActiveAppId) && !windows.get(savedActiveAppId).minimized){
+    // No specific deep link — fall back to whichever app was actually
+    // focused when state was last saved (none, if the student was looking
+    // at the bare desktop: that stays the bare desktop), instead of leaving
     // restoreOpenApps()'s creation-order artifact focused. This also fixes
     // the URL itself via focusWindow -> syncFocusUrl, so no separate
     // history.replaceState is needed here.

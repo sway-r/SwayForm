@@ -916,11 +916,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <a href="/robot" class="btn btn-ghost btn-lg">Explore the Robot</a>
       </div>
     </div>
-    <!-- RIGHT: robot visual — swap <img> for <video autoplay muted loop playsinline> when demo is ready -->
+    <!-- RIGHT: the robot moving; the still photo is the poster and the fallback -->
     <div class="hero-visual-panel">
-      <div class="robot-frame">
-        <img src="images/swayform_robot_1.png" alt="SwayForm humanoid robot" class="robot-img"
-             onerror="this.style.cssText='width:280px;height:480px;background:var(--bg3);border-radius:12px;border:1px solid var(--line)'">
+      <div class="robot-frame has-video">
+        <video class="robot-video" src="videos/demo-video.mp4" poster="images/swayform_robot_1.png"
+               autoplay loop muted playsinline preload="metadata"
+               disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
+               aria-label="The SwayForm humanoid robot raising both arms"
+               onerror="this.outerHTML='&lt;img src=&quot;images/swayform_robot_1.png&quot; alt=&quot;SwayForm humanoid robot&quot; class=&quot;robot-img&quot;&gt;'"></video>
         <div class="chip c1"><div class="chip-dot" style="background:var(--ink)"></div>Real ROS 2 + Python</div>
         <div class="chip c2"><div class="chip-dot" style="background:var(--muted)"></div>Guided labs &amp; demos</div>
         <div class="chip c3"><div class="chip-dot" style="background:var(--soft)"></div>Local Raspberry Pi</div>
@@ -975,7 +978,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     border-bottom:1px solid var(--line);
   }
   /* video sits on the right — the box's own aspect-ratio matches the source
-     file (1024x576, 16:9) exactly, so it's never cropped or letterboxed.
+     file (1280x720, 16:9) exactly, so it's never cropped or letterboxed.
      The left edge is masked to a fade instead of a hard border, so it bleeds
      into the section background rather than reading as a boxed-in card. */
   .dp-video-bg{
@@ -1049,6 +1052,54 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     .dp-content{padding:40px 20px 24px}
   }
   </style>
+
+  <section id="demo-preview" class="reveal">
+
+    <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
+    <div class="dp-video-bg">
+      <video id="demo-video"
+             src="videos/lab5-target-lock.mp4"
+             poster="images/lab5-target-lock-poster.jpg"
+             autoplay loop muted playsinline
+             preload="metadata"
+             aria-label="Screen recording of the Target Lock lab: a student driving the real robot live from the Learning Portal"
+             disablepictureinpicture
+             controlslist="nodownload nofullscreen noremoteplayback"></video>
+      <!-- fallback placeholder when video errors -->
+      <div id="demo-video-fallback" class="dp-fallback">
+        Learning preview video coming soon.
+      </div>
+    </div>
+
+    <!-- Gradient layer — fades video into black on the text side -->
+    <div class="dp-gradient"></div>
+
+    <!-- Text content — sits above gradient on z-index 3 -->
+    <div class="dp-content">
+      <div class="dp-text">
+        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">See it in action</span>
+        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:16px">Stop watching. Start controlling.</h2>
+        <p style="font-size:clamp(15px,3.8vw,16px);color:var(--muted);line-height:1.65;margin-bottom:20px">This is the moment students' code becomes real motion.</p>
+        <ul class="setup-list" style="margin-bottom:20px">
+          <li>Write real ROS 2 code</li>
+          <li>Run it on the physical robot</li>
+          <li>See the result instantly</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+  <script>
+  (function(){
+    var vid = document.getElementById('demo-video');
+    var fb  = document.getElementById('demo-video-fallback');
+    if(!vid) return;
+    vid.addEventListener('error', function(){
+      vid.style.display = 'none';
+      if(fb) fb.style.display = 'block';
+    });
+  })();
+  </script>
 
   <!-- ═══ WHY SWAYFORM (comparison tabs) ═══ -->
   <section class="section reveal" style="background:var(--bg)">
@@ -1209,52 +1260,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <p class="wtm-transition">This is the gap SwayForm was built to close.</p>
     </div>
   </section>
-
-  <section id="demo-preview" class="reveal">
-
-    <!-- Video layer — absolute, fills right side on desktop, stacks below on mobile -->
-    <div class="dp-video-bg">
-      <video id="demo-video"
-             src="videos/demo-video.mp4"
-             autoplay loop muted playsinline
-             preload="auto"
-             disablepictureinpicture
-             controlslist="nodownload nofullscreen noremoteplayback"></video>
-      <!-- fallback placeholder when video errors -->
-      <div id="demo-video-fallback" class="dp-fallback">
-        Learning preview video coming soon.
-      </div>
-    </div>
-
-    <!-- Gradient layer — fades video into black on the text side -->
-    <div class="dp-gradient"></div>
-
-    <!-- Text content — sits above gradient on z-index 3 -->
-    <div class="dp-content">
-      <div class="dp-text">
-        <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">See it in action</span>
-        <h2 style="font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--ink);margin-bottom:16px">Stop watching. Start controlling.</h2>
-        <p style="font-size:clamp(15px,3.8vw,16px);color:var(--muted);line-height:1.65;margin-bottom:20px">This is the moment students' code becomes real motion.</p>
-        <ul class="setup-list" style="margin-bottom:20px">
-          <li>Write real ROS 2 code</li>
-          <li>Run it on the physical robot</li>
-          <li>See the result instantly</li>
-        </ul>
-      </div>
-    </div>
-
-  </section>
-  <script>
-  (function(){
-    var vid = document.getElementById('demo-video');
-    var fb  = document.getElementById('demo-video-fallback');
-    if(!vid) return;
-    vid.addEventListener('error', function(){
-      vid.style.display = 'none';
-      if(fb) fb.style.display = 'block';
-    });
-  })();
-  </script>
 
   <!-- ═══ WHAT SCHOOLS RECEIVE ═══ -->
   <section class="why-section reveal">
@@ -1760,6 +1765,8 @@ window.addEventListener('scroll', function() {
 .hero-cinema-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
 /* hero panel image — swap <img> for <video> when demo ready */
 .hero-visual-panel .robot-img{height:clamp(500px,60vh,720px);width:auto;object-fit:contain;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,.08);position:relative;z-index:1}
+.hero-visual-panel .robot-frame.has-video{width:100%;max-width:720px}
+.hero-visual-panel .robot-video{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,.08);position:relative;z-index:1;background:var(--bg3)}
 .hero-cinema-gradient{position:absolute;inset:0;background:linear-gradient(to right,#040608 0%,#040608 25%,rgba(4,6,8,.9) 42%,rgba(4,6,8,.52) 58%,rgba(4,6,8,.1) 78%,transparent 100%)}
 
 /* ── HERO RESPONSIVE ── */

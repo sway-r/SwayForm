@@ -674,7 +674,7 @@ export const LEARNING_PATH = {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
                     { type: 'p', text: 'Open the file and you\'ll see that recipe written out as five named pieces. You don\'t need to understand the details inside each one yet — just notice that the names say exactly what they do:' },
-                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...        # go home\ndef open_hand(ctrl): ...         # open hand\ndef wave_ready_pose(ctrl): ...   # lift arm into position\ndef elbow_wave(ctrl, cycles): ...  # the actual wave\ndef perform_wave(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py', line: 80 },
+                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...        # go home\ndef open_hand(ctrl): ...         # open hand\ndef wave_ready_pose(ctrl): ...   # lift arm into position\ndef elbow_wave(ctrl, cycles): ...  # the actual wave\ndef perform_wave(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py', line: 82 },
                     { type: 'p', text: 'Tap **Open wave.py** and the editor will jump right to them. Reading a robot\'s code is mostly reading names like these and following the order.' },
                   ],
                 },
@@ -742,7 +742,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 77 },
+                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 79 },
                     { type: 'p', text: 'Four functions, called in order by `perform_handshake()`: reach forward, grip, shake, open and return — a **setup → behavior → cleanup** shape.' },
                   ],
                 },

@@ -17,6 +17,7 @@ const PRESENCE_WRITE_INTERVAL_MS = Number(process.env.PRESENCE_WRITE_INTERVAL_MS
 // Minimum gaps before the next job.run, so event-driven dispatch is never tighter than the old 4s poll.
 const POST_JOB_SETTLE_MS = 2_000;
 const IDLE_STOP_SETTLE_MS = 4_000;
+const MOVEMENT_CONFIRM_MS = 4_000; // how long movement.start waits for the agent's robot.state reply
 const DISPATCH_RETRY_MS = 5_000;
 const METRICS_LOG_INTERVAL_MS = 10 * 60_000;
 // A lost job-finished leaves the row 'running' and blocks the whole queue, so it is retried. Env override is for tests.
@@ -274,6 +275,57 @@ async function handleIdleRequest(req, res){
   res.writeHead(200, { 'content-type': 'application/json' });
   res.end(JSON.stringify({ ok: true, delivered }));
 }
+
+// Admin's "Movement" toggle (agent 0.6.0+): the session holds the rest pose, Movement adds the ambient gestures.
+// A start is only reported as on once the robot itself says so, so an old agent or a closed session never shows "on".
+async function handleMovementRequest(req, res){
+  const provided = req.headers['x-bridge-secret'];
+  if (typeof provided !== 'string' || !secureEqual(provided, SERVICE_SECRET)){ res.writeHead(401); res.end(); return; }
+  let body;
+  try { body = await readJsonBody(req); }
+  catch { res.writeHead(400); res.end(); return; }
+
+  const robotId = Number(body.robotId);
+  if (!Number.isSafeInteger(robotId) || (body.action !== 'start' && body.action !== 'stop')){
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'invalid_fields' }));
+    return;
+  }
+  const reply = (payload) => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: true, ...payload })); };
+
+  const ws = connectedRobots.get(robotId);
+  const open = !!(ws && ws.readyState === ws.OPEN);
+
+  if (body.action === 'stop'){
+    if (open) ws.send(JSON.stringify({ t: 'movement.stop' }));
+    reply({ delivered: open, movement: false });
+    return;
+  }
+
+  if (jobGuardActive(robotId)){ reply({ delivered: false, movement: false, reason: 'job_running' }); return; }
+  // Movement never runs without the session; this process stopped it, so there is nothing to move in.
+  if (idleStopped.has(robotId)){ reply({ delivered: false, movement: false, reason: 'session_off' }); return; }
+  if (!open){ reply({ delivered: false, movement: false }); return; }
+
+  const state = await new Promise((resolve) => {
+    const previous = movementWaiters.get(robotId);
+    if (previous) previous.finish({ movement: false, reason: 'superseded' });
+    const waiter = {
+      reason: null,
+      finish(result){
+        clearTimeout(waiter.timer);
+        if (movementWaiters.get(robotId) === waiter) movementWaiters.delete(robotId);
+        resolve(result);
+      },
+    };
+    waiter.timer = setTimeout(() => waiter.finish({ movement: false, reason: 'no_reply' }), MOVEMENT_CONFIRM_MS);
+    movementWaiters.set(robotId, waiter);
+    ws.send(JSON.stringify({ t: 'movement.start' }));
+  });
+  reply({ delivered: true, movement: state.movement === true, reason: state.reason || undefined });
+}
+
+const movementWaiters = new Map(); // robotId -> the pending movement.start waiting for robot.state
 
 // Robots this process has stopped idle on since last starting it; any other may be idling. Survives reconnects.
 const idleStopped = new Set();
@@ -601,6 +653,10 @@ const server = http.createServer((req, res) => {
     handleAdminStop(req, res);
     return;
   }
+  if (req.method === 'POST' && req.url === '/movement-request'){
+    handleMovementRequest(req, res);
+    return;
+  }
   if (req.method === 'POST' && req.url === '/idle-request'){
     handleIdleRequest(req, res);
     return;
@@ -761,6 +817,21 @@ wss.on('connection', (ws, req) => {
         console.error('job-output(error) failed:', e.message);
       });
       reportJobEnd(robotId, msg.jobId, 1);
+      return;
+    }
+
+    // Agent 0.6.0+: its answer to movement.start / movement.stop. A refusal arrives as movement.error, then robot.state.
+    if (msg.t === 'movement.error'){
+      console.error(`agent refused movement for robot ${robotId}: ${msg.code} — ${msg.message}`);
+      const waiter = movementWaiters.get(robotId);
+      if (waiter) waiter.reason = msg.code === 'session_off' ? 'session_off' : 'refused';
+      return;
+    }
+    if (msg.t === 'robot.state'){
+      // The robot is the truth about its own session: if it says off, a later movement.start is refused here too.
+      if (msg.session === false) idleStopped.add(robotId);
+      const waiter = movementWaiters.get(robotId);
+      if (waiter) waiter.finish({ movement: msg.movement === true, reason: waiter.reason });
       return;
     }
 

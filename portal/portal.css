@@ -151,6 +151,7 @@
   background:var(--la-bg);border:1px solid var(--la-border);border-radius:8px;
   box-shadow:0 24px 64px rgba(3,5,10,.4),0 2px 8px rgba(3,5,10,.22);
   overflow:hidden;min-width:320px;min-height:220px;
+  isolation:isolate; /* a never-focused window has no z-index, so its inner windows would paint over the app in front */
 }
 .window.maximized{border-radius:0;border:none;box-shadow:none}
 .desktop.has-maximized .desktop-topline{display:none}

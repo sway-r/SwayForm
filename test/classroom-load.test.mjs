@@ -230,3 +230,76 @@ test('Live Robot Session only turns on when no job is open and the robot was act
   assert.deepEqual([off.code, off.data.idleSessionEnabled, off.data.delivered], [200, false, false]);
   assert.equal((await post(status, students[7].cookie, { action: 'idle-on' })).code, 403);
 });
+
+test('Movement only turns on inside a live session, only when the robot confirms it, and never outlives the session', async () => {
+  const { createServer } = await import('node:http');
+  await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=false, movement_enabled=false WHERE id=1");
+  const flags = async () => (await db.query('SELECT idle_session_enabled AS session, movement_enabled AS movement FROM robots WHERE id=1')).rows[0];
+
+  // Session off: refused before anything is sent to the robot.
+  const early = await post(status, teacher, { action: 'movement-on' });
+  assert.deepEqual([early.code, early.data.error], [409, 'session_off']);
+  assert.deepEqual(await flags(), { session: false, movement: false });
+  assert.equal((await post(status, students[0].cookie, { action: 'movement-on' })).code, 403);
+
+  // The database itself refuses Movement without a session.
+  await assert.rejects(db.query('UPDATE robots SET movement_enabled=true WHERE id=1'));
+
+  // Session on, but no bridge: the robot never confirmed, so it is put back to off.
+  await db.exec('UPDATE robots SET idle_session_enabled=true WHERE id=1');
+  assert.equal((await post(status, teacher, { action: 'movement-on' })).code, 502);
+  assert.deepEqual(await flags(), { session: true, movement: false });
+
+  const calls = [];
+  let movementReply = { ok: true, delivered: true, movement: true };
+  const bridge = createServer((req, res) => {
+    let raw = '';
+    req.on('data', (chunk) => { raw += chunk; });
+    req.on('end', () => {
+      calls.push(`${req.url} ${JSON.parse(raw).action}`);
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify(req.url === '/movement-request' ? movementReply : { ok: true, delivered: true }));
+    });
+  });
+  await new Promise((resolve) => bridge.listen(0, '127.0.0.1', resolve));
+  process.env.BRIDGE_URL = `http://127.0.0.1:${bridge.address().port}`;
+  try {
+    const on = await post(status, teacher, { action: 'movement-on' });
+    assert.deepEqual([on.code, on.data.movementEnabled], [200, true]);
+    assert.equal((await get(status, teacher)).data.movementEnabled, true);
+
+    const off = await post(status, teacher, { action: 'movement-off' });
+    assert.deepEqual([off.code, off.data.movementEnabled, off.data.idleSessionEnabled, off.data.delivered], [200, false, true, true]);
+    assert.deepEqual(await flags(), { session: true, movement: false });
+
+    // An older agent never answers; the bridge reports no_reply and nothing is saved as on.
+    movementReply = { ok: true, delivered: true, movement: false, reason: 'no_reply' };
+    assert.equal((await post(status, teacher, { action: 'movement-on' })).code, 502);
+    assert.deepEqual(await flags(), { session: true, movement: false });
+
+    // The robot says its session is really off: both saved flags follow the robot.
+    movementReply = { ok: true, delivered: true, movement: false, reason: 'session_off' };
+    const stale = await post(status, teacher, { action: 'movement-on' });
+    assert.deepEqual([stale.code, stale.data.error], [409, 'session_off']);
+    assert.deepEqual(await flags(), { session: false, movement: false });
+
+    // Turning the session off takes Movement with it, in one step.
+    await db.exec('UPDATE robots SET idle_session_enabled=true, movement_enabled=true WHERE id=1');
+    const sessionOff = await post(status, teacher, { action: 'idle-off' });
+    assert.deepEqual([sessionOff.data.idleSessionEnabled, sessionOff.data.movementEnabled], [false, false]);
+    assert.deepEqual(await flags(), { session: false, movement: false });
+
+    // Approving a job ends the session, and Movement with it.
+    await db.exec('UPDATE robots SET idle_session_enabled=true, movement_enabled=true WHERE id=1');
+    const job = await post(queue, students[8].cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave });
+    assert.equal(job.code, 200, JSON.stringify(job.data));
+    assert.equal((await post(queue, teacher, { action: 'approve', jobId: job.data.jobId })).code, 200);
+    assert.deepEqual(await flags(), { session: false, movement: false });
+    assert.ok(calls.includes('/idle-request stop'));
+    assert.equal((await get(status, teacher)).data.movementEnabled, false);
+  } finally {
+    delete process.env.BRIDGE_URL;
+    await new Promise((resolve) => bridge.close(resolve));
+    await db.exec("DELETE FROM robot_jobs");
+  }
+});

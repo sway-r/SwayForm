@@ -36,8 +36,8 @@ function bridgeSecretKey(){
  * the robot, not admin-only.
  *
  * POST {action:'idle-on'|'idle-off'}: admin-only "Live Robot Session"
- * toggle — loops idle.py on the physical robot so it looks alive between
- * real jobs. 'idle-on' is refused (409) if any job is pending/approved/
+ * toggle — holds the physical robot still in its safe rest pose between
+ * real jobs (agents before 0.6.0 looped idle.py's gestures here). 'idle-on' is refused (409) if any job is pending/approved/
  * running for this robot, so idle can never start into a race with a job
  * about to be dispatched, and (502) if the robot couldn't be told to start,
  * so "on" never shows for a session that isn't running. 'idle-off' reports
@@ -46,6 +46,14 @@ function bridgeSecretKey(){
  * admin's intent, not a live status report) and reset to false server-side
  * by api/robot/queue.js's approve action the moment a job is approved —
  * see db/migrations/008_robot_idle_session.sql.
+ *
+ * POST {action:'movement-on'|'movement-off'}: admin-only "Movement" toggle.
+ * Since agent 0.6.0 the session only holds the safe rest pose; the ambient
+ * gestures run only while Movement is on. 'movement-on' is refused (409
+ * session_off) unless the session is on, and (502) unless the robot itself
+ * confirmed it, so an older agent or a robot whose session is really off
+ * never shows "on". Turning the session off turns Movement off with it.
+ * Persisted in robots.movement_enabled; see db/migrations/009_robot_movement.sql.
  */
 export default async function handler(req, res){
   privateResponse(res);
@@ -60,7 +68,7 @@ export default async function handler(req, res){
 
   const started = Date.now();
   const rows = await sql`
-    SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled
+    SELECT serial_number, is_online, last_seen_at, agent_version, idle_session_enabled, movement_enabled
     FROM robots WHERE id = ${robotId}
   `;
   if (req.method === 'GET') logDbRead({ view: 'status', role: member.role, rows: rows.length, dbBytes: approxBytes(rows), ms: Date.now() - started });
@@ -79,7 +87,7 @@ export default async function handler(req, res){
       const [, turnedOn] = await sql.transaction([
         sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
         sql`
-          UPDATE robots SET idle_session_enabled = true
+          UPDATE robots SET idle_session_enabled = true, movement_enabled = false
           WHERE id = ${robotId} AND NOT EXISTS (
             SELECT 1 FROM robot_jobs WHERE robot_id = ${robotId} AND status IN ('pending', 'approved', 'running')
           )
@@ -92,19 +100,64 @@ export default async function handler(req, res){
       try { relay = await callBridge('/idle-request', { robotId, action: 'start' }); } catch (e) { /* handled below */ }
       if (!relay || !relay.delivered){
         // "On" must mean the robot was actually told; otherwise the toggle lies.
-        await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId}`;
+        await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false WHERE id = ${robotId}`;
         if (relay && relay.reason === 'job_running'){ res.status(409).json({ error: 'job_in_progress' }); return; }
         res.status(502).json({ error: 'robot_unreachable', message: "Couldn't reach the robot to start the live session. Check that it's online." });
         return;
       }
-      res.status(200).json({ ok: true, idleSessionEnabled: true });
+      res.status(200).json({ ok: true, idleSessionEnabled: true, movementEnabled: false });
       return;
     }
 
-    await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId}`;
+    // One statement: Movement never outlives the session (the robot drops it on idle.stop too).
+    await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false WHERE id = ${robotId}`;
     let delivered = false;
     try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
-    res.status(200).json({ ok: true, idleSessionEnabled: false, delivered });
+    res.status(200).json({ ok: true, idleSessionEnabled: false, movementEnabled: false, delivered });
+    return;
+  }
+
+  if (req.method === 'POST' && (req.body?.action === 'movement-on' || req.body?.action === 'movement-off')){
+    if (member.role !== 'admin'){ res.status(403).json({ error: 'not_authorized' }); return; }
+
+    if (req.body.action === 'movement-on'){
+      // The session check and the flag flip are one statement, so a concurrent idle-off cannot slip between them.
+      const turnedOn = await sql`
+        UPDATE robots SET movement_enabled = true
+        WHERE id = ${robotId} AND idle_session_enabled = true
+        RETURNING id
+      `;
+      if (!turnedOn.length){
+        res.status(409).json({ error: 'session_off', message: 'Turn Live Robot Session on first.' });
+        return;
+      }
+
+      let relay = null;
+      try { relay = await callBridge('/movement-request', { robotId, action: 'start' }); } catch (e) { /* handled below */ }
+      if (!relay || !relay.delivered || relay.movement !== true){
+        // "On" must mean the robot itself said so; anything less is put back.
+        await sql`UPDATE robots SET movement_enabled = false WHERE id = ${robotId}`;
+        if (relay && relay.reason === 'session_off'){
+          // The robot's session is really off (a job ran, or the agent restarted): the saved intent was stale.
+          await sql`UPDATE robots SET idle_session_enabled = false WHERE id = ${robotId}`;
+          res.status(409).json({ error: 'session_off', message: 'The robot reports Live Robot Session is off. Turn it on again first.', idleSessionEnabled: false });
+          return;
+        }
+        if (relay && relay.reason === 'job_running'){ res.status(409).json({ error: 'job_in_progress' }); return; }
+        const message = relay && relay.reason === 'no_reply'
+          ? "The robot didn't confirm Movement. Its software may need updating (agent 0.6.0 or newer)."
+          : "Couldn't reach the robot to start Movement. Check that it's online.";
+        res.status(502).json({ error: 'robot_unreachable', message });
+        return;
+      }
+      res.status(200).json({ ok: true, idleSessionEnabled: true, movementEnabled: true });
+      return;
+    }
+
+    await sql`UPDATE robots SET movement_enabled = false WHERE id = ${robotId}`;
+    let delivered = false;
+    try { delivered = !!(await callBridge('/movement-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
+    res.status(200).json({ ok: true, idleSessionEnabled: r.idle_session_enabled, movementEnabled: false, delivered });
     return;
   }
 
@@ -160,5 +213,6 @@ export default async function handler(req, res){
     lastSeenAt: r.last_seen_at,
     agentVersion: r.agent_version,
     idleSessionEnabled: r.idle_session_enabled,
+    movementEnabled: r.idle_session_enabled && r.movement_enabled,
   });
 }

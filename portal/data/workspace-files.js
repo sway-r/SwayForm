@@ -165,6 +165,8 @@ SERVO_RANGES = {
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
 
+REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
+
 
 def _mv(addr, ch, target, steps, delay):
     """Build a ServoController.run_threads() move scaled by SPEED_SCALE."""
@@ -177,7 +179,7 @@ def _mv(addr, ch, target, steps, delay):
 
 
 def center_all(ctrl):
-    moves = [_mv(addr, ch, target, 70, 0.01) for (addr, ch), target in CENTERS.items()]
+    moves = [_mv(addr, ch, target, 70, 0.01) for (addr, ch), target in REST.items()]
     ctrl.run_threads(moves)
 
 
@@ -250,12 +252,12 @@ def elbow_wave(ctrl, cycles=WAVE_CYCLES):
 
 
 def perform_wave(mock=False):
-    """Run the full sequence: center -> open hand -> wave-ready pose -> elbow wave -> center."""
+    """Run the full sequence: rest pose -> open hand -> wave-ready pose -> elbow wave -> rest pose."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-        ctrl.current = CENTERS.copy()
+        ctrl.current = REST.copy()
         try:
-            print("Centering...")
+            print("Moving to the rest pose...")
             center_all(ctrl)
             time.sleep(0.4)
 
@@ -271,7 +273,7 @@ def perform_wave(mock=False):
             elbow_wave(ctrl)
             time.sleep(0.4)
 
-            print("Returning to center...")
+            print("Returning to the rest pose...")
             center_all(ctrl)
 
         finally:
@@ -282,7 +284,7 @@ def wave_forever(mock=False, center_on_stop=False):
     """Go to the wave-ready pose and keep waving until Ctrl+C, then settle the arm."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-        ctrl.current = CENTERS.copy()
+        ctrl.current = REST.copy()
         try:
             print("Opening hand...")
             open_hand(ctrl)
@@ -297,7 +299,7 @@ def wave_forever(mock=False, center_on_stop=False):
 
         except KeyboardInterrupt:
             if center_on_stop:
-                print("Centering...")
+                print("Moving to the rest pose...")
                 center_all(ctrl)
             else:
                 print("Returning to wave-ready position...")
@@ -359,7 +361,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""Handshake behavior: reach forward, grip, shake, then open the hand and return to center."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""Handshake behavior: reach forward, grip, shake, then open the hand and return to the rest pose."""
 
 import time
 import threading
@@ -409,6 +411,8 @@ SERVO_RANGES = {
     (PCA_HAND, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
+
+REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
 
 # Reach pose: shoulder pitch swings forward from center by this many degrees.
 REACH_PITCH_OFFSET = 50
@@ -471,15 +475,15 @@ def shake(ctrl, elbow_base):
 
 
 def open_and_return(ctrl):
-    """Open the hand and bring every joint back to CENTERS."""
-    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
+    """Open the hand and bring every joint back to the rest pose."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in REST.items()])
 
 
 def perform_handshake(mock=False):
-    """Run the full sequence: reach forward -> hold -> grip -> shake -> open hand and return to center."""
+    """Run the full sequence: reach forward -> hold -> grip -> shake -> open hand and return to the rest pose."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-        ctrl.current = CENTERS.copy()
+        ctrl.current = REST.copy()
         try:
             print("Reaching forward...")
             reach_forward(ctrl)
@@ -493,7 +497,7 @@ def perform_handshake(mock=False):
             shake(ctrl, ELBOW_BENT_IN)
             time.sleep(0.1)
 
-            print("Opening hand and returning to center...")
+            print("Opening hand and returning to the rest pose...")
             open_and_return(ctrl)
 
         finally:
@@ -551,7 +555,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `"""Fist bump behavior: raise the right arm with a curled fist, punch forward, then return to center."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `"""Fist bump behavior: raise the right arm with a curled fist, punch forward, then return to the rest pose."""
 
 import time
 import threading
@@ -585,7 +589,7 @@ CENTERS = {
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
     (PCA_REACH, SHOULDER_PITCH): 170,
-    (PCA_REACH, NECK_PITCH): 155,  # re-tested on hardware 2026-09-15, was 105 (never hardware-verified)
+    (PCA_REACH, NECK_PITCH): 161,  # head re-centered 2026-09-20
 }
 
 LIMITS = {
@@ -609,6 +613,8 @@ SERVO_RANGES = {
     (PCA_REACH, NECK_PITCH): 270.0,
 }
 
+REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
+
 FISTBUMP_PITCH_OFFSET = 35   # was 50 (handshake-matched)
 ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # used to derive JERK_ELBOW_PEAK
 FIST_ELBOW_BASE = ELBOW_BENT_IN - 10   # 50, was ELBOW_BENT_IN itself (60, handshake-matched) — bent in 10 more
@@ -624,7 +630,7 @@ NOD_OUT_DURATION = JERK_OUT_DURATION * 1.2
 NOD_BACK_DURATION = JERK_BACK_DURATION * 1.2
 
 RAISE_DURATION = 1.5   # arm raise and hand curl run together, both finish at once
-HOLD_BEFORE_BUMP = 0.6   # beat held as a raised fist before the jerk
+HOLD_BEFORE_BUMP = 3.0   # beat held as a raised fist before the jerk
 RETURN_DURATION = 2.0
 
 TICK_DELAY = 0.02  # ~20ms interpolation tick
@@ -685,8 +691,8 @@ def bump_jerk(ctrl, pitch_base, elbow_base):
 
 
 def open_and_return(ctrl):
-    """Open the hand and bring every joint back to CENTERS."""
-    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
+    """Open the hand and bring every joint back to the rest pose."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in REST.items()])
 
 
 class _TorsoPulse:
@@ -722,10 +728,10 @@ class _TorsoPulse:
 
 
 def perform_fist_bump(mock=False):
-    """Run the full sequence: raise and curl -> hold -> bump jerk -> open hand and return to center."""
+    """Run the full sequence: raise and curl -> hold -> bump jerk -> open hand and return to the rest pose."""
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-        ctrl.current = CENTERS.copy()
+        ctrl.current = REST.copy()
         torso = None
         try:
             torso = _TorsoPulse(mock)
@@ -744,7 +750,7 @@ def perform_fist_bump(mock=False):
             snap.join()
             time.sleep(0.1)
 
-            print("Opening hand and returning to center...")
+            print("Opening hand and returning to the rest pose...")
             recenter = threading.Thread(target=torso.pulse, args=(TORSO_RETURN_DIRECTION, TORSO_RETURN_DURATION))
             recenter.start()
             open_and_return(ctrl)
@@ -873,6 +879,8 @@ SERVO_RANGES = {
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
 
+REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
+
 RAISE_DURATION = 1.5
 RETURN_DURATION = 2.0
 TICK_DELAY = 0.02
@@ -921,18 +929,18 @@ def show_number(ctrl, number):
 
 
 def open_and_return(ctrl):
-    """Open the hand and bring every joint back to CENTERS."""
-    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in CENTERS.items()])
+    """Open the hand and bring every joint back to the rest pose."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in REST.items()])
 
 
 def perform_finger_count(mock=False):
-    """Run the full sequence: fist -> raise -> show NUMBER -> hold -> open hand and return to center."""
+    """Run the full sequence: fist -> raise -> show NUMBER -> hold -> open hand and return to the rest pose."""
     if NUMBER is not None and NUMBER not in (1, 2, 3, 4, 5):
         raise ValueError(f"NUMBER must be None or a whole number 1-5, got {NUMBER!r}")
 
     with sc.hardware_lock():
         ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-        ctrl.current = CENTERS.copy()
+        ctrl.current = REST.copy()
         try:
             print("Closing fist...")
             close_fist(ctrl)
@@ -949,7 +957,7 @@ def perform_finger_count(mock=False):
                 show_number(ctrl, NUMBER)
             time.sleep(HOLD_SECONDS)
 
-            print("Opening hand and returning to center...")
+            print("Opening hand and returning to the rest pose...")
             open_and_return(ctrl)
 
         finally:
@@ -1205,9 +1213,10 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py": `"""Idle behavior: random ambient gestures on the right arm and head until stopped."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/idle.py": `"""Idle behavior: holds the rest pose, and runs random ambient gestures on the arms and head while movement is on."""
 
 import random
+import sys
 import time
 import math
 import threading
@@ -1219,6 +1228,7 @@ from rclpy.node import Node
 from swayform_robot.hardware import servo_control as sc
 
 PCA_HAND = 0x40
+PCA_HAND_LEFT = 0x50
 PCA_REACH = 0x60
 
 THUMB = 0
@@ -1230,6 +1240,7 @@ WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1
+SHOULDER_PITCH_LEFT = 0
 NECK_YAW = 2
 NECK_PITCH = 3
 
@@ -1244,7 +1255,16 @@ LIMITS = {
     (PCA_HAND, WRIST): (60, 160),
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_HAND_LEFT, THUMB): (50, 135),
+    (PCA_HAND_LEFT, INDEX): (50, 135),
+    (PCA_HAND_LEFT, MIDDLE): (50, 135),
+    (PCA_HAND_LEFT, RING): (50, 135),
+    (PCA_HAND_LEFT, PINKY): (50, 135),
+    (PCA_HAND_LEFT, WRIST): (60, 160),
+    (PCA_HAND_LEFT, ELBOW): (65, 165),
+    (PCA_HAND_LEFT, SHOULDER_ROLL): (110, 250),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
+    (PCA_REACH, SHOULDER_PITCH_LEFT): (125, 235),
     (PCA_REACH, NECK_YAW): (120, 260),
     (PCA_REACH, NECK_PITCH): (130, 180),
 }
@@ -1252,39 +1272,64 @@ LIMITS = {
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_HAND_LEFT, ELBOW): 270.0,
+    (PCA_HAND_LEFT, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
+    (PCA_REACH, SHOULDER_PITCH_LEFT): 270.0,
     (PCA_REACH, NECK_YAW): 270.0,
     (PCA_REACH, NECK_PITCH): 270.0,
 }
 
-CENTERS = {
-    (PCA_HAND, THUMB): 50,
-    (PCA_HAND, INDEX): 135,
-    (PCA_HAND, MIDDLE): 135,
-    (PCA_HAND, RING): 135,
-    (PCA_HAND, PINKY): 135,
-    (PCA_HAND, WRIST): 100,
-    (PCA_HAND, ELBOW): 130,
-    (PCA_HAND, SHOULDER_ROLL): 160,
-    (PCA_REACH, SHOULDER_PITCH): 170,
-    (PCA_REACH, NECK_YAW): 190,
-    (PCA_REACH, NECK_PITCH): 155,
-}
+REST_POSE = {key: sc.REST_POSE[key] for key in LIMITS}
 
-REST_ELBOW = 40
-REST_SHOULDER_PITCH = 150
 
-REST_POSE = {
-    **CENTERS,
-    (PCA_HAND, ELBOW): REST_ELBOW,
-    (PCA_REACH, SHOULDER_PITCH): REST_SHOULDER_PITCH,
-}
+class _RightArm:
+    name = "right"
+    hand = PCA_HAND
+    pitch = SHOULDER_PITCH
+    finger_open = 135
+    finger_curled = 50
+    curl_sign = -1
+    thumb_open = 50
+    thumb_curled = 135
+    wave_roll = 40
+    wave_pitch = 260
+    wave_elbow_bent = 40
+    wave_elbow_open = 70
+    look_yaw_offset = -15
+    torso_out = "right"
+    torso_back = "left"
 
-ARM_KEYS = [
-    (PCA_HAND, THUMB), (PCA_HAND, INDEX), (PCA_HAND, MIDDLE),
-    (PCA_HAND, RING), (PCA_HAND, PINKY), (PCA_HAND, WRIST),
-    (PCA_HAND, ELBOW), (PCA_HAND, SHOULDER_ROLL), (PCA_REACH, SHOULDER_PITCH),
-]
+
+class _LeftArm:
+    name = "left"
+    hand = PCA_HAND_LEFT
+    pitch = SHOULDER_PITCH_LEFT
+    finger_open = 50
+    finger_curled = 135
+    curl_sign = 1
+    thumb_open = 135
+    thumb_curled = 50
+    wave_roll = 250
+    wave_pitch = 125
+    wave_elbow_bent = 65
+    wave_elbow_open = 95
+    look_yaw_offset = 15
+    torso_out = "left"
+    torso_back = "right"
+
+
+RIGHT = _RightArm
+LEFT = _LeftArm
+ARMS = [RIGHT, LEFT]
+
+_active_arms = list(ARMS)
+
+
+def _arm_keys(arm):
+    hand_channels = [THUMB, INDEX, MIDDLE, RING, PINKY, WRIST, ELBOW, SHOULDER_ROLL]
+    return [(arm.hand, ch) for ch in hand_channels] + [(PCA_REACH, arm.pitch)]
+
 
 TICK_DELAY = 0.02
 
@@ -1298,23 +1343,14 @@ ARM_RAISE_DURATION = 2.5
 ARM_RETURN_DURATION = 3.0
 CENTER_DURATION = 3.0
 
-WAVE_SHOULDER_ROLL = 40
-WAVE_SHOULDER_PITCH = 260
-WAVE_ELBOW_BENT = 40
-WAVE_ELBOW_OPEN = 70
 WAVE_STROKE_DURATION = 1.2
 
-FINGER_OPEN = 135
 RIPPLE_AMPLITUDE = 40
 RIPPLE_SPEED = 3.0
 PHASE_OFFSET = math.pi / 2
 RIPPLE_TICK = 0.02
 FINGER_CURL_SECONDS = 3.0
 
-FINGER_EXTENDED = 135
-FINGER_CURLED = 50
-THUMB_EXTENDED = 50
-THUMB_CURLED = 135
 HAND_DURATION = 1.5
 PEACE_NUMBER = 2
 PEACE_HOLD_SECONDS = 2.5
@@ -1327,16 +1363,22 @@ class _Stopped(Exception):
 
 
 _stop_event = threading.Event()
+_movement_event = threading.Event()
 
 
 def _check_stop():
-    if _stop_event.is_set():
+    if _stop_event.is_set() or not _movement_event.is_set():
         raise _Stopped
 
 
 def _hold(seconds):
-    if _stop_event.wait(seconds):
-        raise _Stopped
+    deadline = time.monotonic() + seconds
+    while True:
+        _check_stop()
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return
+        _stop_event.wait(min(0.1, left))
 
 
 def _mv(addr, ch, target, duration):
@@ -1348,9 +1390,10 @@ def _mv(addr, ch, target, duration):
     }
 
 
-def _arm_to_rest(ctrl, duration):
+def _arm_to_rest(ctrl, duration, *arms):
     _check_stop()
-    ctrl.run_threads([_mv(addr, ch, REST_POSE[(addr, ch)], duration) for (addr, ch) in ARM_KEYS])
+    keys = [key for arm in arms for key in _arm_keys(arm)]
+    ctrl.run_threads([_mv(addr, ch, REST_POSE[(addr, ch)], duration) for (addr, ch) in keys])
 
 
 def _head_move(ctrl, targets):
@@ -1370,25 +1413,25 @@ def _head_to_rest(ctrl):
     _head_move(ctrl, {ch: REST_POSE[(PCA_REACH, ch)] for ch in (NECK_YAW, NECK_PITCH)})
 
 
-def _center_all(ctrl):
-    arm = threading.Thread(
-        target=ctrl.run_threads,
-        args=([_mv(addr, ch, CENTERS[(addr, ch)], CENTER_DURATION) for (addr, ch) in ARM_KEYS],),
-    )
-    arm.start()
-    _head_move(ctrl, {ch: CENTERS[(PCA_REACH, ch)] for ch in (NECK_YAW, NECK_PITCH)})
-    arm.join()
+def _rest_all(ctrl):
+    keys = [key for arm in _active_arms for key in _arm_keys(arm)]
+    arms = threading.Thread(target=sc.go_to_rest, args=(ctrl, keys, CENTER_DURATION))
+    arms.start()
+    for ch in (NECK_YAW, NECK_PITCH):
+        ctrl.current[(PCA_REACH, ch)] = ctrl.position(PCA_REACH, ch, SERVO_RANGES[(PCA_REACH, ch)])
+    _head_move(ctrl, {ch: REST_POSE[(PCA_REACH, ch)] for ch in (NECK_YAW, NECK_PITCH)})
+    arms.join()
 
 
-def _finger_curl_wave(ctrl, seconds):
+def _finger_curl_wave(ctrl, arm, seconds):
     _check_stop()
     start = time.monotonic()
     while time.monotonic() - start < seconds and not _stop_event.is_set():
         t = time.monotonic() - start
         for i, ch in enumerate(FINGER_CHANNELS):
             theta = t * RIPPLE_SPEED - i * PHASE_OFFSET
-            angle = FINGER_OPEN - RIPPLE_AMPLITUDE * (0.5 + 0.5 * math.sin(theta))
-            ctrl.set_servo(PCA_HAND, ch, angle, LIMITS[(PCA_HAND, ch)])
+            angle = arm.finger_open + arm.curl_sign * RIPPLE_AMPLITUDE * (0.5 + 0.5 * math.sin(theta))
+            ctrl.set_servo(arm.hand, ch, angle, LIMITS[(arm.hand, ch)])
         time.sleep(RIPPLE_TICK)
 
 
@@ -1409,37 +1452,46 @@ def _run_concurrently(*calls):
     _check_stop()
 
 
-def _finger_targets(number):
+def _finger_targets(arm, number):
     if not number:
-        targets = {THUMB: THUMB_CURLED}
-        targets.update({ch: FINGER_CURLED for ch in FINGER_CHANNELS})
+        targets = {THUMB: arm.thumb_curled}
+        targets.update({ch: arm.finger_curled for ch in FINGER_CHANNELS})
         return targets
     extended = set(FINGER_CHANNELS[:min(number, 4)])
-    targets = {ch: (FINGER_EXTENDED if ch in extended else FINGER_CURLED) for ch in FINGER_CHANNELS}
-    targets[THUMB] = THUMB_EXTENDED if number >= 5 else THUMB_CURLED
+    targets = {ch: (arm.finger_open if ch in extended else arm.finger_curled) for ch in FINGER_CHANNELS}
+    targets[THUMB] = arm.thumb_open if number >= 5 else arm.thumb_curled
     return targets
 
 
-def _show_fingers(ctrl, number):
+def _show_fingers(ctrl, arm, number):
     _check_stop()
-    ctrl.run_threads([_mv(PCA_HAND, ch, t, HAND_DURATION) for ch, t in _finger_targets(number).items()])
+    ctrl.run_threads([_mv(arm.hand, ch, t, HAND_DURATION) for ch, t in _finger_targets(arm, number).items()])
 
 
-def _raise_arm(ctrl):
+def _raise_arm(ctrl, *arms):
     _check_stop()
-    ctrl.run_threads([
-        _mv(PCA_HAND, SHOULDER_ROLL, WAVE_SHOULDER_ROLL, ARM_RAISE_DURATION),
-        _mv(PCA_REACH, SHOULDER_PITCH, WAVE_SHOULDER_PITCH, ARM_RAISE_DURATION),
-        _mv(PCA_HAND, ELBOW, WAVE_ELBOW_BENT, ARM_RAISE_DURATION),
-        _mv(PCA_HAND, WRIST, REST_POSE[(PCA_HAND, WRIST)], ARM_RAISE_DURATION),
-    ])
+    moves = []
+    for arm in arms:
+        moves += [
+            _mv(arm.hand, SHOULDER_ROLL, arm.wave_roll, ARM_RAISE_DURATION),
+            _mv(PCA_REACH, arm.pitch, arm.wave_pitch, ARM_RAISE_DURATION),
+            _mv(arm.hand, ELBOW, arm.wave_elbow_bent, ARM_RAISE_DURATION),
+            _mv(arm.hand, WRIST, REST_POSE[(arm.hand, WRIST)], ARM_RAISE_DURATION),
+        ]
+    ctrl.run_threads(moves)
 
 
-def _wave_stroke(ctrl):
+def _wave_stroke(ctrl, *arms):
     _check_stop()
-    ctrl.run_threads([_mv(PCA_HAND, ELBOW, WAVE_ELBOW_OPEN, WAVE_STROKE_DURATION)])
+    ctrl.run_threads([_mv(arm.hand, ELBOW, arm.wave_elbow_open, WAVE_STROKE_DURATION) for arm in arms])
     _check_stop()
-    ctrl.run_threads([_mv(PCA_HAND, ELBOW, WAVE_ELBOW_BENT, WAVE_STROKE_DURATION)])
+    ctrl.run_threads([_mv(arm.hand, ELBOW, arm.wave_elbow_bent, WAVE_STROKE_DURATION) for arm in arms])
+
+
+def _pick_arm():
+    arm = random.choice(_active_arms)
+    print(f"      {arm.name} arm")
+    return arm
 
 
 class _TorsoPulse:
@@ -1448,6 +1500,7 @@ class _TorsoPulse:
         self.tm = None
         self.cfg = None
         self.speed = PEACE_TORSO_SPEED_PERCENT
+        self.net = 0.0
         if not mock:
             from swayform_robot.hardware import torso_motor as tm
             self.tm = tm
@@ -1455,18 +1508,35 @@ class _TorsoPulse:
             self.tm.setup_gpio(self.cfg)
             self.speed = min(PEACE_TORSO_SPEED_PERCENT, self.cfg["max_speed_percent"])
 
-    def pulse(self, direction, duration):
-        _check_stop()
-        if self.mock:
-            print(f"[MOCK] torso {direction} @ {self.speed}% for {duration}s")
-            _hold(duration)
-            return
-        move = self.tm.rotate_right if direction == "right" else self.tm.rotate_left
-        move(self.cfg, self.speed)
-        stopped = _stop_event.wait(duration)
-        self.tm.stop_motor(self.cfg)
-        if stopped:
-            raise _Stopped
+    def pulse(self, direction, duration, checked=True):
+        if checked:
+            _check_stop()
+        sign = 1.0 if direction == "right" else -1.0
+        began = time.monotonic()
+        try:
+            if self.mock:
+                print(f"[MOCK] torso {direction} @ {self.speed}% for {duration:.1f}s")
+                if checked:
+                    _hold(duration)
+                else:
+                    time.sleep(duration)
+                return
+            move = self.tm.rotate_right if direction == "right" else self.tm.rotate_left
+            move(self.cfg, self.speed)
+            try:
+                if checked:
+                    _hold(duration)
+                else:
+                    time.sleep(duration)
+            finally:
+                self.tm.stop_motor(self.cfg)
+        finally:
+            self.net += sign * (time.monotonic() - began)
+
+    def recenter(self):
+        if abs(self.net) > 0.1:
+            self.pulse("left" if self.net > 0 else "right", min(abs(self.net), 3.0), checked=False)
+        self.net = 0.0
 
     def close(self):
         if self.mock:
@@ -1516,25 +1586,34 @@ def action_head_glance(ctrl, torso):
 
 
 def action_wave_once(ctrl, torso):
-    _raise_arm(ctrl)
-    _wave_stroke(ctrl)
-    _arm_to_rest(ctrl, ARM_RETURN_DURATION)
+    arm = _pick_arm()
+    _raise_arm(ctrl, arm)
+    _wave_stroke(ctrl, arm)
+    _arm_to_rest(ctrl, ARM_RETURN_DURATION, arm)
 
 
-def action_finger_curl_right(ctrl, torso):
-    _finger_curl_wave(ctrl, FINGER_CURL_SECONDS)
-    _arm_to_rest(ctrl, ARM_RETURN_DURATION)
+def action_wave_both(ctrl, torso):
+    _raise_arm(ctrl, RIGHT, LEFT)
+    _wave_stroke(ctrl, RIGHT, LEFT)
+    _arm_to_rest(ctrl, ARM_RETURN_DURATION, RIGHT, LEFT)
 
 
-def action_look_and_curl_right(ctrl, torso):
+def action_finger_curl(ctrl, torso):
+    arm = _pick_arm()
+    _finger_curl_wave(ctrl, arm, FINGER_CURL_SECONDS)
+    _arm_to_rest(ctrl, ARM_RETURN_DURATION, arm)
+
+
+def action_look_and_curl(ctrl, torso):
+    arm = _pick_arm()
     head_targets = {
-        NECK_YAW: REST_POSE[(PCA_REACH, NECK_YAW)] - 15,
+        NECK_YAW: REST_POSE[(PCA_REACH, NECK_YAW)] + arm.look_yaw_offset,
         NECK_PITCH: LIMITS[(PCA_REACH, NECK_PITCH)][0],
     }
-    elbow_in = [_mv(PCA_HAND, ELBOW, LIMITS[(PCA_HAND, ELBOW)][0], ELBOW_LIMIT_DURATION)]
+    elbow_in = [_mv(arm.hand, ELBOW, LIMITS[(arm.hand, ELBOW)][0], ELBOW_LIMIT_DURATION)]
     _run_concurrently((ctrl.run_threads, (elbow_in,)), (_head_move, (ctrl, head_targets)))
-    _finger_curl_wave(ctrl, FINGER_CURL_SECONDS)
-    _run_concurrently((_arm_to_rest, (ctrl, ARM_RETURN_DURATION)), (_head_to_rest, (ctrl,)))
+    _finger_curl_wave(ctrl, arm, FINGER_CURL_SECONDS)
+    _run_concurrently((_arm_to_rest, (ctrl, ARM_RETURN_DURATION, arm)), (_head_to_rest, (ctrl,)))
 
 
 def action_mix_wave_and_head(ctrl, torso):
@@ -1543,52 +1622,83 @@ def action_mix_wave_and_head(ctrl, torso):
 
 
 def action_peace_and_wave(ctrl, torso):
-    torso.pulse("right", PEACE_TORSO_SECONDS)
-    _show_fingers(ctrl, None)
-    _raise_arm(ctrl)
-    _show_fingers(ctrl, PEACE_NUMBER)
+    arm = _pick_arm()
+    torso.pulse(arm.torso_out, PEACE_TORSO_SECONDS)
+    _show_fingers(ctrl, arm, None)
+    _raise_arm(ctrl, arm)
+    _show_fingers(ctrl, arm, PEACE_NUMBER)
     _hold(PEACE_HOLD_SECONDS)
-    torso.pulse("left", 2 * PEACE_TORSO_SECONDS)
-    _show_fingers(ctrl, 5)
-    _wave_stroke(ctrl)
+    torso.pulse(arm.torso_back, 2 * PEACE_TORSO_SECONDS)
+    _show_fingers(ctrl, arm, 5)
+    _wave_stroke(ctrl, arm)
     _run_concurrently(
-        (_arm_to_rest, (ctrl, ARM_RETURN_DURATION)),
-        (torso.pulse, ("right", PEACE_TORSO_SECONDS)),
+        (_arm_to_rest, (ctrl, ARM_RETURN_DURATION, arm)),
+        (torso.pulse, (arm.torso_out, PEACE_TORSO_SECONDS)),
     )
 
 
 IDLE_ACTIONS = [
     action_head_glance,
     action_wave_once,
-    action_finger_curl_right,
-    action_look_and_curl_right,
+    action_wave_both,
+    action_finger_curl,
+    action_look_and_curl,
     action_mix_wave_and_head,
     action_peace_and_wave,
 ]
 
+ARMS_NEEDED = {action_head_glance: 0, action_wave_both: 2}
 
-def perform_idle(seconds=None, mock=False, stop_event=None):
-    global _stop_event
+
+def perform_idle(seconds=None, mock=False, stop_event=None, movement_event=None, stay=True):
+    global _stop_event, _movement_event, _active_arms
     _stop_event = stop_event if stop_event is not None else threading.Event()
+    if movement_event is None:
+        movement_event = threading.Event()
+        movement_event.set()
+    _movement_event = movement_event
 
-    ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
-    ctrl.current = CENTERS.copy()
+    boards = sc.present_boards([arm.hand for arm in ARMS], mock=mock)
+    _active_arms = [arm for arm in ARMS if arm.hand in boards]
+    for arm in ARMS:
+        if arm not in _active_arms:
+            print(f"Idle: {arm.name} arm board not found, skipping its gestures")
+    actions = [a for a in IDLE_ACTIONS if ARMS_NEEDED.get(a, 1) <= len(_active_arms)]
+
+    ctrl = sc.ServoController([PCA_REACH] + boards, mock=mock)
+    ctrl.current = dict(REST_POSE)
     torso = _TorsoPulse(mock)
+
+    def rest(label):
+        try:
+            with sc.hardware_lock(blocking=False):
+                print(f"Idle: {label}")
+                torso.recenter()
+                _rest_all(ctrl)
+        except BlockingIOError:
+            pass
 
     start = time.monotonic()
     deck = []
     last = None
+    moving = False
     try:
-        with sc.hardware_lock(blocking=False):
-            _arm_to_rest(ctrl, ARM_RETURN_DURATION)
-        while True:
-            if _stop_event.is_set():
-                break
+        rest("moving to the rest pose")
+        while stay and not _stop_event.is_set():
             if seconds is not None and time.monotonic() - start >= seconds:
                 break
+            if not _movement_event.is_set():
+                if moving:
+                    moving = False
+                    rest("movement off, back to the rest pose")
+                _stop_event.wait(0.2)
+                continue
+            if not moving:
+                moving = True
+                print("Idle: movement on")
 
             if not deck:
-                deck = random.sample(IDLE_ACTIONS, len(IDLE_ACTIONS))
+                deck = random.sample(actions, len(actions))
                 if deck[0] is last and len(deck) > 1:
                     deck.append(deck.pop(0))
             action = deck.pop(0)
@@ -1599,18 +1709,16 @@ def perform_idle(seconds=None, mock=False, stop_event=None):
                 last = action
             except BlockingIOError:
                 deck.insert(0, action)
+            except _Stopped:
+                continue
 
-            if _stop_event.wait(random.uniform(*IDLE_REST_SECONDS)):
-                break
-    except (_Stopped, BlockingIOError):
+            pause_until = time.monotonic() + random.uniform(*IDLE_REST_SECONDS)
+            while time.monotonic() < pause_until and _movement_event.is_set() and not _stop_event.is_set():
+                _stop_event.wait(0.2)
+    except BlockingIOError:
         pass
     finally:
-        try:
-            with sc.hardware_lock(blocking=False):
-                print("Idle: centering")
-                _center_all(ctrl)
-        except BlockingIOError:
-            pass
+        rest("back to the rest pose")
         torso.close()
         ctrl.close()
 
@@ -1619,19 +1727,40 @@ class IdleNode(Node):
     def __init__(self):
         super().__init__("idle")
         self.declare_parameter("use_mock_hardware", False)
+        self.declare_parameter("movement", True)
+        self.declare_parameter("stay", True)
         mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        stay = self.get_parameter("stay").get_parameter_value().bool_value
         if mock:
             print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
             self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
 
+        self.done = False
         self._stop_event = threading.Event()
-        self._thread = threading.Thread(
-            target=perform_idle,
-            kwargs={"mock": mock, "stop_event": self._stop_event},
-            daemon=False,
-        )
+        self._movement_event = threading.Event()
+        if self.get_parameter("movement").get_parameter_value().bool_value:
+            self._movement_event.set()
+        self._thread = threading.Thread(target=self._run, args=(mock, stay), daemon=False)
         self._thread.start()
+        threading.Thread(target=self._read_commands, daemon=True).start()
         self.get_logger().info("Idle running.")
+
+    def _run(self, mock, stay):
+        try:
+            perform_idle(mock=mock, stop_event=self._stop_event, movement_event=self._movement_event, stay=stay)
+        finally:
+            self.done = True
+
+    def _read_commands(self):
+        try:
+            for line in sys.stdin:
+                command = line.strip().lower()
+                if command == "movement on":
+                    self._movement_event.set()
+                elif command == "movement off":
+                    self._movement_event.clear()
+        except (OSError, ValueError):
+            pass
 
     def destroy_node(self):
         self._stop_event.set()
@@ -1643,7 +1772,8 @@ def main(args=None):
     rclpy.init(args=args)
     node = IdleNode()
     try:
-        rclpy.spin(node)
+        while rclpy.ok() and not node.done:
+            rclpy.spin_once(node, timeout_sec=0.2)
     except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
@@ -1690,16 +1820,16 @@ def load_pose(pose_name: str, config_file: str = "robot.yaml") -> dict:
     return dict(poses[pose_name])
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# robot.yaml — central servo and hardware configuration. Rebuild + re-source after editing.
+  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# Central servo and hardware configuration for SwayForm. Rebuild + re-source after editing.
 
 # ─── HARDWARE MODE ───
-# mock_mode: true logs servo commands instead of moving anything
+# mock_mode: false once the PCA9685 boards are connected.
 hardware:
   mock_mode: true
   i2c_bus: 1
 
 # ─── PCA9685 BOARDS ───
-# Verify addresses with: i2cdetect -y 1. Never use 0x70 (all-call broadcast).
+# Verify with \`i2cdetect -y 1\`; never use 0x70 (all-call broadcast).
 pca_boards:
   right_arm_pca:
     address: 0x40
@@ -1717,7 +1847,10 @@ pca_boards:
     notes: "Left hand fingers (ch0-4), wrist (ch5), elbow (ch6), shoulder_roll (ch7)"
 
 # ─── JOINTS ───
-# servo_range: 180 for standard servos, 270 for wide-range servos
+# servo_range: 180 for standard servos, 270 for wide-range units.
+# home_angle is the rest pose every behavior starts and ends in (elbows bent, shoulders slightly back): the robot
+# sits at a table edge and a straight elbow near the shoulder's centre hits the table. center_angle is calibration.
+# The rest pose the code uses lives in hardware/servo_control.py (REST_POSE); keep home_angle equal to it.
 
 joints:
 
@@ -1794,13 +1927,13 @@ joints:
   elbow:
     board: right_arm_pca
     channel: 6
-    home_angle: 130.0
+    home_angle: 40.0
     center_angle: 130.0
     min_angle: 40.0
     max_angle: 140.0
     direction: 1
     servo_range: 270
-    notes: "Elbow. Center 130. Inward limit 40, backward limit 140. Wave oscillates between 40-70. Wide-range (270) servo."
+    notes: "Elbow. Center 130. Inward limit 40, backward limit 140. Wide-range (270) servo."
 
   shoulder_roll:
     board: right_arm_pca
@@ -1811,112 +1944,110 @@ joints:
     max_angle: 170.0
     direction: 1
     servo_range: 270
-    notes: "Shoulder roll. Center 160. Outer limit 40 (also the wave pose target), inner limit 170. Wide-range (270) servo."
+    notes: "Shoulder roll. Center 160. Outer limit 40, inner limit 170. Wide-range (270) servo."
 
   # ─── REACH AXIS  (board: reach_pca / 0x60) ───────────────────────────────
-  # ch0 = left arm shoulder pitch
-  # ch1 = right arm shoulder pitch
+  # ch0 = left shoulder pitch, ch1 = right shoulder pitch
   right_shoulder_pitch:
     board: reach_pca
     channel: 1
-    home_angle: 170.0
+    home_angle: 150.0
     center_angle: 170.0
     min_angle: 150.0
     max_angle: 260.0
     direction: 1
     servo_range: 270
-    notes: "Right arm shoulder pitch. Center 170. Back limit 150. Forward limit 260 (also the wave pose target). Wide-range (270) servo."
+    notes: "Right arm shoulder pitch. Center 170. Back limit 150, forward limit 260. Wide-range (270) servo."
 
   left_shoulder_pitch:
     board: reach_pca
     channel: 0
-    home_angle: 135.0
-    center_angle: 135.0
-    min_angle: 90.0
-    max_angle: 170.0
+    home_angle: 235.0
+    center_angle: 215.0
+    min_angle: 95.0
+    max_angle: 235.0
     direction: 1
     servo_range: 270
-    notes: "Left shoulder pitch. Center 135. Forward limit ~90, back limit ~170. Wide-range (270) servo. Angles unverified on hardware."
+    notes: "Left shoulder pitch. Center 215. Front/up limit 95 (raised from 125, 2026-09-20), backward limit 235. Wide-range (270) servo."
 
   # ─── HEAD  (board: reach_pca / 0x60) ─────────────────────────────────────
-  # re-tested on real hardware 2026-09-15
   neck_pitch:
     board: reach_pca
     channel: 3
-    home_angle: 155.0
-    center_angle: 155.0
+    home_angle: 161.0
+    center_angle: 161.0
     min_angle: 130.0
     max_angle: 180.0
     direction: 1
     servo_range: 270
-    notes: "Head nod (pitch). Center 155. Down limit 130, up limit 180."
+    notes: "Head nod (pitch). Center 161 (camera level by its accelerometer, 2026-09-20). Down limit 130, up limit 180. Wide-range (270) servo."
 
   neck_yaw:
     board: reach_pca
     channel: 2
-    home_angle: 190.0
-    center_angle: 190.0
+    home_angle: 195.0
+    center_angle: 195.0
     min_angle: 120.0
     max_angle: 260.0
     direction: 1
     servo_range: 270
-    notes: "Head turn (yaw). Center 190. Right limit 120, left limit 260."
+    notes: "Head turn (yaw). Center 195 (re-centered by eye 2026-09-20). Right limit 120, left limit 260. Wide-range (270) servo."
 
   # ─── LEFT ARM  (board: left_arm_pca / 0x50) ──────────────────────────────
   left_thumb:
     board: left_arm_pca
     channel: 0
+    home_angle: 135.0
+    center_angle: 135.0
+    min_angle: 50.0
+    max_angle: 135.0
+    direction: 1
+    servo_range: 180
+    notes: "Left thumb. 135=open/straight, 50=fully curled. Reversed from the right thumb."
+
+  left_index:
+    board: left_arm_pca
+    channel: 1
     home_angle: 50.0
     center_angle: 50.0
     min_angle: 50.0
     max_angle: 135.0
     direction: 1
     servo_range: 180
-    notes: "Left thumb. 50=open/straight, 135=fully curled."
-
-  left_index:
-    board: left_arm_pca
-    channel: 1
-    home_angle: 135.0
-    center_angle: 135.0
-    min_angle: 50.0
-    max_angle: 135.0
-    direction: 1
-    servo_range: 180
-    notes: "Left index finger. 135=open, 50=fully curled."
+    notes: "Left index finger. 50=open, 135=fully curled. Reversed from the right hand."
 
   left_middle:
     board: left_arm_pca
     channel: 2
-    home_angle: 135.0
-    center_angle: 135.0
+    home_angle: 50.0
+    center_angle: 50.0
     min_angle: 50.0
     max_angle: 135.0
     direction: 1
     servo_range: 180
-    notes: "Left middle finger. 135=open, 50=fully curled."
+    notes: "Left middle finger. 50=open, 135=fully curled. Reversed from the right hand."
 
   left_ring:
     board: left_arm_pca
     channel: 3
-    home_angle: 135.0
-    center_angle: 135.0
+    home_angle: 50.0
+    center_angle: 50.0
     min_angle: 50.0
     max_angle: 135.0
     direction: 1
     servo_range: 180
-    notes: "Left ring finger. 135=open, 50=fully curled."
+    notes: "Left ring finger. 50=open, 135=fully curled. Reversed from the right hand."
 
   left_pinky:
     board: left_arm_pca
     channel: 4
-    home_angle: 135.0
-    center_angle: 135.0
+    home_angle: 50.0
+    center_angle: 50.0
     min_angle: 50.0
     max_angle: 135.0
     direction: 1
     servo_range: 180
-    notes: "Left pinky finger. 135=open, 50=fully curled."
+    notes: "Left pinky finger. 50=open, 135=fully curled. Reversed from the right hand."
 
   left_wrist:
     board: left_arm_pca
@@ -1927,33 +2058,45 @@ joints:
     max_angle: 160.0
     direction: 1
     servo_range: 180
-    notes: "Left wrist. Center 100. Range 60-160. Matches right wrist layout (ch5 was previously mislabeled left_elbow_rotate)."
+    notes: "Left wrist. Center 100. Range 60-160."
 
   left_elbow:
     board: left_arm_pca
     channel: 6
-    home_angle: 105.0
-    center_angle: 105.0
-    min_angle: 30.0
-    max_angle: 120.0
+    home_angle: 65.0
+    center_angle: 155.0
+    min_angle: 65.0
+    max_angle: 165.0
     direction: 1
     servo_range: 270
-    notes: "Left elbow. Center 105. Front (straight) limit 30, back (bent) limit 120. Wide-range (270) servo. Angles unverified on hardware."
+    notes: "Left elbow. Center 155. Front limit 65, backward limit 165. Wide-range (270) servo."
 
   left_shoulder_roll:
     board: left_arm_pca
     channel: 7
-    home_angle: 130.0
-    center_angle: 130.0
-    min_angle: 120.0
-    max_angle: 190.0
+    home_angle: 120.0
+    center_angle: 120.0
+    min_angle: 110.0
+    max_angle: 250.0
     direction: 1
     servo_range: 270
-    notes: "Left shoulder roll. Center 130. Inner limit 120, outer limit ~190. Wide-range (270) servo — must stay 270 or the outer limit clamps to 180."
+    notes: "Left shoulder roll. Center 120. Inner limit 110, outer limit 250. Increasing angle moves outward. Wide-range (270) servo."
 
 # ─── NAMED POSES ───
-# {joint_name: angle_degrees} — read with load_pose("hand_open")
+# {joint_name: angle_degrees}; load with load_pose("name") from swayform_robot.config.
 poses:
+
+  rest:
+    elbow: 40.0
+    right_shoulder_pitch: 150.0
+    shoulder_roll: 160.0
+    wrist: 100.0
+    left_elbow: 65.0
+    left_shoulder_pitch: 235.0
+    left_shoulder_roll: 120.0
+    left_wrist: 100.0
+    neck_yaw: 195.0
+    neck_pitch: 161.0
 
   hand_open:
     thumb: 50.0
@@ -1975,7 +2118,7 @@ poses:
     shoulder_roll: 160.0
     right_shoulder_pitch: 170.0
 
-  # unverified against the current calibration — re-test on hardware before using
+  # Unverified against the current arm calibration; re-test on hardware before use.
   handshake_ready:
     right_shoulder_pitch: 150.0
     elbow: 110.0
@@ -1988,30 +2131,37 @@ poses:
     pinky_finger: 135.0
 
   left_hand_open:
-    left_thumb: 50.0
-    left_index: 135.0
-    left_middle: 135.0
-    left_ring: 135.0
-    left_pinky: 135.0
-
-  left_hand_closed:
     left_thumb: 135.0
     left_index: 50.0
     left_middle: 50.0
     left_ring: 50.0
     left_pinky: 50.0
 
+  left_hand_closed:
+    left_thumb: 50.0
+    left_index: 135.0
+    left_middle: 135.0
+    left_ring: 135.0
+    left_pinky: 135.0
+
+  left_arm_center:
+    left_wrist: 100.0
+    left_elbow: 155.0
+    left_shoulder_roll: 120.0
+    left_shoulder_pitch: 215.0
+
+  # Remapped to the 2026-09-20 left-arm calibration; not yet run on hardware.
   left_grab_reach:
-    left_shoulder_pitch: 100.0
+    left_shoulder_pitch: 180.0
 
   left_elbow_straight:
-    left_elbow: 50.0
+    left_elbow: 155.0
 
   left_elbow_bent_after_grab:
     left_elbow: 90.0
 
 # ─── TORSO MOTOR (DC motor via BTS7960 / IBT-2) ───
-# GPIO numbers are BCM, not physical pins
+# GPIO numbers are BCM.
 torso_motor:
   type: dc_motor
   driver: BTS7960 / IBT-2
@@ -2058,6 +2208,35 @@ MAX_US = 2500
 
 _LOCK_PATH = "/tmp/swayform_servo.lock"
 
+# The robot's one rest / home pose: elbows bent, shoulders slightly back, hands open, head centred.
+# The robot sits at the edge of a table, and a straight elbow with the shoulder near its centre hits the table,
+# so every behavior starts and ends here. (board, channel): (rest, low limit, high limit, servo range)
+_JOINTS = {
+    (0x40, 0): (50, 50, 135, 180.0),     # right thumb, open
+    (0x40, 1): (135, 50, 135, 180.0),    # right fingers, open
+    (0x40, 2): (135, 50, 135, 180.0),
+    (0x40, 3): (135, 50, 135, 180.0),
+    (0x40, 4): (135, 50, 135, 180.0),
+    (0x40, 5): (100, 60, 160, 180.0),    # right wrist
+    (0x40, 6): (40, 40, 140, 270.0),     # right elbow, bent
+    (0x40, 7): (160, 40, 170, 270.0),    # right shoulder roll
+    (0x50, 0): (135, 50, 135, 180.0),    # left thumb, open
+    (0x50, 1): (50, 50, 135, 180.0),     # left fingers, open
+    (0x50, 2): (50, 50, 135, 180.0),
+    (0x50, 3): (50, 50, 135, 180.0),
+    (0x50, 4): (50, 50, 135, 180.0),
+    (0x50, 5): (100, 60, 160, 180.0),    # left wrist
+    (0x50, 6): (65, 65, 165, 270.0),     # left elbow, bent
+    (0x50, 7): (120, 110, 250, 270.0),   # left shoulder roll
+    (0x60, 0): (235, 95, 235, 270.0),    # left shoulder pitch, slightly back
+    (0x60, 1): (150, 150, 260, 270.0),   # right shoulder pitch, slightly back
+    (0x60, 2): (195, 120, 260, 270.0),   # neck yaw
+    (0x60, 3): (161, 130, 180, 270.0),   # neck pitch
+}
+REST_POSE = {key: float(joint[0]) for key, joint in _JOINTS.items()}
+SHOULDER_PITCH_KEYS = {(0x60, 0), (0x60, 1)}
+REST_TOLERANCE_DEG = 0.7
+
 
 @contextlib.contextmanager
 def hardware_lock(blocking: bool = True):
@@ -2071,6 +2250,23 @@ def hardware_lock(blocking: bool = True):
         f.close()
 
 
+def present_boards(board_addresses, mock: bool = False):
+    """Subset of board_addresses that answer on the I2C bus; all of them in mock."""
+    if mock:
+        return list(board_addresses)
+    import board
+    import busio
+    i2c = busio.I2C(board.SCL, board.SDA)
+    while not i2c.try_lock():
+        time.sleep(0.01)
+    try:
+        found = set(i2c.scan())
+    finally:
+        i2c.unlock()
+        i2c.deinit()
+    return [addr for addr in board_addresses if addr in found]
+
+
 def angle_to_duty(angle: float, servo_range: float = 180.0) -> int:
     """Angle in degrees -> 16-bit PCA9685 duty cycle."""
     pulse_us = MIN_US + (angle / servo_range) * (MAX_US - MIN_US)
@@ -2082,6 +2278,7 @@ class ServoController:
 
     def __init__(self, board_addresses, mock: bool = False):
         self.mock = mock
+        self.boards = list(board_addresses)
         self.current = {}
         self._lock = threading.Lock()
         self._pcas = {}
@@ -2105,8 +2302,28 @@ class ServoController:
                 return
             self._pcas[addr].channels[ch].duty_cycle = angle_to_duty(angle, servo_range)
 
+    def commanded_angle(self, addr, ch, servo_range=180.0):
+        """The angle the board is currently outputting on a channel, or None (mock, or never driven)."""
+        if self.mock or addr not in self._pcas:
+            return None
+        with self._lock:
+            duty = self._pcas[addr].channels[ch].duty_cycle
+        if duty == 0:
+            return None
+        pulse_us = (duty + 8) / 65535 * 20000
+        return (pulse_us - MIN_US) / (MAX_US - MIN_US) * servo_range
+
+    def position(self, addr, ch, servo_range=180.0):
+        """Where a joint is now: what the board is outputting, else the last value set here, else the rest pose."""
+        commanded = self.commanded_angle(addr, ch, servo_range)
+        if commanded is not None:
+            return commanded
+        return self.current.get((addr, ch), REST_POSE.get((addr, ch)))
+
     def smooth_move(self, addr, ch, target, limits, steps=60, delay=0.01, servo_range=180.0):
-        start = self.current.get((addr, ch), target)
+        start = self.position(addr, ch, servo_range)
+        if start is None:
+            start = target
         low, high = limits
         target = max(low, min(high, target))
 
@@ -2129,6 +2346,32 @@ class ServoController:
         if not self.mock:
             for pca in self._pcas.values():
                 pca.deinit()
+
+
+def go_to_rest(ctrl, keys=None, seconds=2.0, tick=0.02):
+    """Move joints to REST_POSE from wherever they are: elbows, hands and head first, shoulders back last.
+
+    \`keys\` defaults to every joint on the controller's boards. Joints already at rest are left alone, so
+    calling this on a resting robot does nothing.
+    """
+    wanted = REST_POSE if keys is None else keys
+    keys = [key for key in wanted if key in REST_POSE and key[0] in ctrl.boards]
+
+    def away(key):
+        now = ctrl.position(*key, _JOINTS[key][3])
+        return now is None or abs(now - REST_POSE[key]) > REST_TOLERANCE_DEG
+
+    def move(key, duration):
+        rest, low, high, servo_range = _JOINTS[key]
+        return {"addr": key[0], "ch": key[1], "target": rest, "limits": (low, high),
+                "steps": max(1, round(duration / tick)), "delay": tick, "servo_range": servo_range}
+
+    first = [key for key in keys if key not in SHOULDER_PITCH_KEYS and away(key)]
+    if first:
+        ctrl.run_threads([move(key, seconds) for key in first])
+    last = [key for key in keys if key in SHOULDER_PITCH_KEYS and away(key)]
+    if last:
+        ctrl.run_threads([move(key, seconds * 0.6) for key in last])
 `,
 
   "swayform_ws/src/swayform_robot/swayform_robot/hardware/torso_motor.py": `"""Torso DC motor control (BTS7960/IBT-2 over GPIO)."""

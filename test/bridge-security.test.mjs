@@ -460,3 +460,59 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   await sleep(300);
   await session.end();
 });
+
+test('movement-request needs the secret, reports on only once the robot confirms, and refuses without a session', { timeout: 20000 }, async () => {
+  const movement = async (action, key = secret) => {
+    const res = await fetch(base + '/movement-request', { method: 'POST', headers: { 'content-type': 'application/json', 'x-bridge-secret': key }, body: JSON.stringify({ robotId: 1, action }) });
+    return { code: res.status, data: res.status === 200 ? await res.json() : null };
+  };
+  assert.equal((await movement('start', 'wrong')).code, 401);
+  const nobody = (await movement('start')).data;
+  assert.deepEqual([nobody.delivered, nobody.movement], [false, false], 'no robot connected');
+
+  const session = await agentSession();
+  // Stand-in for agent 0.6.0: answers movement.* the way the real agent does.
+  let sessionOn = true;
+  session.ws.on('message', (raw) => {
+    const frame = JSON.parse(raw.toString());
+    if (frame.t === 'idle.start') sessionOn = true;
+    if (frame.t === 'idle.stop') sessionOn = false;
+    if (frame.t === 'movement.start' && !sessionOn) session.ws.send(JSON.stringify({ t: 'movement.error', code: 'session_off', message: 'Movement needs Live Robot Session to be ON.' }));
+    if (frame.t === 'movement.start' || frame.t === 'movement.stop') session.ws.send(JSON.stringify({ t: 'robot.state', session: sessionOn, movement: frame.t === 'movement.start' && sessionOn }));
+  });
+
+  await idleRequest('start');
+  const on = await movement('start');
+  assert.deepEqual([on.data.delivered, on.data.movement], [true, true]);
+  const off = await movement('stop');
+  assert.deepEqual([off.data.delivered, off.data.movement], [true, false]);
+
+  // The bridge stopped the session itself: refused here, and nothing is sent to the robot.
+  await idleRequest('stop');
+  await sleep(100);
+  const sent = session.frames.filter((f) => f.t === 'movement.start').length;
+  const refused = await movement('start');
+  assert.deepEqual([refused.data.delivered, refused.data.movement, refused.data.reason], [false, false, 'session_off']);
+  assert.equal(session.frames.filter((f) => f.t === 'movement.start').length, sent);
+  await session.end();
+
+  // A robot whose own session is off (agent restarted) refuses, and the bridge passes the reason on.
+  const restarted = await agentSession();
+  restarted.ws.on('message', (raw) => {
+    if (JSON.parse(raw.toString()).t !== 'movement.start') return;
+    restarted.ws.send(JSON.stringify({ t: 'movement.error', code: 'session_off', message: 'off' }));
+    restarted.ws.send(JSON.stringify({ t: 'robot.state', session: false, movement: false }));
+  });
+  await idleRequest('start');
+  const stale = await movement('start');
+  assert.deepEqual([stale.data.delivered, stale.data.movement, stale.data.reason], [true, false, 'session_off']);
+  await restarted.end();
+
+  // An agent older than 0.6.0 never answers: reported as no_reply, never as on.
+  const old = await agentSession();
+  await idleRequest('start');
+  const silent = await movement('start');
+  assert.deepEqual([silent.data.delivered, silent.data.movement, silent.data.reason], [true, false, 'no_reply']);
+  await idleRequest('stop');
+  await old.end();
+});

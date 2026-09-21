@@ -59,7 +59,8 @@ export async function mount(container, ctx){
         </span>
         ${isAdmin ? `
           <span class="robot-status-spacer"></span>
-          <button type="button" class="p-btn ghost robot-idle-toggle" data-role="idle-toggle" title="Loops small ambient movement (idle.py) on the physical robot when no job is running">Live Robot Session: off</button>
+          <button type="button" class="p-btn ghost robot-idle-toggle" data-role="idle-toggle" title="Holds the robot still in its safe rest pose (elbows bent, shoulders back) when no job is running">Live Robot Session: off</button>
+          <button type="button" class="p-btn ghost robot-idle-toggle" data-role="movement-toggle" disabled title="Turn Live Robot Session on first">Movement: off</button>
         ` : ''}
       </div>
       <div class="robot-video-panel" data-panel="video"></div>
@@ -70,22 +71,38 @@ export async function mount(container, ctx){
   const note = container.querySelector('[data-role="status-note"]');
   const videoPanel = container.querySelector('[data-panel="video"]');
   const idleToggle = container.querySelector('[data-role="idle-toggle"]');
+  const movementToggle = container.querySelector('[data-role="movement-toggle"]');
+  let busy = false; // one change at a time: the two toggles depend on each other
 
-  async function refreshStatus(){
+  // Movement is the ambient gestures; it only exists inside a live session, so it is locked while the session is off.
+  function showToggles(data){
+    if (!idleToggle || busy) return;
+    const sessionOn = !!data.idleSessionEnabled;
+    const movementOn = sessionOn && !!data.movementEnabled;
+    idleToggle.textContent = `Live Robot Session: ${sessionOn ? 'on' : 'off'}`;
+    idleToggle.classList.toggle('is-on', sessionOn);
+    movementToggle.textContent = `Movement: ${movementOn ? 'on' : 'off'}`;
+    movementToggle.classList.toggle('is-on', movementOn);
+    movementToggle.disabled = !sessionOn;
+    movementToggle.title = sessionOn
+      ? 'Small ambient gestures (glances, waves) while the session is on. Off keeps the robot still in its rest pose.'
+      : 'Turn Live Robot Session on first';
+  }
+
+  async function refreshStatus({ keepNote = false } = {}){
     const res = await fetch('/api/robot/status');
     if (!res.ok) throw new Error(`status ${res.status}`);
     const data = await res.json();
 
     badge.textContent = data.online ? 'Online' : 'Offline';
     badge.classList.toggle('is-online', !!data.online);
-    note.textContent = data.online
-      ? 'Robot agent connected.'
-      : `Robot agent not connected. Last seen: ${formatLastSeen(data.lastSeenAt)}.`;
-
-    if (idleToggle && !idleToggle.disabled){
-      idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
-      idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
+    if (!keepNote){
+      note.textContent = data.online
+        ? 'Robot agent connected.'
+        : `Robot agent not connected. Last seen: ${formatLastSeen(data.lastSeenAt)}.`;
     }
+
+    showToggles(data);
   }
 
   // Pauses while hidden or minimized; refreshes as soon as it's back.
@@ -101,36 +118,54 @@ export async function mount(container, ctx){
     },
   });
 
-  if (idleToggle){
-    idleToggle.addEventListener('click', async () => {
-      const turningOn = !idleToggle.classList.contains('is-on');
-      idleToggle.disabled = true;
-      const prevText = idleToggle.textContent;
-      idleToggle.textContent = turningOn ? 'Starting…' : 'Stopping…';
-      try {
-        const res = await fetch('/api/robot/status', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ action: turningOn ? 'idle-on' : 'idle-off' }),
-        });
-        const data = await res.json();
-        if (!res.ok){
-          note.textContent = data.error === 'job_in_progress'
-            ? "Can't start — a student's job is pending, approved, or running right now."
-            : (data.message || "Couldn't change the live session.");
-          idleToggle.textContent = prevText;
-        } else {
-          idleToggle.textContent = `Live Robot Session: ${data.idleSessionEnabled ? 'on' : 'off'}`;
-          idleToggle.classList.toggle('is-on', !!data.idleSessionEnabled);
-          if (!turningOn && data.delivered === false){
-            note.textContent = "Turned off here, but the robot couldn't be reached to confirm it stopped moving. Check on it.";
-          }
-        }
-      } catch (e) {
-        note.textContent = "Couldn't reach the server to change the live session.";
-        idleToggle.textContent = prevText;
-      } finally {
-        idleToggle.disabled = false;
+  // Shared by both toggles. The server decides the result; this only shows it.
+  async function change(button, action, pendingText, describeError){
+    if (busy) return;
+    busy = true;
+    idleToggle.disabled = movementToggle.disabled = true;
+    button.textContent = pendingText;
+    let shown = null;
+    let keepNote = true;
+    try {
+      const res = await fetch('/api/robot/status', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (res.ok){
+        shown = data;
+        if (data.delivered === false) note.textContent = "Turned off here, but the robot couldn't be reached to confirm it stopped moving. Check on it.";
+        else keepNote = false;
+      } else {
+        note.textContent = describeError(data);
       }
+    } catch (e) {
+      note.textContent = "Couldn't reach the server to change that.";
+    } finally {
+      busy = false;
+      idleToggle.disabled = false;
+      if (shown) showToggles(shown);
+      // Re-read either way: a refusal can mean the saved state was stale, and a success clears an old message.
+      await refreshStatus({ keepNote }).catch(() => { movementToggle.disabled = !idleToggle.classList.contains('is-on'); });
+    }
+  }
+
+  if (idleToggle){
+    idleToggle.addEventListener('click', () => {
+      const turningOn = !idleToggle.classList.contains('is-on');
+      change(idleToggle, turningOn ? 'idle-on' : 'idle-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
+        data.error === 'job_in_progress'
+          ? "Can't start — a student's job is pending, approved, or running right now."
+          : (data.message || "Couldn't change the live session.")
+      ));
+    });
+    movementToggle.addEventListener('click', () => {
+      const turningOn = !movementToggle.classList.contains('is-on');
+      change(movementToggle, turningOn ? 'movement-on' : 'movement-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
+        data.error === 'job_in_progress'
+          ? "Can't start Movement — a student's job is running right now."
+          : (data.message || "Couldn't change Movement.")
+      ));
     });
   }
 

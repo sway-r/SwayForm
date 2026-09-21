@@ -937,7 +937,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'lights-and-messages', title: 'Lights and Messages',
                   blocks: [
-                    { type: 'p', text: 'Five lights across the top of the live view turn green one at a time as your five steps run: one each for the crosshair, the controls, the system check, movement, and the arm. The four parts of the system check — camera, robot, motion, target system — get their own check marks on the picture. If one fails, it turns red and the program stops before anything moves.' },
+                    { type: 'p', text: 'Five lights across the top of the live view turn green one at a time as your five steps run: one each for the arm, the controls, the crosshair, movement, and the system check (listed here alphabetically, not in the order they light). The four parts of the system check — camera, robot, motion, target system — get their own check marks on the picture. If one fails, it turns red and the program stops before anything moves.' },
                     { type: 'table', headers: ['What you see', 'What it means'], rows: [
                       ['The key list is dim', 'Those keys are not unlocked yet.'],
                       ['A key flashes red', 'That joint is at its limit and cannot go any further that way. Go the other way.'],

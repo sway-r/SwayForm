@@ -97,7 +97,7 @@ setup(
 )
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `"""Wave behavior: source of truth for the right-arm wave motion (channels, centers, limits)."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py": `"""Wave behavior: source of truth for the right-arm wave motion, with a slight left-arm lift (channels, centers, limits)."""
 
 import time
 import math
@@ -110,6 +110,7 @@ from rclpy.node import Node
 from swayform_robot.hardware import servo_control as sc
 
 PCA_HAND = 0x40
+PCA_HAND_LEFT = 0x50
 PCA_REACH = 0x60
 
 THUMB = 0
@@ -126,8 +127,12 @@ ELBOW_WAVE_BENT = 40
 ELBOW_WAVE_OPEN = 70
 WRIST_CENTER = 100
 
+# Left arm lift (elbow stays bent)
+LEFT_SHOULDER_ROLL_LIFT = 150
+LEFT_ELBOW_BENT = 65
+
 FINGER_OPEN = 135
-RIPPLE_AMPLITUDE = 40   # 40° (~47% of the fingers' full 85° range) is the
+RIPPLE_AMPLITUDE = 40   # degrees of finger travel
 RIPPLE_SPEED = 3.0      # radians/sec the wave rolls at
 PHASE_OFFSET = math.pi / 2
 RIPPLE_TICK = 0.02      # seconds between position updates (~50Hz)
@@ -144,6 +149,8 @@ CENTERS = {
     (PCA_HAND, WRIST): 100,
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_HAND_LEFT, ELBOW): 155,
+    (PCA_HAND_LEFT, SHOULDER_ROLL): 120,
     (PCA_REACH, SHOULDER_PITCH): 170,
 }
 
@@ -156,12 +163,16 @@ LIMITS = {
     (PCA_HAND, WRIST): (60, 160),
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_HAND_LEFT, ELBOW): (65, 165),
+    (PCA_HAND_LEFT, SHOULDER_ROLL): (110, 250),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_HAND_LEFT, ELBOW): 270.0,
+    (PCA_HAND_LEFT, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
 
@@ -199,6 +210,8 @@ def wave_ready_pose(ctrl):
         _mv(PCA_REACH, SHOULDER_PITCH, SHOULDER_PITCH_WAVE, 85, 0.01),
         _mv(PCA_HAND, ELBOW, ELBOW_WAVE_BENT, 65, 0.009),
         _mv(PCA_HAND, WRIST, WRIST_CENTER, 60, 0.01),
+        _mv(PCA_HAND_LEFT, SHOULDER_ROLL, LEFT_SHOULDER_ROLL_LIFT, 85, 0.01),
+        _mv(PCA_HAND_LEFT, ELBOW, LEFT_ELBOW_BENT, 65, 0.009),
         _mv(PCA_HAND, THUMB, 50, 55, 0.01),
         _mv(PCA_HAND, 1, 135, 55, 0.01),
         _mv(PCA_HAND, 2, 135, 55, 0.01),
@@ -254,7 +267,7 @@ def elbow_wave(ctrl, cycles=WAVE_CYCLES):
 def perform_wave(mock=False):
     """Run the full sequence: rest pose -> open hand -> wave-ready pose -> elbow wave -> rest pose."""
     with sc.hardware_lock():
-        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl = sc.ServoController([PCA_HAND, PCA_HAND_LEFT, PCA_REACH], mock=mock)
         ctrl.current = REST.copy()
         try:
             print("Moving to the rest pose...")
@@ -283,7 +296,7 @@ def perform_wave(mock=False):
 def wave_forever(mock=False, center_on_stop=False):
     """Go to the wave-ready pose and keep waving until Ctrl+C, then settle the arm."""
     with sc.hardware_lock():
-        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl = sc.ServoController([PCA_HAND, PCA_HAND_LEFT, PCA_REACH], mock=mock)
         ctrl.current = REST.copy()
         try:
             print("Opening hand...")
@@ -361,7 +374,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""Handshake behavior: reach forward, grip, shake, then open the hand and return to the rest pose."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py": `"""Handshake behavior: reach forward while the left arm swings back, grip, shake, then open the hand and return to the rest pose."""
 
 import time
 import threading
@@ -381,6 +394,7 @@ WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1  # on PCA_REACH
+SHOULDER_PITCH_LEFT = 0  # on PCA_REACH
 
 CENTERS = {
     (PCA_HAND, THUMB): 50,
@@ -392,6 +406,7 @@ CENTERS = {
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
     (PCA_REACH, SHOULDER_PITCH): 170,
+    (PCA_REACH, SHOULDER_PITCH_LEFT): 215,
 }
 
 LIMITS = {
@@ -404,12 +419,14 @@ LIMITS = {
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
+    (PCA_REACH, SHOULDER_PITCH_LEFT): (125, 255),
 }
 
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
+    (PCA_REACH, SHOULDER_PITCH_LEFT): 270.0,
 }
 
 REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
@@ -417,6 +434,9 @@ REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow 
 # Reach pose: shoulder pitch swings forward from center by this many degrees.
 REACH_PITCH_OFFSET = 50
 ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # backed off 20° from the full-bend limit
+
+# Left arm swings back while the right arm reaches.
+LEFT_PITCH_SWING_BACK = 255
 
 # Shake offset (degrees) and number of up-down cycles.
 SHAKE_OFFSET = 5
@@ -440,10 +460,11 @@ def _mv(addr, ch, target, duration):
 
 
 def reach_forward(ctrl):
-    """Shoulder pitch swings forward and the elbow bends all the way in; hand stays open."""
+    """Shoulder pitch swings forward and the elbow bends all the way in; hand stays open; the left arm swings back."""
     reach_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + REACH_PITCH_OFFSET
     ctrl.run_threads([
         _mv(PCA_REACH, SHOULDER_PITCH, reach_target, REACH_DURATION),
+        _mv(PCA_REACH, SHOULDER_PITCH_LEFT, LEFT_PITCH_SWING_BACK, REACH_DURATION),
         _mv(PCA_HAND, ELBOW, ELBOW_BENT_IN, REACH_DURATION),
         _mv(PCA_HAND, SHOULDER_ROLL, CENTERS[(PCA_HAND, SHOULDER_ROLL)], REACH_DURATION),
         _mv(PCA_HAND, WRIST, CENTERS[(PCA_HAND, WRIST)], REACH_DURATION),
@@ -555,7 +576,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `"""Fist bump behavior: raise the right arm with a curled fist, punch forward, then return to the rest pose."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py": `"""Fist bump behavior: raise the right arm with a curled fist while the left arm swings back, punch forward, then return to the rest pose."""
 
 import time
 import threading
@@ -577,6 +598,7 @@ WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1  # on PCA_REACH
+SHOULDER_PITCH_LEFT = 0  # on PCA_REACH
 NECK_PITCH = 3      # on PCA_REACH — head nod
 
 CENTERS = {
@@ -589,6 +611,7 @@ CENTERS = {
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
     (PCA_REACH, SHOULDER_PITCH): 170,
+    (PCA_REACH, SHOULDER_PITCH_LEFT): 215,
     (PCA_REACH, NECK_PITCH): 161,  # head re-centered 2026-09-20
 }
 
@@ -602,6 +625,7 @@ LIMITS = {
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
+    (PCA_REACH, SHOULDER_PITCH_LEFT): (125, 265),
     (PCA_REACH, NECK_PITCH): (130, 180),  # re-tested on hardware 2026-09-15, was (95, 125)
 }
 
@@ -610,6 +634,7 @@ SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
+    (PCA_REACH, SHOULDER_PITCH_LEFT): 270.0,
     (PCA_REACH, NECK_PITCH): 270.0,
 }
 
@@ -618,6 +643,9 @@ REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow 
 FISTBUMP_PITCH_OFFSET = 35   # was 50 (handshake-matched)
 ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # used to derive JERK_ELBOW_PEAK
 FIST_ELBOW_BASE = ELBOW_BENT_IN - 10   # 50, was ELBOW_BENT_IN itself (60, handshake-matched) — bent in 10 more
+
+# Left arm swings back while the right arm raises.
+LEFT_PITCH_SWING_BACK = 265
 
 JERK_PITCH_PEAK = 245   # 15deg short of the 260 ceiling
 JERK_ELBOW_PEAK = 90    # 50deg short of the 140 ceiling
@@ -630,7 +658,7 @@ NOD_OUT_DURATION = JERK_OUT_DURATION * 1.2
 NOD_BACK_DURATION = JERK_BACK_DURATION * 1.2
 
 RAISE_DURATION = 1.5   # arm raise and hand curl run together, both finish at once
-HOLD_BEFORE_BUMP = 3.0   # beat held as a raised fist before the jerk
+HOLD_BEFORE_BUMP = 2.0   # beat held as a raised fist before the jerk
 RETURN_DURATION = 2.0
 
 TICK_DELAY = 0.02  # ~20ms interpolation tick
@@ -651,11 +679,12 @@ def _mv(addr, ch, target, duration):
 
 
 def raise_and_curl(ctrl):
-    """Swing shoulder pitch and elbow to the pre-jerk pose while the thumb and fingers curl into a fist."""
+    """Swing shoulder pitch and elbow to the pre-jerk pose while the thumb and fingers curl into a fist; the left arm swings back."""
     pitch_target = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + FISTBUMP_PITCH_OFFSET
     elbow_target = FIST_ELBOW_BASE
     ctrl.run_threads([
         _mv(PCA_REACH, SHOULDER_PITCH, pitch_target, RAISE_DURATION),
+        _mv(PCA_REACH, SHOULDER_PITCH_LEFT, LEFT_PITCH_SWING_BACK, RAISE_DURATION),
         _mv(PCA_HAND, ELBOW, elbow_target, RAISE_DURATION),
         _mv(PCA_HAND, SHOULDER_ROLL, CENTERS[(PCA_HAND, SHOULDER_ROLL)], RAISE_DURATION),
         _mv(PCA_HAND, WRIST, CENTERS[(PCA_HAND, WRIST)], RAISE_DURATION),
@@ -813,7 +842,7 @@ if __name__ == "__main__":
     main()
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py": `"""Finger-count behavior: raise the right arm, hold a fist or show NUMBER fingers, then return to center."""
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py": `"""Finger-count behavior: raise the right arm (with a slight left-arm lift), hold a fist or show NUMBER fingers, then return to center."""
 
 import time
 import threading
@@ -827,6 +856,7 @@ from swayform_robot.hardware import servo_control as sc
 NUMBER = None
 
 PCA_HAND = 0x40
+PCA_HAND_LEFT = 0x50
 PCA_REACH = 0x60
 
 THUMB = 0
@@ -840,6 +870,10 @@ SHOULDER_ROLL_WAVE = 40
 SHOULDER_PITCH_WAVE = 260
 ELBOW_WAVE_BENT = 40
 WRIST_CENTER = 100
+
+# Left arm lift (elbow stays bent)
+LEFT_SHOULDER_ROLL_LIFT = 150
+LEFT_ELBOW_BENT = 65
 
 FINGER_EXTENDED = 135  # fully open
 FINGER_CURLED = 50     # fully curled (fist)
@@ -857,6 +891,8 @@ CENTERS = {
     (PCA_HAND, WRIST): 100,
     (PCA_HAND, ELBOW): 130,
     (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_HAND_LEFT, ELBOW): 155,
+    (PCA_HAND_LEFT, SHOULDER_ROLL): 120,
     (PCA_REACH, SHOULDER_PITCH): 170,
 }
 
@@ -869,6 +905,8 @@ LIMITS = {
     (PCA_HAND, WRIST): (60, 160),
     (PCA_HAND, ELBOW): (40, 140),
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_HAND_LEFT, ELBOW): (65, 165),
+    (PCA_HAND_LEFT, SHOULDER_ROLL): (110, 250),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
 }
 
@@ -876,6 +914,8 @@ LIMITS = {
 SERVO_RANGES = {
     (PCA_HAND, ELBOW): 270.0,
     (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_HAND_LEFT, ELBOW): 270.0,
+    (PCA_HAND_LEFT, SHOULDER_ROLL): 270.0,
     (PCA_REACH, SHOULDER_PITCH): 270.0,
 }
 
@@ -919,6 +959,8 @@ def raise_arm(ctrl):
         _mv(PCA_REACH, SHOULDER_PITCH, SHOULDER_PITCH_WAVE, RAISE_DURATION),
         _mv(PCA_HAND, ELBOW, ELBOW_WAVE_BENT, RAISE_DURATION),
         _mv(PCA_HAND, WRIST, WRIST_CENTER, RAISE_DURATION),
+        _mv(PCA_HAND_LEFT, SHOULDER_ROLL, LEFT_SHOULDER_ROLL_LIFT, RAISE_DURATION),
+        _mv(PCA_HAND_LEFT, ELBOW, LEFT_ELBOW_BENT, RAISE_DURATION),
     ])
 
 
@@ -939,7 +981,7 @@ def perform_finger_count(mock=False):
         raise ValueError(f"NUMBER must be None or a whole number 1-5, got {NUMBER!r}")
 
     with sc.hardware_lock():
-        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl = sc.ServoController([PCA_HAND, PCA_HAND_LEFT, PCA_REACH], mock=mock)
         ctrl.current = REST.copy()
         try:
             print("Closing fist...")
@@ -1965,10 +2007,10 @@ joints:
     home_angle: 235.0
     center_angle: 215.0
     min_angle: 95.0
-    max_angle: 235.0
+    max_angle: 265.0
     direction: 1
     servo_range: 270
-    notes: "Left shoulder pitch. Center 215. Front/up limit 95 (raised from 125, 2026-09-20), backward limit 235. Wide-range (270) servo."
+    notes: "Left shoulder pitch. Center 215. Front/up limit 95 (raised from 125, 2026-09-20), backward limit 265 (raised from 235, 2026-09-21). Wide-range (270) servo."
 
   # ─── HEAD  (board: reach_pca / 0x60) ─────────────────────────────────────
   neck_pitch:
@@ -2228,7 +2270,7 @@ _JOINTS = {
     (0x50, 5): (100, 60, 160, 180.0),    # left wrist
     (0x50, 6): (65, 65, 165, 270.0),     # left elbow, bent
     (0x50, 7): (120, 110, 250, 270.0),   # left shoulder roll
-    (0x60, 0): (235, 95, 235, 270.0),    # left shoulder pitch, slightly back
+    (0x60, 0): (235, 95, 265, 270.0),    # left shoulder pitch, slightly back
     (0x60, 1): (150, 150, 260, 270.0),   # right shoulder pitch, slightly back
     (0x60, 2): (195, 120, 260, 270.0),   # neck yaw
     (0x60, 3): (161, 130, 180, 270.0),   # neck pitch

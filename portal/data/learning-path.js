@@ -653,7 +653,7 @@ export const LEARNING_PATH = {
                     { type: 'list', items: [
                       'The arm settles into its resting position first — every gesture starts from the same "home."',
                       'The hand opens.',
-                      'The arm lifts up and out, like someone about to wave.',
+                      'The arm lifts up and out, like someone about to wave — and the other arm lifts a little too, so the robot stays balanced.',
                       'The forearm swings back and forth while the fingers ripple — this is the actual wave.',
                       'Everything comes back home.',
                     ] },
@@ -674,7 +674,7 @@ export const LEARNING_PATH = {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
                     { type: 'p', text: 'Open the file and you\'ll see that recipe written out as five named pieces. You don\'t need to understand the details inside each one yet — just notice that the names say exactly what they do:' },
-                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...        # go home\ndef open_hand(ctrl): ...         # open hand\ndef wave_ready_pose(ctrl): ...   # lift arm into position\ndef elbow_wave(ctrl, cycles): ...  # the actual wave\ndef perform_wave(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py', line: 82 },
+                    { type: 'code', lang: 'python', filename: 'wave.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef center_all(ctrl): ...        # go home\ndef open_hand(ctrl): ...         # open hand\ndef wave_ready_pose(ctrl): ...   # lift arm into position\ndef elbow_wave(ctrl, cycles): ...  # the actual wave\ndef perform_wave(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py', line: 93 },
                     { type: 'p', text: 'Tap **Open wave.py** and the editor will jump right to them. Reading a robot\'s code is mostly reading names like these and following the order.' },
                   ],
                 },
@@ -682,7 +682,7 @@ export const LEARNING_PATH = {
                   id: 'try-it', title: 'Try It',
                   blocks: [
                     { type: 'p', text: 'Right now SwayForm waves once. Let\'s make it wave five times.' },
-                    { type: 'p', text: 'Near the top of the file there\'s a line that says `WAVE_CYCLES = 1` (line 36). That number is how many times the forearm swings. Change the `1` to a `5`, then click **Run**.' },
+                    { type: 'p', text: 'Near the top of the file there\'s a line that says `WAVE_CYCLES = 1` (line 41). That number is how many times the forearm swings. Change the `1` to a `5`, then click **Run**.' },
                     { type: 'p', text: 'Run checks your change. If it says you\'re done, the **Queue on Robot** button lights up — press it and the real robot will wave at you five times. If you change the file again afterward, just click Run again before queueing.' },
                     { type: 'callout', tone: 'note', label: 'That\'s the whole lesson', text: 'One number, one visible change in the physical world. Every lab from here on is a bigger version of exactly that.' },
                   ],
@@ -721,7 +721,7 @@ export const LEARNING_PATH = {
                   blocks: [
                     { type: 'p', text: 'This one has a rhythm to it. Watch for the pauses as much as the moves:' },
                     { type: 'list', items: [
-                      'The arm reaches forward, hand open — about a second and a half.',
+                      'The arm reaches forward, hand open, while the other arm swings back to balance it — about a second and a half.',
                       'It holds there for two full seconds. This is the "go ahead, take it" moment.',
                       'The fingers close into a soft grip — not a fist, just enough to hold a hand.',
                       'The forearm pumps up and down the number of times chosen in `SHAKE_CYCLES`. That\'s the shake.',
@@ -734,7 +734,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: '`reach_forward` swings the shoulder forward and bends the elbow in, hand still open — every joint arriving together. Then `grip` curls the thumb and each finger in by `FINGER_CURL_AMOUNT` degrees — a light grip, not a full fist.' },
+                    { type: 'p', text: '`reach_forward` swings the shoulder forward and bends the elbow in, hand still open — every joint arriving together. The left shoulder swings back at the same time, so the robot doesn\'t tip toward the reaching arm. Then `grip` curls the thumb and each finger in by `FINGER_CURL_AMOUNT` degrees — a light grip, not a full fist.' },
                     { type: 'p', text: '`shake` pumps just the elbow back and forth around the reach position for `SHAKE_CYCLES` — shoulder stays put, this is elbow-only. `open_and_return` opens the hand again and brings every joint back to center.' },
                     { type: 'p', text: '`with sc.hardware_lock():` keeps anything else from moving the same servos mid-handshake, and a `finally` block always closes the PCA9685 handles, even on error.' },
                   ],
@@ -742,7 +742,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'look-at-this-part', title: 'Look at This Part',
                   blocks: [
-                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 79 },
+                    { type: 'code', lang: 'python', filename: 'handshake.py', code: '# Open the file to see the full, real source —\n# this preview intentionally shows only the shape.\n\ndef reach_forward(ctrl): ...      # reach out, hand open\ndef grip(ctrl): ...               # gentle grip\ndef shake(ctrl, elbow_base): ...  # the shake itself\ndef open_and_return(ctrl): ...    # let go, go home\ndef perform_handshake(mock=False): ...  # runs all of the above, in order', workspaceFile: 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/handshake.py', line: 86 },
                     { type: 'p', text: 'Four functions, called in order by `perform_handshake()`: reach forward, grip, shake, open and return — a **setup → behavior → cleanup** shape.' },
                   ],
                 },
@@ -773,7 +773,7 @@ export const LEARNING_PATH = {
                     { type: 'p', text: 'This one\'s fast, so watch it twice. The second time, watch the body instead of the hand:' },
                     { type: 'list', items: [
                       'The hand curls into a fist at the same moment the arm lifts — not after.',
-                      'The torso leans in while that happens.',
+                      'The torso leans in while that happens, and the other arm swings back.',
                       'A short pause. The wind-up.',
                       'The punch: arm forward, torso snapping into it, then straight back.',
                       'Hand opens, torso un-twists, everything goes home.',
@@ -785,7 +785,7 @@ export const LEARNING_PATH = {
                 {
                   id: 'how-it-works', title: 'How It Works',
                   blocks: [
-                    { type: 'p', text: '`raise_and_curl` swings the shoulder and elbow back, curls every finger into a full fist at the same time, and leans the torso in — all over `RAISE_DURATION`, each on its own thread.' },
+                    { type: 'p', text: '`raise_and_curl` swings the shoulder and elbow back, curls every finger into a full fist at the same time, and leans the torso in — all over `RAISE_DURATION`, each on its own thread. The left shoulder swings back too, as a counterweight.' },
                     { type: 'p', text: '`bump_jerk` punches the shoulder and elbow forward to a fixed peak, then recoils back, torso snapping into the same motion. If `ENABLE_HEAD_NOD` is `True`, the head nods up on the punch and back down on the recoil.' },
                     { type: 'p', text: '`open_and_return` opens the hand and settles every joint — arm and torso — back to center. `with sc.hardware_lock():` keeps another behavior from moving the same servos mid-bump, and a `finally` block always releases both the PCA9685 and torso motor handles.' },
                   ],
@@ -825,7 +825,7 @@ export const LEARNING_PATH = {
                     { type: 'p', text: 'Run it once as-is (it\'ll just hold up a fist), then again after you\'ve given it a number:' },
                     { type: 'list', items: [
                       'The hand closes into a fist before the arm has even started to lift.',
-                      'The arm raises into position, fist still closed.',
+                      'The arm raises into position, fist still closed — the other arm lifts a little to balance it.',
                       'If you\'ve set a number: the fingers open one by one, index finger first.',
                       'It holds the count for four seconds — long enough for everyone to see.',
                       'The hand opens and everything goes home.',

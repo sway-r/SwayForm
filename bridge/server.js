@@ -292,6 +292,18 @@ function clearRunningJob(robotId, jobId){
 
 // ── /teleop: the browser driving an interactive job. Frames become stdin lines; the job's ui: lines come back.
 const teleopDrivers = new Map(); // robotId -> { ws, jobId }
+// Read-only views of the same job (an admin watching a student): they get every ui: line and the driver's keys, and can send nothing.
+const teleopWatchers = new Map(); // robotId -> Set of { ws, jobId }
+const TELEOP_MAX_WATCHERS = 4;
+
+function sendToWatchers(robotId, jobId, frame){
+  const watchers = teleopWatchers.get(robotId);
+  if (!watchers || !watchers.size) return;
+  const data = JSON.stringify(frame);
+  for (const watcher of watchers){
+    if (watcher.jobId === jobId && watcher.ws.readyState === watcher.ws.OPEN) watcher.ws.send(data);
+  }
+}
 
 function teleopLine(msg){
   const step = (v) => (v === -1 || v === 0 || v === 1 ? v : null);
@@ -313,6 +325,11 @@ function teleopLine(msg){
 }
 
 function closeTeleop(robotId, jobId, reason){
+  for (const watcher of teleopWatchers.get(robotId) || []){
+    if (watcher.jobId !== jobId || watcher.ws.readyState !== watcher.ws.OPEN) continue;
+    watcher.ws.send(JSON.stringify({ t: 'job.ended', reason }));
+    watcher.ws.close(1000, reason);
+  }
   const driver = teleopDrivers.get(robotId);
   if (!driver || driver.jobId !== jobId) return;
   teleopDrivers.delete(robotId);
@@ -335,6 +352,7 @@ function relayUiLines(robotId, jobId, text){
     if (driver && driver.jobId === jobId && driver.ws.readyState === driver.ws.OPEN){
       driver.ws.send(JSON.stringify({ t: 'job.line', text: line }));
     }
+    sendToWatchers(robotId, jobId, { t: 'job.line', text: line });
   }
   return kept.join('\n');
 }
@@ -358,7 +376,7 @@ async function handleTeleopUpgrade(req, socket, head){
   try {
     const token = new URL(req.url, 'http://internal').searchParams.get('token') || '';
     const { payload } = await jwtVerify(token, JWT_SECRET_KEY, { algorithms: ['HS256'], requiredClaims: ['exp', 'iat'] });
-    if (payload.purpose !== 'teleop' || !Number.isSafeInteger(payload.robotId) || !Number.isSafeInteger(payload.jobId)) throw new Error('wrong_purpose');
+    if ((payload.purpose !== 'teleop' && payload.purpose !== 'teleop-watch') || !Number.isSafeInteger(payload.robotId) || !Number.isSafeInteger(payload.jobId)) throw new Error('wrong_purpose');
     claims = payload;
   } catch (e) {
     console.error('teleop auth failed:', e.message);
@@ -367,7 +385,36 @@ async function handleTeleopUpgrade(req, socket, head){
   }
   const running = runningJobs.get(claims.robotId);
   if (!running || running.jobId !== claims.jobId || !running.interactive){ deny('409 Conflict'); return; }
+  if (claims.purpose === 'teleop-watch'){
+    const watching = teleopWatchers.get(claims.robotId);
+    if (watching && watching.size >= TELEOP_MAX_WATCHERS){ deny('429 Too Many Requests'); return; }
+    teleopWss.handleUpgrade(req, socket, head, (ws) => attachTeleopWatcher(ws, claims.robotId, claims.jobId));
+    return;
+  }
   teleopWss.handleUpgrade(req, socket, head, (ws) => attachTeleopDriver(ws, claims.robotId, claims.jobId));
+}
+
+function replayUiLog(ws, robotId, jobId){
+  const running = runningJobs.get(robotId);
+  for (const line of (running && running.jobId === jobId && running.uiLog) || []){
+    ws.send(JSON.stringify({ t: 'job.line', text: line }));
+  }
+}
+
+// A watcher's own messages are never read, so it cannot move the robot or displace the driver.
+function attachTeleopWatcher(ws, robotId, jobId){
+  const watcher = { ws, jobId };
+  if (!teleopWatchers.has(robotId)) teleopWatchers.set(robotId, new Set());
+  teleopWatchers.get(robotId).add(watcher);
+  console.log(`teleop watcher attached: robotId=${robotId} jobId=${jobId}`);
+  replayUiLog(ws, robotId, jobId);
+  ws.on('error', (e) => console.error('teleop watcher socket error:', e.message));
+  ws.on('close', () => {
+    const watchers = teleopWatchers.get(robotId);
+    if (!watchers) return;
+    watchers.delete(watcher);
+    if (!watchers.size) teleopWatchers.delete(robotId);
+  });
 }
 
 function attachTeleopDriver(ws, robotId, jobId){
@@ -375,10 +422,7 @@ function attachTeleopDriver(ws, robotId, jobId){
   if (previous && previous.ws.readyState === previous.ws.OPEN) previous.ws.close(4008, 'replaced');
   teleopDrivers.set(robotId, { ws, jobId });
   console.log(`teleop driver attached: robotId=${robotId} jobId=${jobId}`);
-  const attachedTo = runningJobs.get(robotId);
-  for (const line of (attachedTo && attachedTo.jobId === jobId && attachedTo.uiLog) || []){
-    ws.send(JSON.stringify({ t: 'job.line', text: line }));
-  }
+  replayUiLog(ws, robotId, jobId);
 
   let windowStart = Date.now();
   let framesInWindow = 0;
@@ -396,6 +440,7 @@ function attachTeleopDriver(ws, robotId, jobId){
     const agent = connectedRobots.get(robotId);
     if (!running || running.jobId !== jobId || !agent || agent.readyState !== agent.OPEN) return;
     agent.send(JSON.stringify({ t: 'job.input', jobId, line }));
+    if (line !== 'ping') sendToWatchers(robotId, jobId, { t: 'driver.input', line });
   });
   ws.on('close', () => {
     const driver = teleopDrivers.get(robotId);

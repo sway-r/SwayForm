@@ -118,7 +118,8 @@ export default async function handler(req, res){
     if (!job || !isInteractiveRobotPath(job.workspace_path)){ res.status(409).json({ error: 'no_interactive_job' }); return; }
     if (member.role !== 'admin' && job.student_email !== session.email){ res.status(403).json({ error: 'not_authorized' }); return; }
 
-    const token = await new SignJWT({ robotId, jobId: job.id, purpose: 'teleop' })
+    // watch: a read-only view (an admin looking over a student's shoulder); the bridge never reads its input.
+    const token = await new SignJWT({ robotId, jobId: job.id, purpose: req.body.watch === true ? 'teleop-watch' : 'teleop' })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(`${TELEOP_TOKEN_TTL_SECONDS}s`)

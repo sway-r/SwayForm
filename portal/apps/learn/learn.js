@@ -42,9 +42,18 @@ export function mount(container, ctx){
     indexApi.refresh();
   }
 
+  let shown = null; // { view, id } of what is on screen
+
+  function placeOf(params){
+    const view = (params && params.view) || 'home';
+    const id = view === 'activity' ? params.activityId : view === 'section' ? params.sectionId : null;
+    return id ? { view, id } : { view: 'home', id: null };
+  }
+
   function render(params){
     if (current && current.instance && typeof current.instance.unmount === 'function') current.instance.unmount();
     viewEl.innerHTML = '';
+    shown = placeOf(params);
 
     const view = params.view || 'home';
     if (view === 'section' && params.sectionId){
@@ -61,6 +70,9 @@ export function mount(container, ctx){
 
   return {
     onParams(params){
+      // Already there: remounting would reset the lesson step, the editor and any robot job being followed.
+      const place = placeOf(params);
+      if (shown && place.view === shown.view && place.id === shown.id) return;
       currentItemId = (params && params.activityId) || null;
       currentSectionId = (params && params.sectionId) || null;
       render(params || { view: 'home' });

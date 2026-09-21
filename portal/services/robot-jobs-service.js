@@ -3,8 +3,9 @@
 import { createPoller } from './adaptive-poller.js';
 
 const FAST_MS = 5_000;          // Admin app in view, a job approved/running
-const PENDING_MAX_MS = 15_000;  // in view, only pending jobs, nothing changing
-const IDLE_MAX_MS = 30_000;     // in view, empty queue
+// In view and nothing changing; the pulse is counts only, so a new submission shows within ~10s without a page refresh.
+const PENDING_MAX_MS = 10_000;
+const IDLE_MAX_MS = 10_000;
 const BADGE_MS = 30_000;        // Admin app closed or minimized
 
 let poller = null;

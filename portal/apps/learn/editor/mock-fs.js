@@ -1,31 +1,59 @@
-/* Virtual ROS 2 workspace. Drafts are account-scoped in this tab's storage,
-   survive reloads, and are cleared at logout. They are not cloud backups. */
+/* Virtual ROS 2 workspace. Drafts are account-scoped in this browser's
+   localStorage: they survive reloads, closed tabs and browser restarts, and are
+   cleared at sign-out (see auth-service.js). They are not cloud backups. */
 import { WORKSPACE_FILES } from '../../../data/workspace-files.js';
+
+const FS_PREFIX = 'swayform.portal.fs.';
 
 let storageKey = null;
 let overrides = Object.create(null);
 
-// Real drafts live in this tab, scoped to the account. They survive reloads,
-// but are cleared on sign-out and do not leak into a different shared-device account.
+export function workspaceStorageKey(email){
+  return FS_PREFIX + encodeURIComponent(email || 'guest');
+}
+
+function parseDrafts(raw){
+  const drafts = Object.create(null);
+  let saved = null;
+  try { saved = JSON.parse(raw || '{}'); } catch { /* corrupt entry: start clean */ }
+  if (saved && !Array.isArray(saved) && typeof saved === 'object'){
+    for (const [path, content] of Object.entries(saved)){
+      if (path.startsWith('swayform_ws/') && typeof content === 'string') drafts[path] = content;
+    }
+  }
+  return drafts;
+}
+
 export function setWorkspaceAccount(session){
-  storageKey = `swayform.portal.fs.${encodeURIComponent(session?.email || 'guest')}`;
+  storageKey = workspaceStorageKey(session?.email);
   overrides = Object.create(null);
   try {
     // Unattributed legacy drafts cannot safely be assigned to the next login.
     localStorage.removeItem('swayform.portal.fs.overrides');
-    const saved = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
-    if (saved && !Array.isArray(saved) && typeof saved === 'object'){
-      for (const [path, content] of Object.entries(saved)){
-        if (path.startsWith('swayform_ws/') && typeof content === 'string') overrides[path] = content;
-      }
+    // Drafts used to live in this tab's sessionStorage; adopt them once, the saved copy winning.
+    const legacy = parseDrafts(sessionStorage.getItem(storageKey));
+    overrides = Object.assign(legacy, parseDrafts(localStorage.getItem(storageKey)));
+    if (sessionStorage.getItem(storageKey) !== null){
+      localStorage.setItem(storageKey, JSON.stringify(overrides));
+      sessionStorage.removeItem(storageKey);
     }
   } catch { /* start with a clean, in-memory workspace */ }
 }
 
-function persist(){
+// Another tab of the same account saved: keep this tab's copy of the drafts current.
+if (typeof window !== 'undefined') window.addEventListener('storage', (event) => {
+  if (storageKey && event.key === storageKey) overrides = parseDrafts(event.newValue);
+});
+
+// Read-modify-write, so two tabs editing different files never overwrite each other's drafts.
+function persist(change){
+  change(overrides);
   try {
     if (!storageKey) throw new Error('Workspace account is not initialized');
-    sessionStorage.setItem(storageKey, JSON.stringify(overrides));
+    const stored = parseDrafts(localStorage.getItem(storageKey));
+    change(stored);
+    localStorage.setItem(storageKey, JSON.stringify(stored));
+    overrides = stored;
     return true;
   } catch (e) {
     if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('swayform:save-error', {
@@ -48,8 +76,7 @@ export function readFile(path){
 
 export function writeFile(path, content){
   if (!storageKey || typeof path !== 'string' || !path.startsWith('swayform_ws/') || typeof content !== 'string') throw new Error('Invalid workspace write');
-  overrides[path] = content;
-  return persist();
+  return persist((drafts) => { drafts[path] = content; });
 }
 
 export function isModified(path){
@@ -58,13 +85,11 @@ export function isModified(path){
 }
 
 export function resetFile(path){
-  delete overrides[path];
-  persist();
+  persist((drafts) => { delete drafts[path]; });
 }
 
 export function resetAll(){
-  overrides = Object.create(null);
-  persist();
+  persist((drafts) => { for (const path of Object.keys(drafts)) delete drafts[path]; });
 }
 
 /** Builds a nested tree from the flat path list for the file explorer.

@@ -64,7 +64,7 @@ export function mount(container, ctx){
             <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
           </div>
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset this tab's workspace edits</span><span class="set-row-desc">Drafts survive reloads in this tab and are cleared on sign-out. Copy code you want to keep. Reset restores the starter files.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset workspace edits</span><span class="set-row-desc">Drafts are saved in this browser — they survive closed tabs and restarts — and are cleared on sign-out. Reset restores the starter files.</span></span>
             <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
           <div class="set-row">

@@ -434,10 +434,29 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   await sleep(200);
   assert.deepEqual(second.got.map((l) => l.text), ['ui:check camera ok', 'ui:ready', 'ui:unlocked', 'ui:head 9 0', 'ui:arm 88 40 118', 'ui:hand 72'], 'a late or reconnecting view is caught up, newest head, arm and hand positions only');
 
+  // An admin watching: sees the same view and the driver's keys, moves nothing, and never takes the controls.
+  const watcher = await open(await token({ purpose: 'teleop-watch', robotId: 1, jobId: 96 }));
+  assert.equal(watcher.result, 'open');
+  await sleep(200);
+  assert.deepEqual(watcher.got.map((l) => l.text), second.got.map((l) => l.text), 'a watcher is caught up like a driver');
+  assert.equal(second.ws.readyState, WebSocket.OPEN, 'the driver keeps the controls');
+  const inputsBefore = session.frames.filter((f) => f.t === 'job.input').length;
+  watcher.ws.send(JSON.stringify({ t: 'arm.lift', v: 1 }));
+  second.ws.send(JSON.stringify({ t: 'torso.turn', v: 1 }));
+  session.ws.send(JSON.stringify({ t: 'job.output', jobId: 96, text: 'ui:hand 80\n' }));
+  await sleep(250);
+  const inputs = session.frames.filter((f) => f.t === 'job.input').slice(inputsBefore);
+  assert.deepEqual(inputs.map((f) => f.line), ['torso.turn 1'], "a watcher's own frames never reach the robot");
+  assert.ok(watcher.got.some((m) => m.t === 'driver.input' && m.line === 'torso.turn 1'), "the driver's keys are mirrored to the watcher");
+  assert.equal(watcher.got.at(-1).text, 'ui:hand 80');
+
   const closed = once(second.ws, 'close');
+  const watcherClosed = once(watcher.ws, 'close');
   session.ws.send(JSON.stringify({ t: 'job.exit', jobId: 96, exitCode: 0 }));
   await closed;
+  await watcherClosed;
   assert.equal(second.got.at(-1).t, 'job.ended');
+  assert.equal(watcher.got.at(-1).t, 'job.ended');
   await sleep(300);
   await session.end();
 });

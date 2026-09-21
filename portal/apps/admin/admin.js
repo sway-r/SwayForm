@@ -1,5 +1,7 @@
 import { escapeHtml } from '../../utils.js';
 import { subscribeQueue, refreshQueueNow } from '../../services/robot-jobs-service.js';
+import { isInteractiveRobotPath } from '../learn/workspace/ros-paths.js';
+import { openTargetLockPopup } from '../learn/workspace/target-lock-popup.js';
 
 export const meta = {
   id: 'admin',
@@ -79,6 +81,8 @@ function jobRow(job, pendingJobs, detail){
   if (job.status === 'pending' || job.status === 'approved'){
     actions.push(`<button type="button" class="p-btn ghost" data-cancel="${job.id}">Cancel</button>`);
   } else if (job.status === 'running'){
+    // Read-only: the admin sees the student's live view without taking the controls.
+    if (isInteractiveRobotPath(job.workspacePath)) actions.push(`<button type="button" class="p-btn primary" data-watch-live="${job.id}">Watch live</button>`);
     // Sends a stop request to the connected agent — it does not touch this
     // row's status itself (see the cancel action: a browser click never
     // gets to unilaterally declare a running job stopped). The row only
@@ -276,6 +280,10 @@ function bindRosterActions(container, ctx, { fullRender }){
  * innerHTML swap-and-rebind can't accumulate duplicate listeners on
  * roster/settings nodes it never touches. */
 function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
+  root.querySelectorAll('[data-watch-live]').forEach((btn) => {
+    btn.addEventListener('click', () => openTargetLockPopup({ spectate: true }));
+  });
+
   root.querySelectorAll('[data-approve]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       try { await postQueueAction({ action: 'approve', jobId: Number(btn.dataset.approve) }); await refreshQueue(); }
@@ -522,6 +530,7 @@ export function mount(container, ctx){
   if (screenWatch) screenWatch.observe(container);
 
   return {
+    onFocus(){ refreshQueueNow(); },
     unmount(){
       unmounted = true;
       unsubscribe();

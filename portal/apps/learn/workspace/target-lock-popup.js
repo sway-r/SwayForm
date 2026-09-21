@@ -19,6 +19,15 @@ const HOLD_KEYS = {
   Space: ['hand', 'close', 1],
 };
 const LIMIT_KEYS = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' };
+// A spectator lights the legend from the driver's own stdin lines, relayed by the bridge.
+const DRIVER_LINE_KEYS = {
+  'head.move': (dx, dy) => [dx > 0 && 'ArrowRight', dx < 0 && 'ArrowLeft', dy > 0 && 'ArrowUp', dy < 0 && 'ArrowDown'],
+  'arm.lift': (v) => [v > 0 && 'KeyR', v < 0 && 'KeyF'],
+  'arm.move': (a, b) => [a < 0 && 'KeyA', a > 0 && 'KeyD', b > 0 && 'KeyW', b < 0 && 'KeyS'],
+  'torso.turn': (v) => [v < 0 && 'KeyQ', v > 0 && 'KeyE'],
+  'hand.close': (v) => [v > 0 && 'Space'],
+};
+const DRIVER_KEY_EXPIRY_MS = 400; // the driver repeats held keys every 100ms; silence means released
 const CHECK_LABELS = { camera: 'Camera', robot: 'Robot', motion: 'Motion', target: 'Target system' };
 // Alphabetical on purpose: the lights fill in as the robot reports each stage, so the run order is not in this file.
 const STAGE_LABELS = { arm: 'Arm', check: 'System check', controls: 'Controls', crosshair: 'Crosshair', movement: 'Movement' };
@@ -37,7 +46,8 @@ const key = (code, label, wide) => `<span class="tl-key${wide ? ' tl-key-wide' :
 
 let open = null; // one popup at a time
 
-export function openTargetLockPopup(){
+// spectate: a read-only view of someone else's session (Admin's "Watch live"); it sends nothing to the robot.
+export function openTargetLockPopup({ spectate = false } = {}){
   if (open) return open;
 
   const root = document.createElement('div');
@@ -45,8 +55,8 @@ export function openTargetLockPopup(){
   root.innerHTML = `
     <div class="tl-popup" role="dialog" aria-modal="true" aria-label="Target Lock live view">
       <div class="tl-head">
-        <span class="tl-title">Target Lock — robot's eyes</span>
-        <button type="button" class="tl-close" data-role="close">End session</button>
+        <span class="tl-title">${spectate ? 'Target Lock — watching live (view only)' : "Target Lock — robot's eyes"}</span>
+        <button type="button" class="tl-close" data-role="close">${spectate ? 'Close' : 'End session'}</button>
       </div>
       <ol class="tl-stages" data-role="stages">${'<li></li>'.repeat(Object.keys(STAGE_LABELS).length)}</ol>
       <div class="tl-body">
@@ -174,6 +184,22 @@ export function openTargetLockPopup(){
     sendGroup(HOLD_KEYS[event.code][0]);
   }
 
+  const driverLit = new Map(); // command -> { codes, timer }
+
+  function showDriverLine(line){
+    const [command, ...args] = line.split(' ');
+    if (command === 'hand.open'){ flash(keyEls.Enter, 'is-held'); return; }
+    const keysFor = DRIVER_LINE_KEYS[command];
+    if (!keysFor) return;
+    const was = driverLit.get(command);
+    if (was){ clearTimeout(was.timer); was.codes.forEach((code) => keyEls[code].classList.remove('is-held')); }
+    const codes = keysFor(...args.map(Number)).filter(Boolean);
+    codes.forEach((code) => keyEls[code].classList.add('is-held'));
+    const timer = setTimeout(() => showDriverLine(`${command} 0 0`), DRIVER_KEY_EXPIRY_MS);
+    if (codes.length) driverLit.set(command, { codes, timer });
+    else { clearTimeout(timer); driverLit.delete(command); }
+  }
+
   function lightStage(name, ok = true){
     let el = stagesEl.querySelector(`[data-stage="${name}"]`);
     if (!el){
@@ -212,7 +238,9 @@ export function openTargetLockPopup(){
       lightStage('arm');
       statusEl.textContent = 'Arm unlocked — the arm is moving to its ready position…';
       clearTimeout(armTimer);
-      armTimer = setTimeout(() => { if (!ended) statusEl.textContent = 'You have control — grab the object and lift it.'; }, ARM_READY_MS);
+      armTimer = setTimeout(() => {
+        if (!ended) statusEl.textContent = spectate ? 'The driver has control of the robot.' : 'You have control — grab the object and lift it.';
+      }, ARM_READY_MS);
     } else if (kind === 'head'){
       role('readout').textContent = `pan ${a}°  tilt ${b}°`;
     } else if (kind === 'arm'){
@@ -222,7 +250,10 @@ export function openTargetLockPopup(){
       role('grip').style.width = `${percent}%`;
       role('grip-text').textContent = `grip ${percent}%`;
     } else if (kind === 'limit'){
-      const codes = a === 'arm' ? [...held].filter((code) => HOLD_KEYS[code][0] === 'arm') : [LIMIT_KEYS[a]];
+      const armHeld = spectate
+        ? ['arm.move', 'arm.lift'].flatMap((command) => (driverLit.get(command) || { codes: [] }).codes)
+        : [...held].filter((code) => HOLD_KEYS[code][0] === 'arm');
+      const codes = a === 'arm' ? armHeld : [LIMIT_KEYS[a]];
       for (const code of codes) flash(keyEls[code], 'is-limit');
     } else if (kind === 'ended'){
       finish(ENDED_TEXT[a] || ENDED_TEXT.job_ended);
@@ -244,7 +275,7 @@ export function openTargetLockPopup(){
     try {
       const res = await fetch('/api/robot/status', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ action: 'teleop-token' }), signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify(spectate ? { action: 'teleop-token', watch: true } : { action: 'teleop-token' }), signal: AbortSignal.timeout(10_000),
       });
       if (!open || ended) return;
       if (res.status === 409){ finish(ENDED_TEXT.job_ended); return; }
@@ -255,11 +286,16 @@ export function openTargetLockPopup(){
       const socket = new WebSocket(`${TELEOP_URL}?token=${encodeURIComponent(token)}`);
       ws = socket;
       // The robot program holds step 1 until it hears from this view, so the whole sequence is seen.
-      socket.onopen = () => { reconnects = 0; send({ t: 'ping' }); if (!ready) statusEl.textContent = 'Connected — starting the sequence…'; };
+      socket.onopen = () => {
+        reconnects = 0;
+        if (!spectate) send({ t: 'ping' });
+        if (!ready) statusEl.textContent = spectate ? 'Watching — waiting for the sequence…' : 'Connected — starting the sequence…';
+      };
       socket.onmessage = (event) => {
         let msg;
         try { msg = JSON.parse(event.data); } catch { return; }
         if (msg.t === 'job.line' && typeof msg.text === 'string') handleUiLine(msg.text);
+        else if (msg.t === 'driver.input' && spectate && typeof msg.line === 'string') showDriverLine(msg.line);
         else if (msg.t === 'job.ended') finish(ENDED_TEXT.job_ended);
       };
       socket.onclose = (event) => {
@@ -283,7 +319,8 @@ export function openTargetLockPopup(){
   function close(){
     if (!open) return;
     open = null;
-    send({ t: 'session.end' });
+    if (!spectate) send({ t: 'session.end' });
+    driverLit.forEach(({ timer }) => clearTimeout(timer));
     clearInterval(moveTimer);
     clearInterval(pingTimer);
     clearTimeout(armTimer);
@@ -295,11 +332,13 @@ export function openTargetLockPopup(){
     root.remove();
   }
 
-  window.addEventListener('keydown', onKeyDown, true);
-  window.addEventListener('keyup', onKeyUp, true);
-  window.addEventListener('blur', releaseKeys);
+  if (!spectate){
+    window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('keyup', onKeyUp, true);
+    window.addEventListener('blur', releaseKeys);
+    pingTimer = setInterval(() => send({ t: 'ping' }), PING_INTERVAL_MS);
+  }
   closeEl.addEventListener('click', close);
-  pingTimer = setInterval(() => send({ t: 'ping' }), PING_INTERVAL_MS);
 
   open = { close, jobEnded(){ finish(ENDED_TEXT.job_ended); } };
   connect();

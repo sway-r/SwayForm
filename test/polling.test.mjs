@@ -262,7 +262,7 @@ test('queue service: the badge alone never downloads the list; an open Admin app
   hits.pulse = 0;
   await advance(5 * 60_000, 1000);
   assert.equal(hits.list, 1, 'five quiet minutes: the list was not fetched again');
-  assert.ok(hits.pulse >= 20 && hits.pulse <= 24, `pending-only and unchanged settles at 15s (saw ${hits.pulse})`);
+  assert.ok(hits.pulse >= 28 && hits.pulse <= 32, `pending-only and unchanged settles at 10s (saw ${hits.pulse})`);
 
   // A student submits: the next pulse notices, and only then is the list reloaded.
   state.version = 'v2'; state.pendingCount = 3; state.openCount = 3;

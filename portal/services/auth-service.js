@@ -11,24 +11,28 @@ export function hasPendingLogout(){
   try { return localStorage.getItem(LOGOUT_PENDING_KEY) === '1'; } catch { return false; }
 }
 
-function clearPrivateBrowserData(){
-  try {
-    localStorage.removeItem('swayform.portal.fs.overrides');
-    for (let i = sessionStorage.length - 1; i >= 0; i--){
-      const key = sessionStorage.key(i);
-      if (key?.startsWith('swayform.portal.fs.')) sessionStorage.removeItem(key);
-    }
-  } catch { /* storage may be unavailable */ }
+const DRAFTS_PREFIX = 'swayform.portal.fs.';
+
+// Code drafts (mock-fs.js). Sign-out removes them all; signing in keeps only that account's own.
+function clearPrivateBrowserData(keepEmail){
+  const keepKey = keepEmail ? DRAFTS_PREFIX + encodeURIComponent(keepEmail) : null;
+  for (const store of [() => localStorage, () => sessionStorage]){
+    try {
+      const storage = store();
+      for (let i = storage.length - 1; i >= 0; i--){
+        const key = storage.key(i);
+        if (key?.startsWith(DRAFTS_PREFIX) && key !== keepKey) storage.removeItem(key);
+      }
+    } catch { /* storage may be unavailable */ }
+  }
 }
 
 function announceAuthChange(){
   try { localStorage.setItem(AUTH_CHANGE_KEY, `${Date.now()}:${Math.random()}`); } catch { /* unavailable */ }
 }
+// The tab that signed in or out already cleared the shared drafts; other tabs only need to reload.
 if (typeof window !== 'undefined') window.addEventListener('storage', (event) => {
-  if (event.key === AUTH_CHANGE_KEY || event.key === LOGOUT_PENDING_KEY){
-    clearPrivateBrowserData();
-    window.location.reload();
-  }
+  if (event.key === AUTH_CHANGE_KEY || event.key === LOGOUT_PENDING_KEY) window.location.reload();
 });
 
 function readGuestSession(){
@@ -95,7 +99,7 @@ export async function loginWithGoogle(credential){
     throw new Error(data.message || 'Google sign-in failed. Please try again.');
   }
   writeGuestSession(null);
-  clearPrivateBrowserData();
+  clearPrivateBrowserData(data.session?.email);
   announceAuthChange();
   invalidateSessionCache();
   return data.session;

@@ -15,6 +15,7 @@ import { openTargetLockPopup } from './target-lock-popup.js';
 import { buildRunSequence } from './mock-shell.js';
 import { getSession } from '../../../services/auth-service.js';
 import { watchJob } from '../../../services/job-watch.js';
+import { refreshQueueNow } from '../../../services/robot-jobs-service.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -58,7 +59,7 @@ export function mount(bodyEl, winApi, opts) {
   const { activity } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null, pendingOpenLine = null;
   let saveTimer = null;
-  let pendingSave = null; // { path, value } awaiting the debounced write — flushed on dispose
+  const pendingSaves = new Map(); // path -> value awaiting the debounced write — flushed on dispose and page hide
   let disposed = false;
   let hasRobot = false;
   let jobWatch = null; // the one job currently being followed (services/job-watch.js)
@@ -74,7 +75,25 @@ export function mount(bodyEl, winApi, opts) {
       toolbar.setRobotEligible(hasRobot && isCanonicalRobotPath(tabs.activePath));
       toolbar.setQueueRobotReady(robotValidatedPath === tabs.activePath);
     }
+    if (hasRobot) resumeOpenJob(session);
   });
+
+  // A refresh or remount drops the job being followed; pick an open interactive job back up so its live view still opens.
+  async function resumeOpenJob(session){
+    const path = activity.workspaceFile;
+    if (jobWatch || !isInteractiveRobotPath(path)) return;
+    try {
+      const res = await fetch('/api/robot/queue');
+      if (!res.ok || disposed || jobWatch) return;
+      const { jobs } = await res.json();
+      const mine = (jobs || []).find((j) => j.workspacePath === path && j.studentEmail === session.email
+        && ['pending', 'approved', 'running'].includes(j.status));
+      if (!mine) return;
+      output.toggleCollapse(false);
+      output.appendLine('Following the job you queued earlier.', 'term-ok', 'output');
+      watchQueuedJob(mine.id, path);
+    } catch (e) { /* offline: Queue on Robot still works */ }
+  }
 
   // Scope the explorer to this activity's own file — a student working
   // through the Wave demo (or any one lab) doesn't need every other demo/lab
@@ -161,9 +180,9 @@ export function mount(bodyEl, winApi, opts) {
         robotValidatedPath = null;
         if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
       }
-      pendingSave = { path, value };
+      pendingSaves.set(path, value);
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => { pendingSave = null; persist(path, value); }, 500);
+      saveTimer = setTimeout(flushPendingSave, 500);
     },
   });
   editorSurfaceEl.innerHTML = '';
@@ -357,6 +376,7 @@ export function mount(bodyEl, winApi, opts) {
       if (submitRes.ok && submitData.ok){
         output.appendLine(`Queued — position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
         watchQueuedJob(submitData.jobId, path);
+        refreshQueueNow(); // an admin queueing from their own browser sees it in the Admin app at once
       } else if (submitData.error === 'cooldown'){
         const seconds = Math.ceil((submitData.retryAfterMs || 0) / 1000);
         output.appendLine(`Please wait ${seconds}s before queueing again.`, 'term-warn', 'output');
@@ -422,7 +442,7 @@ export function mount(bodyEl, winApi, opts) {
     refreshExplorer();
     if (tabs.activePath === path){
       if (!stored){ toolbar.setFileStatus('Not saved to browser · copy your code'); return; }
-      toolbar.setFileStatus('Saved for this tab · ' + path.replace(/^swayform_ws\//, '~/swayform_ws/'));
+      toolbar.setFileStatus('Saved in this browser · ' + path.replace(/^swayform_ws\//, '~/swayform_ws/'));
       setTimeout(() => { if (tabs.activePath === path) toolbar.setFileStatus(path.replace(/^swayform_ws\//, '~/swayform_ws/')); }, 1200);
     }
   }
@@ -434,17 +454,20 @@ export function mount(bodyEl, winApi, opts) {
    *  the very last edit made before closing). */
   function flushPendingSave(){
     clearTimeout(saveTimer);
-    if (!pendingSave) return;
-    const { path, value } = pendingSave;
-    pendingSave = null;
-    persist(path, value);
+    const writes = [...pendingSaves];
+    pendingSaves.clear();
+    writes.forEach(([path, value]) => persist(path, value));
   }
+  // A refresh or closed tab never reaches dispose(); without this the last half second of typing was lost.
+  const flushWhenHidden = () => { if (document.visibilityState === 'hidden') flushPendingSave(); };
+  window.addEventListener('pagehide', flushPendingSave);
+  document.addEventListener('visibilitychange', flushWhenHidden);
 
   function saveActiveFile(){
     const path = tabs.activePath;
     if (!path) return;
-    clearTimeout(saveTimer);
-    if (pendingSave && pendingSave.path === path) pendingSave = null;
+    pendingSaves.delete(path);
+    flushPendingSave();
     persist(path, editor.getValue());
   }
 
@@ -452,8 +475,7 @@ export function mount(bodyEl, winApi, opts) {
     const path = tabs.activePath;
     if (!path) return;
     if (!window.confirm(`Reset ${path.split('/').pop()} to its starter version? Your changes to this file will be lost. This cannot be undone.`)) return;
-    clearTimeout(saveTimer);
-    if (pendingSave && pendingSave.path === path) pendingSave = null;
+    pendingSaves.delete(path);
     if (robotValidatedPath === path){ robotValidatedPath = null; toolbar.setQueueRobotReady(false); }
     fs.resetFile(path);
     const original = fs.readFile(path);
@@ -489,6 +511,8 @@ export function mount(bodyEl, winApi, opts) {
       flushPendingSave();
       if (jobWatch) jobWatch.stop();
       window.removeEventListener('swayform:workspace-fs-reset', onWorkspaceFsReset);
+      window.removeEventListener('pagehide', flushPendingSave);
+      document.removeEventListener('visibilitychange', flushWhenHidden);
       if (editor) editor.dispose();
     },
   };

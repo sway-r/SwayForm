@@ -221,7 +221,8 @@ function openApp(appId, params, opts){
   } else if (params && win.pendingParams !== params){
     win.pendingParams = params;
   }
-  if (!opts.silent) navigateForApp(appId, params);
+  // Reopening an app from its icon with nowhere particular to go keeps the place it was already at.
+  if (!opts.silent) navigateForApp(appId, params, params ? undefined : win.lastPath);
 }
 
 function createWindow(mod, saved){
@@ -352,7 +353,10 @@ function observeManualResize(el, win){
 function focusWindow(appId){
   const win = windows.get(appId);
   if (!win) return;
+  const switched = activeAppId !== appId;
   activeAppId = appId;
+  // Lets an app catch up the moment it is brought to the front (Admin reloads its queue).
+  if (switched && win.instance && typeof win.instance.onFocus === 'function') win.instance.onFocus();
   windows.forEach((w, id) => w.el.classList.toggle('focused', id === appId));
   win.el.style.zIndex = ++zCounter;
   renderTaskbar();
@@ -506,7 +510,7 @@ function pathForApp(appId, params){
 function navigateForApp(appId, params, explicitPath){
   const path = explicitPath || pathForApp(appId, params);
   const win = windows.get(appId);
-  if (win) win.lastPath = path;
+  if (win && win.lastPath !== path){ win.lastPath = path; persistOpenApps(); }
   navigateTo(path, { skipDispatch: true });
 }
 
@@ -537,7 +541,8 @@ function persistOpenApps(){
   try {
     const windowState = {};
     windows.forEach((win, id) => {
-      windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized };
+      // path: where inside the app the student was (e.g. one Learn activity), so a refresh returns there.
+      windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized, path: win.lastPath || null };
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeAppId, windows: windowState }));
   } catch (e) { /* storage unavailable — non-fatal */ }
@@ -565,7 +570,10 @@ function restoreOpenApps(){
     }
   } catch (e) { windowState = {}; }
   Object.keys(windowState).filter((id) => REGISTRY[id]).forEach((id) => {
-    openApp(id, null, { silent: true, geometry: windowState[id], noFocus: true });
+    const saved = windowState[id];
+    const route = saved && typeof saved.path === 'string' ? routeFromPath(saved.path) : null;
+    const here = route && route.appId === id ? route : null;
+    openApp(id, here ? here.params : null, { silent: true, geometry: saved, noFocus: true, path: here ? saved.path : null });
   });
   return savedActiveAppId;
 }

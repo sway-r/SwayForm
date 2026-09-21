@@ -952,7 +952,9 @@ export const LEARNING_PATH = {
                       '**Press Enter** to open the hand.',
                       '**Hold Space** until the hand has it.',
                       '**Hold R** to lift it into the air.',
+                      '**Show it off, then press Enter** to let go.',
                     ] },
+                    { type: 'callout', tone: 'warn', label: 'Do not keep squeezing', text: 'A fully closed hand is working its finger motors hard the whole time, and they heat up. Grab, lift, show it, then press **Enter** to release. Do not leave the hand clamped on the object for minutes.' },
                     { type: 'callout', tone: 'safety', label: 'Safety', text: 'Nobody stands within reach of the robot\'s arm during the live run. Everyone watches the screen.' },
                   ],
                 },
@@ -970,7 +972,7 @@ export const LEARNING_PATH = {
                     { type: 'list', items: [
                       'You click **End session**.',
                       'Nobody touches a key for 30 seconds.',
-                      'Three minutes are up.',
+                      'Fifteen minutes are up.',
                       'An admin presses Stop.',
                     ] },
                     { type: 'p', text: 'The robot does not decide whether you succeeded — the room does. However the session ends, the robot opens its hand, turns its torso back, and returns its arm and head to center by itself. That can take several seconds, so give it a moment.' },

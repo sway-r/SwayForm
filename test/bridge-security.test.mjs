@@ -388,7 +388,7 @@ test('teleop: only a token for the running interactive job may drive it, and ui:
   apiState.jobs = [];
   const run = session.runs()[0];
   assert.equal(run.interactive, true);
-  assert.equal(run.timeoutMs, 240000);
+  assert.equal(run.timeoutMs, 1000000);
 
   assert.equal((await open(await token({ purpose: 'video-viewer', robotId: 1, jobId: 96 }))).result, 401, 'wrong purpose');
   assert.equal((await open(await token({ purpose: 'teleop', robotId: 1, jobId: 97 }))).result, 409, 'not the running job');

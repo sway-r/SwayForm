@@ -27,8 +27,9 @@ const FINISH_RETRY_GIVE_UP_MS = 30 * 60_000;
 const JOB_GUARD_MS = 90_000;
 const JOB_TIMEOUT_MS = 60_000;
 // Jobs driven live from the browser over /teleop; keep in sync with ros-paths.js INTERACTIVE_ROBOT_PATHS.
+// Target Lock: up to 45s waiting for the popup + a 900s session + ~10s to park; the agent honors up to 1200000.
 const INTERACTIVE_JOBS = new Map([
-  ['swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', { timeoutMs: 240_000 }],
+  ['swayform_ws/src/swayform_robot/swayform_robot/behaviors/target_lock.py', { timeoutMs: 1_000_000 }],
 ]);
 // Five hold-to-move lines (head, arm.move, arm.lift, torso, hand) each repeat at 10/s, plus key changes.
 const TELEOP_MAX_FRAMES_PER_SEC = 80;

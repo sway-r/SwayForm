@@ -143,6 +143,7 @@ export async function mount(container, ctx){
       if (res.ok){
         shown = data;
         if (data.delivered === false) note.textContent = "Turned off here, but the robot couldn't be reached to confirm it stopped moving. Check on it.";
+        else if (data.stoppedJobId) note.textContent = `Also sent a stop signal to job #${data.stoppedJobId}, which was still stuck running. Verify the robot in person.`;
         else keepNote = false;
       } else {
         note.textContent = describeError(data);

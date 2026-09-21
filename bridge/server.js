@@ -17,6 +17,8 @@ const PRESENCE_WRITE_INTERVAL_MS = Number(process.env.PRESENCE_WRITE_INTERVAL_MS
 // Minimum gaps before the next job.run, so event-driven dispatch is never tighter than the old 4s poll.
 const POST_JOB_SETTLE_MS = 2_000;
 const IDLE_STOP_SETTLE_MS = 4_000;
+// An admin's own "off" also straightens the arms, which takes longer than just letting go of the pose.
+const IDLE_STRAIGHTEN_SETTLE_MS = 10_000;
 const MOVEMENT_CONFIRM_MS = 4_000; // how long movement.start waits for the agent's robot.state reply
 // After a job, the session is back up this long before Movement is asked for. Env override is for tests.
 const SESSION_RESUME_SETTLE_MS = Number(process.env.SESSION_RESUME_SETTLE_MS) || 3_000;
@@ -267,11 +269,13 @@ async function handleIdleRequest(req, res){
   const ws = connectedRobots.get(robotId);
   const delivered = !!(ws && ws.readyState === ws.OPEN);
   if (delivered){
-    ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop' }));
+    // straighten: the admin turned the session off by hand. A stop that makes way for a job never carries it.
+    const straighten = body.action === 'stop' && body.straighten === true;
+    ws.send(JSON.stringify({ t: body.action === 'start' ? 'idle.start' : 'idle.stop', ...(straighten ? { straighten: true } : {}) }));
     if (body.action === 'start') idleStopped.delete(robotId);
     else {
       idleStopped.add(robotId);
-      if (ws.dispatch) ws.dispatch.hold(IDLE_STOP_SETTLE_MS);
+      if (ws.dispatch) ws.dispatch.hold(straighten ? IDLE_STRAIGHTEN_SETTLE_MS : IDLE_STOP_SETTLE_MS);
     }
   }
 

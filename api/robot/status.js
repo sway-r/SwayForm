@@ -41,7 +41,10 @@ function bridgeSecretKey(){
  * running for this robot, so idle can never start into a race with a job
  * about to be dispatched, and (502) if the robot couldn't be told to start,
  * so "on" never shows for a session that isn't running. 'idle-off' reports
- * `delivered` so the UI can say when the stop didn't reach the robot.
+ * `delivered` so the UI can say when the stop didn't reach the robot, and
+ * also relays job.stop for any job stuck 'running' (its own job.exit never
+ * arrived) so "off" stops everything holding the robot, not just the idle
+ * loop — reported as `stoppedJobId`.
  * Persisted in robots.idle_session_enabled (the
  * admin's intent, not a live status report) and reset to false server-side
  * by api/robot/queue.js's approve action the moment a job is approved —
@@ -116,9 +119,18 @@ export default async function handler(req, res){
     // One statement: Movement never outlives the session (the robot drops it on idle.stop too).
     // Off by hand also means "don't bring it back after the running job".
     await sql`UPDATE robots SET idle_session_enabled = false, movement_enabled = false, resume_session = false, resume_movement = false WHERE id = ${robotId}`;
+    // idle.stop does nothing for a dispatched job, so one still running (its exit never arrived) gets its own stop.
+    // That never ends the row: only the robot's report or a reconcile does.
+    const [stuckJob] = await sql`SELECT id FROM robot_jobs WHERE robot_id = ${robotId} AND status = 'running'`;
+    const stoppedJobId = stuckJob ? stuckJob.id : null;
     let delivered = false;
-    try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop' })).delivered; } catch (e) { /* reported as undelivered */ }
-    res.status(200).json({ ok: true, idleSessionEnabled: false, movementEnabled: false, delivered });
+    // straighten: off by hand also centers the robot, unless a job may still be moving it. Approve's stop never asks for it.
+    try { delivered = !!(await callBridge('/idle-request', { robotId, action: 'stop', straighten: !stuckJob })).delivered; } catch (e) { /* reported as undelivered */ }
+    if (stuckJob){
+      try { await callBridge('/admin-stop', { robotId, jobId: stuckJob.id }); } catch (e) { /* best-effort */ }
+    }
+
+    res.status(200).json({ ok: true, idleSessionEnabled: false, movementEnabled: false, delivered, stoppedJobId });
     return;
   }
 

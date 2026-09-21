@@ -103,6 +103,12 @@ test('idle-request requires the bridge secret and relays start/stop to the conne
   next=frame();
   r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
   assert.deepEqual(await next,{t:'idle.stop'});
+
+  // Only an admin's own "off" asks the robot to straighten; a stop that makes way for a job never does.
+  next=frame();
+  r=await fetch(base+'/idle-request',{method:'POST',headers:{'content-type':'application/json','x-bridge-secret':secret},body:JSON.stringify({robotId:1,action:'stop',straighten:true})});
+  assert.equal((await r.json()).delivered,true);
+  assert.deepEqual(await next,{t:'idle.stop',straighten:true});
   ws.close();
 });
 test('viewer JWTs require the video purpose, and editor tokens are robot-bound and single use',async()=>{

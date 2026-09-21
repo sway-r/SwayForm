@@ -251,12 +251,14 @@ test('Movement only turns on inside a live session, only when the robot confirms
   assert.deepEqual(await flags(), { session: true, movement: false });
 
   const calls = [];
+  const straightens = [];
   let movementReply = { ok: true, delivered: true, movement: true };
   const bridge = createServer((req, res) => {
     let raw = '';
     req.on('data', (chunk) => { raw += chunk; });
     req.on('end', () => {
       calls.push(`${req.url} ${JSON.parse(raw).action}`);
+      if (JSON.parse(raw).straighten) straightens.push(req.url);
       res.setHeader('content-type', 'application/json');
       res.end(JSON.stringify(req.url === '/movement-request' ? movementReply : { ok: true, delivered: true }));
     });
@@ -296,6 +298,7 @@ test('Movement only turns on inside a live session, only when the robot confirms
     assert.equal((await post(queue, teacher, { action: 'approve', jobId: job.data.jobId })).code, 200);
     assert.deepEqual(await flags(), { session: false, movement: false });
     assert.ok(calls.includes('/idle-request stop'));
+    assert.equal(straightens.length, 1, 'only the idle-off by hand asked to straighten, never the approve');
     assert.equal((await get(status, teacher)).data.movementEnabled, false);
   } finally {
     delete process.env.BRIDGE_URL;
@@ -361,5 +364,45 @@ test('approving a job pauses the session and Movement, and they come back only w
     assert.deepEqual(await flags(), { session: false, movement: false, rs: false, rm: false });
   } finally {
     await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=false, movement_enabled=false, resume_session=false, resume_movement=false WHERE id=1");
+  }
+});
+
+test('turning the session off also sends a stop to a job still stuck running, and never ends that row by itself', async () => {
+  await db.exec("DELETE FROM robot_jobs; UPDATE robots SET idle_session_enabled=false, movement_enabled=false, resume_session=false, resume_movement=false WHERE id=1");
+  const { createServer } = await import('node:http');
+  const calls = [];
+  const bridge = createServer((req, res) => {
+    let raw = '';
+    req.on('data', (chunk) => { raw += chunk; });
+    req.on('end', () => {
+      calls.push({ url: req.url, ...JSON.parse(raw) });
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ ok: true, delivered: true }));
+    });
+  });
+  await new Promise((resolve) => bridge.listen(0, '127.0.0.1', resolve));
+  process.env.BRIDGE_URL = `http://127.0.0.1:${bridge.address().port}`;
+  try {
+    // Nothing running: only the idle stop goes out.
+    const plain = await post(status, teacher, { action: 'idle-off' });
+    assert.deepEqual([plain.code, plain.data.delivered, plain.data.stoppedJobId], [200, true, null]);
+    assert.deepEqual(calls.map((c) => [c.url, c.straighten]), [['/idle-request', true]], 'off by hand asks the robot to straighten');
+
+    const job = await post(queue, students[12].cookie, { action: 'submit', path: WAVE_PATH, code: solvedWave });
+    assert.equal(job.code, 200, JSON.stringify(job.data));
+    await post(queue, teacher, { action: 'approve', jobId: job.data.jobId });
+    await agentCall(null, { action: 'dispatch-queue', robotId: '1' }, 'GET');
+    calls.length = 0;
+
+    const off = await post(status, teacher, { action: 'idle-off' });
+    assert.deepEqual([off.code, off.data.stoppedJobId], [200, job.data.jobId]);
+    assert.deepEqual(calls.map((c) => [c.url, c.action || c.jobId]), [['/idle-request', 'stop'], ['/admin-stop', job.data.jobId]]);
+    assert.equal(calls[0].straighten, false, 'never straighten underneath a job that may still be moving');
+    const row = (await db.query('SELECT status FROM robot_jobs WHERE id=$1', [job.data.jobId])).rows[0];
+    assert.equal(row.status, 'running', "only the robot's own report, or a reconcile, ends a running row");
+  } finally {
+    delete process.env.BRIDGE_URL;
+    await new Promise((resolve) => bridge.close(resolve));
+    await db.exec("DELETE FROM robot_jobs");
   }
 });

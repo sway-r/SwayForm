@@ -31,7 +31,8 @@ window.SWAYFORM = {
   },
   pricing: {
     robotPrice: "Contact Sales",
-    premiumBundlingNote: "An introductory period of premium curriculum access is planned to be included with every robot purchase. Exact terms and annual pricing will be announced before commercial release."
+    cloudSubscription: "$500 every 3 years, first year free.",
+    cloudPlanTiersHidden: "Classroom Hosting / Standard / Premium tiers hidden site-wide since 2026-09-23; their markup is kept in an HTML comment on for-schools.html."
   },
   timeline: {
     pilotStatus: "Pilot interest is currently open.",

@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>For Schools | SwayForm Robotics</title>
-<meta name="description" content="What a SwayForm robot package includes for high schools and community colleges — students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus setup, support, and purchasing information.">
+<meta name="description" content="What a SwayForm robot package includes for schools — including, but not limited to, high schools and middle schools. Students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus the curriculum, setup, support, and purchasing information.">
 <link rel="canonical" href="https://www.swayform.net/for-schools">
 <meta property="og:title" content="For Schools | SwayForm Robotics">
-<meta property="og:description" content="What a SwayForm robot package includes for high schools and community colleges — students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus setup, support, and purchasing information.">
+<meta property="og:description" content="What a SwayForm robot package includes for schools — including, but not limited to, high schools and middle schools. Students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus the curriculum, setup, support, and purchasing information.">
 <meta property="og:url" content="https://www.swayform.net/for-schools">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="For Schools | SwayForm Robotics">
-<meta name="twitter:description" content="What a SwayForm robot package includes for high schools and community colleges — students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus setup, support, and purchasing information.">
+<meta name="twitter:description" content="What a SwayForm robot package includes for schools — including, but not limited to, high schools and middle schools. Students learn with zero prior experience via the free Learning Portal, no robotics teacher required, plus the curriculum, setup, support, and purchasing information.">
 <meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -24,7 +24,43 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
-<style>#topbar{top:0!important}</style>
+<style>
+#topbar{top:0!important}
+/* curriculum section rows */
+.cur-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:48px}
+.cur-row{display:grid;grid-template-columns:44px 1fr auto;gap:18px;align-items:center;padding:18px 22px;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:border-color .2s,box-shadow .2s,transform .2s;color:inherit}
+.cur-row:hover{border-color:rgba(0,87,255,.3);box-shadow:0 8px 28px rgba(0,87,255,.10);transform:translateY(-1px)}
+.cur-row.planned{background:var(--bg2)}
+.cur-num{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--blue)}
+.cur-row.planned .cur-num{color:var(--faint)}
+.cur-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cur-title{font-weight:700;color:var(--ink);font-size:15px}
+.cur-level{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,87,255,.08);color:var(--blue);vertical-align:middle}
+.cur-row.planned .cur-level{background:var(--panel2);color:var(--faint)}
+.cur-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.cur-meta{display:flex;align-items:center;gap:10px;font-size:12px;white-space:nowrap}
+.cur-count{color:var(--muted);font-weight:600}
+.cur-status{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--line);background:var(--bg3);color:var(--faint)}
+.cur-status.avail{background:rgba(125,255,189,.15);border-color:rgba(125,255,189,.3);color:var(--green)}
+@media(max-width:640px){.cur-row{grid-template-columns:36px 1fr;gap:12px}.cur-meta{grid-column:2;justify-content:flex-start}}
+@media(max-width:900px){.fs-included{grid-template-columns:1fr!important}}
+/* two curriculum tracks */
+.tracks{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:16px;margin-top:40px;align-items:stretch}
+.track{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.track::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.track-ms::before{background:var(--cyan)}
+.track-hs::before{background:var(--blue)}
+.track-join{background:var(--bg2);border-style:dashed}
+.track-join::before{background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.track-num{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.track-ms .track-num{color:#0a7ac4}
+.track-hs .track-num{color:var(--blue)}
+.track-title{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px}
+.track-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.track-join-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.track-join p{font-size:13px;color:var(--muted);line-height:1.6}
+@media(max-width:900px){.tracks{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 
@@ -59,11 +95,17 @@
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 60% 50%,rgba(0,87,255,.06) 0%,transparent 70%);pointer-events:none"></div>
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">For Schools</span>
-    <h1 style="font-size:clamp(34px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:20px;color:var(--ink)">Purchasing information for high schools and community colleges.</h1>
-    <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:600px;line-height:1.65;margin-bottom:36px">What a SwayForm package includes, what setup requires, and how instructors are supported — so a decision-maker can evaluate SwayForm alongside a purchase request.</p>
+    <h1 style="font-size:clamp(34px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:20px;color:var(--ink)">Purchasing information for schools.</h1>
+    <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:600px;line-height:1.65;margin-bottom:36px">SwayForm is built for schools — including, but not limited to, high schools and middle schools. What a package includes, what the curriculum covers, what setup requires, and how instructors are supported — so a decision-maker can evaluate SwayForm alongside a purchase request.</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <a class="btn btn-primary" href="/contact">Contact Sales</a>
+      <a class="btn btn-ghost" href="#curriculum">See the curriculum &darr;</a>
       <a class="btn btn-ghost" href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Explore the Learning Portal →</a>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:28px">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:4px">Who it's for</span>
+      <span class="tag">Middle schools</span><span class="tag">High schools</span><span class="tag">Community colleges</span><span class="tag">STEM clubs &amp; CTE programs</span>
+      <span style="font-size:12px;color:var(--faint)">and any other school program</span>
     </div>
   </div>
 </section>
@@ -73,7 +115,7 @@
   <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">What's included</span>
   <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:40px">One robot package.</h2>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
+  <div class="fs-included" style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="card" style="padding:24px;display:flex;gap:16px;align-items:start">
         <div style="font-size:22px;flex-shrink:0">🤖</div>
@@ -86,14 +128,14 @@
         <div style="font-size:22px;flex-shrink:0">📘</div>
         <div>
           <div style="font-weight:700;margin-bottom:6px">Free Learning Portal Access</div>
-          <p style="font-size:13px;color:var(--muted);line-height:1.6">Core documentation, setup guides, safety notes, repair tutorials, and the foundational 10-lab curriculum — free, with no license required.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6">Core documentation, setup guides, safety notes, repair tutorials, and the full curriculum path — 14 readings, 5 demos, and the 10 Level 1 labs available today — free, with no license required.</p>
         </div>
       </div>
       <div class="card" style="padding:24px;display:flex;gap:16px;align-items:start">
         <div style="font-size:22px;flex-shrink:0">☁️</div>
         <div>
           <div style="font-weight:700;margin-bottom:6px">Cloud Subscription</div>
-          <p style="font-size:13px;color:var(--muted);line-height:1.6">Hosted classroom accounts, the code queue that sends student programs to the robot, live video, and simulation. Three plans: Classroom Hosting (no simulation), Standard (3 concurrent simulation environments) and Premium (15 concurrent, no wait) — see Curriculum &amp; Access below.</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6">Hosted classroom accounts, the code queue that sends student programs to the robot, live video, and simulation. Three plans: Classroom Hosting (no simulation), Standard (3 concurrent simulation environments) and Premium (15 concurrent, no wait) — see Access &amp; plans below.</p>
         </div>
       </div>
       <div class="card" style="padding:24px;display:flex;gap:16px;align-items:start">
@@ -115,11 +157,11 @@
           </div>
           <div style="display:flex;gap:12px;align-items:start">
             <div style="width:20px;height:20px;border-radius:50%;background:rgba(125,255,189,.15);border:1px solid rgba(125,255,189,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--green)">✓</div>
-            <div style="font-size:14px;color:var(--muted)"><span style="color:var(--ink);font-weight:600">School Wi-Fi</span> — S1 joins your existing Wi-Fi like any other device, a simple one-time setup. Students connect laptops to the same network to reach it over SSH.</div>
+            <div style="font-size:14px;color:var(--muted)"><span style="color:var(--ink);font-weight:600">School Wi-Fi</span> — S1 joins your existing Wi-Fi like any other device, a simple one-time setup. Students reach it through the browser-based Learning Portal — no SSH or laptop-to-robot setup.</div>
           </div>
           <div style="display:flex;gap:12px;align-items:start">
             <div style="width:20px;height:20px;border-radius:50%;background:rgba(125,255,189,.15);border:1px solid rgba(125,255,189,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--green)">✓</div>
-            <div style="font-size:14px;color:var(--muted)"><span style="color:var(--ink);font-weight:600">Student computers</span> — any OS with a code editor and SSH client. No specialized software beyond that.</div>
+            <div style="font-size:14px;color:var(--muted)"><span style="color:var(--ink);font-weight:600">Student computers</span> — any computer with a modern web browser. Students write and run code in the Learning Portal's built-in editor, so there is nothing to install.</div>
           </div>
           <div style="display:flex;gap:12px;align-items:start">
             <div style="width:20px;height:20px;border-radius:50%;background:rgba(125,255,189,.15);border:1px solid rgba(125,255,189,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--green)">✓</div>
@@ -136,10 +178,87 @@
   </div>
 </section>
 
-<!-- curriculum & access -->
+<!-- curriculum -->
+<section id="curriculum" style="background:#fff;border-top:1px solid var(--line);padding:80px 0">
+  <div class="section-wide">
+    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Curriculum</span>
+    <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">The same path students see in the Learning Portal.</h2>
+    <p style="color:var(--muted);max-width:720px;margin-bottom:36px;line-height:1.7">The Learning Portal holds the final version of the curriculum, and this page mirrors it. Seven sections: three foundation sections that are fully available today, then four lab levels — Level 1 is complete, and Levels 2–4 are the planned path to around 100 labs. Every lab has starter code, step-by-step instructions, and a debug checklist, and runs on real hardware.</p>
+
+    <div class="cur-grid">
+      <a class="cur-row" href="https://learning.swayform.net/learn/section/getting-started" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">01</span>
+        <span class="cur-main"><span class="cur-title">Getting Started</span><span class="cur-desc">Orientation, safety, and getting ready to use SwayForm.</span></span>
+        <span class="cur-meta"><span class="cur-count">5 readings</span><span class="cur-status avail">Available</span></span>
+      </a>
+      <a class="cur-row" href="https://learning.swayform.net/learn/section/ros2-intro" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">02</span>
+        <span class="cur-main"><span class="cur-title">Introduction to ROS 2</span><span class="cur-desc">Understand the software ideas you'll use to control SwayForm.</span></span>
+        <span class="cur-meta"><span class="cur-count">9 readings</span><span class="cur-status avail">Available</span></span>
+      </a>
+      <a class="cur-row" href="https://learning.swayform.net/learn/section/demos" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">03</span>
+        <span class="cur-main"><span class="cur-title">Pre-Installed Demos</span><span class="cur-desc">Explore and understand the programs already running on SwayForm — Wave, Handshake, Fist Bump, Finger Count, and Target Lock.</span></span>
+        <span class="cur-meta"><span class="cur-count">5 demos</span><span class="cur-status avail">Available</span></span>
+      </a>
+      <a class="cur-row" href="https://learning.swayform.net/learn/section/control" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">04</span>
+        <span class="cur-main"><span class="cur-title">Control<span class="cur-level">Level 1</span></span><span class="cur-desc">Program SwayForm's movement and build your first robot behaviors — from a single finger curl to a keyboard-driven capstone.</span></span>
+        <span class="cur-meta"><span class="cur-count">10 labs</span><span class="cur-status avail">Available</span></span>
+      </a>
+      <a class="cur-row planned" href="https://learning.swayform.net/learn/section/react" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">05</span>
+        <span class="cur-main"><span class="cur-title">React<span class="cur-level">Level 2</span></span><span class="cur-desc">Add real-time reactions to the world around the robot.</span></span>
+        <span class="cur-meta"><span class="cur-count">10 labs</span><span class="cur-status">Planned</span></span>
+      </a>
+      <a class="cur-row planned" href="https://learning.swayform.net/learn/section/perceive" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">06</span>
+        <span class="cur-main"><span class="cur-title">Perceive<span class="cur-level">Level 3</span></span><span class="cur-desc">Build perception and vision-based robot behaviors.</span></span>
+        <span class="cur-meta"><span class="cur-count">40 labs</span><span class="cur-status">Planned</span></span>
+      </a>
+      <a class="cur-row planned" href="https://learning.swayform.net/learn/section/create" target="_blank" rel="noopener noreferrer">
+        <span class="cur-num">07</span>
+        <span class="cur-main"><span class="cur-title">Create<span class="cur-level">Level 4</span></span><span class="cur-desc">Combine everything into complete robot projects.</span></span>
+        <span class="cur-meta"><span class="cur-count">40 labs</span><span class="cur-status">Planned</span></span>
+      </a>
+    </div>
+
+    <div style="text-align:center;max-width:640px;margin:0 auto">
+      <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Two tracks, one path <span style="color:var(--faint)">· Planned</span></span>
+      <h3 style="font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">A Middle School track and a High School track.</h3>
+      <p style="margin-top:12px;color:var(--muted);font-size:15px">Two curriculums at different difficulty levels, with overlapping features and skills, that all connect together at the end.</p>
+    </div>
+    <div class="tracks">
+      <div class="track track-ms">
+        <div class="track-num">Middle School track</div>
+        <div class="track-title">Lower difficulty, same robot.</div>
+        <p class="track-desc">The same demos, joints, and ROS 2 ideas, paced for younger students — still real code moving real hardware.</p>
+      </div>
+      <div class="track track-join">
+        <div class="track-join-title">Overlapping features and skills</div>
+        <p>Both tracks use the same Learning Portal, the same pre-installed demos, the same joint commands and safety rules, and the same four levels — Control, React, Perceive, Create.</p>
+        <div class="track-join-title" style="margin-top:14px">It all connects at the end</div>
+        <p>The two tracks converge at the end of the path, in Level 4 — Create, where every student builds toward the same final showcase.</p>
+      </div>
+      <div class="track track-hs">
+        <div class="track-num">High School track</div>
+        <div class="track-title">Higher difficulty, deeper systems.</div>
+        <p class="track-desc">The same skills pushed further — more original code and more of the perception, state-machine, and multi-node work that leads into the project track.</p>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:13px;color:var(--faint);margin-top:20px;line-height:1.6">The path in the Learning Portal today is the foundation both tracks are built from. Track-specific lab versions are planned and will be released as development continues.</p>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:32px">
+      <a class="btn btn-primary" href="/learning-path">See every lab &rarr;</a>
+      <a class="btn btn-ghost" href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Open the Learning Portal &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- access & plans -->
 <section style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0">
   <div class="section-wide">
-    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Curriculum &amp; access</span>
+    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Access &amp; plans</span>
     <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">Free portal. Three cloud plans.</h2>
     <p style="color:var(--muted);max-width:680px;margin-bottom:40px;line-height:1.7">The Learning Portal's curriculum, setup guides, safety documentation and repair tutorials are free to access. The cloud plans below differ in how much simulation capacity a classroom gets. Pricing for them is being finalized — contact sales for current terms.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px">
@@ -147,7 +266,7 @@
         <div style="font-weight:700;margin-bottom:12px;color:var(--ink)">Free</div>
         <ul style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)">
           <li>Core robot documentation &amp; setup</li>
-          <li>Foundational 10-lab curriculum</li>
+          <li>Full curriculum path — 10 Level 1 labs, 5 demos, and 14 readings today; Levels 2–4 planned</li>
           <li>Safety documentation</li>
           <li>Repair tutorials &amp; core code examples — replacement parts typically run $100 or less per limb</li>
         </ul>
@@ -194,7 +313,7 @@
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
       <div class="card" style="padding:28px">
         <div style="font-weight:700;margin-bottom:12px">Getting-started guide</div>
-        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px">A step-by-step checklist covering power, network, SSH verification, and running the first demo.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px">A step-by-step checklist covering power, network, connecting through the Learning Portal, and running the first demo.</p>
         <a class="btn btn-ghost" style="font-size:13px;padding:8px 16px" href="https://learning.swayform.net/getting-started" target="_blank" rel="noopener noreferrer">View guide →</a>
       </div>
       <div class="card" style="padding:28px">
@@ -239,7 +358,7 @@
     <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px">Standard offers 3 concurrent simulation environments per robot; Premium offers 15 concurrent environments. Classroom Hosting has no simulation. Size the robot fleet around supervised hardware time, team rotation, and class length.</p>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--muted)">
       <div><span style="color:var(--ink);font-weight:600">Robotics club or STEM team:</span> one robot, teams of up to 15 students rotating engineering roles.</div>
-      <div><span style="color:var(--ink);font-weight:600">Single class section:</span> one robot per rotating team of students, scheduled across the class period.</div>
+      <div><span style="color:var(--ink);font-weight:600">Single class section (middle or high school):</span> one robot per rotating team of students, scheduled across the class period.</div>
       <div><span style="color:var(--ink);font-weight:600">Multi-section CTE or engineering program:</span> multiple robots shared across sections; future multi-robot features are planned to support coordinated, team-based labs.</div>
     </div>
   </div>
@@ -259,7 +378,7 @@
     <div class="footer-top">
       <div class="footer-brand">
         <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
-        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+        <p class="footer-tagline">Educational humanoid robotics for schools — middle school, high school, and beyond. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col"><h5>Navigation</h5><ul>
         <li><a href="/">Overview</a></li>

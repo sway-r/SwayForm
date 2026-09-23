@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SwayForm Curriculum | 10 Labs Now, ~100-Lab Path Planned</title>
-<meta name="description" content="Begin with 10 structured labs, with the curriculum expanding to around 100 across four levels — from first SSH connection to fully student-authored multi-node robotics systems.">
+<meta name="description" content="The same curriculum students see in the Learning Portal — orientation and ROS 2 readings, 5 pre-installed demos, and 10 Level 1 labs available now, expanding to around 100 labs across four levels. Built for schools, including but not limited to middle schools and high schools, with Middle School and High School tracks planned.">
 <link rel="canonical" href="https://www.swayform.net/learning-path">
 <meta property="og:title" content="SwayForm Curriculum | 10 Labs Now, ~100-Lab Path Planned">
-<meta property="og:description" content="Begin with 10 structured labs, with the curriculum expanding to around 100 across four levels — from first SSH connection to fully student-authored multi-node robotics systems.">
+<meta property="og:description" content="The same curriculum students see in the Learning Portal — orientation and ROS 2 readings, 5 pre-installed demos, and 10 Level 1 labs available now, expanding to around 100 labs across four levels. Built for schools, including but not limited to middle schools and high schools, with Middle School and High School tracks planned.">
 <meta property="og:url" content="https://www.swayform.net/learning-path">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="SwayForm Curriculum | 10 Labs Now, ~100-Lab Path Planned">
-<meta name="twitter:description" content="Begin with 10 structured labs, with the curriculum expanding to around 100 across four levels — from first SSH connection to fully student-authored multi-node robotics systems.">
+<meta name="twitter:description" content="The same curriculum students see in the Learning Portal — orientation and ROS 2 readings, 5 pre-installed demos, and 10 Level 1 labs available now, expanding to around 100 labs across four levels. Built for schools, including but not limited to middle schools and high schools, with Middle School and High School tracks planned.">
 <meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -46,7 +46,32 @@
 .q-title{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px;color:var(--ink)}
 .q-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
 .q-footer{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);font-weight:600}
-@media(max-width:900px){.quarters{grid-template-columns:1fr 1fr}}
+.foundations{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.foundations + .quarters{margin-top:16px}
+.fcard{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:22px 22px 18px;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#1a5c38}
+.f-num{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1a5c38;margin-bottom:8px}
+.f-title{font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:6px}
+.f-desc{font-size:13px;color:var(--muted);line-height:1.55}
+.f-meta{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);font-weight:600}
+@media(max-width:900px){.quarters{grid-template-columns:1fr 1fr}.foundations{grid-template-columns:1fr}}
+/* two curriculum tracks */
+.tracks{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:16px;margin-top:40px;align-items:stretch}
+.track{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.track::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.track-ms::before{background:var(--cyan)}
+.track-hs::before{background:var(--blue)}
+.track-join{background:var(--bg2);border-style:dashed}
+.track-join::before{background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.track-num{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.track-ms .track-num{color:#0a7ac4}
+.track-hs .track-num{color:var(--blue)}
+.track-title{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px}
+.track-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.track-join-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.track-join p{font-size:13px;color:var(--muted);line-height:1.6}
+@media(max-width:900px){.tracks{grid-template-columns:1fr}}
+
 @media(max-width:520px){.quarters{grid-template-columns:1fr}}
 @media(max-width:768px){
   #lp-hero{padding-top:calc(var(--nav-h) + 48px) !important;padding-bottom:40px !important}
@@ -94,7 +119,8 @@
       <div>
         <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Curriculum</span>
         <h1 style="font-size:clamp(32px,5vw,54px);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:700px;margin-bottom:16px;color:var(--ink)">10 labs available now. A ~100-lab path is on the way.</h1>
-        <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:580px;line-height:1.65">Level 1 is fully built: ten labs with starter code, step-by-step instructions, and a debug checklist, all in the free Learning Portal. Levels 2–4 are the planned path to a complete curriculum of around 100 labs.</p>
+        <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:580px;line-height:1.65">Everything on this page is exactly what students see in the free Learning Portal: five orientation readings, nine ROS 2 readings, five pre-installed demos, and the ten Level 1 labs — each lab with starter code, step-by-step instructions, and a debug checklist. Levels 2–4 are the planned path to a complete curriculum of around 100 labs.</p>
+        <p style="font-size:14px;color:var(--muted);max-width:580px;line-height:1.65;margin-top:14px"><span style="color:var(--ink);font-weight:600">Built for schools</span> — including, but not limited to, middle schools and high schools. <a href="#tracks" style="color:var(--blue);font-weight:600">Two tracks are planned &rarr;</a></p>
       </div>
       <div style="flex-shrink:0;padding-top:6px">
         <a href="https://learning.swayform.net/labs" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:9px;background:#0057ff;color:#fff;font-size:14px;font-weight:700;letter-spacing:.01em;text-decoration:none;white-space:nowrap;transition:all .18s;border:1px solid rgba(0,87,255,.6)" onmouseover="this.style.background='#2268ff';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#0057ff';this.style.transform='none'">Open Learning Portal &rarr;</a>
@@ -107,36 +133,71 @@
 <section style="background:var(--bg2);border-bottom:1px solid var(--line);padding:72px 0">
   <div class="wrap">
     <div style="text-align:center;max-width:560px;margin:0 auto 0">
-      <span class="label" style="display:block;margin-bottom:12px">Four levels</span>
+      <span class="label" style="display:block;margin-bottom:12px">Seven sections · Four levels</span>
       <h2 style="font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">Begin with 10 labs. The curriculum is expanding to around 100.</h2>
-      <p style="margin-top:14px;color:var(--muted)">Level 1 is complete and available today. Levels 2–4 are the planned path to a curriculum of around 100 labs — see status on each card below.</p>
+      <p style="margin-top:14px;color:var(--muted)">Three foundation sections come first — Getting Started, Introduction to ROS 2, and Pre-Installed Demos — then four lab levels. Level 1 is complete and available today; Levels 2–4 are the planned path to around 100 labs. See status on each card below.</p>
+    </div>
+    <div class="foundations">
+      <div class="fcard"><div class="f-num">01 · Available</div><div class="f-title">Getting Started</div><div class="f-desc">Orientation, safety, and getting ready to use SwayForm.</div><div class="f-meta">5 readings</div></div>
+      <div class="fcard"><div class="f-num">02 · Available</div><div class="f-title">Introduction to ROS 2</div><div class="f-desc">Understand the software ideas you'll use to control SwayForm.</div><div class="f-meta">9 readings</div></div>
+      <div class="fcard"><div class="f-num">03 · Available</div><div class="f-title">Pre-Installed Demos</div><div class="f-desc">Explore and understand the programs already running on SwayForm.</div><div class="f-meta">5 demos · Wave, Handshake, Fist Bump, Finger Count, Target Lock</div></div>
     </div>
     <div class="quarters">
       <div class="qcard q1">
         <div class="q-num">Level 1 — Control <span style="color:#1a5c38;font-weight:800">· Available</span></div>
         <div class="q-title">Drive the hardware</div>
-        <div class="q-desc">SSH in, write joint commands, author motion sequences. First contact with real hardware.</div>
-        <div class="q-footer">10 labs · 2 demo guides available, 3 planned</div>
+        <div class="q-desc">Program SwayForm's movement and build your first robot behaviors — from a single finger curl to a keyboard-driven capstone.</div>
+        <div class="q-footer">10 labs available · Beginner to Advanced</div>
       </div>
       <div class="qcard q2">
         <div class="q-num">Level 2 — React <span style="color:var(--faint);font-weight:800">· Planned</span></div>
-        <div class="q-title">Add sensors</div>
-        <div class="q-desc">Build reactive behaviors that respond to distance, IMU, and face detection in real time.</div>
+        <div class="q-title">React to the world</div>
+        <div class="q-desc">Add real-time reactions to the world around the robot: state machines, motion presets, camera-based greetings, and two-arm coordination.</div>
         <div class="q-footer">10 labs planned</div>
       </div>
       <div class="qcard q3">
         <div class="q-num">Level 3 — Perceive <span style="color:var(--faint);font-weight:800">· Planned</span></div>
         <div class="q-title">Build vision systems</div>
-        <div class="q-desc">OpenCV pipelines, depth-based tracking, state machine design, and multi-sensor integration.</div>
+        <div class="q-desc">Build perception and vision-based robot behaviors: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration.</div>
         <div class="q-footer">~40 labs planned · project track begins</div>
       </div>
       <div class="qcard q4">
         <div class="q-num">Level 4 — Create <span style="color:var(--faint);font-weight:800">· Planned</span></div>
         <div class="q-title">Author full systems</div>
-        <div class="q-desc">Fully student-written programs, multi-node architecture, and a live demo showcase.</div>
+        <div class="q-desc">Combine everything into complete robot projects: original ROS 2 package design, multi-node architecture, and a final showcase demo.</div>
         <div class="q-footer">~40 labs planned · final showcase</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- two tracks -->
+<section id="tracks" style="background:#fff;border-bottom:1px solid var(--line);padding:72px 0">
+  <div class="wrap">
+    <div style="text-align:center;max-width:640px;margin:0 auto">
+      <span class="label" style="display:block;margin-bottom:12px">Two tracks, one path <span style="color:var(--faint)">· Planned</span></span>
+      <h2 style="font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.025em;color:var(--ink)">A Middle School track and a High School track.</h2>
+      <p style="margin-top:14px;color:var(--muted)">SwayForm is built for schools — including, but not limited to, middle schools and high schools. The two tracks follow the same seven-section path at different difficulty levels, share overlapping features and skills, and connect together at the end.</p>
+    </div>
+    <div class="tracks">
+      <div class="track track-ms">
+        <div class="track-num">Middle School track</div>
+        <div class="track-title">Lower difficulty, same robot.</div>
+        <p class="track-desc">The same demos, joints, and ROS 2 ideas, paced for younger students — still real code moving real hardware.</p>
+      </div>
+      <div class="track track-join">
+        <div class="track-join-title">Overlapping features and skills</div>
+        <p>Both tracks use the same Learning Portal, the same pre-installed demos, the same joint commands and safety rules, and the same four levels — Control, React, Perceive, Create.</p>
+        <div class="track-join-title" style="margin-top:14px">It all connects at the end</div>
+        <p>The two tracks converge at the end of the path, in Level 4 — Create, where every student builds toward the same final showcase.</p>
+      </div>
+      <div class="track track-hs">
+        <div class="track-num">High School track</div>
+        <div class="track-title">Higher difficulty, deeper systems.</div>
+        <p class="track-desc">The same skills pushed further — more original code and more of the perception, state-machine, and multi-node work that leads into the project track.</p>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:13px;color:var(--faint);margin-top:20px;line-height:1.6">The path in the Learning Portal today is the foundation both tracks are built from. Track-specific lab versions are planned and will be released as development continues.</p>
   </div>
 </section>
 
@@ -146,15 +207,283 @@
   <!-- filter tabs -->
   <div style="display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap" id="lab-filter-tabs">
     <button onclick="filterLabsPage('all')" id="lpf-all" style="padding:8px 18px;border-radius:20px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer">All</button>
+    <button onclick="filterLabsPage('q0')" id="lpf-q0" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Foundations — Available</button>
     <button onclick="filterLabsPage('q1')" id="lpf-q1" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 1 — Available</button>
     <button onclick="filterLabsPage('q2')" id="lpf-q2" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 2 — Planned</button>
     <button onclick="filterLabsPage('q3')" id="lpf-q3" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 3 — Planned</button>
     <button onclick="filterLabsPage('q4')" id="lpf-q4" style="padding:8px 18px;border-radius:20px;background:var(--panel2);color:var(--muted);font-size:13px;font-weight:600;border:1px solid var(--line);cursor:pointer">Level 4 — Planned</button>
   </div>
 
+  <!-- Foundations — sections 1-3, matching the Learning Portal exactly -->
+  <div class="lpg-q0 lpg-all">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px">01 — Getting Started <span style="color:#1a5c38">· Available now</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Orientation, safety, and getting ready to use SwayForm. 5 readings.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:40px">
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/welcome'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">1.01 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">8 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Welcome to SwayForm</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">What SwayForm teaches, how the portal is organized, and how your workspace is laid out.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/safety-first'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">1.02 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">8 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Safety and Ground Rules</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The one rule that matters most, what to do if something looks wrong, and the core safety checklist.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/how-the-hub-works'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">1.03 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">8 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">How the Learning Hub Works</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The loop you will use for every lesson, and why there is no submission or grading system.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/connect-to-your-robot'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">1.04 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">6 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Connect to Your Robot</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">How your browser reaches the physical robot — no laptop setup required.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/your-project-and-updates'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">1.05 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">5 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Your Project and Robot Updates</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">What your own work area will look like, and how the robot stays up to date.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px">02 — Introduction to ROS 2 <span style="color:#1a5c38">· Available now</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Understand the software ideas you'll use to control SwayForm. 9 readings.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:40px">
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/what-is-ros2'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.01 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">12–15 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">What Is ROS 2?</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Why a robot needs something like ROS 2, and the small set of ideas — nodes, topics, messages, packages — that make it work.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/nodes-topics-pubsub'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.02 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">8 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Nodes, Topics, Publishers, Subscribers</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The four ROS 2 ideas you actually need, and nothing more.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/how-swayform-uses-ros2'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.03 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">6 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">How SwayForm Uses ROS 2</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The real shape of communication between SwayForm’s camera, perception, and motion.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/editing-and-running-python'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.04 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">6 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Editing and Running Programs</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The website workflow for every lesson that involves code.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/terminal-basics'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.05 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">5 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Terminal Basics</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The handful of terminal ideas you actually need inside the portal.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/meet-robot-yaml'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.06 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">8 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Meet robot.yaml</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">SwayForm’s map of its own body — where joint limits and centers live.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/joint-commands-and-motion-safety'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.07 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">6 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Joint Commands and Motion Safety</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Why your program never talks to a servo directly.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/debugging-basics'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.08 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">6 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Debugging Basics</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">A simple checklist for when a program doesn’t do what you expected.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/navigating-the-workspace'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">2.09 &middot; Reading</span>
+          <div style="display:flex;gap:6px"><span class="tag">5 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Navigating SwayForm</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The main parts of the workspace you need to recognize — not the whole repository.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px">03 — Pre-Installed Demos <span style="color:#1a5c38">· Available now</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Explore and understand the programs already running on SwayForm. 5 demos.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:40px">
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/wave'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">3.01 &middot; Demo</span>
+          <div style="display:flex;gap:6px"><span class="tag">Beginner</span><span class="tag">10–15 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Wave</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Watch SwayForm say hello — then change one number to make it wave five times.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/handshake'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">3.02 &middot; Demo</span>
+          <div style="display:flex;gap:6px"><span class="tag">Beginner</span><span class="tag">10–15 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Handshake</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Watch SwayForm offer a handshake — then decide how many times it should shake.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/fist-bump'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">3.03 &middot; Demo</span>
+          <div style="display:flex;gap:6px"><span class="tag">Beginner</span><span class="tag">10–15 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Fist Bump</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Watch SwayForm throw a fist bump — then flip one switch so it nods along with it.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/finger-count'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">3.04 &middot; Demo</span>
+          <div style="display:flex;gap:6px"><span class="tag">Beginner</span><span class="tag">10–15 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Finger Count</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">Watch SwayForm hold up a fist — then pick a number and make it count on its fingers.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+      <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/target-lock'">
+        <span class="card-accent blue"></span>
+        <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:12px;color:var(--blue)">3.05 &middot; Demo</span>
+          <div style="display:flex;gap:6px"><span class="tag">Intermediate</span><span class="tag">15–20 min</span></div>
+        </div>
+        <div style="font-weight:700;margin-bottom:8px">Target Lock</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px">The final challenge: put five steps in the right order, then drive SwayForm live from your keyboard to grab an object and lift it.</p>
+        <div style="margin-top:14px"><span style="font-size:12px;color:var(--blue);font-weight:600">Available in the Learning Portal →</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Q1 — all 10 available, matching Learning Portal exactly -->
   <div class="lpg-q1 lpg-all">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:20px">Level 1 — Control <span style="color:#1a5c38">· Available now</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px">04 — Control · Level 1 <span style="color:#1a5c38">· Available now</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Program SwayForm's movement and build your first robot behaviors. 10 labs.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
 
       <div class="card glow-blue" style="cursor:pointer" onclick="window.location.href='https://learning.swayform.net/learn/activity/finger-curl'">
@@ -292,7 +621,8 @@
 
   <!-- Q2 — planned, titles provisional -->
   <div class="lpg-q2 lpg-all">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:20px">Level 2 — React <span style="color:var(--faint)">· Planned</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px">05 — React · Level 2 <span style="color:var(--faint)">· Planned</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Add real-time reactions to the world around the robot. 10 labs planned.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px">
       <div class="card" style="opacity:.72">
         <div class="card-body">
@@ -309,7 +639,8 @@
 
   <!-- Q3 — planned, theme only -->
   <div class="lpg-q3 lpg-all">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:20px">Level 3 — Perceive <span style="color:var(--faint)">· Planned</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:6px">06 — Perceive · Level 3 <span style="color:var(--faint)">· Planned</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Build perception and vision-based robot behaviors. 40 labs planned.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px">
       <div class="card" style="opacity:.72">
         <div class="card-body">
@@ -326,7 +657,8 @@
 
   <!-- Q4 — planned, theme only -->
   <div class="lpg-q4 lpg-all">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:20px">Level 4 — Create <span style="color:var(--faint)">· Planned</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:6px">07 — Create · Level 4 <span style="color:var(--faint)">· Planned</span></div>
+    <p style="font-size:14px;color:var(--muted);margin:0 0 20px;line-height:1.6">Combine everything into complete robot projects. 40 labs planned.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px">
       <div class="card" style="opacity:.72">
         <div class="card-body">
@@ -345,7 +677,7 @@
   <div style="margin-top:24px;padding:28px 32px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
     <div style="flex:1;min-width:240px">
       <div style="font-weight:700;margin-bottom:6px;color:var(--ink)">Ready to bring SwayForm to your program?</div>
-      <p style="font-size:14px;color:var(--muted);margin:0;line-height:1.65">These labs are designed for high school and community college programs. Contact us to request a demo or learn more.</p>
+      <p style="font-size:14px;color:var(--muted);margin:0;line-height:1.65">SwayForm is built for schools — including, but not limited to, middle schools and high schools. Contact us to request a demo or learn more.</p>
     </div>
     <a class="btn btn-primary" href="/contact">Get in touch &#8594;</a>
   </div>
@@ -357,7 +689,7 @@
     <div class="footer-top">
       <div class="footer-brand">
         <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
-        <p class="footer-tagline">Educational humanoid robotics for high schools and community colleges. Real hardware, real ROS 2, real learning.</p>
+        <p class="footer-tagline">Educational humanoid robotics for schools — middle school, high school, and beyond. Real hardware, real ROS 2, real learning.</p>
       </div>
       <div class="footer-col">
         <h5>Navigation</h5>
@@ -411,7 +743,7 @@ function filterLabsPage(q){
     if(q==='all'){g.style.display='';}
     else{g.style.display=(g.classList.contains('lpg-'+q))?'':'none';}
   });
-  ['all','q1','q2','q3','q4'].forEach(function(k){
+  ['all','q0','q1','q2','q3','q4'].forEach(function(k){
     var btn=document.getElementById('lpf-'+k);
     if(!btn) return;
     if(k===q){

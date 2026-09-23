@@ -12,12 +12,18 @@
 window.SWAYFORM = {
   labs: {
     availableNow: 10,
-    plannedTotal: 40,
-    statusLine: "Begin with 10 structured labs, with the curriculum expanding to 40."
+    plannedTotal: 100,
+    statusLine: "Begin with 10 structured labs, with the curriculum expanding to around 100 across four levels.",
+    sections: ["Getting Started", "Introduction to ROS 2", "Pre-Installed Demos", "Control (Level 1)", "React (Level 2)", "Perceive (Level 3)", "Create (Level 4)"]
   },
   demos: {
     count: 5,
-    names: ["Handshake", "Wave", "Fist Bump", "Finger Count", "Rock Paper Scissors"]
+    names: ["Wave", "Handshake", "Fist Bump", "Finger Count", "Target Lock"]
+  },
+  audience: {
+    summary: "Schools — including, but not limited to, high schools and middle schools.",
+    tracks: ["Middle School", "High School"],
+    tracksNote: "Two curriculums at different difficulty levels, with overlapping features and skills, that connect together at the end of the path. Planned."
   },
   robot: {
     degreesOfFreedom: 21,

@@ -6,7 +6,34 @@
  * pedagogical, not just structural: activities are organized around a ROBOT
  * BEHAVIOR the student builds ("Wave", "Handshake", "Hello Robot Motion"),
  * not around a ROS 2 topic ("Publishers"). Concepts are taught inline,
- * inside the step where the student needs them.
+ * inside the step where the student needs them — never dumped as theory
+ * before the lab starts.
+ *
+ * CURRICULUM SHAPE. This is the spec every new activity gets authored
+ * against — apply it everywhere, not just in Foundations/Control:
+ *   - The first ~20 labs (Getting Started, Introduction to ROS 2,
+ *     Pre-Installed Demos) are foundational: each one introduces a
+ *     genuinely new movement or concept and closes one specific knowledge
+ *     gap. No filler labs.
+ *   - After that, the curriculum runs in focused ~10-lab sections (Control,
+ *     React, Perceive, Create). Every lab in a section works toward one
+ *     larger final behavior, not a grab-bag of unrelated topics.
+ *   - Within a section, the training wheels come off gradually: early labs
+ *     modify small pieces of existing code, middle labs have the student
+ *     write increasingly larger portions themselves, and the section's
+ *     final lab has them build the complete behavior from scratch.
+ *   - The curriculum is hierarchical — each section builds on the ones
+ *     before it — never a flat, interchangeable list of topics.
+ *
+ * WRITING STYLE for every activity's steps/blocks:
+ *   - Code-centered and meaningful: enough explanation that the student
+ *     understands what they're doing, not just a list of instructions to
+ *     follow blindly.
+ *   - No repeated topics, no filler text. An important concept gets real
+ *     explanation; a minor one stays concise and moves on.
+ *   - Each activity is one continuous Notebook-style piece of writing —
+ *     not a "Step N of M" wizard or a page-by-page slideshow. (See
+ *     portal/apps/learn/workspace/notebook-app.js.)
  *
  * Block schema is rendered by portal/apps/learn/lesson-renderer.js:
  *   lead / heading / p / list / steps / callout / code / terminal / table /

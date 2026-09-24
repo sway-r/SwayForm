@@ -7,6 +7,11 @@
  *
  * Curriculum -> Section -> Item -> (Notebook) Step -> Block.
  *
+ * The curriculum-shape and writing-style spec (~20 foundational labs, then
+ * ~10-lab sections that shed the training wheels toward a from-scratch
+ * finale, Notebook-style writing) lives once, at the top of
+ * portal/data/learning-path.js — read it there, don't restate it here.
+ *
  * This is a reorganization, not a rewrite of content: every real activity's
  * steps/blocks are pulled BY REFERENCE from the existing, unchanged
  * portal/data/learning-path.js content store (findActivity(id).activity) —

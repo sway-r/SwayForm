@@ -905,20 +905,17 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .ov-hero{padding:calc(var(--nav-h) + 42px) clamp(12px,2vw,28px) 0;background:var(--bg)}
   .ov-hero-card{position:relative;border-radius:22px;overflow:hidden;min-height:clamp(520px,82vh,800px);background:#0b0f1a;display:flex;align-items:flex-end}
   .ov-hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%}
-  .ov-hero-card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(6,10,20,.86) 0%,rgba(6,10,20,.5) 36%,rgba(6,10,20,0) 66%)}
-  .ov-hero-copy{position:relative;z-index:2;padding:clamp(24px,5vw,64px);max-width:900px;color:#fff}
-  .ov-eyebrow{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:100px;padding:6px 14px;margin-bottom:20px}
-  .ov-hero h1{font-size:clamp(36px,5.6vw,74px);font-weight:900;line-height:1.03;letter-spacing:-.04em;color:#fff;margin-bottom:20px}
-  .ov-hero-sub{font-size:clamp(16px,1.6vw,20px);line-height:1.55;color:rgba(255,255,255,.86);max-width:680px;margin-bottom:28px}
-  .ov-hero .btn-ghost{border-color:rgba(255,255,255,.5);color:#fff}
-  .ov-hero .btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.12);color:#fff}
+    .ov-hero-copy{position:relative;z-index:2;margin:clamp(14px,2.5vw,32px);padding:clamp(22px,3.4vw,44px);max-width:760px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:18px;color:var(--ink)}
+  .ov-eyebrow{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,87,255,.2);background:rgba(0,87,255,.06);border-radius:100px;padding:6px 14px;margin-bottom:20px}
+  .ov-hero h1{font-size:clamp(36px,5.6vw,74px);font-weight:900;line-height:1.03;letter-spacing:-.04em;color:var(--ink);margin-bottom:20px}
+  .ov-hero-sub{font-size:clamp(16px,1.6vw,20px);line-height:1.55;color:var(--muted);max-width:680px;margin-bottom:28px}
 
   .ov-media{padding:12px clamp(12px,2vw,28px) 0;background:var(--bg)}
   .ov-media-grid{display:grid;grid-template-columns:256fr 81fr;gap:12px}
   .ov-vid{position:relative;border-radius:18px;overflow:hidden;background:#0b0f1a}
   .ov-vid.wide{aspect-ratio:16/9}
   .ov-vid video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-  .ov-vid-cap{position:absolute;left:14px;bottom:14px;z-index:2;font-size:12px;font-weight:600;color:#fff;background:rgba(6,10,20,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:100px;padding:7px 14px}
+  .ov-vid-cap{position:absolute;left:14px;bottom:14px;z-index:2;font-size:12px;font-weight:600;color:var(--ink);background:rgba(255,255,255,.9);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:100px;padding:7px 14px}
 
   .ov-mission{padding:clamp(72px,10vw,130px) 0;background:var(--bg)}
   .ov-mission-text{max-width:820px;margin:0 auto;text-align:center}
@@ -954,6 +951,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   @media(max-width:900px){.ov-new-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:600px){.ov-new-grid{grid-template-columns:1fr}}
 
+  .ov-live{padding:clamp(72px,10vw,130px) 0;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .ov-live-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .ov-live .ov-vid{aspect-ratio:16/9}
+  @media(max-width:700px){.ov-live-grid{grid-template-columns:1fr}}
+
   @media(max-width:900px){
     .ov-media-grid{grid-template-columns:1fr}
     .ov-vid.tall{aspect-ratio:9/16;max-width:360px;width:100%;margin:0 auto}
@@ -963,10 +965,9 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   }
   @media(max-width:700px){
     /* phones: the whole photo shows at its own proportions, the text sits under it */
-    .ov-hero-card{display:block;min-height:0;border-radius:18px;background:#0b0f1a}
+    .ov-hero-card{display:block;min-height:0;border-radius:18px;background:var(--bg2)}
     .ov-hero-card img{position:static;height:auto;aspect-ratio:1320/1183;object-fit:cover}
-    .ov-hero-card::after{display:none}
-    .ov-hero-copy{padding:24px 20px 28px}
+    .ov-hero-copy{margin:0;border-radius:0;max-width:none;background:var(--bg2);padding:24px 20px 28px}
     .ov-hero h1{font-size:clamp(32px,9.5vw,44px)}
     .ov-vid-cap{font-size:11px;left:10px;bottom:10px}
     .ov-new-card{padding:24px 20px}
@@ -1072,6 +1073,32 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ov-new-card"><h3>Safe by design.</h3><p>Every program is checked and instructor-approved before it ever reaches the motors.</p></div>
         <div class="ov-new-card"><h3>Built to be repaired.</h3><p>Printed parts under $20 each and a full repair guide, so a broken part is a lesson, not a lost robot.</p></div>
         <div class="ov-new-card"><h3>From middle school to high school.</h3><p>Zero experience needed to start, with room to grow into advanced system design.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SEE IT IN ACTION — the earlier Overview videos ═══ -->
+  <section class="ov-live reveal">
+    <div class="wrap">
+      <div class="ov-new-head">
+        <span class="label" style="color:var(--blue)">See it in action</span>
+        <h2 class="ov-h2">Stop watching. Start controlling.</h2>
+      </div>
+      <div class="ov-live-grid">
+        <div class="ov-vid">
+          <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg"
+                 autoplay loop muted playsinline preload="metadata"
+                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
+                 aria-label="Screen recording of the Target Lock lab: a student driving the real robot live from the Learning Portal"></video>
+          <div class="ov-vid-cap">Driving the robot live from the Learning Portal</div>
+        </div>
+        <div class="ov-vid">
+          <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png"
+                 autoplay loop muted playsinline preload="metadata"
+                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
+                 aria-label="The SwayForm humanoid robot raising both arms"></video>
+          <div class="ov-vid-cap">S1 moving on student code</div>
+        </div>
       </div>
     </div>
   </section>

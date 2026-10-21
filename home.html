@@ -903,16 +903,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <style>
   /* ── OVERVIEW: image-led layout ── */
   .ov-hero{padding:calc(var(--nav-h) + 42px) clamp(12px,2vw,28px) 0;background:var(--bg)}
-  .ov-hero-card{position:relative;border-radius:22px;overflow:hidden;min-height:clamp(520px,82vh,800px);background:#0b0f1a;display:flex;align-items:flex-end}
+  .ov-hero-card{position:relative;border-radius:32px;overflow:hidden;min-height:clamp(520px,82vh,800px);background:#0b0f1a;display:flex;align-items:flex-end}
   .ov-hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%}
-    .ov-hero-copy{position:relative;z-index:2;margin:clamp(14px,2.5vw,32px);padding:clamp(22px,3.4vw,44px);max-width:760px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:18px;color:var(--ink)}
+    .ov-hero-copy{position:relative;z-index:2;margin:clamp(14px,2.5vw,32px);padding:clamp(22px,3.4vw,44px);max-width:760px;background:rgba(226,235,255,.94);border:1px solid rgba(0,87,255,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:22px;color:var(--ink)}
   .ov-eyebrow{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,87,255,.2);background:rgba(0,87,255,.06);border-radius:100px;padding:6px 14px;margin-bottom:20px}
   .ov-hero h1{font-size:clamp(36px,5.6vw,74px);font-weight:900;line-height:1.03;letter-spacing:-.04em;color:var(--ink);margin-bottom:20px}
   .ov-hero-sub{font-size:clamp(16px,1.6vw,20px);line-height:1.55;color:var(--muted);max-width:680px;margin-bottom:28px}
 
   .ov-media{padding:12px clamp(12px,2vw,28px) 0;background:var(--bg)}
   .ov-media-grid{display:grid;grid-template-columns:256fr 81fr;gap:12px}
-  .ov-vid{position:relative;border-radius:18px;overflow:hidden;background:#0b0f1a}
+  .ov-vid{position:relative;border-radius:28px;overflow:hidden;background:#0b0f1a}
   .ov-vid.wide{aspect-ratio:16/9}
   .ov-vid video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
   .ov-vid-cap{position:absolute;left:14px;bottom:14px;z-index:2;font-size:12px;font-weight:600;color:var(--ink);background:rgba(255,255,255,.9);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:100px;padding:7px 14px}
@@ -920,7 +920,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .ov-mission{padding:clamp(72px,10vw,130px) 0;background:var(--bg)}
   .ov-mission-text{max-width:820px;margin:0 auto;text-align:center}
   .ov-split{display:grid;grid-template-columns:5fr 6fr;gap:clamp(32px,6vw,88px);align-items:center}
-  .ov-photo{border-radius:20px;overflow:hidden;background:var(--bg2);box-shadow:0 12px 48px rgba(0,0,0,.12)}
+  .ov-photo{border-radius:28px;overflow:hidden;background:var(--bg2);box-shadow:0 12px 48px rgba(0,0,0,.12)}
   .ov-photo img{width:100%;height:auto;display:block}
   .ov-photo-cap{font-size:12px;color:var(--faint);margin-top:10px}
   .ov-h2{font-size:clamp(30px,4.4vw,56px);font-weight:800;line-height:1.06;letter-spacing:-.03em;color:var(--ink);margin:12px 0 22px}
@@ -965,9 +965,11 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   }
   @media(max-width:700px){
     /* phones: the whole photo shows at its own proportions, the text sits under it */
-    .ov-hero-card{display:block;min-height:0;border-radius:18px;background:var(--bg2)}
+    .ov-hero-card{display:block;min-height:0;border-radius:24px;background:var(--bg3)}
+    .ov-vid{border-radius:22px}
+    .ov-photo{border-radius:22px}
     .ov-hero-card img{position:static;height:auto;aspect-ratio:1320/1183;object-fit:cover}
-    .ov-hero-copy{margin:0;border-radius:0;max-width:none;background:var(--bg2);padding:24px 20px 28px}
+    .ov-hero-copy{margin:0;border-radius:0;max-width:none;background:var(--bg3);border:0;padding:24px 20px 28px}
     .ov-hero h1{font-size:clamp(32px,9.5vw,44px)}
     .ov-vid-cap{font-size:11px;left:10px;bottom:10px}
     .ov-new-card{padding:24px 20px}

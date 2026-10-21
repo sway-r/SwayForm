@@ -187,6 +187,11 @@
 @media(max-width:480px){
   .pur-aside{padding:18px 20px}
 }
+.pur-hero-grid{display:grid;grid-template-columns:1fr minmax(280px,400px);gap:clamp(32px,6vw,80px);align-items:center}
+.pur-team{margin:0}
+.pur-team img{width:100%;height:auto;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.14)}
+.pur-team figcaption{font-size:12px;color:var(--muted);margin-top:10px}
+@media(max-width:860px){.pur-hero-grid{grid-template-columns:1fr}.pur-team{max-width:440px}}
 </style>
 </head>
 <body>
@@ -222,11 +227,17 @@
 <section id="purpose-hero" style="padding-top:calc(var(--nav-h) + 120px);padding-bottom:96px;background:var(--g-sage);position:relative;overflow:hidden;border-bottom:1px solid var(--g-line)">
   <!-- subtle green grid -->
   <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(45,122,80,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(45,122,80,.05) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);-webkit-mask-image:radial-gradient(ellipse 60% 70% at 40% 40%,black,transparent);pointer-events:none"></div>
-  <div class="wrap" style="position:relative;z-index:1">
+  <div class="wrap pur-hero-grid" style="position:relative;z-index:1">
+   <div>
     <span style="display:block;margin-bottom:20px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--g-emerald)">Our Mission</span>
     <h1 style="font-size:clamp(36px,5.5vw,62px);font-weight:900;letter-spacing:-.04em;line-height:1.06;color:var(--ink);max-width:740px;margin-bottom:24px">Bring real robotics into every classroom.</h1>
     <p style="font-size:clamp(15.5px,4vw,18px);color:var(--muted);max-width:580px;line-height:1.65">SwayForm gives students a robot they can interact with directly — guided by a manual of ready-to-run programs, or writing their own code from scratch. Type it in, watch it respond, learn by doing.</p>
     <p style="font-size:clamp(15.5px,4vw,18px);color:var(--muted);max-width:580px;line-height:1.65;margin-top:20px">Structured labs, zero robotics background required — the Learning Portal teaches students directly, step by step, so no one on staff needs to be a robotics or engineering expert to bring it into a classroom. Built on the belief that the best learning happens when students are the ones in control.</p>
+   </div>
+    <figure class="pur-team">
+      <img src="images/team.jpg" alt="The SwayForm team standing beside the SwayForm robot in a classroom" width="1200" height="1600" fetchpriority="high">
+      <figcaption>The SwayForm team with S1.</figcaption>
+    </figure>
   </div>
 </section>
 

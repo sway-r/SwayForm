@@ -943,6 +943,16 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .ov-stat b{display:block;font-size:clamp(26px,3.2vw,40px);font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.1}
   .ov-stat span{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
 
+  .ov-new{padding:clamp(72px,10vw,130px) 0;background:var(--bg)}
+  .ov-new-head{max-width:760px;margin:0 auto clamp(36px,5vw,60px);text-align:center}
+  .ov-new-head .ov-h2{margin-bottom:0}
+  .ov-new-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ov-new-card{border:1px solid var(--line);border-radius:18px;padding:30px 26px;background:var(--bg2)}
+  .ov-new-card h3{font-size:clamp(20px,2vw,24px);font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--ink);margin-bottom:10px}
+  .ov-new-card p{font-size:15px;line-height:1.6;color:var(--muted)}
+  @media(max-width:900px){.ov-new-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.ov-new-grid{grid-template-columns:1fr}}
+
   @media(max-width:900px){
     .ov-media-grid{grid-template-columns:1fr}
     .ov-vid.tall{aspect-ratio:9/16;max-width:360px;width:100%;margin:0 auto}
@@ -1004,8 +1014,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div>
           <span class="label" style="color:var(--blue)">Our mission</span>
           <h2 class="ov-h2">Every student should get to build a real robot, not just hear about one.</h2>
-          <p class="ov-lead">Students hear about AI and robotics constantly, but most never get to program, troubleshoot and understand a real robotic system before college. <strong>SwayForm exists to close that gap.</strong></p>
-          <p class="ov-lead">We sell two things to middle and high schools: a <strong>humanoid robot</strong> and the <strong>educational platform</strong> that teaches with it. The platform is self-sufficient, so a school does not need a robotics professor or an engineering teacher on staff to run it.</p>
+          <p class="ov-lead">Most students hear about AI and robotics constantly but never get to build a real robot before college. <strong>SwayForm closes that gap for middle and high schools</strong> with a humanoid robot and a self-guided learning platform that teaches robotics, AI and tech, so no robotics professor is needed.</p>
           <a href="/purpose" class="ov-link">Read our mission &rarr;</a>
         </div>
       </div>
@@ -1022,7 +1031,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="ov-items">
             <div class="ov-item">
               <h4>The SwayForm robot</h4>
-              <p>S1 is a 21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi, assembled and tested before it ships. $6,999.99 per unit, no hidden fees.</p>
+              <p>S1 is a 21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi, assembled and tested before it ships. $6,999 per unit, no hidden fees.</p>
             </div>
             <div class="ov-item">
               <h4>The free Learning Portal</h4>
@@ -1041,6 +1050,24 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ov-stat"><b>10 &rarr; ~100</b><span>guided labs</span></div>
         <div class="ov-stat"><b>Up to 15</b><span>students per robot</span></div>
         <div class="ov-stat"><b>&lt;$20</b><span>per printed replacement part</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT SETS US APART ═══ -->
+  <section class="ov-new reveal">
+    <div class="wrap">
+      <div class="ov-new-head">
+        <span class="label" style="color:var(--blue)">Why it's different</span>
+        <h2 class="ov-h2">Nothing else in the classroom works like this.</h2>
+      </div>
+      <div class="ov-new-grid">
+        <div class="ov-new-card"><h3>A real humanoid, not a toy kit.</h3><p>21 degrees of freedom, vision, depth and motion sensing, built for daily classroom use.</p></div>
+        <div class="ov-new-card"><h3>The platform is the teacher.</h3><p>A guided curriculum walks students and instructors through every step. No robotics professor needed.</p></div>
+        <div class="ov-new-card"><h3>Code that moves metal.</h3><p>Students write real Python and ROS 2, then watch the physical robot do exactly what they wrote.</p></div>
+        <div class="ov-new-card"><h3>Safe by design.</h3><p>Every program is checked and instructor-approved before it ever reaches the motors.</p></div>
+        <div class="ov-new-card"><h3>Built to be repaired.</h3><p>Printed parts under $20 each and a full repair guide, so a broken part is a lesson, not a lost robot.</p></div>
+        <div class="ov-new-card"><h3>From middle school to high school.</h3><p>Zero experience needed to start, with room to grow into advanced system design.</p></div>
       </div>
     </div>
   </section>
@@ -1228,7 +1255,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           </details>
           <details class="faq-item">
             <summary class="faq-q">How much does S1 cost?</summary>
-            <div class="faq-a">S1 is $6,999.99 per unit, with no hidden fees. Commercial availability is targeted for Fall 2027.</div>
+            <div class="faq-a">S1 is $6,999 per unit, with no hidden fees. Commercial availability is targeted for Fall 2027.</div>
           </details>
         </div>
         <div>
@@ -1268,7 +1295,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="cta-side left">
           <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">Fall 2027 Commercial Launch</span>
           <h2>SwayForm is in active pilot development.</h2>
-          <p>Pilot interest is open now, ahead of Fall 2027 commercial availability. $6,999.99 per unit, no hidden fees.</p>
+          <p>Pilot interest is open now, ahead of Fall 2027 commercial availability. $6,999 per unit, no hidden fees.</p>
           <div class="cta-btn-row">
             <a href="/robot" class="btn btn-primary" style="font-weight:700">Explore the Robot</a>
             <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">View the Learning Portal ↗</a>

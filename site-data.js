@@ -30,7 +30,7 @@ window.SWAYFORM = {
     studentCapacity: "Designed for teams of up to 15 students using rotating engineering roles."
   },
   pricing: {
-    robotPrice: "$6,999.99 per unit",
+    robotPrice: "$6,999 per unit",
     cloudSubscription: "$12 per month or $100 per year, first year free with every purchase.",
     cloudPlanTiersHidden: "Classroom Hosting / Standard / Premium tiers hidden site-wide since 2026-09-23; their markup is kept in an HTML comment on for-schools.html."
   },

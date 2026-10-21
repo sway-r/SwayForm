@@ -1009,14 +1009,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     <div class="ov-media-grid">
       <div class="ov-vid wide">
         <video src="videos/horizontal-control.mp4" poster="images/horizontal-control-poster.jpg"
-               autoplay loop muted playsinline preload="metadata"
+               autoplay loop muted playsinline preload="auto"
                disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
                aria-label="Students write code on laptops while the SwayForm robot responds in the background"></video>
         <div class="ov-vid-cap">Students code. The robot responds.</div>
       </div>
       <div class="ov-vid tall">
         <video src="videos/vertical-handshake.mp4" poster="images/vertical-handshake-poster.jpg"
-               autoplay loop muted playsinline preload="metadata"
+               autoplay loop muted playsinline preload="auto"
                disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
                aria-label="The SwayForm robot reaching out to shake a student's hand"></video>
         <div class="ov-vid-cap">The handshake demo</div>
@@ -1081,14 +1081,14 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="ov-live-grid">
         <div class="ov-vid">
           <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg"
-                 autoplay loop muted playsinline preload="metadata"
+                 autoplay loop muted playsinline preload="auto"
                  disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
                  aria-label="Screen recording of the Target Lock lab: a student driving the real robot live from the Learning Portal"></video>
           <div class="ov-vid-cap">Driving the robot live from the Learning Portal</div>
         </div>
         <div class="ov-vid">
           <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png"
-                 autoplay loop muted playsinline preload="metadata"
+                 autoplay loop muted playsinline preload="auto"
                  disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
                  aria-label="The SwayForm humanoid robot raising both arms"></video>
           <div class="ov-vid-cap">S1 moving on student code</div>
@@ -1938,6 +1938,24 @@ window.addEventListener('scroll', function() {
   .ha-hs::before,.ha-overview-btn,.ha-still,.ha-video{transition:none!important}
 }
 </style>
+<script>
+// phones: force the muted overview videos to play when visible, and retry on first touch if the browser blocked autoplay
+(function(){
+  var vids = document.querySelectorAll('.ov-vid video');
+  if(!vids.length) return;
+  function start(v){ v.muted = true; v.setAttribute('muted',''); v.setAttribute('playsinline',''); var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+  vids.forEach(function(v){ v.muted = true; start(v); });
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) start(e.target); else e.target.pause(); });
+    }, {threshold:0.25});
+    vids.forEach(function(v){ io.observe(v); });
+  }
+  function retry(){ vids.forEach(function(v){ if(v.paused) start(v); }); }
+  ['touchstart','touchend','click','scroll'].forEach(function(t){ window.addEventListener(t, retry, {once:true, passive:true}); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) retry(); });
+})();
+</script>
 <script src="/site-data.js"></script>
 </body>
 </html>

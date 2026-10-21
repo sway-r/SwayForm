@@ -961,9 +961,17 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     .ov-mission .ov-photo{max-width:440px}
     .ov-stats{grid-template-columns:1fr 1fr}
   }
-  @media(max-width:520px){
-    .ov-hero-card{min-height:560px;border-radius:18px}
-    .ov-hero-card img{object-position:62% 40%}
+  @media(max-width:700px){
+    /* phones: the whole photo shows at its own proportions, the text sits under it */
+    .ov-hero-card{display:block;min-height:0;border-radius:18px;background:#0b0f1a}
+    .ov-hero-card img{position:static;height:auto;aspect-ratio:1320/1183;object-fit:cover}
+    .ov-hero-card::after{display:none}
+    .ov-hero-copy{padding:24px 20px 28px}
+    .ov-hero h1{font-size:clamp(32px,9.5vw,44px)}
+    .ov-vid-cap{font-size:11px;left:10px;bottom:10px}
+    .ov-new-card{padding:24px 20px}
+    .hero-actions{flex-direction:column;align-items:stretch}
+    .hero-actions .btn{justify-content:center}
   }
   </style>
 

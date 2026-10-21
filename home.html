@@ -929,7 +929,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   .ov-link{display:inline-block;margin-top:10px;font-size:15px;font-weight:600;color:var(--blue)}
   .ov-link:hover{text-decoration:underline}
 
-  .ov-what{padding:clamp(72px,10vw,130px) 0;background:var(--bg)}
+  .ov-what{padding:clamp(72px,10vw,130px) 0;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .ov-what .ov-split{grid-template-columns:6fr 5fr}
   .ov-items{margin-top:8px}
   .ov-item{padding:20px 0;border-top:1px solid var(--line)}
@@ -951,7 +951,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   @media(max-width:900px){.ov-new-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:600px){.ov-new-grid{grid-template-columns:1fr}}
 
-  .ov-live{padding:clamp(72px,10vw,130px) 0;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .ov-live{padding:clamp(72px,10vw,130px) 0;background:var(--bg)}
   .ov-live-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .ov-live .ov-vid{aspect-ratio:16/9}
   @media(max-width:700px){.ov-live-grid{grid-template-columns:1fr}}
@@ -1038,32 +1038,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-  <!-- ═══ SEE IT IN ACTION — the earlier Overview videos ═══ -->
-  <section class="ov-live reveal">
-    <div class="wrap">
-      <div class="ov-new-head">
-        <span class="label" style="color:var(--blue)">See it in action</span>
-        <h2 class="ov-h2">Stop watching. Start controlling.</h2>
-      </div>
-      <div class="ov-live-grid">
-        <div class="ov-vid">
-          <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg"
-                 autoplay loop muted playsinline preload="metadata"
-                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
-                 aria-label="Screen recording of the Target Lock lab: a student driving the real robot live from the Learning Portal"></video>
-          <div class="ov-vid-cap">Driving the robot live from the Learning Portal</div>
-        </div>
-        <div class="ov-vid">
-          <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png"
-                 autoplay loop muted playsinline preload="metadata"
-                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
-                 aria-label="The SwayForm humanoid robot raising both arms"></video>
-          <div class="ov-vid-cap">S1 moving on student code</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ═══ WHAT WE DO ═══ -->
   <section class="ov-what reveal">
     <div class="wrap">
@@ -1093,6 +1067,32 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ov-stat"><b>10 &rarr; ~100</b><span>guided labs</span></div>
         <div class="ov-stat"><b>Up to 15</b><span>students per robot</span></div>
         <div class="ov-stat"><b>&lt;$20</b><span>per printed replacement part</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SEE IT IN ACTION — the earlier Overview videos ═══ -->
+  <section class="ov-live reveal">
+    <div class="wrap">
+      <div class="ov-new-head">
+        <span class="label" style="color:var(--blue)">See it in action</span>
+        <h2 class="ov-h2">Stop watching. Start controlling.</h2>
+      </div>
+      <div class="ov-live-grid">
+        <div class="ov-vid">
+          <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg"
+                 autoplay loop muted playsinline preload="metadata"
+                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
+                 aria-label="Screen recording of the Target Lock lab: a student driving the real robot live from the Learning Portal"></video>
+          <div class="ov-vid-cap">Driving the robot live from the Learning Portal</div>
+        </div>
+        <div class="ov-vid">
+          <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png"
+                 autoplay loop muted playsinline preload="metadata"
+                 disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback"
+                 aria-label="The SwayForm humanoid robot raising both arms"></video>
+          <div class="ov-vid-cap">S1 moving on student code</div>
+        </div>
       </div>
     </div>
   </section>

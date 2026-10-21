@@ -9,3 +9,6 @@ bridge/
 # Local security tests and rollout instructions.
 test/
 SECURITY-ROLLOUT.md
+
+# Saved copies of earlier page versions, kept for reference only.
+backups/

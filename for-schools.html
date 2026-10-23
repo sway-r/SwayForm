@@ -207,7 +207,7 @@
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Curriculum</span>
     <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">The same path students see in the Learning Portal.</h2>
-    <p style="color:var(--muted);max-width:720px;margin-bottom:36px;line-height:1.7">The Learning Portal holds the final version of the curriculum, and this page mirrors it. Seven sections: three foundation sections that are fully available today, then four lab levels — Level 1 is complete, and Levels 2–4 are the planned path to around 100 labs. Every lab has starter code, step-by-step instructions, and a debug checklist, and runs on real hardware.</p>
+    <p style="color:var(--muted);max-width:720px;margin-bottom:36px;line-height:1.7">Twenty foundation labs, then about ten behavior sections. Every lab has starter code, step-by-step instructions and a debug checklist, and runs on real hardware.</p>
 
     <p style="font-size:13px;color:var(--faint);margin:-20px 0 16px">Tap a section to see everything inside it.</p>
     <div class="cur-grid">
@@ -264,12 +264,13 @@
       </div>
       </div>
       <div class="cur-sec">
-      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-control">
+      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-foundation">
         <span class="cur-num">04</span>
-        <span class="cur-main"><span class="cur-title">Control<span class="cur-level">Level 1</span></span><span class="cur-desc">Program SwayForm's movement and build your first robot behaviors — from a single finger curl to a keyboard-driven capstone.</span></span>
-        <span class="cur-meta"><span class="cur-count">10 labs</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-main"><span class="cur-title">Foundation Labs</span><span class="cur-desc">One new behavior or task per lab — from a single finger curl to rock paper scissors.</span></span>
+        <span class="cur-meta"><span class="cur-count">20 labs</span><span class="cur-status avail">10 available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
-      <div class="cur-panel" id="cur-panel-control" hidden>
+      <div class="cur-panel" id="cur-panel-foundation" hidden>
+        <p class="cur-note">Labs 1–10 are available now. Labs 11–20 are planned; working titles below.</p>
         <ul class="cur-items">
           <li class="cur-item"><span class="cur-item-num">4.01</span><span class="cur-item-main"><span class="cur-item-title">Finger Curl</span><span class="cur-item-sum">Your first robot-control program — curl one finger, then return it.</span></span><span class="cur-item-meta"><span class="tag">Beginner</span><span class="tag">15–20 min</span></span></li>
           <li class="cur-item"><span class="cur-item-num">4.02</span><span class="cur-item-main"><span class="cur-item-title">Nod Yes</span><span class="cur-item-sum">Make the head nod yes — a small sequence with two directions and a return to center.</span></span><span class="cur-item-meta"><span class="tag">Beginner</span><span class="tag">15–20 min</span></span></li>
@@ -280,50 +281,29 @@
           <li class="cur-item"><span class="cur-item-num">4.07</span><span class="cur-item-main"><span class="cur-item-title">Full Handshake</span><span class="cur-item-sum">Command the complete handshake behavior directly, no camera involved.</span></span><span class="cur-item-meta"><span class="tag">Intermediate</span><span class="tag">15–20 min</span></span></li>
           <li class="cur-item"><span class="cur-item-num">4.08</span><span class="cur-item-main"><span class="cur-item-title">Wave Gesture</span><span class="cur-item-sum">Write the repeating loop behind SwayForm’s wave yourself.</span></span><span class="cur-item-meta"><span class="tag">Intermediate</span><span class="tag">15–20 min</span></span></li>
           <li class="cur-item"><span class="cur-item-num">4.09</span><span class="cur-item-main"><span class="cur-item-title">Rock Paper Scissors Game</span><span class="cur-item-sum">A timed rock-paper-scissors reveal: ready, countdown, selected hand pose.</span></span><span class="cur-item-meta"><span class="tag">Intermediate</span><span class="tag">15–20 min</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">4.10</span><span class="cur-item-main"><span class="cur-item-title">Combined Keyboard Control</span><span class="cur-item-sum">Control the head and torso from the keyboard at the same time — the Control Level 1 capstone.</span></span><span class="cur-item-meta"><span class="tag">Advanced</span><span class="tag">25–35 min</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.10</span><span class="cur-item-main"><span class="cur-item-title">Combined Keyboard Control</span><span class="cur-item-sum">Control the head and torso from the keyboard at the same time.</span></span><span class="cur-item-meta"><span class="tag">Advanced</span><span class="tag">25–35 min</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.11</span><span class="cur-item-main"><span class="cur-item-title">Thumbs Up</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.12</span><span class="cur-item-main"><span class="cur-item-title">Salute</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.13</span><span class="cur-item-main"><span class="cur-item-title">High Five</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.14</span><span class="cur-item-main"><span class="cur-item-title">Shrug</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.15</span><span class="cur-item-main"><span class="cur-item-title">Bow</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.16</span><span class="cur-item-main"><span class="cur-item-title">Point at a Target</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.17</span><span class="cur-item-main"><span class="cur-item-title">Grab and Release</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.18</span><span class="cur-item-main"><span class="cur-item-title">Peace Sign</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.19</span><span class="cur-item-main"><span class="cur-item-title">Look Around</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
+          <li class="cur-item"><span class="cur-item-num">4.20</span><span class="cur-item-main"><span class="cur-item-title">Simple Dance Routine</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
         </ul>
       </div>
       </div>
       <div class="cur-sec planned">
-      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-react">
+      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-sections">
         <span class="cur-num">05</span>
-        <span class="cur-main"><span class="cur-title">React<span class="cur-level">Level 2</span></span><span class="cur-desc">Add real-time reactions to the world around the robot.</span></span>
-        <span class="cur-meta"><span class="cur-count">10 labs</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-main"><span class="cur-title">Behavior Sections</span><span class="cur-desc">After the foundation labs: about 10 sections of 10–12 labs, each built around one behavior.</span></span>
+        <span class="cur-meta"><span class="cur-count">Labs 21+</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
-      <div class="cur-panel" id="cur-panel-react" hidden>
-        <p class="cur-note">Working titles for the ten Level 2 labs (Labs 11–20). Not yet available — released as development continues.</p>
-        <ul class="cur-items">
-          <li class="cur-item"><span class="cur-item-num">5.01</span><span class="cur-item-main"><span class="cur-item-title">Simple State Machines</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.02</span><span class="cur-item-main"><span class="cur-item-title">Custom Motion Presets</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.03</span><span class="cur-item-main"><span class="cur-item-title">Camera-Based User Greeting</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.04</span><span class="cur-item-main"><span class="cur-item-title">Object Position Mapping</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.05</span><span class="cur-item-main"><span class="cur-item-title">Two-Arm Coordination</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.06</span><span class="cur-item-main"><span class="cur-item-title">Speaker Prompts and Timing</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.07</span><span class="cur-item-main"><span class="cur-item-title">Classroom Challenge: Helpful Robot</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.08</span><span class="cur-item-main"><span class="cur-item-title">Intro to Robot Debug Logs</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.09</span><span class="cur-item-main"><span class="cur-item-title">Build Your Own Interaction</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-          <li class="cur-item"><span class="cur-item-num">5.10</span><span class="cur-item-main"><span class="cur-item-title">Final Showcase Demo</span></span><span class="cur-item-meta"><span class="tag">Planned</span></span></li>
-        </ul>
-      </div>
-      </div>
-      <div class="cur-sec planned">
-      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-perceive">
-        <span class="cur-num">06</span>
-        <span class="cur-main"><span class="cur-title">Perceive<span class="cur-level">Level 3</span></span><span class="cur-desc">Build perception and vision-based robot behaviors.</span></span>
-        <span class="cur-meta"><span class="cur-count">40 labs</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
-      </button>
-      <div class="cur-panel" id="cur-panel-perceive" hidden>
-        <p class="cur-note">Labs 21–60. Level 3 builds toward a student project track: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration. Exact lab titles will be finalized as development continues.</p>
-      </div>
-      </div>
-      <div class="cur-sec planned">
-      <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-create">
-        <span class="cur-num">07</span>
-        <span class="cur-main"><span class="cur-title">Create<span class="cur-level">Level 4</span></span><span class="cur-desc">Combine everything into complete robot projects.</span></span>
-        <span class="cur-meta"><span class="cur-count">40 labs</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
-      </button>
-      <div class="cur-panel" id="cur-panel-create" hidden>
-        <p class="cur-note">Labs 61–100. Level 4 is the project track: fully student-authored programs, original ROS 2 package design, multi-node architecture, and a final showcase demo. Exact lab titles will be finalized as development continues.</p>
+      <div class="cur-panel" id="cur-panel-sections" hidden>
+        <p class="cur-note">Each section follows one behavior, such as a wave, from its first line of code to a full program. Early labs teach one small piece. Later labs add concepts and how the robot is built and why. By about lab 8 students understand most of it, and by lab 10–12 they write enough of the code on their own.</p>
+        <p class="cur-note">Students write more of the code in each section: about 25% in the first section, about 55% by the seventh, and about 75% by the tenth. Lab titles will be finalized as development continues.</p>
       </div>
       </div>
     </div>
@@ -341,9 +321,9 @@
       </div>
       <div class="track track-join">
         <div class="track-join-title">Overlapping features and skills</div>
-        <p>Both tracks use the same Learning Portal, the same pre-installed demos, the same joint commands and safety rules, and the same four levels — Control, React, Perceive, Create.</p>
+        <p>Both tracks use the same Learning Portal, the same pre-installed demos, the same foundation labs and the same behavior sections.</p>
         <div class="track-join-title" style="margin-top:14px">It all connects at the end</div>
-        <p>The two tracks converge at the end of the path, in Level 4 — Create, where every student builds toward the same final showcase.</p>
+        <p>The two tracks converge at the end of the path, in the final sections.</p>
       </div>
       <div class="track track-hs">
         <div class="track-num">High School track</div>

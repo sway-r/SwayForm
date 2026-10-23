@@ -13,8 +13,8 @@ window.SWAYFORM = {
   labs: {
     availableNow: 10,
     plannedTotal: 100,
-    statusLine: "Begin with 10 structured labs, with the curriculum expanding to around 100 across four levels.",
-    sections: ["Getting Started", "Introduction to ROS 2", "Pre-Installed Demos", "Control (Level 1)", "React (Level 2)", "Perceive (Level 3)", "Create (Level 4)"]
+    statusLine: "Twenty foundation labs, then about 10 behavior sections of 10–12 labs each.",
+    sections: ["Getting Started", "Introduction to ROS 2", "Pre-Installed Demos", "Foundation Labs", "Behavior Sections"]
   },
   demos: {
     count: 5,

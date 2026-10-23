@@ -47,7 +47,7 @@
 .pur-body{border-top:1px solid var(--g-line)}
 
 /* ── EDITORIAL SECTIONS ── */
-.pur-section{padding:96px 0}
+.pur-section{padding:64px 0}
 .pur-section + .pur-section{border-top:1px solid var(--g-line)}
 
 /* sage-tinted background (sections 3 & 4 — environmental topic) */
@@ -65,7 +65,7 @@
 .pur-editorial{
   display:grid;
   grid-template-columns:2fr 3fr;
-  gap:88px;
+  gap:56px;
   align-items:start;
 }
 
@@ -188,6 +188,11 @@
 @media(max-width:480px){
   .pur-aside{padding:18px 20px}
 }
+.pur-rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.pur-rv.in{opacity:1;transform:none}
+.pur-card{transition:transform .2s ease,box-shadow .2s ease}
+.pur-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(45,122,80,.16)}
+@media(prefers-reduced-motion:reduce){.pur-rv{opacity:1;transform:none;transition:none}.pur-card{transition:none}}
 .pur-hero-grid{display:grid;grid-template-columns:1fr minmax(280px,400px);gap:clamp(32px,6vw,80px);align-items:center}
 .pur-team{margin:0}
 .pur-team img{width:100%;height:auto;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.14)}
@@ -244,7 +249,7 @@
 <!-- ═══ BODY ═══ -->
 <div class="pur-body">
 
-  <section class="pur-section">
+  <section class="pur-section pur-rv">
     <div class="wrap">
       <div class="pur-editorial">
         <div>
@@ -252,13 +257,15 @@
           <h2 class="pur-h2">Students should not be left behind by the tools shaping tomorrow.</h2>
         </div>
         <div class="pur-copy">
-          <p>Robotics and AI are changing work. Students should get to build with them, not just hear about them.</p>
+          <p>Every generation grows up with tools that reshape how work gets done: calculators, computers, and now robotics and AI. The problem isn’t that the technology exists. It’s when students only hear about it from a distance.</p>
+          <p>SwayForm lets them test it, build with it and improve it, connecting code to real physical behavior.</p>
+          <div class="pur-aside"><p>Robots will change jobs, and create new ones: designing, programming and guiding these systems.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="pur-section pur-sage">
+  <section class="pur-section pur-rv pur-sage">
     <div class="wrap">
       <div class="pur-editorial">
         <div>
@@ -266,13 +273,15 @@
           <h2 class="pur-h2">Learning that stays close to the machine.</h2>
         </div>
         <div class="pur-copy">
-          <p>Code, sensors and motion all run on a real robot in the room.</p>
+          <p>Students understand things better when the real system is right in front of them. On S1, the code, sensors and motion all run on the physical robot.</p>
+          <p>Each lab is short and hands-on: read a little, change a line, run it, and watch what happens. That direct link between what you write and what the machine does is the whole point.</p>
+          <div class="pur-aside"><p>S1 connects to the school’s Wi-Fi like any other device, with a one-time setup.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="pur-section pur-dark">
+  <section class="pur-section pur-rv pur-dark">
     <div class="wrap">
       <div class="pur-editorial">
         <div>
@@ -280,7 +289,9 @@
           <h2 class="pur-h2">The future should be built by people who understand it.</h2>
         </div>
         <div class="pur-copy">
-          <p>We want students confident around the systems that will shape their future.</p>
+          <p>The goal isn’t just to teach robotics. It’s to help students become confident around the systems that will shape their future.</p>
+          <p>A student who learns how a robot senses, moves and responds isn’t just using technology. They’re learning how to think with it.</p>
+          <div class="pur-aside"><p>Practical, responsible and physical. Built for programs that last, with repairable hardware and modular labs.</p></div>
         </div>
       </div>
     </div>
@@ -384,5 +395,13 @@ if(ham) ham.addEventListener('click',function(){
 });
 </script>
 <script src="/site-data.js"></script>
+<script>
+(function(){
+  var els=document.querySelectorAll('.pur-rv');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+  var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.15});
+  els.forEach(function(e){io.observe(e);});
+})();
+</script>
 </body>
 </html>

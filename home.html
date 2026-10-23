@@ -1032,7 +1032,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div>
           <span class="label" style="color:var(--blue)">Our mission</span>
           <h2 class="ov-h2">Every student should get to build a real robot, not just hear about one.</h2>
-          <p class="ov-lead">Most students hear about AI and robotics constantly but never get to build a real robot before college. <strong>SwayForm closes that gap for middle and high schools</strong> with a humanoid robot and a self-guided learning platform that teaches robotics, AI and tech, so no robotics professor is needed.</p>
           <a href="/purpose" class="ov-link">Read our mission &rarr;</a>
         </div>
       </div>
@@ -1049,15 +1048,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <div class="ov-items">
             <div class="ov-item">
               <h4>The SwayForm robot</h4>
-              <p>S1 is a 21-DOF humanoid running Linux and ROS 2 on an onboard Raspberry Pi, assembled and tested before it ships. $6,999 per unit, no hidden fees.</p>
+              <p>A 21-joint humanoid, assembled and tested before it ships.</p>
             </div>
             <div class="ov-item">
               <h4>The free Learning Portal</h4>
-              <p>A guided curriculum that teaches students directly and walks instructors through setup, safety and repair. 10 labs today, expanding to around 100.</p>
+              <p>A guided curriculum. No robotics teacher needed.</p>
             </div>
             <div class="ov-item">
               <h4>The cloud subscription</h4>
-              <p>Hosted classroom accounts, the code queue that sends student programs to the robot, and live video of every run. $12 per month or $100 per year, with the first year free on every purchase.</p>
+              <p>Classroom accounts, the code queue and live video. First year free.</p>
             </div>
           </div>
         </div>
@@ -1097,6 +1096,15 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       </div>
     </div>
   </section>
+  <!-- ═══ IN THE CLASSROOM — photo strip ═══ -->
+  <section class="reveal" style="padding:24px clamp(12px,2vw,28px) 56px;background:var(--bg)">
+    <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px">
+      <img src="images/DemoStill.jpg" alt="Students coding while the SwayForm robot waves behind them" loading="lazy" style="width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;display:block">
+      <img src="images/studentsworking.jpg" alt="Students coding together on a laptop" loading="lazy" style="width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;display:block">
+      <img src="images/RobotInClass.jpg" alt="The SwayForm robot in a classroom" loading="lazy" style="width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;display:block">
+    </div>
+  </section>
+
 
   <!-- ═══ WHAT SETS US APART ═══ -->
   <section class="ov-new reveal">
@@ -1112,158 +1120,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
         <div class="ov-new-card"><h3>Safe by design.</h3><p>Every program is checked and instructor-approved before it ever reaches the motors.</p></div>
         <div class="ov-new-card"><h3>Built to be repaired.</h3><p>Printed parts under $20 each and a full repair guide, so a broken part is a lesson, not a lost robot.</p></div>
         <div class="ov-new-card"><h3>From middle school to high school.</h3><p>Zero experience needed to start, with room to grow into advanced system design.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ WHAT STUDENTS CAN CREATE ═══ -->
-  <section id="demos-preview" class="section reveal">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:10px">What students can create</span>
-        <h2 class="d3">Real programs, ready to rebuild.</h2>
-        <p style="margin-top:14px;color:var(--muted)">Not demos to watch — starter code every student inspects, modifies, and makes their own.</p>
-      </div>
-      <div class="demo-flow-row">
-        <span class="demo-flow-badge">Run the demo</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Watch S1 respond</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Open the source code</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Modify the behavior</span>
-        <span class="demo-flow-arrow">→</span>
-        <span class="demo-flow-badge">Build your own version</span>
-      </div>
-      <div class="demo-cards">
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/wave'">
-          <div class="demo-num">01</div>
-          <h4>Wave</h4>
-          <p>S1 says hello with a timed servo sequence — then students change one number to make it wave five times. The first demo students run, and the first code they modify.</p>
-          <div class="demo-tag">Start here</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/handshake'">
-          <div class="demo-num">02</div>
-          <h4>Handshake</h4>
-          <p>S1 reaches forward, grips, and gives a short shake before returning to center — then students decide how many times it should shake.</p>
-          <div class="demo-tag">Tunable count</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/fist-bump'">
-          <div class="demo-num">03</div>
-          <h4>Fist Bump</h4>
-          <p>S1 raises its arm, curls into a fist, and punches forward — flip one switch and it nods its head along with the punch.</p>
-          <div class="demo-tag">Boolean flags</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/finger-count'">
-          <div class="demo-num">04</div>
-          <h4>Finger Count</h4>
-          <p>S1 raises a closed fist, then holds up however many fingers a student’s code tells it to.</p>
-          <div class="demo-tag">Tunable variables</div>
-        </div>
-        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/target-lock'">
-          <div class="demo-num">05</div>
-          <h4>Target Lock</h4>
-          <p>The final challenge: put five steps in the right order, then drive S1 live from the keyboard to grab an object and lift it.</p>
-          <div class="demo-tag">Final challenge</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:36px">
-        <a href="https://learning.swayform.net/learn/section/demos" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">See all five demos in the Learning Portal &#8594;</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ HOW IT WORKS (4 scroll-highlighted steps) ═══ -->
-  <section class="section reveal" style="background:var(--bg);border-bottom:1px solid var(--line)">
-    <div class="wrap">
-      <div style="max-width:640px;margin:0 auto 0;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">How it works</span>
-        <h2 class="d3">Open student development.<br>Protected physical execution.</h2>
-      </div>
-      <div class="hiw-flow" id="hiw-flow" style="margin-top:56px">
-        <div class="hiw-track"><div class="hiw-track-fill" id="hiw-track-fill"></div></div>
-        <div class="hiw-step">
-          <div class="step-dot">01</div>
-          <div class="step-label">Learn &amp; connect</div>
-          <div class="step-sub">Open the free Learning Portal, connect to your robot</div>
-        </div>
-        <div class="hiw-step">
-          <div class="step-dot">02</div>
-          <div class="step-label">Build &amp; submit</div>
-          <div class="step-sub">Write real ROS 2 code, then submit it</div>
-        </div>
-        <div class="hiw-step">
-          <div class="step-dot">03</div>
-          <div class="step-label">Validate &amp; approve</div>
-          <div class="step-sub">Automated checks, then instructor review</div>
-        </div>
-        <div class="hiw-step">
-          <div class="step-dot">04</div>
-          <div class="step-label">Robot executes</div>
-          <div class="step-sub">Only approved code ever reaches the motors</div>
-        </div>
-      </div>
-      <p style="text-align:center;margin-top:32px;font-size:13px;color:var(--faint)">Full detail in <a href="https://learning.swayform.net/classroom-workflow" target="_blank" rel="noopener noreferrer" style="color:var(--blue);text-decoration:underline">Classroom Workflow</a>.</p>
-    </div>
-  </section>
-  <!-- ═══ WHY SWAYFORM (comparison tabs) ═══ -->
-  <section class="section reveal" style="background:var(--bg)">
-    <div class="wrap">
-      <div style="max-width:560px;margin:0 auto 32px;text-align:center">
-        <span class="label" style="display:block;margin-bottom:12px">Why SwayForm</span>
-        <h2 class="d3">Not every robotics experience teaches the same thing.</h2>
-      </div>
-      <div class="setup-tabs compare-tabs" role="tablist" aria-label="Compare learning approaches">
-        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="screen">Screen-only</button>
-        <button type="button" class="setup-tab" role="tab" aria-selected="false" data-compare="kits">Basic kits</button>
-        <button type="button" class="setup-tab active" role="tab" aria-selected="true" data-compare="sway">SwayForm</button>
-      </div>
-      <div class="compare-panels">
-        <div class="compare-panel" data-cpanel="screen" hidden>
-          <p class="c3-sub">Simulations and coding platforms. Zero setup, but no physical consequences.</p>
-          <div class="c3-items">
-            <div class="c3-item pro">Zero setup, widely accessible</div>
-            <div class="c3-item con">No wiring, calibration, or sensor noise</div>
-            <div class="c3-item con">No connection between code and physical motion</div>
-          </div>
-        </div>
-        <div class="compare-panel" data-cpanel="kits" hidden>
-          <p class="c3-sub">Assembly kits and line followers. A real intro to hardware — with limits.</p>
-          <div class="c3-items">
-            <div class="c3-item pro">Hands-on physical experience</div>
-            <div class="c3-item con">Limited to pre-defined tasks, no real perception</div>
-            <div class="c3-item con">No professional middleware (ROS 2)</div>
-          </div>
-        </div>
-        <div class="compare-panel active" data-cpanel="sway">
-          <p class="c3-sub">A full humanoid platform with a free guided curriculum and protected classroom execution.</p>
-          <div class="c3-items">
-            <div class="c3-item pro">Real physical consequences of every code choice</div>
-            <div class="c3-item pro">Industry-standard ROS 2 — skills that transfer</div>
-            <div class="c3-item pro">Vision, audio, depth, and IMU in one system</div>
-            <div class="c3-item pro">Classroom code queue and live video for instructor-approved robot runs</div>
-            <div class="c3-item pro">Scales from first script to advanced system design</div>
-          </div>
-        </div>
-      </div>
-      <div class="roadmap-strip">
-        <div class="roadmap-col">
-          <div class="roadmap-tag">Available now</div>
-          <ul class="setup-list">
-            <li>21-DOF robot, local Raspberry Pi + ROS 2</li>
-            <li>Free Learning Portal, 10 labs, 5 demos available</li>
-            <li>Cloud subscription $12/month or $100/year, first year free</li>
-            <li>Protected motion-control &amp; queue</li>
-          </ul>
-        </div>
-        <div class="roadmap-col hi">
-          <div class="roadmap-tag">Planned</div>
-          <ul class="setup-list">
-            <li>~90 more labs — completing around 100</li>
-            <!-- hidden for now (2026-09-23): <li>Cloud plans: Classroom Hosting, Standard and Premium simulation</li> -->
-            <li>Multi-robot, team-based coordination</li>
-          </ul>
-        </div>
       </div>
     </div>
   </section>
@@ -1328,6 +1184,64 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <div class="faq-a">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. Every individual printed part is priced below $20, and the Learning Portal includes a full repair guide.</div>
           </details>
         </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ WHAT STUDENTS CAN CREATE ═══ -->
+  <section id="demos-preview" class="section reveal">
+    <div class="wrap">
+      <div style="max-width:640px;margin:0 auto 40px;text-align:center">
+        <span class="label" style="display:block;margin-bottom:10px">What students can create</span>
+        <h2 class="d3">Real programs, ready to rebuild.</h2>
+        <p style="margin-top:14px;color:var(--muted)">Starter code every student can change and make their own.</p>
+      </div>
+      <div class="demo-flow-row">
+        <span class="demo-flow-badge">Run the demo</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Watch S1 respond</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Open the source code</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Modify the behavior</span>
+        <span class="demo-flow-arrow">→</span>
+        <span class="demo-flow-badge">Build your own version</span>
+      </div>
+      <div class="demo-cards">
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/wave'">
+          <div class="demo-num">01</div>
+          <h4>Wave</h4>
+          <p>S1 says hello. Students change one number to wave five times.</p>
+          <div class="demo-tag">Start here</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/handshake'">
+          <div class="demo-num">02</div>
+          <h4>Handshake</h4>
+          <p>S1 reaches out and shakes. Students pick how many times.</p>
+          <div class="demo-tag">Tunable count</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/fist-bump'">
+          <div class="demo-num">03</div>
+          <h4>Fist Bump</h4>
+          <p>S1 throws a fist bump. Flip one switch and it nods too.</p>
+          <div class="demo-tag">Boolean flags</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/finger-count'">
+          <div class="demo-num">04</div>
+          <h4>Finger Count</h4>
+          <p>S1 holds up as many fingers as the code says.</p>
+          <div class="demo-tag">Tunable variables</div>
+        </div>
+        <div class="demo-card" onclick="window.location.href='https://learning.swayform.net/learn/activity/target-lock'">
+          <div class="demo-num">05</div>
+          <h4>Target Lock</h4>
+          <p>The final challenge: drive S1 live to grab and lift an object.</p>
+          <div class="demo-tag">Final challenge</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <a href="https://learning.swayform.net/learn/section/demos" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">See all five demos in the Learning Portal &#8594;</a>
       </div>
     </div>
   </section>

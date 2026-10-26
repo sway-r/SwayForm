@@ -2,7 +2,7 @@ import { icon } from '../../icons.js';
 import { getTheme, setTheme } from '../../theme.js';
 import { getSession } from '../../services/auth-service.js';
 import { resetProgress } from '../../services/progress-service.js';
-import { getPrefs, setPref, resetPrefs, FONT_SIZE_MIN, FONT_SIZE_MAX } from '../../prefs.js';
+import { getPrefs, setPref, resetPrefs, TEXT_SIZE_MIN, TEXT_SIZE_MAX } from '../../prefs.js';
 
 export const meta = {
   id: 'settings',
@@ -79,6 +79,14 @@ export function mount(container, ctx){
       <div class="set-section">
         <div class="set-section-title">Accessibility</div>
         <div class="set-card">
+          <div class="set-row">
+            <span class="set-row-text"><span class="set-row-label">Text size</span><span class="set-row-desc">Scales lessons, the Terminal, the Code Editor and the Learn, Account and Help screens.</span></span>
+            <div class="set-stepper" data-font-size>
+              <button type="button" data-step="-1" aria-label="Smaller">−</button>
+              <span class="set-stepper-value" data-font-value>${prefs.textSize}</span>
+              <button type="button" data-step="1" aria-label="Larger">+</button>
+            </div>
+          </div>
           ${toggleRow('pref-motion', 'Reduce motion', 'Turns off animations and transitions across the portal.', prefs.reduceMotion)}
         </div>
       </div>
@@ -86,14 +94,6 @@ export function mount(container, ctx){
       <div class="set-section">
         <div class="set-section-title">Code Editor</div>
         <div class="set-card">
-          <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Font size</span><span class="set-row-desc">Text size in the Code Editor.</span></span>
-            <div class="set-stepper" data-font-size>
-              <button type="button" data-step="-1" aria-label="Smaller">−</button>
-              <span class="set-stepper-value" data-font-value>${prefs.editorFontSize}</span>
-              <button type="button" data-step="1" aria-label="Larger">+</button>
-            </div>
-          </div>
           ${toggleRow('pref-wrap', 'Word wrap', 'Wrap long lines instead of scrolling sideways.', prefs.editorWordWrap)}
           ${toggleRow('pref-minimap', 'Minimap', 'Show a small overview of the file on the right edge.', prefs.editorMinimap)}
         </div>
@@ -103,7 +103,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Reset</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts the accessibility and Code Editor settings back to their defaults. Theme is separate.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts text size, reduce motion and the Code Editor settings back to their defaults. Theme is separate.</span></span>
             <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
           </div>
           <div class="set-row">
@@ -129,20 +129,20 @@ export function mount(container, ctx){
   const fontValueEl = container.querySelector('[data-font-value]');
   container.querySelectorAll('[data-font-size] button').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const next = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, getPrefs().editorFontSize + Number(btn.dataset.step)));
-      setPref('editorFontSize', next);
+      const next = Math.min(TEXT_SIZE_MAX, Math.max(TEXT_SIZE_MIN, getPrefs().textSize + Number(btn.dataset.step)));
+      setPref('textSize', next);
       fontValueEl.textContent = next;
     });
   });
 
   container.querySelector('[data-reset-prefs]').addEventListener('click', async () => {
-    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put reduce motion, font size, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
+    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put text size, reduce motion, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
     resetPrefs();
     const fresh = getPrefs();
     container.querySelector('#pref-motion').checked = fresh.reduceMotion;
     container.querySelector('#pref-wrap').checked = fresh.editorWordWrap;
     container.querySelector('#pref-minimap').checked = fresh.editorMinimap;
-    fontValueEl.textContent = fresh.editorFontSize;
+    fontValueEl.textContent = fresh.textSize;
   });
 
   container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {

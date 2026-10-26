@@ -1,18 +1,24 @@
-/* Device-local portal preferences (editor font size, word wrap, minimap,
+/* Device-local portal preferences (text size, editor word wrap and minimap,
  * reduce motion). Saved in this browser only. Importing this module applies
  * the saved reduce-motion setting; changes broadcast 'swayform:prefs-changed'. */
 const KEY = 'swayform.portal.prefs';
-const DEFAULTS = { editorFontSize: 13, editorWordWrap: false, editorMinimap: false, reduceMotion: false };
-export const FONT_SIZE_MIN = 10;
-export const FONT_SIZE_MAX = 32;
+export const TEXT_SIZE_MIN = 10;
+export const TEXT_SIZE_MAX = 18;
+export const TEXT_SIZE_DEFAULT = 13;
+const DEFAULTS = { textSize: TEXT_SIZE_DEFAULT, editorWordWrap: false, editorMinimap: false, reduceMotion: false };
 
 export function getPrefs(){
-  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
-  catch (e) { return { ...DEFAULTS }; }
+  let prefs;
+  try { prefs = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
+  catch (e) { prefs = { ...DEFAULTS }; }
+  const size = Number(prefs.textSize);
+  prefs.textSize = Number.isFinite(size) ? Math.min(TEXT_SIZE_MAX, Math.max(TEXT_SIZE_MIN, Math.round(size))) : TEXT_SIZE_DEFAULT;
+  return prefs;
 }
 
 export function applyPrefs(prefs = getPrefs()){
   document.documentElement.toggleAttribute('data-reduce-motion', !!prefs.reduceMotion);
+  document.documentElement.style.setProperty('--p-text-zoom', String(prefs.textSize / TEXT_SIZE_DEFAULT));
 }
 
 export function setPref(name, value){

@@ -41,7 +41,8 @@ function loadMonaco(){
  *  preserving per-file cursor/scroll/undo state while it's alive. */
 function monacoPrefs(){
   const p = getPrefs();
-  return { fontSize: p.editorFontSize, lineHeight: Math.round(p.editorFontSize * 1.6), wordWrap: p.editorWordWrap ? 'on' : 'off', minimap: { enabled: p.editorMinimap } };
+  const fontSize = p.textSize;
+  return { fontSize, lineHeight: Math.round(fontSize * 1.6), wordWrap: p.editorWordWrap ? 'on' : 'off', minimap: { enabled: p.editorMinimap } };
 }
 
 export class CodeEditor {

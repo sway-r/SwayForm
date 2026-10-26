@@ -969,9 +969,13 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   @media(max-width:600px){.ov-new-grid{grid-template-columns:1fr}}
 
   .ov-live{padding:clamp(44px,5.5vw,76px) 0;background:var(--bg)}
+  .ov-live-head{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;margin:0 0 clamp(36px,5vw,60px)}
+  .ov-live-text{flex:1 1 auto;text-align:left}
+  .ov-live-text .ov-h2{margin-bottom:0}
+  .ov-live-quote{flex:0 0 250px;margin:0 0 8px;text-align:right;font-size:17px;font-style:italic;line-height:1.5;color:var(--faint)}
   .ov-live-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .ov-live .ov-vid{aspect-ratio:16/9}
-  @media(max-width:700px){.ov-live-grid{grid-template-columns:1fr}}
+  @media(max-width:700px){.ov-live-grid{grid-template-columns:1fr}.ov-live-head{flex-direction:column;align-items:flex-start;gap:14px}.ov-live-quote{flex:none;text-align:left;margin:0}}
 
   @media(max-width:900px){
     .ov-media-grid{grid-template-columns:1fr}
@@ -1044,9 +1048,12 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   <!-- ═══ SEE IT IN ACTION, the earlier Overview videos ═══ -->
   <section class="ov-live reveal">
     <div class="wrap">
-      <div class="ov-new-head">
-        <span class="label" style="color:var(--blue)">See it in action</span>
-        <h2 class="ov-h2">Stop watching. Start controlling.</h2>
+      <div class="ov-live-head">
+        <div class="ov-live-text">
+          <span class="label" style="color:var(--blue)">See it in action</span>
+          <h2 class="ov-h2">Stop watching. Start controlling.</h2>
+        </div>
+        <p class="ov-live-quote">&ldquo;We fear what we do not understand.&rdquo;</p>
       </div>
       <div class="ov-live-grid">
         <div class="ov-vid">
@@ -1280,8 +1287,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
     </div>
   </section>
 
-
-<p style="text-align:center;font-size:15px;font-style:italic;color:var(--faint);padding:8px 24px 60px;margin:0">&ldquo;We fear what we do not understand.&rdquo;</p>
 
 </div><!-- /pg-home -->
 

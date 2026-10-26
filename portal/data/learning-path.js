@@ -15,8 +15,8 @@
  *     Pre-Installed Demos) are foundational: each one introduces a
  *     genuinely new movement or concept and closes one specific knowledge
  *     gap. No filler labs.
- *   - After that, the curriculum runs in focused ~10-lab sections (Control,
- *     React, Perceive, Create). Every lab in a section works toward one
+ *   - After that, the curriculum runs in focused ~10-12-lab behavior
+ *     sections, starting at lab 21. Every lab in a section works toward one
  *     larger final behavior, not a grab-bag of unrelated topics.
  *   - Within a section, the training wheels come off gradually: early labs
  *     modify small pieces of existing code, middle labs have the student
@@ -242,7 +242,7 @@ export const LEARNING_PATH = {
                   id: 'your-own-work-area', title: 'Your Own Work Area',
                   blocks: [
                     { type: 'lead', text: "As you move further through the Learning Path, you'll get your own project space tied to your account — a place your in-progress code and progress live between sessions." },
-                    { type: 'p', text: "Early lessons and Control labs work inside a shared, guided workspace. A fully open-ended project space — where you design something of your own from scratch — arrives later, in Create (Level 4)." },
+                    { type: 'p', text: "Early lessons and foundation labs work inside a shared, guided workspace. A fully open-ended project space — where you design something of your own from scratch — arrives later, in the behavior sections." },
                   ],
                 },
                 {
@@ -1791,7 +1791,7 @@ export const LEARNING_PATH = {
           activities: [
             {
               id: 'combined-keyboard-control', title: 'Combined Keyboard Control', kind: 'activity', difficulty: 'advanced', estimatedTime: '25–35 minutes',
-              summary: 'Control the head and torso from the keyboard at the same time — the Control Level 1 capstone.',
+              summary: 'Control the head and torso from the keyboard at the same time.',
               workspaceFile: 'swayform_ws/src/swayform_labs/lab_10_combined_keyboard_control.py',
               relatedConcepts: ['Combining systems', 'Input routing'],
               steps: [
@@ -1857,7 +1857,7 @@ export const LEARNING_PATH = {
                   ],
                 },
               ],
-              completionSummary: { text: 'You combined independent keyboard-controlled systems into one program — the Control Level 1 capstone.', conceptsUsed: ['Combining systems', 'Input routing'] },
+              completionSummary: { text: 'You combined independent keyboard-controlled systems into one program.', conceptsUsed: ['Combining systems', 'Input routing'] },
             },
           ],
         },

@@ -2801,7 +2801,7 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 `,
-  "swayform_ws/src/swayform_labs/package.xml": PACKAGE_XML("swayform_labs", "The 10 available student labs, Level 1 — Control."),
+  "swayform_ws/src/swayform_labs/package.xml": PACKAGE_XML("swayform_labs", "The 10 available student foundation labs."),
   "swayform_ws/src/swayform_labs/setup.py": SETUP_PY("swayform_labs"),
 
   /* === LAB FILES (agent-authored): lab_01_finger_curl.py through

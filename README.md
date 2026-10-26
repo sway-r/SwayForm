@@ -25,8 +25,8 @@ The curriculum lives across two files, deliberately kept separate:
   lives.
 - **`portal/data/curriculum.js`** — the listing/navigation layer on top: it
   groups activities into sections (Getting Started, Intro to ROS 2,
-  Pre-Installed Demos, **Control — Level 1 with 10 guided labs**, and three
-  planned-but-unwritten levels: React/Perceive/Create), assigns numbering
+  Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built), and
+  **Behavior Sections** (labs 21+, planned)), assigns numbering
   (`4.3`), and pulls each activity's real content *by reference* from
   `learning-path.js` via `pull(id)`. It never retypes lesson content itself.
 - **`portal/apps/learn/lesson-renderer.js`** — renders the step/block model
@@ -34,8 +34,8 @@ The curriculum lives across two files, deliberately kept separate:
 
 So "rewriting the labs" means editing lesson content in
 `learning-path.js` (and possibly restructuring how items are grouped in
-`curriculum.js`), most likely for the **Control (Level 1)** section — the
-10 guided labs that take a student from ROS 2 basics to a first
+`curriculum.js`), most likely for the **Foundation Labs** section — the
+first 10 guided labs that take a student from ROS 2 basics to a first
 joint-to-keyboard teleop capstone.
 
 ## The tool for this: Studio
@@ -115,7 +115,7 @@ running (`npm run studio`) — it doesn't require the Vercel backend.
   actual robot source (mirrored from the real `swayform_ws` robot repo) —
   don't treat them as mockups.
 - **Placeholders are honest** — Rock Paper Scissors, Pick and
-  Place, and all of React/Perceive/Create levels are intentionally marked
+  Place, foundation labs 11-20 and the behavior sections are intentionally marked
   `planned`/not-yet-written, not hidden bugs. Leave them as placeholders
   unless you're specifically asked to author that content.
 - Student privacy/auth hardening landed recently (session isolation, school

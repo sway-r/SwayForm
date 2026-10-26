@@ -1,5 +1,5 @@
 import { icon } from '../../../icons.js';
-import { CURRICULUM, LAB_SECTION_IDS, findSection, sectionProgress } from '../../../data/curriculum.js';
+import { CURRICULUM, findSection, sectionProgress } from '../../../data/curriculum.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
 
 function diffTag(item){
@@ -18,8 +18,6 @@ export function mount(container, params, nav, ctx){
   const section = findSection(params.sectionId);
   if (!section){ nav.home(); return { unmount(){} }; }
 
-  const isLabSection = LAB_SECTION_IDS.includes(section.id);
-  const levelIndex = isLabSection ? LAB_SECTION_IDS.indexOf(section.id) + 1 : null;
 
   const root = document.createElement('div');
   root.className = 'sv-root p-scroll la-surface';
@@ -33,7 +31,7 @@ export function mount(container, params, nav, ctx){
     <div class="sv-body">
       <div class="sv-head">
         <div class="sv-crumb">Learn / ${section.title}</div>
-        <h1>${section.title}${levelIndex ? `<span class="sv-level">Level ${levelIndex} of ${LAB_SECTION_IDS.length}</span>` : ''}</h1>
+        <h1>${section.title}</h1>
         <p class="sv-desc">${section.description}</p>
         <div class="sv-progress-row" data-progress-row></div>
       </div>

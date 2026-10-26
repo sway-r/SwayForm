@@ -18,15 +18,14 @@
  * nothing here retypes lesson content. Only the grouping/numbering/labeling
  * around that content is new.
  *
- * Seven sections:
+ * Five sections:
  *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
- *   2. Introduction to ROS 2 — the software ideas behind Control (9 items, active)
- *   3. Pre-Installed Demos — explore existing behaviors (5 items: Wave,
- *        Handshake, Fist Bump, and Finger Count are built; Rock Paper
- *        Scissors is an honest Planned placeholder, not faked)
- *   4. Control (Level 1)  — 10 guided labs, first joint to keyboard capstone (active)
- *   5-7. React / Perceive / Create — Levels 2-4, all Planned, no lesson
- *        content authored yet (working titles only for React).
+ *   2. Introduction to ROS 2 — the software ideas behind the labs (9 items, active)
+ *   3. Pre-Installed Demos — explore existing behaviors (5 items, all built)
+ *   4. Foundation Labs    — 20 labs, one behavior or task each: labs 1-10
+ *        available, labs 11-20 planned placeholders
+ *   5. Behavior Sections  — labs 21+, about 10 sections of 10-12 labs each
+ *        built around one behavior; Planned, nothing authored yet
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -112,58 +111,38 @@ const s3 = [
   real('target-lock', 'demos', '3.05'),
 ];
 
-// Level 1 — Control: 10 guided labs, first-joint-to-capstone progression.
-// The 10 activities previously listed here (hello-robot-motion,
-// safe-joint-limits, gesture-sequence, head-tracking,
-// button-to-motion-control, realsense-detection-basics, hand-pose-timing,
-// base-rotation, behavior-priority-motion-locking, mini-demo-challenge)
-// were replaced by this curriculum pass — their content is preserved,
-// unlisted, in learning-path.js (recoverable via git history), several are
-// good future React/Perceive material.
+// Foundation labs 1-10 are built; 11-20 are the planned titles published on
+// swayform.net/learning-path. Content for retired labs stays, unlisted, in
+// learning-path.js (recoverable via git history).
 const s4 = [
-  real('finger-curl', 'control', '4.01'),
-  real('nod-yes', 'control', '4.02'),
-  real('timed-torso-rotation', 'control', '4.03'),
-  real('basic-handshake', 'control', '4.04'),
-  real('keyboard-torso-control', 'control', '4.05'),
-  real('keyboard-head-control', 'control', '4.06'),
-  real('full-handshake', 'control', '4.07'),
-  real('wave-lab', 'control', '4.08', { title: 'Wave Gesture' }),
-  real('rps-lab', 'control', '4.09', { title: 'Rock Paper Scissors Game' }),
-  real('combined-keyboard-control', 'control', '4.10'),
+  real('finger-curl', 'foundation', '4.01'),
+  real('nod-yes', 'foundation', '4.02'),
+  real('timed-torso-rotation', 'foundation', '4.03'),
+  real('basic-handshake', 'foundation', '4.04'),
+  real('keyboard-torso-control', 'foundation', '4.05'),
+  real('keyboard-head-control', 'foundation', '4.06'),
+  real('full-handshake', 'foundation', '4.07'),
+  real('wave-lab', 'foundation', '4.08', { title: 'Wave Gesture' }),
+  real('rps-lab', 'foundation', '4.09', { title: 'Rock Paper Scissors Game' }),
+  real('combined-keyboard-control', 'foundation', '4.10'),
+  placeholder('foundation-11', 'foundation', '4.11', 'Thumbs Up'),
+  placeholder('foundation-12', 'foundation', '4.12', 'Salute'),
+  placeholder('foundation-13', 'foundation', '4.13', 'High Five'),
+  placeholder('foundation-14', 'foundation', '4.14', 'Shrug'),
+  placeholder('foundation-15', 'foundation', '4.15', 'Bow'),
+  placeholder('foundation-16', 'foundation', '4.16', 'Point at a Target'),
+  placeholder('foundation-17', 'foundation', '4.17', 'Grab and Release'),
+  placeholder('foundation-18', 'foundation', '4.18', 'Peace Sign'),
+  placeholder('foundation-19', 'foundation', '4.19', 'Look Around'),
+  placeholder('foundation-20', 'foundation', '4.20', 'Simple Dance Routine'),
 ];
 
-// Level 2 — React: not built yet. Titles below are the actual planned
-// working titles published on swayform.net/learning-path ("Labs 11–20"),
-// not invented — kept as honest placeholders until each lab is authored.
+// Behavior sections: about 10 sections of 10-12 labs each, starting at lab 21.
+// No individual lab titles are published yet, so one honest placeholder.
 const s5 = [
-  placeholder('react-11', 'react', '5.01', 'Simple State Machines'),
-  placeholder('react-12', 'react', '5.02', 'Custom Motion Presets'),
-  placeholder('react-13', 'react', '5.03', 'Camera-Based User Greeting'),
-  placeholder('react-14', 'react', '5.04', 'Object Position Mapping'),
-  placeholder('react-15', 'react', '5.05', 'Two-Arm Coordination'),
-  placeholder('react-16', 'react', '5.06', 'Speaker Prompts and Timing'),
-  placeholder('react-17', 'react', '5.07', 'Classroom Challenge: Helpful Robot'),
-  placeholder('react-18', 'react', '5.08', 'Intro to Robot Debug Logs'),
-  placeholder('react-19', 'react', '5.09', 'Build Your Own Interaction'),
-  placeholder('react-20', 'react', '5.10', 'Final Showcase Demo'),
+  placeholder('behavior-sections-21', 'behavior-sections', '5.01', 'Labs 21+ — Coming Soon',
+    'About 10 sections of 10-12 labs, each built around one behavior. Students write more of the code in each section, from about 25% in the first to about 75% by the tenth. Exact section and lab titles will be finalized as development continues.'),
 ];
-
-// Level 3 — Perceive: theme only on the public site ("Vision pipelines,
-// depth-based tracking, state-machine design, and multi-sensor
-// integration") — no individual lab titles published yet, so these stay
-// generic placeholders rather than inventing specific ones.
-const s6 = Array.from({ length: 40 }, (_, i) =>
-  placeholder(`perceive-${21 + i}`, 'perceive', `6.${String(i + 1).padStart(2, '0')}`, `Lab ${21 + i} — Coming Soon`,
-    'Level 3 builds toward a student project track: vision pipelines, depth-based tracking, state-machine design, and multi-sensor integration. Exact lab titles will be finalized as development continues.'));
-
-// Level 4 — Create: theme only on the public site ("Original ROS 2 package
-// design, multi-node architecture, and a final showcase demo") — the
-// project track, no individual lab titles published yet.
-// Preserve existing placeholder IDs; display numbering follows the ~100-lab roadmap.
-const s7 = Array.from({ length: 40 }, (_, i) =>
-  placeholder(`create-${31 + i}`, 'create', `7.${String(i + 1).padStart(2, '0')}`, `Lab ${61 + i} — Coming Soon`,
-    'Level 4 is the project track: fully student-authored programs, original ROS 2 package design, multi-node architecture, and a final showcase demo. Exact lab titles will be finalized as development continues.'));
 
 export const CURRICULUM = {
   id: 'swayform-robotics-path',
@@ -185,33 +164,23 @@ export const CURRICULUM = {
       items: s3,
     },
     {
-      id: 'control', number: 4, title: 'Control', type: 'lab', icon: 'terminal', levelLabel: 'Level 1',
-      description: "Program SwayForm's movement and build your first robot behaviors.",
+      id: 'foundation', number: 4, title: 'Foundation Labs', type: 'lab', icon: 'terminal',
+      description: 'One new behavior or task per lab — from a single finger curl to rock paper scissors.',
       items: s4,
     },
     {
-      id: 'react', number: 5, title: 'React', type: 'lab', icon: 'search', levelLabel: 'Level 2',
-      description: 'Add real-time reactions to the world around the robot. Planned.',
+      id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects',
+      description: 'After the foundation labs: about 10 sections of 10–12 labs, each built around one behavior. Planned.',
       items: s5,
-    },
-    {
-      id: 'perceive', number: 6, title: 'Perceive', type: 'lab', icon: 'eye', levelLabel: 'Level 3',
-      description: 'Build perception and vision-based robot behaviors. Planned.',
-      items: s6,
-    },
-    {
-      id: 'create', number: 7, title: 'Create', type: 'lab', icon: 'projects', levelLabel: 'Level 4',
-      description: 'Combine everything into complete robot projects. Planned.',
-      items: s7,
     },
   ],
 };
 
 /* ---- Lookup helpers — the single source of truth for every Learn view ---- */
 
-/** Sections 4-7 only — the "40 structured labs" the portal advertises.
- * Getting Started / Essentials / Demos are NOT part of that count. */
-export const LAB_SECTION_IDS = ['control', 'react', 'perceive', 'create'];
+/** Sections 4-5 only — the lab sections. Getting Started / ROS 2 / Demos are
+ * NOT part of the lab count. */
+export const LAB_SECTION_IDS = ['foundation', 'behavior-sections'];
 
 export function findSection(sectionId) {
   return CURRICULUM.sections.find((s) => s.id === sectionId) || null;

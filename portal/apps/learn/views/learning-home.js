@@ -45,7 +45,7 @@ export function mount(container, nav, ctx){
         <span class="lh-sec-num">${String(section.number).padStart(2, '0')}</span>
         <span class="lh-sec-icon">${icon(section.icon)}</span>
         <span class="lh-sec-main">
-          <span class="lh-sec-title">${section.title}${section.levelLabel ? `<span class="lh-sec-level">${section.levelLabel}</span>` : ''}</span>
+          <span class="lh-sec-title">${section.title}</span>
           <span class="lh-sec-desc">${section.description}</span>
         </span>
         <span class="lh-sec-meta">

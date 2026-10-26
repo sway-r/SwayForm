@@ -49,18 +49,18 @@ test('section rename touches only curriculum.js, preserving comments', async () 
 });
 
 test('item reorder renumbers and imports correctly', async () => {
-  const control = base.curriculum.sections.find((s) => s.id === 'control');
+  const control = base.curriculum.sections.find((s) => s.id === 'foundation');
   const order = control.items.map((i) => i.id);
   // Move last to first.
   order.unshift(order.pop());
-  const final = applied([{ type: 'item.reorder', sectionId: 'control', order }]);
+  const final = applied([{ type: 'item.reorder', sectionId: 'foundation', order }]);
   const changes = generateChanges(base, final);
   assert.deepEqual(changes.map((c) => c.path), ['portal/data/curriculum.js']);
 
   const { importData, cleanup } = materializeDataDir({ [changes[0].path]: changes[0].after });
   try {
     const mod = await importData('curriculum.js');
-    const items = mod.CURRICULUM.sections.find((s) => s.id === 'control').items;
+    const items = mod.CURRICULUM.sections.find((s) => s.id === 'foundation').items;
     assert.equal(items[0].id, 'combined-keyboard-control');
     assert.equal(items[0].number, '4.01');
     assert.equal(items[1].number, '4.02');
@@ -77,8 +77,8 @@ test('hide item unlists it while learning-path content survives', async () => {
   const { importData, cleanup } = materializeDataDir({ [changes[0].path]: changes[0].after });
   try {
     const cur = await importData('curriculum.js');
-    const control = cur.CURRICULUM.sections.find((s) => s.id === 'control');
-    assert.equal(control.items.length, 9);
+    const control = cur.CURRICULUM.sections.find((s) => s.id === 'foundation');
+    assert.equal(control.items.length, 19);
     assert.ok(!control.items.some((i) => i.id === 'nod-yes'));
     const lp = await importData('learning-path.js');
     assert.ok(lp.findActivity('nod-yes'), 'content must remain in learning-path.js');
@@ -86,18 +86,18 @@ test('hide item unlists it while learning-path content survives', async () => {
 });
 
 test('move item between sections updates sectionId arg and renumbers both', async () => {
-  const final = applied([{ type: 'item.move', itemId: 'wave', toSectionId: 'control', toIndex: 0 }]);
+  const final = applied([{ type: 'item.move', itemId: 'wave', toSectionId: 'foundation', toIndex: 0 }]);
   const changes = generateChanges(base, final);
   assert.deepEqual(changes.map((c) => c.path), ['portal/data/curriculum.js']);
   const { importData, cleanup } = materializeDataDir({ [changes[0].path]: changes[0].after });
   try {
     const cur = await importData('curriculum.js');
     const demos = cur.CURRICULUM.sections.find((s) => s.id === 'demos');
-    const control = cur.CURRICULUM.sections.find((s) => s.id === 'control');
+    const control = cur.CURRICULUM.sections.find((s) => s.id === 'foundation');
     assert.equal(demos.items.length, 4);
-    assert.equal(control.items.length, 11);
+    assert.equal(control.items.length, 21);
     assert.equal(control.items[0].id, 'wave');
-    assert.equal(control.items[0].sectionId, 'control');
+    assert.equal(control.items[0].sectionId, 'foundation');
     assert.equal(control.items[0].number, '4.01');
     assert.equal(demos.items[0].number, '3.01'); // renumbered, current padded style kept
   } finally { cleanup(); }
@@ -144,7 +144,7 @@ test('new lesson: content + listing + import round-trip', async () => {
       summary: 'A lab created by the Studio test suite.',
       steps: [{ id: 'intro', title: 'Introduction', blocks: [{ type: 'lead', text: 'Hello from Studio.' }] }],
     },
-    listing: { sectionId: 'control', index: 2 },
+    listing: { sectionId: 'foundation', index: 2 },
   }]);
   const changes = generateChanges(base, final);
   assert.deepEqual(changes.map((c) => c.path).sort(),
@@ -156,8 +156,8 @@ test('new lesson: content + listing + import round-trip', async () => {
   });
   try {
     const cur = await importData('curriculum.js');
-    const control = cur.CURRICULUM.sections.find((s) => s.id === 'control');
-    assert.equal(control.items.length, 11);
+    const control = cur.CURRICULUM.sections.find((s) => s.id === 'foundation');
+    assert.equal(control.items.length, 21);
     assert.equal(control.items[2].id, 'test-new-lab');
     assert.equal(control.items[2].title, 'Test New Lab');
     assert.equal(control.items[2].number, '4.03');

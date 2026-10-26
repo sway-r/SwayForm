@@ -225,7 +225,7 @@ export function mount(container, params, nav, ctx){
     timerEl.hidden = !show;
     if (!show) return;
     const t = tracker.getTimes();
-    timerEl.innerHTML = `<span>Session <strong>${formatClock(t.session)}</strong></span><span>This lab <strong>${formatClock(t.lab)}</strong></span><span>Total <strong>${formatTotal(t.total)}</strong></span>`;
+    timerEl.innerHTML = `<span title="Time since you opened this lab">This session <strong>${formatClock(t.session)}</strong></span><span title="All your time on this lab, across sessions">Lab total <strong>${formatClock(t.lab)}</strong></span><span title="All your time across every lab">All labs <strong>${formatTotal(t.total)}</strong></span>`;
   }
   if (!isPlaceholder){
     getSession().catch(() => null).then((session) => {

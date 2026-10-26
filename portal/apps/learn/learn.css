@@ -175,3 +175,8 @@
 }
 
 .sv-all-done{font-size:13px;color:var(--la-muted);line-height:1.6;padding:18px 4px}
+
+.sv-completed-toggle{width:100%;display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;background:none;border:1px dashed var(--la-border);border-radius:8px;font-size:12.5px;font-weight:600;color:var(--la-muted);cursor:pointer;text-align:left}
+.sv-completed-toggle:hover{background:var(--la-hover);color:var(--la-ink)}
+.sv-completed-toggle svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .15s}
+.sv-completed-toggle.open svg{transform:rotate(90deg)}

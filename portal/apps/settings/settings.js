@@ -97,7 +97,7 @@ export function mount(container, ctx){
       <div class="set-section">
         <div class="set-section-title">Learning</div>
         <div class="set-card">
-          ${toggleRow('pref-hide-done', 'Hide completed labs', 'Hides finished labs in section lists and the curriculum menu so you only see what is left.', prefs.hideCompleted)}
+          ${toggleRow('pref-hide-done', 'Hide completed labs', 'Moves finished labs into a collapsed "Completed labs" group at the end of each section, in section lists and the curriculum menu.', prefs.hideCompleted)}
           ${toggleRow('pref-timer', 'Show lab timer', 'Shows your time in this session, on this lab, and in total at the top of every lab. Time only counts while you are active.', prefs.showTimer)}
         </div>
       </div>

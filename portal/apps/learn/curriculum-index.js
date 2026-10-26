@@ -14,6 +14,7 @@ import { escapeHtml } from '../../utils.js';
 // Module-level so expanded sections survive close/reopen within the session
 // (not persisted across page reloads — that would be over-engineering this).
 const expandedSections = new Set();
+const expandedCompleted = new Set();
 
 function statusIcon(item, completedIds, currentId) {
   if (item.kind === 'placeholder') return '<span class="ci-status ci-status-placeholder"></span>';
@@ -107,8 +108,9 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
       listEl.appendChild(block);
 
       const itemsEl = block.querySelector(`[data-items="${section.id}"]`);
-      section.items.forEach((item) => {
-        if (getPrefs().hideCompleted && completedIds.has(item.id) && item.id !== currentId) return;
+      const hideDone = getPrefs().hideCompleted;
+      const tucked = section.items.filter((item) => hideDone && completedIds.has(item.id) && item.id !== currentId);
+      const addRow = (item) => {
         const row = document.createElement('button');
         row.type = 'button';
         row.className = 'ci-item' + (item.id === currentId ? ' active' : '') + (item.kind === 'placeholder' ? ' is-placeholder' : '');
@@ -119,7 +121,18 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
           <span class="ci-item-title">${item.title}</span>
           ${kindBadge(item)}`;
         itemsEl.appendChild(row);
-      });
+      };
+      section.items.filter((item) => !tucked.includes(item)).forEach(addRow);
+      if (tucked.length){
+        const open = expandedCompleted.has(section.id);
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'ci-completed-toggle' + (open ? ' open' : '');
+        toggle.dataset.toggleCompleted = section.id;
+        toggle.innerHTML = `${icon('chevronRight')}<span>Completed labs (${tucked.length})</span>`;
+        itemsEl.appendChild(toggle);
+        if (open) tucked.forEach(addRow);
+      }
     });
 
     listEl.querySelectorAll('[data-toggle]').forEach((btn) => {
@@ -127,6 +140,13 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
         e.stopPropagation();
         const id = btn.dataset.toggle;
         if (expandedSections.has(id)) expandedSections.delete(id); else expandedSections.add(id);
+        renderList();
+      });
+    });
+    listEl.querySelectorAll('[data-toggle-completed]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.toggleCompleted;
+        if (expandedCompleted.has(id)) expandedCompleted.delete(id); else expandedCompleted.add(id);
         renderList();
       });
     });

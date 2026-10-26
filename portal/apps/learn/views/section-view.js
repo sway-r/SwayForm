@@ -50,6 +50,7 @@ export function mount(container, params, nav, ctx){
   // failed /api/progress request still lets the student see and open every
   // lesson, instead of an indefinitely empty list (there was previously no
   // .catch() at all, so a rejection here silently rendered nothing).
+  let showCompleted = false;
   function renderItems(completedIds, current, progressNote){
     const done = new Set(completedIds);
     const { complete, total } = sectionProgress(section.id, completedIds);
@@ -61,11 +62,11 @@ export function mount(container, params, nav, ctx){
 
     itemsEl.innerHTML = '';
     const hideDone = getPrefs().hideCompleted && !progressNote;
-    const visible = section.items.filter((item) => !(hideDone && done.has(item.id) && !(current && current.activityId === item.id)));
-    if (hideDone && !visible.length){
-      itemsEl.innerHTML = '<p class="sv-all-done">Every lab here is complete. Turn off “Hide completed labs” in Settings to see them again.</p>';
-    }
-    visible.forEach((item) => {
+    const isHiddenDone = (item) => hideDone && done.has(item.id) && !(current && current.activityId === item.id);
+    const visible = section.items.filter((item) => !isHiddenDone(item));
+    const tucked = section.items.filter(isHiddenDone);
+
+    function addRow(item, parent){
       const isDone = done.has(item.id);
       const isCurrent = current && current.activityId === item.id;
       const row = document.createElement('button');
@@ -84,8 +85,20 @@ export function mount(container, params, nav, ctx){
           : `<span class="sv-status open">${icon('chevronRight')}</span>`
         }</span>`;
       row.addEventListener('click', () => nav.activity(item.id));
-      itemsEl.appendChild(row);
-    });
+      parent.appendChild(row);
+    }
+
+    visible.forEach((item) => addRow(item, itemsEl));
+
+    if (tucked.length){
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'sv-completed-toggle' + (showCompleted ? ' open' : '');
+      toggle.innerHTML = `${icon('chevronRight')}<span>Completed labs (${tucked.length})</span>`;
+      toggle.addEventListener('click', () => { showCompleted = !showCompleted; renderItems(completedIds, current, progressNote); });
+      itemsEl.appendChild(toggle);
+      if (showCompleted) tucked.forEach((item) => addRow(item, itemsEl));
+    }
   }
 
   let lastState = { completedIds: [], current: null, note: 'Progress unavailable — showing lessons only.' };

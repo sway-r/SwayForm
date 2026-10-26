@@ -5,24 +5,18 @@ export const CERTIFICATES = {
   foundation: {
     id: 'foundation',
     code: 'FL',
-    program: 'SwayForm Foundation Labs',
-    description: 'has successfully completed all twenty SwayForm Foundation Labs, hands-on robotics programming on a real humanoid robot, from a single finger curl to full gestures and behaviors.',
+    program: 'Foundations of Humanoid Robotics',
+    subtitle: 'SwayForm Foundation Labs',
+    description: 'for completing all twenty SwayForm Foundation Labs, programming a real humanoid robot from a single finger curl to full gestures and behaviors, and passing the Foundations Assessment.',
   },
 };
 
 const W = 3300;
 const H = 2550;
-const NAVY = '#0b1530';
-const NAVY_2 = '#152a55';
-const BLUE = '#0057ff';
-const BLUE_LIGHT = '#4c8dff';
-const INK = '#14181f';
-const MUTED = '#5d6573';
-const PAPER = '#f8f6f1';
 const SERIF = '"Source Serif 4", Georgia, "Times New Roman", serif';
 const SCRIPT = '"Caveat", "Segoe Script", cursive';
 const SANS = 'Inter, "Helvetica Neue", Arial, sans-serif';
-const PHOTO_URL = '/images/swayform_robot_1.png';
+const LOGO_URL = '/favicon-192.png';
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@500;700&family=Source+Serif+4:wght@600;700&display=swap';
 
 let fontsPromise = null;
@@ -57,16 +51,6 @@ function loadImage(url){
   });
 }
 
-function roundRect(ctx, x, y, w, h, r){
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
 /** Text with extra letter spacing, left/center aligned at (x, y). */
 function spaced(ctx, text, x, y, spacing, align = 'left'){
   const widths = [...text].map((ch) => ctx.measureText(ch).width + spacing);
@@ -94,147 +78,170 @@ export function formatCertificateDate(date){
 }
 
 /** Resolves to a canvas. `cert` is an entry of CERTIFICATES. */
-export async function renderCertificate({ cert = CERTIFICATES.foundation, name, date = new Date(), certificateId, verifyHost = 'swayform.net', photoUrl = PHOTO_URL }){
+export async function renderCertificate({ cert = CERTIFICATES.foundation, name, date = new Date(), certificateId, verifyHost = 'swayform.net', logoUrl = LOGO_URL }){
   await loadFonts();
-  const photo = await loadImage(photoUrl);
+  const logo = await loadImage(logoUrl);
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d');
+  const cx = W / 2;
 
-  ctx.fillStyle = PAPER;
+  const goldAcross = (x0, x1) => {
+    const g = ctx.createLinearGradient(x0, 0, x1, 0);
+    [[0, '#8c6a28'], [0.22, '#e9d089'], [0.5, '#c79f45'], [0.78, '#f5e6b0'], [1, '#9a772f']].forEach(([stop, color]) => g.addColorStop(stop, color));
+    return g;
+  };
+  const goldDown = (y0, y1) => {
+    const g = ctx.createLinearGradient(0, y0, 0, y1);
+    [[0, '#f0dc9c'], [0.5, '#c79f45'], [1, '#e2c776']].forEach(([stop, color]) => g.addColorStop(stop, color));
+    return g;
+  };
+
+  /* background */
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#07090d');
+  bg.addColorStop(1, '#0e1218');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(cx, 520, 100, cx, 520, 1500);
+  glow.addColorStop(0, 'rgba(201,161,74,.20)');
+  glow.addColorStop(1, 'rgba(201,161,74,0)');
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
-  /* left brand panel */
-  const panelW = 980;
-  const panel = ctx.createLinearGradient(0, 0, 0, H);
-  panel.addColorStop(0, NAVY);
-  panel.addColorStop(1, NAVY_2);
-  ctx.fillStyle = panel;
-  ctx.fillRect(0, 0, panelW, H);
-
-  ctx.textBaseline = 'alphabetic';
-  let markSize = 190;
-  ctx.font = `700 ${markSize}px ${SERIF}`;
-  while (ctx.measureText('SwayForm').width > panelW - 220 && markSize > 80){ markSize -= 4; ctx.font = `700 ${markSize}px ${SERIF}`; }
-  const sWidth = ctx.measureText('S').width;
-  const markWidth = ctx.measureText('SwayForm').width;
-  const markX = (panelW - markWidth) / 2;
-  ctx.textAlign = 'left';
-  ctx.fillStyle = BLUE_LIGHT;
-  ctx.fillText('S', markX, 380);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('wayForm', markX + sWidth, 380);
-
-  ctx.fillStyle = 'rgba(255,255,255,.7)';
-  let tagSize = 36, tagSpacing = 6;
-  ctx.font = `700 ${tagSize}px ${SANS}`;
-  const tagline = 'PEOPLE  •  ROBOTICS  •  BRIGHTER FUTURES';
-  const tagWidth = () => [...tagline].reduce((sum, ch) => sum + ctx.measureText(ch).width + tagSpacing, -tagSpacing);
-  while (tagWidth() > panelW - 200 && tagSize > 22){ tagSize -= 1; ctx.font = `700 ${tagSize}px ${SANS}`; }
-  spaced(ctx, tagline, panelW / 2, 470, tagSpacing, 'center');
-
-  ctx.fillStyle = BLUE_LIGHT;
-  ctx.fillRect(panelW / 2 - 90, 540, 180, 8);
-
-  if (photo){
-    const pw = panelW - 200, ph = Math.round(pw * photo.height / photo.width);
-    const px = (panelW - pw) / 2, py = 660;
+  /* spirograph rosette behind the medallion */
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(136, 136, W - 272, H - 272);
+  ctx.clip();
+  ctx.translate(cx, 440);
+  ctx.strokeStyle = 'rgba(214,178,94,.13)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 90; i++){
     ctx.save();
-    roundRect(ctx, px, py, pw, ph, 36);
-    ctx.clip();
-    ctx.drawImage(photo, px, py, pw, ph);
-    ctx.restore();
-    ctx.strokeStyle = 'rgba(255,255,255,.28)';
-    ctx.lineWidth = 6;
-    roundRect(ctx, px, py, pw, ph, 36);
+    ctx.rotate((i * Math.PI) / 90);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 560, 190, 0, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+
+  /* double gold frame with corner ornaments */
+  ctx.strokeStyle = goldAcross(0, W);
+  ctx.lineWidth = 14;
+  ctx.strokeRect(90, 90, W - 180, H - 180);
+  ctx.lineWidth = 4;
+  ctx.strokeRect(132, 132, W - 264, H - 264);
+  ctx.fillStyle = goldAcross(0, W);
+  [[132, 132], [W - 132, 132], [132, H - 132], [W - 132, H - 132]].forEach(([x, y]) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-26, -26, 52, 52);
+    ctx.restore();
+    ctx.fillStyle = '#0a0d12';
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-14, -14, 28, 28);
+    ctx.restore();
+    ctx.fillStyle = goldAcross(0, W);
+  });
+
+  /* medallion with the SwayForm mark */
+  const my = 440;
+  ctx.fillStyle = goldDown(my - 230, my + 230);
+  ctx.beginPath(); ctx.arc(cx, my, 230, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#0a0d12';
+  ctx.beginPath(); ctx.arc(cx, my, 212, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = goldDown(my - 200, my + 200);
+  ctx.beginPath(); ctx.arc(cx, my, 198, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(cx, my, 186, 0, Math.PI * 2); ctx.fill();
+  if (logo){
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, my, 186, 0, Math.PI * 2); ctx.clip();
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(logo, cx - 165, my - 165, 330, 330);
+    ctx.restore();
   }
 
-  ctx.fillStyle = 'rgba(255,255,255,.8)';
-  ctx.font = `500 52px ${SANS}`;
-  ctx.textAlign = 'center';
-  const blurb = wrapLines(ctx, 'A programmable humanoid robot and guided learning portal that turns students into builders.', panelW - 260);
-  blurb.forEach((line, i) => ctx.fillText(line, panelW / 2, 1690 + i * 78));
-  ctx.fillStyle = 'rgba(255,255,255,.5)';
-  ctx.font = `500 40px ${SANS}`;
-  ctx.fillText(verifyHost, panelW / 2, H - 150);
-
-  /* border on the paper side */
-  const areaX = panelW + 110;
-  const areaW = W - areaX - 130;
-  const cx = areaX + areaW / 2;
-  ctx.strokeStyle = NAVY;
-  ctx.lineWidth = 8;
-  ctx.strokeRect(panelW + 70, 70, W - panelW - 140, H - 140);
-  ctx.strokeStyle = BLUE;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(panelW + 100, 100, W - panelW - 200, H - 200);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = goldAcross(cx - 400, cx + 400);
+  ctx.font = `700 54px ${SANS}`;
+  spaced(ctx, 'SWAYFORM', cx, 790, 22, 'center');
 
   /* heading */
-  ctx.fillStyle = BLUE;
-  ctx.font = `700 62px ${SANS}`;
-  spaced(ctx, 'CERTIFICATE OF COMPLETION', cx, 400, 14, 'center');
+  ctx.fillStyle = '#f4ecd6';
+  ctx.font = `700 96px ${SERIF}`;
+  spaced(ctx, 'CERTIFICATE OF ACHIEVEMENT', cx, 940, 10, 'center');
 
-  ctx.fillStyle = MUTED;
-  ctx.font = `500 58px ${SANS}`;
+  ctx.fillStyle = '#9aa2b1';
+  ctx.font = `500 56px ${SANS}`;
   ctx.textAlign = 'center';
-  ctx.fillText('This certifies that', cx, 620);
+  ctx.fillText('is proudly presented to', cx, 1050);
 
   /* name, shrunk to fit */
-  let size = 230;
-  ctx.fillStyle = INK;
+  let size = 250;
   ctx.font = `700 ${size}px ${SERIF}`;
-  while (ctx.measureText(name).width > areaW - 100 && size > 90){ size -= 6; ctx.font = `700 ${size}px ${SERIF}`; }
+  while (ctx.measureText(name).width > W - 700 && size > 100){ size -= 6; ctx.font = `700 ${size}px ${SERIF}`; }
+  ctx.fillStyle = goldAcross(cx - 900, cx + 900);
   ctx.textAlign = 'center';
-  ctx.fillText(name, cx, 880);
-  ctx.strokeStyle = NAVY;
+  ctx.fillText(name, cx, 1290);
+  ctx.strokeStyle = goldAcross(cx - 900, cx + 900);
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(areaX + 120, 940);
-  ctx.lineTo(areaX + areaW - 120, 940);
+  ctx.moveTo(cx - 900, 1360);
+  ctx.lineTo(cx + 900, 1360);
   ctx.stroke();
 
-  /* program + description */
-  ctx.fillStyle = INK;
-  ctx.font = `700 112px ${SERIF}`;
-  ctx.fillText(cert.program, cx, 1230);
+  /* what it is for */
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `700 118px ${SERIF}`;
+  ctx.fillText(cert.program, cx, 1560);
+  ctx.fillStyle = goldAcross(cx - 500, cx + 500);
+  ctx.font = `700 46px ${SANS}`;
+  spaced(ctx, cert.subtitle.toUpperCase(), cx, 1650, 10, 'center');
 
-  ctx.fillStyle = MUTED;
-  ctx.font = `500 62px ${SANS}`;
-  const lines = wrapLines(ctx, cert.description, areaW - 220);
-  lines.forEach((line, i) => ctx.fillText(line, cx, 1400 + i * 100));
+  ctx.fillStyle = '#c6ccd8';
+  ctx.font = `500 58px ${SANS}`;
+  ctx.textAlign = 'center';
+  wrapLines(ctx, cert.description, W - 900).forEach((line, i) => ctx.fillText(line, cx, 1780 + i * 90));
 
   /* footer: date, signature, certificate ID */
-  const footY = 2030;
-  const colW = areaW / 3;
-  const colX = [areaX + colW * 0.5, areaX + colW * 1.5, areaX + colW * 2.5];
-  ctx.strokeStyle = NAVY;
+  const footY = 2180;
+  const colX = [cx - 900, cx, cx + 900];
+  ctx.strokeStyle = goldAcross(0, W);
   ctx.lineWidth = 3;
   colX.forEach((x) => {
     ctx.beginPath();
-    ctx.moveTo(x - 270, footY);
-    ctx.lineTo(x + 270, footY);
+    ctx.moveTo(x - 330, footY);
+    ctx.lineTo(x + 330, footY);
     ctx.stroke();
   });
 
-  ctx.fillStyle = INK;
-  ctx.font = `600 70px ${SERIF}`;
+  ctx.fillStyle = '#f4ecd6';
+  ctx.font = `600 66px ${SERIF}`;
   ctx.textAlign = 'center';
   ctx.fillText(formatCertificateDate(date), colX[0], footY - 26);
-  ctx.font = `600 110px ${SCRIPT}`;
-  ctx.fillText('Swayam Rathod', colX[1], footY - 22);
+  ctx.fillStyle = goldAcross(cx - 330, cx + 330);
+  ctx.font = `600 120px ${SCRIPT}`;
+  ctx.fillText('Swayam Rathod', colX[1], footY - 20);
+  ctx.fillStyle = '#f4ecd6';
   ctx.font = `700 52px ${SANS}`;
   ctx.fillText(certificateId, colX[2], footY - 30);
 
-  ctx.fillStyle = MUTED;
-  ctx.font = `500 40px ${SANS}`;
-  ctx.fillText('DATE ISSUED', colX[0], footY + 64);
-  ctx.fillText('FOUNDER, SWAYFORM', colX[1], footY + 64);
-  ctx.fillText('CERTIFICATE ID', colX[2], footY + 64);
+  ctx.fillStyle = '#8b93a3';
+  ctx.font = `500 38px ${SANS}`;
+  spaced(ctx, 'DATE ISSUED', colX[0], footY + 66, 6, 'center');
+  spaced(ctx, 'FOUNDER, SWAYFORM', colX[1], footY + 66, 6, 'center');
+  spaced(ctx, 'CERTIFICATE ID', colX[2], footY + 66, 6, 'center');
 
   ctx.font = `500 38px ${SANS}`;
-  ctx.fillText(`Verify this certificate at ${verifyHost}/verify`, cx, H - 170);
+  ctx.textAlign = 'center';
+  ctx.fillText(`Verify at ${verifyHost}/verify`, cx, H - 205);
 
   return canvas;
 }

@@ -100,7 +100,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
             <span class="ci-section-num">${String(section.number).padStart(2, '0')}</span>
             <span class="ci-section-title">${section.title}</span>
           </button>
-          ${isLabSection ? `<span class="ci-section-count">${doneCount}/${real.length}</span>` : ''}
+          ${isLabSection ? `<span class="ci-section-count">${real.length ? `${doneCount}/${section.items.length}` : 'Planned'}</span>` : ''}
         </div>
         <div class="ci-items" data-items="${section.id}" ${expanded ? '' : 'hidden'}></div>`;
       listEl.appendChild(block);

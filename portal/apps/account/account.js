@@ -34,7 +34,7 @@ function statRow(label, done, total, iconName){
   const pct = total ? Math.round((done / total) * 100) : 0;
   return `
     <div class="acct-stat">
-      <div class="acct-stat-hdr">${icon(iconName)}<span>${label}</span><span class="acct-stat-frac">${done} / ${total}</span></div>
+      <div class="acct-stat-hdr">${icon(iconName)}<span>${label}</span><span class="acct-stat-frac">${total ? `${done} / ${total}` : 'Planned'}</span></div>
       <div class="acct-stat-bar"><span style="width:${pct}%"></span></div>
     </div>`;
 }

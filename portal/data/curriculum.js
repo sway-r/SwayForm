@@ -210,12 +210,9 @@ export function labTotals(completedIds) {
   const done = new Set(completedIds);
   let total = 0, complete = 0;
   LAB_SECTION_IDS.forEach((id) => {
-    const section = findSection(id);
-    section.items.forEach((item) => {
-      if (item.kind === 'placeholder') return;
-      total += 1;
-      if (done.has(item.id)) complete += 1;
-    });
+    const p = sectionProgress(id, [...done]);
+    total += p.total;
+    complete += p.complete;
   });
   return { complete, total };
 }
@@ -225,7 +222,8 @@ export function sectionProgress(sectionId, completedIds) {
   if (!section) return { complete: 0, total: 0 };
   const done = new Set(completedIds);
   const real = section.items.filter((i) => i.kind !== 'placeholder');
-  return { complete: real.filter((i) => done.has(i.id)).length, total: real.length };
+  // Planned labs count toward the total once a section has any built lab; a section with none built reports 0.
+  return { complete: real.filter((i) => done.has(i.id)).length, total: real.length ? section.items.length : 0 };
 }
 
 /** Simple metadata search across section/item titles and related concepts —

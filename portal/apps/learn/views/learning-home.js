@@ -49,7 +49,7 @@ export function mount(container, nav, ctx){
           <span class="lh-sec-desc">${section.description}</span>
         </span>
         <span class="lh-sec-meta">
-          <span class="lh-sec-progress">${complete} / ${total}</span>
+          <span class="lh-sec-progress">${total ? `${complete} / ${total}` : 'Planned'}</span>
           <span class="lh-sec-chevron">${icon('chevronRight')}</span>
         </span>`;
       row.addEventListener('click', () => nav.section(section.id));

@@ -87,7 +87,6 @@ export function mount(container, ctx){
               <button type="button" data-step="1" aria-label="Larger">+</button>
             </div>
           </div>
-          ${toggleRow('pref-motion', 'Reduce motion', 'Turns off animations and transitions across the portal.', prefs.reduceMotion)}
         </div>
       </div>
 
@@ -103,7 +102,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Reset</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts text size, reduce motion and the Code Editor settings back to their defaults. Theme is separate.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts text size and the Code Editor settings back to their defaults. Theme is separate.</span></span>
             <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
           </div>
           <div class="set-row">
@@ -121,7 +120,7 @@ export function mount(container, ctx){
     });
   });
 
-  const switchPrefs = { 'pref-motion': 'reduceMotion', 'pref-wrap': 'editorWordWrap', 'pref-minimap': 'editorMinimap' };
+  const switchPrefs = { 'pref-wrap': 'editorWordWrap', 'pref-minimap': 'editorMinimap' };
   container.querySelectorAll('.set-switch input').forEach((input) => {
     input.addEventListener('change', () => setPref(switchPrefs[input.id], input.checked));
   });
@@ -136,10 +135,9 @@ export function mount(container, ctx){
   });
 
   container.querySelector('[data-reset-prefs]').addEventListener('click', async () => {
-    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put text size, reduce motion, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
+    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put text size, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
     resetPrefs();
     const fresh = getPrefs();
-    container.querySelector('#pref-motion').checked = fresh.reduceMotion;
     container.querySelector('#pref-wrap').checked = fresh.editorWordWrap;
     container.querySelector('#pref-minimap').checked = fresh.editorMinimap;
     fontValueEl.textContent = fresh.textSize;

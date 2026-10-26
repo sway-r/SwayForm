@@ -275,10 +275,6 @@
 }
 .portal-save-notice[hidden] { display: none; }
 
-/* Settings → Accessibility → Reduce motion */
-html[data-reduce-motion] *,
-html[data-reduce-motion] *::before,
-html[data-reduce-motion] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 
 /* Settings -> Accessibility -> Text size */
 .la-surface,.nb-doc{zoom:var(--p-text-zoom,1)}

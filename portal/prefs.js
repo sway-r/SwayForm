@@ -5,7 +5,7 @@ const KEY = 'swayform.portal.prefs';
 export const TEXT_SIZE_MIN = 10;
 export const TEXT_SIZE_MAX = 18;
 export const TEXT_SIZE_DEFAULT = 13;
-const DEFAULTS = { textSize: TEXT_SIZE_DEFAULT, editorWordWrap: false, editorMinimap: false, reduceMotion: false };
+const DEFAULTS = { textSize: TEXT_SIZE_DEFAULT, editorWordWrap: true, editorMinimap: false, reduceMotion: false };
 
 export function getPrefs(){
   let prefs;

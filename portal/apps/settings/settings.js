@@ -19,28 +19,34 @@ function toggleRow(id, label, desc, checked){
     </label>`;
 }
 
-function confirmTyped(container, message){
+function confirmDialog(container, { title, message, confirmLabel, typeWord }){
   return new Promise((resolve) => {
     const overlay = document.createElement('div');
     overlay.className = 'set-modal-overlay';
     overlay.innerHTML = `
       <div class="set-modal" role="dialog" aria-modal="true">
-        <div class="set-modal-title">Reset progress</div>
+        <div class="set-modal-title"></div>
         <p class="set-modal-text"></p>
-        <label class="set-modal-label" for="set-delete-input">Type <strong>DELETE</strong> to confirm</label>
-        <input type="text" id="set-delete-input" class="set-modal-input" autocomplete="off" spellcheck="false">
+        <label class="set-modal-label" for="set-confirm-input">Type <strong></strong> to confirm</label>
+        <input type="text" id="set-confirm-input" class="set-modal-input" autocomplete="off" spellcheck="false">
         <div class="set-modal-actions">
           <button type="button" class="p-btn ghost" data-cancel>Cancel</button>
-          <button type="button" class="p-btn set-modal-danger" data-confirm disabled>Reset progress</button>
+          <button type="button" class="p-btn set-modal-danger" data-confirm></button>
         </div>
       </div>`;
+    overlay.querySelector('.set-modal-title').textContent = title;
     overlay.querySelector('.set-modal-text').textContent = message;
+    overlay.querySelector('[data-confirm]').textContent = confirmLabel;
     const input = overlay.querySelector('input');
     const confirmBtn = overlay.querySelector('[data-confirm]');
+    const label = overlay.querySelector('.set-modal-label');
+    const ok = () => !typeWord || input.value === typeWord;
+    if (typeWord) { label.querySelector('strong').textContent = typeWord; confirmBtn.disabled = true; }
+    else { label.remove(); input.remove(); }
     const close = (result) => { overlay.remove(); resolve(result); };
-    input.addEventListener('input', () => { confirmBtn.disabled = input.value !== 'DELETE'; });
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && input.value === 'DELETE') close(true);
+    input.addEventListener('input', () => { confirmBtn.disabled = !ok(); });
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && ok()) close(true);
       if (e.key === 'Escape') close(false);
     });
     confirmBtn.addEventListener('click', () => close(true));
@@ -48,7 +54,7 @@ function confirmTyped(container, message){
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
     if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
     container.appendChild(overlay);
-    input.focus();
+    (typeWord ? input : confirmBtn).focus();
   });
 }
 
@@ -92,19 +98,11 @@ export function mount(container, ctx){
       </div>
 
       <div class="set-section">
-        <div class="set-section-title">Workspace</div>
+        <div class="set-section-title">Reset</div>
         <div class="set-card">
           <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts the accessibility and Code Editor settings back to their defaults. Theme is separate.</span></span>
             <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
-          </div>
-          <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset window layout</span><span class="set-row-desc">Returns Textbook, Code Editor, and Terminal to the default tiled arrangement.</span></span>
-            <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
-          </div>
-          <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset workspace edits</span><span class="set-row-desc">Drafts are saved in this browser — they survive closed tabs and restarts — and are cleared on sign-out. Reset restores the starter files.</span></span>
-            <button type="button" class="p-btn ghost" data-reset-fs>Reset workspace</button>
           </div>
           <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Reset learning progress</span><span class="set-row-desc">Clears "completed" marks on every activity — for a signed-in account, everywhere, not just this browser.</span></span>
@@ -133,23 +131,8 @@ export function mount(container, ctx){
     });
   });
 
-  container.querySelector('[data-reset-layout]').addEventListener('click', (e) => {
-    // Workspace layout is stored per-activity now (see activity-workspace.js),
-    // so there's no single key to clear from here — instead, tell whichever
-    // Activity Workspace is currently open (a separate window) to reset its
-    // own live WorkspaceWindowManager immediately. If none is open, there's
-    // nothing to visibly reset — the next activity opened starts from the
-    // default layout regardless, since only activities you've customized
-    // have a saved key at all.
-    window.dispatchEvent(new CustomEvent('swayform:workspace-layout-reset'));
-    const btn = e.currentTarget;
-    const original = btn.textContent;
-    btn.textContent = 'Layout reset';
-    btn.disabled = true;
-    setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 1500);
-  });
-
-  container.querySelector('[data-reset-prefs]').addEventListener('click', () => {
+  container.querySelector('[data-reset-prefs]').addEventListener('click', async () => {
+    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put reduce motion, font size, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
     resetPrefs();
     const fresh = getPrefs();
     container.querySelector('#pref-motion').checked = fresh.reduceMotion;
@@ -158,21 +141,12 @@ export function mount(container, ctx){
     container.querySelectorAll('[data-font-size] button').forEach((b) => b.classList.toggle('active', Number(b.dataset.size) === fresh.editorFontSize));
   });
 
-  container.querySelector('[data-reset-fs]').addEventListener('click', async () => {
-    if (!window.confirm('Reset all local workspace edits? Every file reverts to its starter version. This cannot be undone.')) return;
-    const fs = await import('../learn/editor/mock-fs.js');
-    fs.resetAll();
-    // A currently-open Code Editor (a separate window) can't see this call —
-    // tell it to refresh from the now-reset fs, same pattern as the layout
-    // reset button just above.
-    window.dispatchEvent(new CustomEvent('swayform:workspace-fs-reset'));
-  });
   container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {
     const session = await getSession();
     const confirmMsg = (!session || session.mode === 'guest')
       ? 'Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.'
       : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
-    if (!await confirmTyped(container, confirmMsg)) return;
+    if (!await confirmDialog(container, { title: 'Reset progress', message: confirmMsg, confirmLabel: 'Reset progress', typeWord: 'DELETE' })) return;
     try { await resetProgress(); } catch { return; }
     const btn = e.currentTarget;
     const original = btn.textContent;

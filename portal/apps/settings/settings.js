@@ -19,6 +19,39 @@ function toggleRow(id, label, desc, checked){
     </label>`;
 }
 
+function confirmTyped(container, message){
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'set-modal-overlay';
+    overlay.innerHTML = `
+      <div class="set-modal" role="dialog" aria-modal="true">
+        <div class="set-modal-title">Reset progress</div>
+        <p class="set-modal-text"></p>
+        <label class="set-modal-label" for="set-delete-input">Type <strong>DELETE</strong> to confirm</label>
+        <input type="text" id="set-delete-input" class="set-modal-input" autocomplete="off" spellcheck="false">
+        <div class="set-modal-actions">
+          <button type="button" class="p-btn ghost" data-cancel>Cancel</button>
+          <button type="button" class="p-btn set-modal-danger" data-confirm disabled>Reset progress</button>
+        </div>
+      </div>`;
+    overlay.querySelector('.set-modal-text').textContent = message;
+    const input = overlay.querySelector('input');
+    const confirmBtn = overlay.querySelector('[data-confirm]');
+    const close = (result) => { overlay.remove(); resolve(result); };
+    input.addEventListener('input', () => { confirmBtn.disabled = input.value !== 'DELETE'; });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && input.value === 'DELETE') close(true);
+      if (e.key === 'Escape') close(false);
+    });
+    confirmBtn.addEventListener('click', () => close(true));
+    overlay.querySelector('[data-cancel]').addEventListener('click', () => close(false));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
+    if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
+    container.appendChild(overlay);
+    input.focus();
+  });
+}
+
 export function mount(container, ctx){
   const prefs = getPrefs();
 
@@ -139,7 +172,7 @@ export function mount(container, ctx){
     const confirmMsg = (!session || session.mode === 'guest')
       ? 'Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.'
       : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
-    if (!window.confirm(confirmMsg)) return;
+    if (!await confirmTyped(container, confirmMsg)) return;
     try { await resetProgress(); } catch { return; }
     const btn = e.currentTarget;
     const original = btn.textContent;

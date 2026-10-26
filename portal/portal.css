@@ -274,3 +274,8 @@
   background: #fff3d6; color: #572800; font: 14px/1.5 system-ui, sans-serif;
 }
 .portal-save-notice[hidden] { display: none; }
+
+/* Settings → Accessibility → Reduce motion */
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

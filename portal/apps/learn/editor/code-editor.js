@@ -3,6 +3,8 @@
    plain-<textarea> fallback if the CDN can't be reached, so the Learn app
    still works offline / with a slow network instead of hard-failing. */
 
+import { getPrefs } from '../../../prefs.js';
+
 const MONACO_VERSION = '0.47.0';
 const MONACO_BASE = `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs`;
 const LOAD_TIMEOUT_MS = 7000;
@@ -37,6 +39,11 @@ function loadMonaco(){
 
 /** A single editor surface that can switch between open files (Monaco models),
  *  preserving per-file cursor/scroll/undo state while it's alive. */
+function monacoPrefs(){
+  const p = getPrefs();
+  return { fontSize: p.editorFontSize, lineHeight: Math.round(p.editorFontSize * 1.6), wordWrap: p.editorWordWrap ? 'on' : 'off', minimap: { enabled: p.editorMinimap } };
+}
+
 export class CodeEditor {
   constructor(container, { theme = 'vs-dark', onChange, onCursor } = {}){
     this.container = container;
@@ -65,9 +72,7 @@ export class CodeEditor {
       this.editor = this.monaco.editor.create(this.container, {
         theme: this.theme,
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 13,
-        lineHeight: 21,
-        minimap: { enabled: false },
+        ...monacoPrefs(),
         automaticLayout: true,
         scrollBeyondLastLine: false,
         smoothScrolling: true,
@@ -75,6 +80,8 @@ export class CodeEditor {
         padding: { top: 14 },
         tabSize: 4,
       });
+      this.onPrefs = () => this.editor && this.editor.updateOptions(monacoPrefs());
+      window.addEventListener('swayform:prefs-changed', this.onPrefs);
       this.editor.onDidChangeModelContent(() => {
         if (this.onChangeCb && this.activePath) this.onChangeCb(this.activePath, this.editor.getValue());
       });
@@ -208,6 +215,7 @@ export class CodeEditor {
 
   dispose(){
     this.disposed = true;
+    if (this.onPrefs) window.removeEventListener('swayform:prefs-changed', this.onPrefs);
     if (this.mode === 'monaco' && this.editor) this.editor.dispose();
     this.models.forEach((m) => m.dispose());
     this.models.clear();

@@ -2,6 +2,7 @@ import { icon } from '../../icons.js';
 import { getTheme, setTheme } from '../../theme.js';
 import { getSession } from '../../services/auth-service.js';
 import { resetProgress } from '../../services/progress-service.js';
+import { getPrefs, setPref, resetPrefs, FONT_SIZES } from '../../prefs.js';
 
 export const meta = {
   id: 'settings',
@@ -9,17 +10,6 @@ export const meta = {
   icon: 'settings',
   defaultSize: { w: 560, h: 520 },
 };
-
-const PREFS_KEY = 'swayform.portal.notificationPrefs';
-const DEFAULT_PREFS = { robotUpdates: true, labUnlocked: true, weeklyDigest: false };
-
-function loadPrefs(){
-  try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') }; }
-  catch (e) { return { ...DEFAULT_PREFS }; }
-}
-function savePrefs(p){
-  try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch (e) { /* noop */ }
-}
 
 function toggleRow(id, label, desc, checked){
   return `
@@ -30,7 +20,7 @@ function toggleRow(id, label, desc, checked){
 }
 
 export function mount(container, ctx){
-  const prefs = loadPrefs();
+  const prefs = getPrefs();
 
   container.innerHTML = `
     <div class="set-root p-scroll la-surface">
@@ -48,17 +38,33 @@ export function mount(container, ctx){
       </div>
 
       <div class="set-section">
-        <div class="set-section-title">Notifications <span class="set-mock-badge">Mocked — no backend yet</span></div>
+        <div class="set-section-title">Accessibility</div>
         <div class="set-card">
-          ${toggleRow('pref-robot', 'Robot updates', 'Notify when SwayForm software or a lesson you\'re using gets updated.', prefs.robotUpdates)}
-          ${toggleRow('pref-lab', 'New lab unlocked', 'Notify when a new lab becomes available.', prefs.labUnlocked)}
-          ${toggleRow('pref-digest', 'Weekly digest', 'A short weekly summary of classroom activity.', prefs.weeklyDigest)}
+          ${toggleRow('pref-motion', 'Reduce motion', 'Turns off animations and transitions across the portal.', prefs.reduceMotion)}
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="set-section-title">Code Editor</div>
+        <div class="set-card">
+          <div class="set-row">
+            <span class="set-row-text"><span class="set-row-label">Font size</span><span class="set-row-desc">Text size in the Code Editor.</span></span>
+            <div class="set-theme-toggle" data-font-size>
+              ${FONT_SIZES.map((n) => `<button type="button" data-size="${n}" class="${prefs.editorFontSize === n ? 'active' : ''}">${n}</button>`).join('')}
+            </div>
+          </div>
+          ${toggleRow('pref-wrap', 'Word wrap', 'Wrap long lines instead of scrolling sideways.', prefs.editorWordWrap)}
+          ${toggleRow('pref-minimap', 'Minimap', 'Show a small overview of the file on the right edge.', prefs.editorMinimap)}
         </div>
       </div>
 
       <div class="set-section">
         <div class="set-section-title">Workspace</div>
         <div class="set-card">
+          <div class="set-row">
+            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts the accessibility and Code Editor settings back to their defaults. Theme is separate.</span></span>
+            <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
+          </div>
           <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Reset window layout</span><span class="set-row-desc">Returns Textbook, Code Editor, and Terminal to the default tiled arrangement.</span></span>
             <button type="button" class="p-btn ghost" data-reset-layout>Reset layout</button>
@@ -82,11 +88,15 @@ export function mount(container, ctx){
     });
   });
 
+  const switchPrefs = { 'pref-motion': 'reduceMotion', 'pref-wrap': 'editorWordWrap', 'pref-minimap': 'editorMinimap' };
   container.querySelectorAll('.set-switch input').forEach((input) => {
-    input.addEventListener('change', () => {
-      const map = { 'pref-robot': 'robotUpdates', 'pref-lab': 'labUnlocked', 'pref-digest': 'weeklyDigest' };
-      prefs[map[input.id]] = input.checked;
-      savePrefs(prefs);
+    input.addEventListener('change', () => setPref(switchPrefs[input.id], input.checked));
+  });
+
+  container.querySelectorAll('[data-font-size] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setPref('editorFontSize', Number(btn.dataset.size));
+      container.querySelectorAll('[data-font-size] button').forEach((b) => b.classList.toggle('active', b === btn));
     });
   });
 
@@ -104,6 +114,15 @@ export function mount(container, ctx){
     btn.textContent = 'Layout reset';
     btn.disabled = true;
     setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 1500);
+  });
+
+  container.querySelector('[data-reset-prefs]').addEventListener('click', () => {
+    resetPrefs();
+    const fresh = getPrefs();
+    container.querySelector('#pref-motion').checked = fresh.reduceMotion;
+    container.querySelector('#pref-wrap').checked = fresh.editorWordWrap;
+    container.querySelector('#pref-minimap').checked = fresh.editorMinimap;
+    container.querySelectorAll('[data-font-size] button').forEach((b) => b.classList.toggle('active', Number(b.dataset.size) === fresh.editorFontSize));
   });
 
   container.querySelector('[data-reset-fs]').addEventListener('click', async () => {

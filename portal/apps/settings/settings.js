@@ -95,7 +95,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Code Editor</div>
         <div class="set-card">
           ${toggleRow('pref-wrap', 'Word wrap', 'Wrap long lines instead of scrolling sideways.', prefs.editorWordWrap)}
-          ${toggleRow('pref-minimap', 'Minimap', 'Show a small overview of the file on the right edge.', prefs.editorMinimap)}
+          ${toggleRow('pref-minimap', 'Minimap', 'Show a tiny zoomed-out preview of the whole code file on the right edge of the Code Editor. Click it to jump to a spot in the file.', prefs.editorMinimap)}
         </div>
       </div>
 

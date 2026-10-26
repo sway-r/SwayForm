@@ -1,5 +1,5 @@
 /* ============================================================
-   Curriculum Index — slide-in drawer, mounted once at the Learn
+   Curriculum Index, slide-in drawer, mounted once at the Learn
    app shell level so it persists across Home/Section/Activity.
 ============================================================ */
 .ci-root{position:absolute;inset:0;z-index:100;pointer-events:none}

@@ -1,8 +1,8 @@
-/* Notebook application — a continuous, scrollable robotics textbook/lab
+/* Notebook application: a continuous, scrollable robotics textbook/lab
  * manual, not a slideshow. An activity's steps render as sections of one
  * document; a compact table of contents + scroll-spy replace Back/Next as
  * the primary way to navigate. Reuses the existing block renderer and the
- * existing block DATA (portal/data/learning-path.js) completely unchanged —
+ * existing block DATA (portal/data/learning-path.js) completely unchanged,
  * only how many steps render at once has changed. */
 import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
@@ -25,7 +25,7 @@ export function mount(bodyEl, winApi, opts) {
   let done = !!isDone;
 
   // A continuous document reports reading progress as a percentage, not a
-  // "Step N of M" wizard count — this isn't a step-by-step slideshow.
+  // "Step N of M" wizard count, this isn't a step-by-step slideshow.
   function progressLabel(i) {
     const pct = totalSteps > 1 ? Math.round(((i + 1) / totalSteps) * 100) : 100;
     return `Progress: ${pct}%`;
@@ -84,13 +84,13 @@ export function mount(bodyEl, winApi, opts) {
   const completeBlock = document.createElement('div');
   completeBlock.className = 'nb-complete';
   function renderComplete() {
-    // A placeholder has nothing to complete — no fake "Mark Complete" on
+    // A placeholder has nothing to complete, no fake "Mark Complete" on
     // content that doesn't exist yet.
     if (activity.kind === 'placeholder') {
       completeBlock.innerHTML = `
         <div class="nb-complete-icon">${icon('clock')}</div>
         <h2>Not written yet</h2>
-        <p>This entry is planned but not yet available — check back after this section is authored.</p>
+        <p>This entry is planned but not yet available; check back after this section is authored.</p>
         ${nextActivity ? `<div class="nb-complete-actions"><button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button></div>` : ''}`;
       const nextBtn = completeBlock.querySelector('[data-next-activity]');
       if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next').catch(() => {}));
@@ -106,10 +106,10 @@ export function mount(bodyEl, winApi, opts) {
         <button type="button" class="p-btn primary" data-mark-complete>${icon('checkCircle')}<span>${done ? 'Completed' : 'Mark Activity Complete'}</span></button>
         ${nextActivity
           ? nextActivity.kind === 'placeholder'
-            // The next real slot isn't written yet — say so up front rather
+            // The next real slot isn't written yet, say so up front rather
             // than offering a button visually identical to "go to the next
             // real lab" that only reveals it was unfinished after the click.
-            ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('clock')}<span>Coming Soon — ${nextActivity.title}</span></button>`
+            ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('clock')}<span>Coming Soon: ${nextActivity.title}</span></button>`
             : `<button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
           : ''}
       </div>`;
@@ -146,7 +146,7 @@ export function mount(bodyEl, winApi, opts) {
 
   /* ---------------------------------------------------------------- scroll-spy */
   // Jump to the resumed position BEFORE the observer starts watching, so its
-  // first snapshot reflects where we actually are — not the pre-scroll top
+  // first snapshot reflects where we actually are, not the pre-scroll top
   // (which would otherwise fire a spurious onSectionChange(0) and clobber
   // the resumed step the instant this window reopens).
   if (currentIndex > 0) scrollToStep(currentIndex, { instant: true });

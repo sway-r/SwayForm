@@ -1,6 +1,6 @@
 /* Lesson editor: Notebook / Starter Code / Workspace config / Metadata tabs.
  *
- * The Notebook tab IS the live student lesson (LiveNotebook.jsx — an iframe
+ * The Notebook tab IS the live student lesson (LiveNotebook.jsx, an iframe
  * onto the real portal with an in-page editing overlay), with an instant
  * Edit <-> Preview switch. The other tabs stay form-based, which the brief
  * explicitly allows for metadata/advanced settings.
@@ -16,8 +16,8 @@ export default function LessonEditor({ nav, params }) {
   const model = store.content;
   const activity = model.activities[params.activityId];
   const [tab, setTab] = useState(params.tab || 'notebook');
-  const [mode, setMode] = useState('edit'); // 'edit' | 'preview' — Notebook tab only
-  const [showPreview, setShowPreview] = useState(false); // side pane — other tabs only
+  const [mode, setMode] = useState('edit'); // 'edit' | 'preview', Notebook tab only
+  const [showPreview, setShowPreview] = useState(false); // side pane, other tabs only
 
   if (!activity) {
     return <div className="empty">Lesson “{params.activityId}” not found (it may have been deleted in this draft). <button className="btn" onClick={() => nav.setView({ page: 'curriculum', params: {} })}>Back to curriculum</button></div>;
@@ -143,7 +143,7 @@ function WorkspaceTab({ activity }) {
       <Field label="Workspace file the lesson opens" hint="The file referenced by the Notebook and opened in the Code Editor.">
         <select value={activity.workspaceFile || ''}
           onChange={(e) => sendOp({ type: 'activity.setMeta', activityId: activity.id, fields: { workspaceFile: e.target.value || null } })}>
-          <option value="">(none — reading lesson)</option>
+          <option value="">(none, reading lesson)</option>
           {filePaths.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
       </Field>

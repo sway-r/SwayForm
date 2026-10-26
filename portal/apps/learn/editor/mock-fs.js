@@ -98,7 +98,7 @@ export function buildTree(scopePaths){
   const root = { type: 'folder', name: 'swayform_ws', path: 'swayform_ws', children: [] };
   const folders = { 'swayform_ws': root };
 
-  // scopePaths (when given) restricts the tree to just those files — e.g. an
+  // scopePaths (when given) restricts the tree to just those files, e.g. an
   // activity's own workspaceFile, so a student reading one demo or lab isn't
   // faced with every package/lab in the whole workspace at once. Folders
   // along the way to a scoped file still render (for orientation), just with

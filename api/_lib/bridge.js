@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-/** Constant-time string comparison — hashing first means both inputs
+/** Constant-time string comparison, hashing first means both inputs
  *  compare as fixed-size (32-byte) buffers regardless of their own length,
  *  so this never hits timingSafeEqual's "different length" throw and never
  *  leaks length or prefix-match information through response timing, unlike
@@ -13,8 +13,8 @@ function secureEqual(a, b){
 
 /**
  * Verifies a server-to-server request from the bridge VPS (api/robot/agent.js
- * — auth, heartbeat, and job lifecycle updates). A static shared secret is
- * enough here — this call never reaches a browser, unlike the short-lived
+ *, auth, heartbeat, and job lifecycle updates). A static shared secret is
+ * enough here, this call never reaches a browser, unlike the short-lived
  * per-viewer JWTs used for browser-facing bridge access added in later
  * phases.
  */
@@ -33,7 +33,7 @@ export function requireBridgeSecret(req, res){
 /**
  * The one direction that didn't exist before force-stop: api/ calling OUT
  * to the bridge (every other exchange is bridge-initiated). Same shared
- * secret, opposite direction — the bridge validates it with the same
+ * secret, opposite direction: the bridge validates it with the same
  * x-bridge-secret check it already uses to gate /mediamtx-auth and
  * /_exchange from being reachable as arbitrary HTTP routes.
  */

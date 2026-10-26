@@ -1,11 +1,11 @@
-/* SwayForm Learning Portal Studio — local server.
+/* SwayForm Learning Portal Studio, local server.
  *
  *   http://127.0.0.1:4600  Studio UI + API   (Vite middleware, React app)
  *   http://127.0.0.1:4601  Student preview   (the REAL portal, served from
  *                          the repo exactly like learning.swayform.net, with
  *                          draft-modified data files substituted in-memory)
  *
- * Both servers bind 127.0.0.1 explicitly — never exposed to the network.
+ * Both servers bind 127.0.0.1 explicitly, never exposed to the network.
  * The preview is the actual production portal code; nothing is duplicated,
  * so what you see in preview is what students get after a save.
  */
@@ -41,7 +41,7 @@ function draftChanges() {
     try {
       changeCache = { revision: draft.revision, changes: generateChanges(draft.base, draft.merged()) };
     } catch (err) {
-      // A generator bug must not take the whole preview down — fall back to disk.
+      // A generator bug must not take the whole preview down, fall back to disk.
       console.error('[studio] change generation failed:', err.message);
       changeCache = { revision: draft.revision, changes: [], error: err.message };
     }
@@ -142,7 +142,7 @@ api.post('/assets/upload', wrap(async (req, res) => {
   res.json(uploadAsset(name, dataBase64, { overwrite: !!overwrite }));
 }));
 
-/* Raw-binary upload (videos and large images — avoids base64+JSON bloat). */
+/* Raw-binary upload (videos and large images, avoids base64+JSON bloat). */
 api.post('/assets/upload-bin', express.raw({ type: () => true, limit: '210mb' }), wrap(async (req, res) => {
   const name = String(req.query.name || '');
   res.json(uploadAsset(name, Buffer.from(req.body).toString('base64'), { overwrite: req.query.overwrite === '1' }));
@@ -177,7 +177,7 @@ api.get('/git/status', wrap(async (req, res) => {
  * A tiny injected script seeds a guest session so preview skips login and
  * flags the page as a Studio preview. */
 
-const PREVIEW_INJECT = `<script>/* injected by SwayForm Studio preview — not part of the real portal */
+const PREVIEW_INJECT = `<script>/* injected by SwayForm Studio preview, not part of the real portal */
 try {
   window.__STUDIO_PREVIEW__ = true;
   if (!localStorage.getItem('swayform.portal.session')) {
@@ -199,7 +199,7 @@ function buildPreviewApp() {
     next();
   });
 
-  // Studio's editing overlay — served from studio/, never from the repo's
+  // Studio's editing overlay, served from studio/, never from the repo's
   // deployable tree. Dormant unless the page is embedded in the Studio UI.
   preview.get('/__studio__/edit-overlay.js', (req, res) => {
     res.type('application/javascript')
@@ -216,7 +216,7 @@ function buildPreviewApp() {
       return;
     }
     if (rel === 'portal/data/workspace-config.js' && !fs.existsSync(absPath(rel))) {
-      // Not on disk yet (pre-Phase-7 repo state) — serve the generated default
+      // Not on disk yet (pre-Phase-7 repo state), serve the generated default
       // so preview never 404s if something imports it.
       import('./adapters/workspace-config-writer.mjs').then(({ generateWorkspaceConfig }) => {
         res.type('application/javascript').send(generateWorkspaceConfig(draft.merged().workspaceConfig));

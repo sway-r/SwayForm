@@ -1,9 +1,9 @@
-/* Portal Home (desktop) editor — the icon canvas mirrors the real desktop's
+/* Portal Home (desktop) editor: the icon canvas mirrors the real desktop's
  * flex-flow layout (portal.css .desktop-icons), so ordering is the honest
  * positioning model: drag to reorder, click to edit. The live preview below
  * is the real portal desktop.
  *
- * The desktop lays icons out responsively (flex wrap) by design — Studio
+ * The desktop lays icons out responsively (flex wrap) by design, Studio
  * deliberately does NOT introduce absolute pixel positions (brief §7).
  */
 import React, { useState } from 'react';
@@ -43,7 +43,7 @@ export default function PortalHomeView() {
         <div className="view-head">
           <div>
             <div className="view-title">Portal Home</div>
-            <div className="view-sub">The desktop students see after login — drag icons to reorder, click to edit. Layout stays responsive (no pixel positioning).</div>
+            <div className="view-sub">The desktop students see after login, drag icons to reorder, click to edit. Layout stays responsive (no pixel positioning).</div>
           </div>
           <div style={{ flex: 1 }} />
           <button className={`btn${showPreview ? ' primary' : ''}`} onClick={() => setShowPreview(!showPreview)}>
@@ -112,7 +112,7 @@ export default function PortalHomeView() {
                 onChange={(icon) => sendOp({ type: 'app.icon', appId: selected.id, icon })} />
             </Field>
             <div className="small muted">
-              What this icon opens is the app module itself ({selected.id}) — new desktop apps are code, created in the repo rather than in Studio.
+              What this icon opens is the app module itself ({selected.id}), new desktop apps are code, created in the repo rather than in Studio.
             </div>
           </div>
         )}

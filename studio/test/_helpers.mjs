@@ -1,7 +1,7 @@
 /* Shared test infrastructure.
  *
  * materialize(changes) writes candidate file contents into a temp copy of
- * portal/data so tests can LIVE-IMPORT the generated sources — the same
+ * portal/data so tests can LIVE-IMPORT the generated sources, the same
  * "does it actually load and contain what we said" verification the save
  * pipeline performs, without touching the real repo.
  */

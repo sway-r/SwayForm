@@ -1,4 +1,4 @@
-# Temporary test script for the real Pi — stands in for the real agent
+# Temporary test script for the real Pi, stands in for the real agent
 # (which will eventually live in the sway-r/swayform_ws repo) just enough to
 # prove the bridge <-> API <-> portal wiring works end to end. Delete once
 # the real agent exists.
@@ -22,7 +22,7 @@ async def main():
 
     print(f"connecting to {url} as serial={serial} ...")
     async with websockets.connect(url) as ws:
-        print("connected — sending hello")
+        print("connected, sending hello")
         await ws.send(json.dumps({
             "t": "hello",
             "token": token,

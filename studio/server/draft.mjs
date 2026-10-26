@@ -27,7 +27,7 @@ export class DraftStore {
     // Set for the duration of runSave() (save.mjs). Without this, a save
     // that's mid-flight (awaiting reimport/gitDiffStat) races a concurrent
     // /op call from another tab: the op lands in this.ops, but runSave()'s
-    // own final discard() then wiped it out again — a silent, permanent
+    // own final discard() then wiped it out again, a silent, permanent
     // loss of an edit that had already been accepted with a 200. Guarding
     // every public mutator here means the API layer surfaces a clear,
     // retryable error instead.
@@ -35,7 +35,7 @@ export class DraftStore {
   }
 
   _assertNotSaving() {
-    if (this.saving) throw new Error('A save is in progress — please wait a moment and try again.');
+    if (this.saving) throw new Error('A save is in progress, please wait a moment and try again.');
   }
 
   async init() {
@@ -120,7 +120,7 @@ export class DraftStore {
 
   /** The actual "wipe the log" logic, shared by discard() (guarded, for the
    * UI's own Discard button) and runSave()'s own final step (which legitimately
-   * runs while this.saving is true — it's the operation that set the flag). */
+   * runs while this.saving is true, it's the operation that set the flag). */
   _reset() {
     this.ops = [];
     this.pointer = 0;
@@ -138,7 +138,7 @@ export class DraftStore {
     try {
       replay(this.base, remaining.map((e) => e.op));
     } catch (err) {
-      throw new Error(`Cannot revert this change — a later change depends on it (${err.message}). Undo back to it instead.`);
+      throw new Error(`Cannot revert this change, a later change depends on it (${err.message}). Undo back to it instead.`);
     }
     this.ops = remaining;
     this.pointer = remaining.length;
@@ -192,7 +192,7 @@ export class DraftStore {
         const current = replay(this.base, entries.map((e) => e.op));
         const { summaries } = replay(current.model, [op]);
         entries.push({ op, summary: summaries[0], at });
-      } catch (err) { /* stale op from an old draft — skip */ }
+      } catch (err) { /* stale op from an old draft, skip */ }
     }
     this.ops = entries;
     this.pointer = Math.min(saved.pointer ?? entries.length, entries.length);

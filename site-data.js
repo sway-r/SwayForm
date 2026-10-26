@@ -3,7 +3,7 @@
  * This is the single source of truth for numbers/status that appear in
  * multiple places across the site. Static copy on every page is written
  * to MATCH these values by hand (this is a static HTML site with no build
- * step, so text can't be templated at request time) — when a number below
+ * step, so text can't be templated at request time), when a number below
  * changes, grep the site for the old value and update copy to match.
  *
  * Also runs small on-page sync tasks (copyright year) that are safe to

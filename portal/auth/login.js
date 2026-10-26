@@ -13,7 +13,7 @@ export function mount(container, { onAuthenticated }){
       </div>
       <div class="login-brand-mid">
         <h1>Learn to program a real robot.</h1>
-        <p>Every activity builds an actual SwayForm behavior — the concepts show up exactly when you need them, not before.</p>
+        <p>Every activity builds an actual SwayForm behavior; the concepts show up exactly when you need them, not before.</p>
       </div>
       <div class="login-brand-features">
         <div class="login-feature">${icon('learn')}<span>A learning path built around robot behaviors, not abstract theory</span></div>
@@ -53,14 +53,14 @@ export function mount(container, { onAuthenticated }){
   }
   // The GIS script tag loads with `async defer`, so it may not be ready yet
   // when this screen mounts (e.g. on a cold page load, or a slow school
-  // network) — poll indefinitely rather than giving up on a timeout.
+  // network), poll indefinitely rather than giving up on a timeout.
   //
   // This renders Google's own Sign-In button (google.accounts.id.renderButton)
-  // instead of a custom button that calls prompt() (One Tap) — prompt() is
+  // instead of a custom button that calls prompt() (One Tap); prompt() is
   // meant to appear automatically, not be triggered by a manual click, and
   // is unreliable exactly like this on mobile (Safari blocks the
   // third-party cookies it needs, and Google silently suppresses it after a
-  // few dismissals) — it can silently do nothing, with no error at all.
+  // few dismissals), it can silently do nothing, with no error at all.
   // renderButton is the actual supported click/tap sign-in entry point.
   const googleSlot = container.querySelector('[data-google]');
   const loadingNote = container.querySelector('[data-google-loading]');
@@ -86,7 +86,7 @@ export function mount(container, { onAuthenticated }){
     return true;
   }
   if (!initGoogleButton()){
-    // No giving-up timeout — but do stop once this screen is gone (e.g. the
+    // No giving-up timeout, but do stop once this screen is gone (e.g. the
     // user logged in as guest while GIS was still loading), or this would
     // poll forever in the background for the rest of the page's life.
     const startedAt = Date.now();

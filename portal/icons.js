@@ -1,4 +1,4 @@
-/* Shared line-icon set for the Learning Portal. Minimal, geometric, stroke-based —
+/* Shared line-icon set for the Learning Portal. Minimal, geometric, stroke-based,
    deliberately avoids emoji/cartoonish glyphs to keep the dev-tool aesthetic. */
 const PATHS = {
   learn:        '<polyline points="8 5 3 12 8 19"/><polyline points="16 5 21 12 16 19"/>',

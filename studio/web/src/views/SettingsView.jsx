@@ -1,4 +1,4 @@
-/* Global Settings — content-level settings (terminal defaults, global
+/* Global Settings, content-level settings (terminal defaults, global
  * read-only files). Advanced developer-level constants deliberately stay in
  * code, per the brief's CONTENT vs ADVANCED split.
  */
@@ -47,7 +47,7 @@ export default function SettingsView() {
             <input value={t.namePrefix || 'Shell'} onChange={(e) => patchT({ namePrefix: e.target.value })} />
           </Field>
         </div>
-        {bad && <div className="chip red">Invalid bounds: need 1 ≤ min ≤ default ≤ max ≤ 8 — saving is blocked until fixed.</div>}
+        {bad && <div className="chip red">Invalid bounds: need 1 ≤ min ≤ default ≤ max ≤ 8, saving is blocked until fixed.</div>}
 
         <div className="view-head" style={{ marginTop: 24 }}><div className="view-title" style={{ fontSize: 14 }}><Icon name="lock" size={14} /> Read-only files (all lessons)</div></div>
         <Field label="Students can open but not edit these" hint="Package scaffolding usually belongs here.">
@@ -68,7 +68,7 @@ export default function SettingsView() {
         <div className="view-head" style={{ marginTop: 24 }}><div className="view-title" style={{ fontSize: 14 }}>Advanced developer settings</div></div>
         <div className="small muted" style={{ lineHeight: 1.6 }}>
           Routing, authentication, window-manager internals, the mock shell's command set, and app registration
-          are code, not content — Studio deliberately doesn't expose them. Edit those in the repo directly:
+          are code, not content: Studio deliberately doesn't expose them. Edit those in the repo directly:
           <span className="mono"> portal/portal.js · portal/apps/learn/workspace/mock-shell.js · portal/services/auth-service.js</span>.
         </div>
       </div>

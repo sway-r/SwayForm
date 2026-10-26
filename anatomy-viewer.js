@@ -1,5 +1,5 @@
 /*
- * Shared Interactive Anatomy controller — used by both index.html (homepage)
+ * Shared Interactive Anatomy controller, used by both index.html (homepage)
  * and robot.html. Single source of truth for part data, video/image assets,
  * and the transition state machine, so the two pages cannot drift apart.
  *
@@ -12,13 +12,13 @@
 
   var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  /* ── Part definitions — single source of truth for both pages ── */
+  /* ── Part definitions, single source of truth for both pages ── */
   var PARTS = [
     { id: 'head',
       label: 'Head', xPercent: 50, yPercent: 27, labelSide: 'r',
       videoGroup: 'head', finalImage: 'images/head.png',
       title: 'Head System', category: 'Vision + Head System',
-      description: 'The head unit integrates the Intel RealSense D435i depth camera with a 2-DOF pan/tilt neck (neck_yaw and neck_pitch). Together they enable object tracking, proximity sensing, and feedback-driven behaviors — all from code students write themselves.',
+      description: 'The head unit integrates the Intel RealSense D435i depth camera with a 2-DOF pan/tilt neck (neck_yaw and neck_pitch). Together they enable object tracking, proximity sensing, and feedback-driven behaviors, all from code students write themselves.',
       learns: ['How RGB and depth image streams are published as separate ROS topics', 'Proportional controllers and why dead zones prevent jitter in pan/tilt systems', 'HSV color segmentation vs depth-based proximity detection', 'How camera feedback loops drive physical joint movement in real time'] },
 
     { id: 'shoulder',
@@ -26,38 +26,38 @@
       videoGroup: 'shoulder', finalImage: 'images/shoulder.png',
       title: 'Shoulder Joint', category: 'High-Torque Joint',
       description: 'MG996R servo providing shoulder_pitch (forward/backward arm swing). The highest load-bearing joint in the arm chain. Students quickly discover that commanding the shoulder to an extreme position while the elbow is extended creates significant torque on the servo.',
-      learns: ['Why mechanical load matters — not just angle range', 'How joint limits interact with each other in a chain', 'The importance of motion sequencing order', 'Torque vs. speed tradeoffs in servo selection'] },
+      learns: ['Why mechanical load matters, not just angle range', 'How joint limits interact with each other in a chain', 'The importance of motion sequencing order', 'Torque vs. speed tradeoffs in servo selection'] },
 
     { id: 'arm',
       label: 'Arm', xPercent: 78, yPercent: 50, labelSide: 'l',
       videoGroup: 'arm', finalImage: 'images/Arm.png',
       title: 'Arm System', category: 'Multi-Joint Arm',
-      description: 'The arm chain spans shoulder, elbow, and wrist — three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',
+      description: 'The arm chain spans shoulder, elbow, and wrist, three servos that work together to position the hand. Students discover how joint order matters: moving the shoulder with the elbow extended produces very different torque than moving them in sequence.',
       learns: ['Multi-joint coordination and timing', 'Mechanical advantage and why elbow angle affects shoulder load', 'Keyframe interpolation across a joint chain', 'Safe range design for compound motion'] },
 
     { id: 'fingers',
       label: 'Hand / Fingers', xPercent: 16, yPercent: 16, labelSide: 'r',
       videoGroup: 'hand', finalImage: 'images/hand.png',
       title: 'Five-Finger Hand', category: 'Fine Motor',
-      description: 'Five MG90S servos — one per finger — each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
+      description: 'Five MG90S servos, one per finger, each independently addressed via separate joints. All five can receive commands in a single message or be addressed individually. First example students encounter of commanding many joints at once.',
       learns: ['Individual joint addressing within a single message type', 'Simultaneous multi-joint commands vs sequential', 'Servo driver channel assignment', 'Fine PWM precision requirements at low-torque joints'] },
 
     { id: 'electronics',
       label: 'Electronics', xPercent: 50, yPercent: 59, labelSide: 'r',
       videoGroup: 'electronics', finalImage: 'images/swayform_robot_2.png',
       title: 'Raspberry Pi 5 + Electronics', category: 'Compute + Control',
-      description: 'Raspberry Pi 5 (8 GB) running Linux and a ROS 2-based software stack. Servo drivers on the I²C bus. A 12V bus bar distributes power to a dedicated 5V buck converter for the Pi and two separate 6V buck converters for the servo groups. Everything is accessible, labeled, and replaceable — no black boxes.',
-      learns: ['Onboard Linux compute and why it runs ROS natively', 'I²C bus, device addressing, and how the servo driver is configured', 'Regulated power architecture — separate rails for compute and servos, plus a direct 12V motor line', 'SSH workflow — how students connect and deploy code'] },
+      description: 'Raspberry Pi 5 (8 GB) running Linux and a ROS 2-based software stack. Servo drivers on the I²C bus. A 12V bus bar distributes power to a dedicated 5V buck converter for the Pi and two separate 6V buck converters for the servo groups. Everything is accessible, labeled, and replaceable, no black boxes.',
+      learns: ['Onboard Linux compute and why it runs ROS natively', 'I²C bus, device addressing, and how the servo driver is configured', 'Regulated power architecture: separate rails for compute and servos, plus a direct 12V motor line', 'SSH workflow: how students connect and deploy code'] },
 
     { id: 'base',
       label: 'Base', xPercent: 50, yPercent: 80, labelSide: 'r',
       videoGroup: 'base', finalImage: 'images/Base.png',
       title: 'Rotating Base', category: 'Actuated Base',
-      description: 'DC motor with encoder driving a belt/pulley system for torso yaw rotation, powered directly from the 12V bus rather than through a servo buck converter. Different from the servo-driven arm joints — uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
-      learns: ['DC motor control vs servo control — different command interfaces', 'Encoder feedback and position estimation', 'Belt/pulley mechanical advantage and backlash', 'Why actuator type selection matters at the design stage'] }
+      description: 'DC motor with encoder driving a belt/pulley system for torso yaw rotation, powered directly from the 12V bus rather than through a servo buck converter. Different from the servo-driven arm joints, and uses encoder feedback instead of PWM position control. Students encounter DC motor control as a distinct system from servo control.',
+      learns: ['DC motor control vs servo control: different command interfaces', 'Encoder feedback and position estimation', 'Belt/pulley mechanical advantage and backlash', 'Why actuator type selection matters at the design stage'] }
   ];
 
-  /* ── Video paths — all files live in transition/ (CamelCase) ── */
+  /* ── Video paths: all files live in transition/ (CamelCase) ── */
   var VIDEOS = {
     overview_to_head: 'transition/OverviewToHead.mp4',
     head_to_overview: 'transition/HeadToOverview.mp4',
@@ -69,7 +69,7 @@
     hand_to_overview: 'transition/HandToOverview.mp4',
     overview_to_base: 'transition/OverviewToBase.mp4',
     base_to_overview: 'transition/BaseToOverview.mp4'
-    /* No overview_to_electronics / electronics_to_overview entry — those
+    /* No overview_to_electronics / electronics_to_overview entry, those
      * files don't exist yet. playTransition() already fades to the still
      * image when VIDEOS[key] is missing (see the `if (!path)` guard below),
      * so leaving the key out entirely avoids preloadAssets() eagerly
@@ -218,7 +218,7 @@
       vid.style.display = 'block';
       vid.load();
 
-      timer = setTimeout(function () { fallback('5s timeout — canplay never fired for ' + path); }, 5000);
+      timer = setTimeout(function () { fallback('5s timeout: canplay never fired for ' + path); }, 5000);
     }
 
     function setOverviewUI(isOverview) {
@@ -318,7 +318,7 @@
 
     function init() {
       var layer = $(cfg.hotspotLayerId);
-      if (!layer) { console.warn(log + ' hotspot layer #' + cfg.hotspotLayerId + ' not found — skipping init'); return; }
+      if (!layer) { console.warn(log + ' hotspot layer #' + cfg.hotspotLayerId + ' not found, skipping init'); return; }
       PARTS.forEach(function (p) {
         var dot = document.createElement('div');
         dot.className = cfg.hotspotClass;

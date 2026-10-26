@@ -1,4 +1,4 @@
--- Example seed data — copy this into the Neon/Vercel SQL editor and replace
+-- Example seed data, copy this into the Neon/Vercel SQL editor and replace
 -- the placeholder emails with real ones. Do NOT commit the filled-in copy;
 -- db/seed.local.sql is gitignored for exactly that purpose.
 

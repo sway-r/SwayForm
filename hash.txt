@@ -1,14 +1,14 @@
 THE WAVE_CYCLES / PI-SIDE HASH PROBLEM
 ========================================
 UPDATE (2026-09-15): the website-side model described below has changed
-since this file was first written — see "WHAT CHANGED" first if you read
+since this file was first written, see "WHAT CHANGED" first if you read
 the original version already.
 
 WHAT CHANGED
 ------------
 The website no longer treats WAVE_CYCLES 1-5 as an equally-acceptable
 range. Each lab now ships with exactly ONE starting (default) value and
-exactly ONE correct target value — everything else is treated the same
+exactly ONE correct target value, everything else is treated the same
 as any other unauthorized edit:
 
   - wave.py:      WAVE_CYCLES starts at 1. Only WAVE_CYCLES = 5 is the
@@ -25,7 +25,7 @@ CONTEXT
 -------
 The Wave lesson's Code Editor lets a student change WAVE_CYCLES in wave.py
 and submit it to the real robot via "Queue on Robot". The website
-(api/_lib/canonical-source.js) accepts only the one target value above —
+(api/_lib/canonical-source.js) accepts only the one target value above,
 every other line of the file still has to match the verified version
 exactly.
 
@@ -46,14 +46,14 @@ running it. The actual path is:
      ("dispatch-queue"), which atomically claims the job and hands the
      bridge { code, sha256 } for that job.
   4. The bridge relays that straight to the Pi over the WebSocket as a
-     job.run message. bridge/server.js does not check the hash itself —
+     job.run message. bridge/server.js does not check the hash itself,
      it is a pure relay (see the `sha256: job.sha256` line it sends).
   5. The physical Pi-side agent receives job.run and is the thing that
      actually moves the robot.
 
 Step 5's code is NOT in this repository (it lives in sway-r/swayform_ws).
 Originally, everything observed pointed to the Pi agent doing its own
-hash check independent of the website — comparing the incoming `sha256`
+hash check independent of the website, comparing the incoming `sha256`
 against one hardcoded known-good hash for wave.py (the original
 WAVE_CYCLES = 3 version) and silently refusing to execute anything whose
 hash didn't match, with no error surfacing back through the website.
@@ -67,8 +67,8 @@ By the time a job reaches the Pi, it has already passed both gates.
 
 So, concretely:
 
-  - The `sha256` field in job.run is a TRANSPORT-INTEGRITY check only —
-    "did these bytes arrive intact from website -> bridge -> Pi" — not an
+  - The `sha256` field in job.run is a TRANSPORT-INTEGRITY check only,
+    "did these bytes arrive intact from website -> bridge -> Pi", not an
     authorization check. The Pi should compute sha256(received code) and
     compare it to the `sha256` it was sent IN THAT SAME MESSAGE, not
     against some separately hardcoded "known good" value. If they don't
@@ -88,7 +88,7 @@ So, concretely:
 
 If you need the fastest possible unblock right now before doing the full
 fix above, these are today's exact target/default sha256 hashes (full
-file, UTF-8, as currently shipped in portal/data/workspace-files.js —
+file, UTF-8, as currently shipped in portal/data/workspace-files.js,
 computed the same way api/robot/queue.js hashes submitted code):
 
   wave.py,      WAVE_CYCLES = 1 (default):      fe028f7d9ebb6018935563e8db035a606602b85da2dda41c12e4b0719629ea5a
@@ -98,7 +98,7 @@ computed the same way api/robot/queue.js hashes submitted code):
 
 These are a stop-gap, not the recommendation. Only the two "target" hashes
 above should ever actually need to run on the real robot (Queue on Robot
-only ever submits a job once it exactly matches the target) — but they
+only ever submits a job once it exactly matches the target), but they
 will go stale again the instant anyone edits either file's source, which
 is exactly why the fix above (stop hash-pinning content, check joint
 limits instead) is the one actually worth doing.
@@ -111,5 +111,5 @@ run on the physical robot until the Pi agent stops re-deciding content
 approval on its own and instead trusts the website+admin gate, using its
 own local check only for joint-limit safety. Until that happens, a
 student who does everything right may see "Queued" and "Approved" and
-then nothing happen physically — worth deciding whether to warn students
+then nothing happen physically, worth deciding whether to warn students
 about that in the meantime.

@@ -27,7 +27,7 @@ test('every canonical robot path actually has source behind it', () => {
   }
 });
 
-test('no behavior defaults to mock hardware — a dispatched job must drive real servos', () => {
+test('no behavior defaults to mock hardware: a dispatched job must drive real servos', () => {
   for (const { path, source } of BEHAVIORS){
     for (const line of source.split('\n')){
       const m = line.match(/declare_parameter\("use_mock_hardware",\s*(\w+)\)/);

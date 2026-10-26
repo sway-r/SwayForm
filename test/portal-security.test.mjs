@@ -62,7 +62,7 @@ before(async () => {
   teacherCookie = (await createSessionCookie({ email: 'teacher-a@example.test', mode: 'admin', robotId: 1 })).split(';')[0];
   studentCookie = (await createSessionCookie({ email: 'student@example.test', mode: 'member' })).split(';')[0];
   otherCookie = (await createSessionCookie({ email: 'other@example.test', mode: 'student', robotId: 2 })).split(';')[0];
-  // Robot 3 is fully separate from 1/2 — used only by the queue-view tests
+  // Robot 3 is fully separate from 1/2, used only by the queue-view tests
   // near the end of this file, which insert 50+ job rows and must not
   // disturb robot 1/2's job history that earlier tests already depend on.
   teacherCCookie = (await createSessionCookie({ email: 'teacher-c@example.test', mode: 'admin', robotId: 3 })).split(';')[0];
@@ -147,7 +147,7 @@ test('concurrent set_admin_email requests for the same empty slot cannot create 
   const cookie = (await createSessionCookie({ email: 'teacher-b@example.test', mode: 'admin', robotId: 2 })).split(';')[0];
   // Same reproduction shape as a real race: two requests for the SAME
   // still-empty slot fired together, both allowed to interleave their own
-  // internal awaits (read, then decide, then write) via Promise.all —
+  // internal awaits (read, then decide, then write) via Promise.all,
   // exactly the window the old read-then-insert code left open.
   const [r1, r2] = await Promise.all([
     call(admin, cookie, { action: 'set_admin_email', slot: 2, email: 'concurrent-a@example.test' }),
@@ -159,7 +159,7 @@ test('concurrent set_admin_email requests for the same empty slot cannot create 
     "SELECT ae.email FROM admin_emails ae JOIN admin_accounts aa ON aa.id = ae.admin_account_id WHERE aa.robot_id = 2 AND ae.slot = 2"
   );
   // Exactly one row for (this account, slot 2) ever exists, regardless of
-  // which request's write landed last — the unique index on
+  // which request's write landed last, the unique index on
   // (admin_account_id, slot) plus ON CONFLICT DO UPDATE guarantees it.
   assert.equal(rows.rows.length, 1);
   assert.ok(['concurrent-a@example.test', 'concurrent-b@example.test'].includes(rows.rows[0].email));
@@ -194,7 +194,7 @@ test('even an admin cannot release the physical execution lock with a database-o
   assert.equal((await call(queue,cookie,{action:'cancel',jobId:job.id})).code,400);
   assert.equal((await db.query('SELECT status FROM robot_jobs WHERE id=$1',[job.id])).rows[0].status,'running');
 });
-test('a student cannot reconcile a stuck running job, but an admin can — and it releases the execution lock', async () => {
+test('a student cannot reconcile a stuck running job, but an admin can, and it releases the execution lock', async () => {
   const adminCookie = (await createSessionCookie({email:'teacher-b@example.test',mode:'admin',robotId:2})).split(';')[0];
   const {rows:[job]} = await db.query("SELECT id FROM robot_jobs WHERE robot_id=2 AND status='running'");
   assert.equal((await call(queue,otherCookie,{action:'reconcile',jobId:job.id})).code,403);
@@ -248,7 +248,7 @@ test('reordering pending jobs changes the order the queue view returns them in',
     );
     ids.push(job.id);
   }
-  const [aId, bId, cId] = ids; // submitted in order a, b, c — starts displayed as a, b, c
+  const [aId, bId, cId] = ids; // submitted in order a, b, c, starts displayed as a, b, c
   const reordered = await call(queue, teacherCCookie, { action: 'reorder', orderedIds: [cId, aId, bId] });
   assert.equal(reordered.code, 200);
   const state = await call(queue, teacherCCookie, undefined, 'GET');
@@ -300,7 +300,7 @@ test('reactivating an archived student is not blocked by the 40-total roster cap
     await db.query(`INSERT INTO students (robot_id,email,status) VALUES (4,$1,'archived')`, [`archived${i}@example.test`]);
   }
   const teacherDCookie = (await createSessionCookie({ email: 'teacher-d@example.test', mode: 'admin', robotId: 4 })).split(';')[0];
-  // Roster is already at the 40-total cap (all archived, zero active) —
+  // Roster is already at the 40-total cap (all archived, zero active),
   // re-inviting one of those SAME students must still succeed, since
   // accepting just reactivates their existing row rather than adding a new
   // one.

@@ -19,7 +19,7 @@ export default async function handler(req, res){
   let schoolName = String((req.body || {}).schoolName || '').trim().slice(0, MAX_LENGTH);
 
   // If this email is already linked to a robot, that robot's school is
-  // authoritative — re-derived fresh from the database here rather than
+  // authoritative, re-derived fresh from the database here rather than
   // trusting the client, same as the onboarding UI locking the field is
   // a UX nicety, not the actual enforcement.
   {

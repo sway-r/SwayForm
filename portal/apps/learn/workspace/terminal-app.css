@@ -1,11 +1,11 @@
 /* ============================================================
-   Terminal app — real shell look: scrollback + prompt input.
-   Multiple independent tabs (own scrollback/history/cwd per tab) —
+   Terminal app, real shell look: scrollback + prompt input.
+   Multiple independent tabs (own scrollback/history/cwd per tab),
    compact professional pills, not browser-style tabs.
 ============================================================ */
 .term-app{height:100%;display:flex;flex-direction:column;background:#0b0d12;font-family:var(--mono);font-size:calc(12.5px * var(--p-text-zoom, 1))}
 
-/* Namespaced .term-shell-tab*, NOT .term-tab — the Code Editor's Output
+/* Namespaced .term-shell-tab*, NOT .term-tab: the Code Editor's Output
  * Panel (portal/apps/learn/editor/terminal-panel.js) already uses the bare
  * .term-tab / .term-tab.active class names for its Output/Problems toggle
  * (styled in learn.css). Both stylesheets load on every activity page, so

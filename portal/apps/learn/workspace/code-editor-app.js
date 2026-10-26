@@ -1,7 +1,7 @@
-/* Code Editor application — file explorer + tabs + Monaco + toolbar, wrapping
+/* Code Editor application, file explorer + tabs + Monaco + toolbar, wrapping
  * the existing editor components exactly as the old fixed-pane layout did.
  * Run/Check/Queue all report through the bottom Output/Problems strip
- * (portal/apps/learn/editor/terminal-panel.js, OutputPanel) — a student never
+ * (portal/apps/learn/editor/terminal-panel.js, OutputPanel): a student never
  * has to open the standalone Terminal app to do a lab. */
 import { CodeEditor } from '../editor/code-editor.js';
 import { FileExplorer } from '../editor/file-explorer.js';
@@ -21,7 +21,7 @@ export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
 const EXPLORER_VISIBLE_KEY = 'swayform.portal.codeEditor.explorerVisible';
 
-/** One-line summary of why a validate check failed — used by Queue on
+/** One-line summary of why a validate check failed, used by Queue on
  * Robot's own defense-in-depth re-check. Run itself shows the detailed,
  * line-by-line breakdown in Problems (see formatDiff below); this is just
  * enough context for the rarer case where Queue on Robot's own re-validate
@@ -33,38 +33,38 @@ function describeMismatch(data){
   if (data.status === 'not_started'){
     if (data.blanks) return describeBlanks(data);
     return data.tunable
-      ? `still at the default — change \`${data.tunable.name}\` to ${data.tunable.to}.`
+      ? `still at the default; change \`${data.tunable.name}\` to ${data.tunable.to}.`
       : "this lab hasn't been changed yet.";
   }
   if (data.status === 'wrong_order') return describeBlanks(data);
-  return "this doesn't match the target solution — click Run to see exactly what changed.";
+  return "this doesn't match the target solution; click Run to see exactly what changed.";
 }
 
 /** A sequencing lab's feedback: how far along, never which function goes where. */
 function describeBlanks(data){
-  if (data.blanks) return `the ${data.blanks} steps are still empty — put one function name inside each pair of parentheses.`;
-  if (data.filled < data.total) return `${data.filled} of ${data.total} steps are filled in — every step needs a function.`;
-  return `the steps aren't in the right order yet — ${data.correct} of ${data.total} are in the right place.`;
+  if (data.blanks) return `the ${data.blanks} steps are still empty, put one function name inside each pair of parentheses.`;
+  if (data.filled < data.total) return `${data.filled} of ${data.total} steps are filled in, every step needs a function.`;
+  return `the steps aren't in the right order yet, ${data.correct} of ${data.total} are in the right place.`;
 }
 
 /** Formats one canonical-source diff entry (api/_lib/canonical-source.js's
  * allLineDifferences) as a single Problems-tab line. */
 function formatDiff(d){
   if (d.kind === 'changed') return `Line ${d.line}: expected \`${d.expected}\`, found \`${d.yours}\``;
-  if (d.kind === 'missing') return `Line ${d.line}: missing — expected \`${d.expected}\``;
-  return `Line ${d.line}: extra line not in the solution — \`${d.yours}\``;
+  if (d.kind === 'missing') return `Line ${d.line}: missing, expected \`${d.expected}\``;
+  return `Line ${d.line}: extra line not in the solution, \`${d.yours}\``;
 }
 
 export function mount(bodyEl, winApi, opts) {
   const { activity } = opts;
   let editor = null, editorReady = false, pendingOpenPath = null, pendingOpenLine = null;
   let saveTimer = null;
-  const pendingSaves = new Map(); // path -> value awaiting the debounced write — flushed on dispose and page hide
+  const pendingSaves = new Map(); // path -> value awaiting the debounced write, flushed on dispose and page hide
   let disposed = false;
   let hasRobot = false;
   let jobWatch = null; // the one job currently being followed (services/job-watch.js)
   // Path whose current (on-disk/mock-fs) content Run has most recently
-  // confirmed valid against the canonical source — cleared on any edit to
+  // confirmed valid against the canonical source, cleared on any edit to
   // that file, so Queue on Robot always reflects the content actually in
   // the editor, never a stale pass from before a change.
   let robotValidatedPath = null;
@@ -95,11 +95,11 @@ export function mount(bodyEl, winApi, opts) {
     } catch (e) { /* offline: Queue on Robot still works */ }
   }
 
-  // Scope the explorer to this activity's own file — a student working
+  // Scope the explorer to this activity's own file, a student working
   // through the Wave demo (or any one lab) doesn't need every other demo/lab
   // in the workspace competing for attention in the tree. But swayform_robot's
   // real behavior files (wave.py, handshake.py, ...) actually `import` from
-  // its config/ and hardware/ folders — scoping those out hid files the open
+  // its config/ and hardware/ folders, scoping those out hid files the open
   // code depends on. swayform_labs/swayform_demos files use the separate,
   // simplified swayform.motion.MotionClient API and never touch config/
   // hardware, so they don't get the same expansion.
@@ -187,7 +187,7 @@ export function mount(bodyEl, winApi, opts) {
   });
   editorSurfaceEl.innerHTML = '';
   editor.mount().then(() => {
-    // Monaco loads from a CDN and can take a moment — if this window/tab
+    // Monaco loads from a CDN and can take a moment, if this window/tab
     // was already closed (dispose() ran) before it finished, don't open a
     // file into an editor that's about to be (or already was) torn down.
     if (disposed) return;
@@ -205,7 +205,7 @@ export function mount(bodyEl, winApi, opts) {
   toolbar.setFileStatus('No file open');
 
   /** The debounced autosave only writes editor.getValue() into fs 500ms
-   *  after typing pauses — reading fs.readFile() here instead meant Run,
+   *  after typing pauses, reading fs.readFile() here instead meant Run,
    *  Check, and Queue on Robot could validate whatever was on screen up to
    *  half a second ago, not what's actually there right now. */
   function currentContent(path){
@@ -236,13 +236,13 @@ export function mount(bodyEl, winApi, opts) {
 
   /** Streams the same mocked run sequence a `ros2 run`/`python3` in the
    *  standalone Terminal would produce, straight into this window's own
-   *  Output tab — Run no longer opens/focuses the Terminal app. Any warning
+   *  Output tab: Run no longer opens/focuses the Terminal app. Any warning
    *  line (e.g. unfinished # TODOs) also lands in Problems, so that tab's
    *  count badge reflects Run the same way it already does for Check.
    *
    *  For canonical robot files, Run additionally asks the server (the same
    *  validate check Queue on Robot itself re-runs before submit) whether the
-   *  current content is a working version — only a confirmed pass unlocks
+   *  current content is a working version, only a confirmed pass unlocks
    *  Queue on Robot, and only for that exact content (see the onChange
    *  handler above, which clears this the moment the file is edited again). */
   async function runActiveFile(){
@@ -279,14 +279,14 @@ export function mount(bodyEl, winApi, opts) {
         if (tabs.activePath === path) toolbar.setQueueRobotReady(false);
 
         if (res.status === 429){
-          output.appendLine(data.message || 'Too many run checks in a row — wait a moment and try again.', 'term-warn', 'output');
+          output.appendLine(data.message || 'Too many run checks in a row, wait a moment and try again.', 'term-warn', 'output');
         } else if (data.status === 'complete'){
           robotValidatedPath = path;
           if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
-          output.appendLine('Objective complete — this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
+          output.appendLine('Objective complete: this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
         } else if (data.status === 'wrong_order' || (data.status === 'not_started' && data.blanks)){
           const hint = describeBlanks(data);
-          output.appendLine(`Not yet — ${hint}`, 'term-err', 'output');
+          output.appendLine(`Not yet, ${hint}`, 'term-err', 'output');
           output.appendLine(hint[0].toUpperCase() + hint.slice(1), 'term-err', 'problems');
           output.setActive('problems');
         } else if (data.status === 'not_started'){
@@ -297,7 +297,7 @@ export function mount(bodyEl, winApi, opts) {
           output.appendLine(hint, 'term-err', 'problems');
           output.setActive('problems');
         } else if (data.status === 'tampered'){
-          output.appendLine("This code doesn't match the target solution — see Problems for exactly what changed.", 'term-err', 'output');
+          output.appendLine("This code doesn't match the target solution; see Problems for exactly what changed.", 'term-err', 'output');
           (data.diffs || []).forEach((d) => output.appendLine(formatDiff(d), 'term-err', 'problems'));
           output.setActive('problems');
         } else {
@@ -326,14 +326,14 @@ export function mount(bodyEl, winApi, opts) {
       todoMatches.forEach((m) => output.appendLine(m.trim(), 'term-warn', 'problems'));
       output.setActive('problems');
     } else {
-      output.appendLine(`Check passed — no TODO markers remain in ${path.split('/').pop()}. Nice work.`, 'term-ok', 'output');
+      output.appendLine(`Check passed: no TODO markers remain in ${path.split('/').pop()}. Nice work.`, 'term-ok', 'output');
       output.setActive('output');
     }
   }
 
   /** One button, one click: validates against the real verified source and,
    * only if it matches exactly, immediately submits it to the queue. No
-   * separate "test it, then a second button unlocks" step — the server
+   * separate "test it, then a second button unlocks" step, the server
    * still re-validates on submit regardless, so this is purely a UX
    * simplification, not a safety change. */
   async function queueOnRobot(){
@@ -360,7 +360,7 @@ export function mount(bodyEl, winApi, opts) {
       output.clear('output');
 
       if (!validateRes.ok || !validateData.valid){
-        output.appendLine(`Couldn't queue — ${describeMismatch(validateData)}`, 'term-err', 'output');
+        output.appendLine(`Couldn't queue, ${describeMismatch(validateData)}`, 'term-err', 'output');
         output.setActive('output');
         toolbar.setQueueRobotBusy(false);
         return;
@@ -374,7 +374,7 @@ export function mount(bodyEl, winApi, opts) {
       const submitData = await submitRes.json();
 
       if (submitRes.ok && submitData.ok){
-        output.appendLine(`Queued — position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
+        output.appendLine(`Queued, position ${submitData.queuePosition} in line. An admin will review and approve it before it runs on the real robot.`, 'term-ok', 'output');
         watchQueuedJob(submitData.jobId, path);
         refreshQueueNow(); // an admin queueing from their own browser sees it in the Admin app at once
       } else if (submitData.error === 'cooldown'){
@@ -392,7 +392,7 @@ export function mount(bodyEl, winApi, opts) {
   }
 
   const JOB_STATUS_LINE = {
-    approved: ['An admin approved it — waiting for the robot to pick it up.', 'term-ok'],
+    approved: ['An admin approved it, waiting for the robot to pick it up.', 'term-ok'],
     running: ['Running on the real robot now…', 'term-ok'],
     succeeded: ['Succeeded.', 'term-ok'],
     failed: ['Failed.', 'term-err'],
@@ -420,10 +420,10 @@ export function mount(bodyEl, winApi, opts) {
         output.appendLine((truncated ? '[earlier output truncated]\n' : '') + text, '', 'output');
       },
       onError(error, failures){
-        if (failures === 1) output.appendLine("Lost contact with the server while following this job — still retrying. Your job is not affected.", 'term-warn', 'output');
+        if (failures === 1) output.appendLine("Lost contact with the server while following this job, still retrying. Your job is not affected.", 'term-warn', 'output');
       },
       onRecovered(){
-        output.appendLine('Reconnected — following your job again.', 'term-ok', 'output');
+        output.appendLine('Reconnected, following your job again.', 'term-ok', 'output');
       },
       onGone(reason){
         output.appendLine(reason === 'not_authorized'
@@ -434,7 +434,7 @@ export function mount(bodyEl, winApi, opts) {
   }
 
   // Shared by both the debounced autosave and the explicit Save button, so
-  // "Save" isn't a no-op that merely repeats work autosave already did —
+  // "Save" isn't a no-op that merely repeats work autosave already did,
   // it flushes any pending debounce and gives the same honest Saved status.
   function persist(path, value){
     const stored = fs.writeFile(path, value);
@@ -447,7 +447,7 @@ export function mount(bodyEl, winApi, opts) {
     }
   }
 
-  /** Immediately writes whatever autosave still has pending, if any — used
+  /** Immediately writes whatever autosave still has pending, if any, used
    *  by the explicit Save button, a Reset that must not resurrect a stale
    *  pending write afterward, and dispose() (closing the window/tab used to
    *  just clearTimeout the pending write and drop it, losing up to 500ms of
@@ -487,7 +487,7 @@ export function mount(bodyEl, winApi, opts) {
 
   // Settings' "Reset workspace" clears mock-fs's overrides directly (it
   // isn't scoped to one activity's editor instance) and broadcasts this so
-  // any currently-open Code Editor refreshes too — without it, every open
+  // any currently-open Code Editor refreshes too, without it, every open
   // Monaco model kept showing the old draft text until the tab was closed
   // and reopened, so the reset silently didn't apply to what was on screen.
   function onWorkspaceFsReset(){

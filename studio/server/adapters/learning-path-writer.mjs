@@ -5,7 +5,7 @@
  * activity, only changed properties are rewritten; steps are matched by id
  * (moves keep their AST nodes and comments), and blocks are matched by
  * deep-equality so a pure reorder moves nodes instead of rebuilding them.
- * An edited block is rebuilt as one fresh literal — the git diff shows it
+ * An edited block is rebuilt as one fresh literal, the git diff shows it
  * as a single-block replacement.
  */
 import { parse, print, b, findExportConst, objProp, objPropValue, setObjProp, staticString, valueToNode, deepEqual, nodeToValue } from '../ast-utils.mjs';
@@ -68,7 +68,7 @@ function patchActivityNode(node, baseA, finalA) {
   }
 }
 
-/** Blocks have no ids — match final blocks to existing AST elements by deep
+/** Blocks have no ids, match final blocks to existing AST elements by deep
  * value equality (each existing node used at most once), so reorders MOVE
  * nodes and only genuinely-changed blocks are rebuilt. */
 function patchBlocksArray(stepEl, baseBlocks, finalBlocks) {
@@ -144,7 +144,7 @@ export function writeLearningPath(source, baseModel, finalModel) {
       if (!deepEqual(baseA, finalA)) patchActivityNode(entry.node, baseA, finalA);
       continue;
     }
-    // New activity — find (or create) its target activities array.
+    // New activity, find (or create) its target activities array.
     const arr = resolveTargetArray(finalLocs[id], id, finalModel, sectionArrs, levelsArr, actIndex);
     arr.elements.push(activityNodeFromValue(finalA));
   }
@@ -169,10 +169,10 @@ function resolveTargetArray(loc, activityId, finalModel, sectionArrs, levelsArr,
       const other = actIndex.get(otherId);
       if (other) return other.arr;
     }
-    // No located neighbor — create a level+section for this curriculum section.
+    // No located neighbor, create a level+section for this curriculum section.
     return createLevelSection(levelsArr, sectionArrs, section);
   }
-  // Not listed anywhere (shouldn't happen for adds) — last existing array.
+  // Not listed anywhere (shouldn't happen for adds), last existing array.
   const arrs = [...sectionArrs.values()];
   if (!arrs.length) throw new Error('learning-path.js has no activities arrays to insert into');
   return arrs[arrs.length - 1];

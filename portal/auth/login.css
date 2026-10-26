@@ -1,5 +1,5 @@
 /* ============================================================
-   Login / Guest gate — split screen, dark, spacious. Distinct
+   Login / Guest gate: split screen, dark, spacious. Distinct
    composition from the desktop (split vs. full-bleed wallpaper)
    but the same brand imagery and tokens, for continuity.
 ============================================================ */
@@ -15,7 +15,7 @@
    * panel can't break the same way again, regardless of the active theme. */
   --hero-ink:#ffffff;      /* heading */
   --hero-text:#dce6f5;     /* paragraph, bullet copy */
-  --hero-muted:#9fb0d1;    /* separators, sublabel — still >7:1 contrast on the scrim */
+  --hero-muted:#9fb0d1;    /* separators, sublabel, still >7:1 contrast on the scrim */
   --hero-accent:#3d8bff;   /* brand mark + bullet icons */
 
   flex:1.15;position:relative;overflow:hidden;display:flex;flex-direction:column;
@@ -75,7 +75,7 @@
 .login-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* Google's own rendered Sign-In button lives in [data-google] (an iframe
-   Google controls — can't be restyled by us beyond renderButton's options).
+   Google controls, can't be restyled by us beyond renderButton's options).
    This is just the loading placeholder shown until GIS finishes loading. */
 .login-google-slot{
   width:100%;padding:12px 16px;border-radius:8px;font-size:13px;text-align:center;

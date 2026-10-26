@@ -1,4 +1,4 @@
-/* Asset manager — /images inventory with usage references, upload/replace,
+/* Asset manager, /images inventory with usage references, upload/replace,
  * and reference-guarded delete (the server refuses to delete anything still
  * referenced by a lesson or a site file).
  */
@@ -38,7 +38,7 @@ export default function AssetsView() {
         <div className="view-head">
           <div>
             <div className="view-title">Assets</div>
-            <div className="view-sub">/images — used by lessons and site pages. Deleting is blocked while an asset is referenced anywhere.</div>
+            <div className="view-sub">/images, used by lessons and site pages. Deleting is blocked while an asset is referenced anywhere.</div>
           </div>
           <div style={{ flex: 1 }} />
           <button className="btn primary" onClick={() => fileRef.current.click()}><Icon name="plus" size={12} /> Upload image</button>
@@ -66,7 +66,7 @@ export default function AssetsView() {
                     <button className="btn danger" disabled={a.usedBy.length > 0}
                       title={a.usedBy.length ? `Still referenced:\n${a.usedBy.map((u) => u.title || u.file).join('\n')}` : 'Delete'}
                       onClick={async () => {
-                        if (!window.confirm(`Delete ${a.name}? (Deletes the file directly — commit through normal git flow.)`)) return;
+                        if (!window.confirm(`Delete ${a.name}? (Deletes the file directly, commit through normal git flow.)`)) return;
                         try { await api.post('/assets/delete', { name: a.name }); toast(`Deleted ${a.name}`, 'success'); load(); }
                         catch (err) { toast(err.message, 'error', 6000); }
                       }}><Icon name="trash" size={11} /></button>

@@ -1,4 +1,4 @@
-/* Changes & History — the unsaved-changes list (human summaries with
+/* Changes & History: the unsaved-changes list (human summaries with
  * old → new), the Advanced git-style diff, validation status, the Save
  * Changes pipeline modal, and recent Studio commits.
  */
@@ -7,7 +7,7 @@ import { api, store, toast, refreshState } from '../api.js';
 import { Icon, Modal } from '../common.jsx';
 
 function fmtVal(v) {
-  if (v === undefined) return '—';
+  if (v === undefined) return '-';
   if (typeof v === 'string') return v.length > 120 ? v.slice(0, 120) + '…' : v;
   const s = JSON.stringify(v);
   return s.length > 120 ? s.slice(0, 120) + '…' : s;
@@ -129,7 +129,7 @@ export default function ChangesView({ params }) {
         {tab === 'history' && (
           !commits ? <div className="empty">Loading history…</div> :
           <>
-            <div className="view-sub" style={{ marginBottom: 8 }}>Recent commits touching Studio-managed files. Studio never rewrites history — use git directly for rollbacks.</div>
+            <div className="view-sub" style={{ marginBottom: 8 }}>Recent commits touching Studio-managed files. Studio never rewrites history, use git directly for rollbacks.</div>
             {commits.map((c) => (
               <div className="change-op" key={c.hash} style={{ cursor: 'pointer' }}
                 onClick={() => api.get('/git/show?hash=' + c.hash).then((r) => setCommitPatch({ commit: c, patch: r.patch }))}>
@@ -146,7 +146,7 @@ export default function ChangesView({ params }) {
 
       {saving && <SaveModal onClose={() => setSaving(false)} />}
       {commitPatch && (
-        <Modal wide title={`${commitPatch.commit.short} — ${commitPatch.commit.subject}`} onClose={() => setCommitPatch(null)}>
+        <Modal wide title={`${commitPatch.commit.short} - ${commitPatch.commit.subject}`} onClose={() => setCommitPatch(null)}>
           <div className="diff-body" style={{ maxHeight: '60vh' }}>
             <pre>{commitPatch.patch.split('\n').map((line, i) => (
               <div key={i} className={`diff-line ${line.startsWith('+') && !line.startsWith('+++') ? 'add' : line.startsWith('-') && !line.startsWith('---') ? 'del' : line.startsWith('@@') ? 'hunk' : 'ctx'}`}>{line || ' '}</div>
@@ -184,7 +184,7 @@ function SaveModal({ onClose }) {
       setResult(r);
       setPhase('done');
       await refreshState();
-      if (r.ok) toast('Written — ask Claude Code to review and commit', 'success', 6000);
+      if (r.ok) toast('Written, ask Claude Code to review and commit', 'success', 6000);
     } catch (err) {
       setResult({ ok: false, steps: [], message: err.message });
       setPhase('done');
@@ -216,7 +216,7 @@ function SaveModal({ onClose }) {
           <div className="small muted" style={{ marginTop: 8 }}>
             Pipeline: syntax check → curriculum validation → automated review → write → reload-and-verify.
             If anything fails, every file is rolled back and nothing is written.
-            Studio never commits — once written, tell Claude Code to review the change
+            Studio never commits, once written, tell Claude Code to review the change
             and commit it (it'll ask which branch).
           </div>
         </>
@@ -243,7 +243,7 @@ function SaveModal({ onClose }) {
           {result.message && <div className="small muted" style={{ marginTop: 8 }}>{result.message}</div>}
           {result.ok && (
             <div style={{ marginTop: 10, padding: 10, borderRadius: 7, background: 'rgba(52,192,124,0.08)', border: '1px solid var(--green)' }}>
-              <b>Written to disk — uncommitted</b>
+              <b>Written to disk, uncommitted</b>
               <div className="small muted" style={{ marginTop: 3 }}>
                 Ask Claude Code to review these changes; it'll check the real git diff, confirm it's
                 healthy, then ask which branch to commit to.

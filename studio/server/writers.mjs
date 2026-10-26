@@ -39,7 +39,7 @@ export function generateChanges(baseModel, finalModel) {
     push(path, before, writeWorkspaceFiles(before, baseModel, finalModel));
   }
 
-  /* workspace-config.js — regenerate whenever the config differs from base,
+  /* workspace-config.js, regenerate whenever the config differs from base,
    * or the file doesn't exist yet but config differs from defaults. */
   {
     const path = 'portal/data/workspace-config.js';
@@ -74,7 +74,7 @@ export function generateChanges(baseModel, finalModel) {
     if (after !== null) push(path, before, after);
   }
 
-  /* Every candidate must parse — catch generator bugs before anything is
+  /* Every candidate must parse, catch generator bugs before anything is
    * written or previewed. */
   for (const c of changes) syntaxCheck(c.after, c.path);
 

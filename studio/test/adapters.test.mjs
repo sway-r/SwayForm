@@ -1,5 +1,5 @@
 /* Adapter-layer tests: round-trip fidelity of the AST writers against the
- * REAL portal source files (read-only — candidates go to a temp dir).
+ * REAL portal source files (read-only, candidates go to a temp dir).
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';

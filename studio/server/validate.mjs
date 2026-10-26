@@ -1,4 +1,4 @@
-/* Structural validation of a normalized content model — the SwayForm
+/* Structural validation of a normalized content model, the SwayForm
  * curriculum-specific checks the Save pipeline runs (and the UI can run
  * live). Returns { errors: [...], warnings: [...] }; errors block a save.
  */
@@ -76,7 +76,7 @@ export function validateModel(model) {
     });
   }
 
-  /* ---- unlisted activities (hidden but preserved) — informational ---- */
+  /* ---- unlisted activities (hidden but preserved), informational ---- */
   const listedIds = new Set(itemIds);
   for (const id of Object.keys(model.activities)) {
     if (!listedIds.has(id)) warn(`activity "${id}"`, 'exists in learning-path content but is not listed in any curriculum section (hidden)');
@@ -144,7 +144,7 @@ function validateBlock(blk, where, model, err, warn) {
     err(where, `invalid callout tone "${blk.tone}"`);
   }
   if (blk.type === 'heading' && blk.level !== undefined && ![2, 3].includes(blk.level)) {
-    warn(where, `heading level ${blk.level} — renderer only distinguishes 2 and 3`);
+    warn(where, `heading level ${blk.level}, renderer only distinguishes 2 and 3`);
   }
   if (blk.type === 'code') {
     if (typeof blk.code !== 'string') err(where, 'code block has no code string');

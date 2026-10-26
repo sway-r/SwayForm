@@ -4,7 +4,7 @@
  * to a CLONE of the base model (never the base itself); the draft is an op
  * log replayed over base, which gives undo/redo, human-readable change
  * summaries, and crash-safe persistence for free. The AST writers never see
- * ops — they reconcile base-state vs final-state — so there is exactly one
+ * ops, they reconcile base-state vs final-state, so there is exactly one
  * implementation of each op's semantics (this file).
  */
 import { assertSlug, assertWorkspacePath } from './repo.mjs';
@@ -177,7 +177,7 @@ const OPS = {
       const s = findSection(model, op.sectionId);
       const realItems = s.items.filter((i) => i.form !== 'placeholder');
       if (realItems.length) {
-        throw new Error(`Section "${s.title}" still lists ${realItems.length} real item(s) — move or hide them first`);
+        throw new Error(`Section "${s.title}" still lists ${realItems.length} real item(s), move or hide them first`);
       }
       model.curriculum.sections = model.curriculum.sections.filter((x) => x !== s);
       renumberAllSections(model);
@@ -342,7 +342,7 @@ const OPS = {
         relatedConcepts: a.relatedConcepts || undefined,
         steps: (a.steps && a.steps.length) ? a.steps : [{
           id: 'overview', title: 'Overview',
-          blocks: [{ type: 'lead', text: a.summary || `${a.title || a.id} — new lesson.` }],
+          blocks: [{ type: 'lead', text: a.summary || `${a.title || a.id}, new lesson.` }],
         }],
         completionSummary: a.completionSummary || undefined,
       };
@@ -504,7 +504,7 @@ const OPS = {
     apply(model, op) {
       const from = step(model, op.activityId, op.fromStepIndex);
       const to = step(model, op.activityId, op.toStepIndex);
-      if (op.fromStepIndex === op.toStepIndex) throw new Error('block.transfer: same step — use block.move');
+      if (op.fromStepIndex === op.toStepIndex) throw new Error('block.transfer: same step, use block.move');
       if (op.fromIndex < 0 || op.fromIndex >= from.blocks.length) throw new Error('block.transfer: from index out of range');
       const [blk] = from.blocks.splice(op.fromIndex, 1);
       const idx = Math.max(0, Math.min(op.toIndex ?? to.blocks.length, to.blocks.length));
@@ -540,7 +540,7 @@ const OPS = {
       if (model.workspaceFiles[op.path] === undefined) throw new Error(`No workspace file "${op.path}"`);
       const users = Object.values(model.activities).filter((a) => a.workspaceFile === op.path);
       if (users.length) {
-        throw new Error(`Cannot delete ${op.path} — still the starter file of: ${users.map((a) => a.title).join(', ')}`);
+        throw new Error(`Cannot delete ${op.path}, still the starter file of: ${users.map((a) => a.title).join(', ')}`);
       }
       const before = model.workspaceFiles[op.path];
       delete model.workspaceFiles[op.path];
@@ -563,7 +563,7 @@ const OPS = {
           if (blk.type === 'code' && blk.workspaceFile === op.oldPath) blk.workspaceFile = op.newPath;
         }));
       });
-      // Same for workspace-config's own path references — missed here
+      // Same for workspace-config's own path references, missed here
       // before, so renaming a file still referenced as read-only or as an
       // activity's defaultOpenFile left validateModel() reporting it as
       // missing (correctly refusing the save, but for a confusing reason

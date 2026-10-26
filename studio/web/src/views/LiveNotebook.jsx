@@ -2,7 +2,7 @@
  * server, real components/CSS/renderer) with the edit-overlay script
  * (studio/preview/edit-overlay.js) doing the in-page editing affordances.
  *
- * This component is the postMessage bridge, nothing more — every content
+ * This component is the postMessage bridge, nothing more, every content
  * change still goes op -> sendOp -> draft -> adapters, exactly like every
  * other Studio view. It never writes source files directly. The bridge:
  *
@@ -106,7 +106,7 @@ export default function LiveNotebook({ activity, mode, focus }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activity.id]);
 
-  /* Push fresh content whenever the draft model changes (from ANY source —
+  /* Push fresh content whenever the draft model changes (from ANY source,
    * this tab's own edits, or another Studio tab touching the same lesson). */
   useEffect(() => {
     if (!frameReadyRef.current) return;

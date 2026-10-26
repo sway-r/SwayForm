@@ -9,7 +9,7 @@
 .learn-shell{height:100%;min-height:0;position:relative;display:flex;flex-direction:column;background:var(--la-bg)}
 .learn-view{flex:1;min-height:0;display:flex;flex-direction:column}
 
-/* ── Shared: difficulty tag (restrained — a label, not a colorful pill) ── */
+/* ── Shared: difficulty tag (restrained, a label, not a colorful pill) ── */
 .diff-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--la-muted)}
 .diff-tag::before{content:"";width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .diff-tag.beginner::before{background:var(--p-green)}
@@ -25,7 +25,7 @@
 .lh-menu-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* ============================================================
-   LEARNING HOME — seven sections only, no 40-item wall.
+   LEARNING HOME: seven sections only, no 40-item wall.
 ============================================================ */
 .lh-root{flex:1;min-height:0;overflow-y:auto}
 .lh-topbar{position:sticky;top:0;z-index:2;flex-shrink:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--la-bg2);border-bottom:1px solid var(--la-border)}
@@ -54,7 +54,7 @@
 .lh-sec-chevron svg{width:14px;height:14px;stroke:var(--la-faint);fill:none;stroke-width:1.8}
 
 /* ============================================================
-   SECTION VIEW — compact scannable item list, not giant cards.
+   SECTION VIEW, compact scannable item list, not giant cards.
 ============================================================ */
 .sv-root{flex:1;min-height:0;overflow-y:auto}
 .sv-topbar{position:sticky;top:0;z-index:2;flex-shrink:0;height:44px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--la-bg2);border-bottom:1px solid var(--la-border)}
@@ -98,7 +98,7 @@
 .sv-kind-badge.soon{background:var(--la-hover-strong);color:var(--la-faint)}
 
 /* ============================================================
-   ACTIVITY WORKSPACE — window chrome/dock/notebook now live in
+   ACTIVITY WORKSPACE, window chrome/dock/notebook now live in
    portal/apps/learn/workspace/{workspace,notebook-app}.css.
    What's left here is the Code Editor's internal editor stack,
    reused unchanged by portal/apps/learn/workspace/code-editor-app.js.

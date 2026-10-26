@@ -1,12 +1,12 @@
-/* Generic content-block renderer — shared by the Learn app's lesson pane
+/* Generic content-block renderer, shared by the Learn app's lesson pane
    and the Help app's reference viewer. Renders plain-data "blocks" (see
    portal/data/learning-path.js and portal/data/reference.js for the schema)
-   into DOM nodes. No HTML strings are built from untrusted content — every
+   into DOM nodes. No HTML strings are built from untrusted content, every
    text field is escaped, and only a small whitelist of inline markup
    (**bold**, `code`, [label](url)) is turned into real elements.
 
    'reveal' block: { type:'reveal', hint: string, solution?: { text?: string,
-   code?: {lang, filename, code} } } — hint is always visible, solution is
+   code?: {lang, filename, code} } }; hint is always visible, solution is
    gated behind a Show Solution toggle (same accordion pattern as
    'troubleshoot'). Used by Control lab "Need Help?" sections. */
 import { icon } from '../../icons.js';
@@ -144,7 +144,7 @@ function renderBlock(block, ctx){
     }
 
     /* Hint always visible; Show Solution gated behind the same collapsible
-       accordion pattern as 'troubleshoot' — reuses its CSS/toggle classes. */
+       accordion pattern as 'troubleshoot', reuses its CSS/toggle classes. */
     case 'reveal': {
       const wrap = el('div', 'cb-reveal-item');
       const hint = el('div', 'cb-reveal-hint');
@@ -184,7 +184,7 @@ function renderBlock(block, ctx){
     }
 
     /* { type:'video', src?: '/videos/x.mp4' | url, youtubeId?: string,
-        caption?, poster?, ratio?: '16:9'|'4:3'|'1:1' } — controls on,
+        caption?, poster?, ratio?: '16:9'|'4:3'|'1:1' }, controls on,
         autoplay never. YouTube goes through the privacy-enhanced host. */
     case 'video': {
       const wrap = el('figure', 'cb-video');
@@ -229,7 +229,7 @@ function renderBlock(block, ctx){
             setTimeout(() => { copyBtn.classList.remove('ok'); copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
           }).catch(() => {
             // Clipboard access can be denied (permissions, an insecure
-            // context, a background tab) — say so instead of leaving the
+            // context, a background tab), say so instead of leaving the
             // student thinking "Copy" silently worked when it didn't.
             copyBtn.querySelector('span').textContent = "Couldn't copy";
             setTimeout(() => { copyBtn.querySelector('span').textContent = 'Copy'; }, 1500);
@@ -282,8 +282,8 @@ function renderBlock(block, ctx){
 }
 
 /** Renders `blocks` into `container` (cleared first). `ctx` is optional:
- *  { openFile(path), insertCode(code) } — omit to render read-only (Help app).
- *  Each block root carries data-cb-i (its index in `blocks`) — inert in
+ *  { openFile(path), insertCode(code) }, omit to render read-only (Help app).
+ *  Each block root carries data-cb-i (its index in `blocks`), inert in
  *  production; the Studio editing overlay uses it to map DOM to content. */
 export function renderBlocks(container, blocks, ctx){
   container.innerHTML = '';

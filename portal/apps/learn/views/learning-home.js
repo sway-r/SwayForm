@@ -26,7 +26,7 @@ export function mount(container, nav, ctx){
   const sectionsEl = root.querySelector('[data-sections]');
 
   // Renders the curriculum list regardless of whether progress actually
-  // loaded — completedIds defaults to "nothing completed" so a failed
+  // loaded, completedIds defaults to "nothing completed" so a failed
   // /api/progress request still lets the student navigate, instead of
   // leaving this page permanently blank (the previous version only ever
   // rendered inside the success branch, with no .catch() at all).
@@ -58,7 +58,7 @@ export function mount(container, nav, ctx){
   }
 
   getCompletedActivities().then(renderSections).catch(() => {
-    summaryEl.textContent = 'Progress unavailable — showing curriculum only.';
+    summaryEl.textContent = 'Progress unavailable, showing curriculum only.';
     renderSections([]);
   });
 

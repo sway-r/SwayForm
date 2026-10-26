@@ -5,14 +5,14 @@ export { packageAndEntry, isCanonicalRobotPath };
 
 /**
  * Every canonical robot file ships with exactly one starting/default
- * version (WORKSPACE_FILES[path] — the same content the Code Editor opens
+ * version (WORKSPACE_FILES[path]: the same content the Code Editor opens
  * with) and exactly one named constant a student is meant to change to reach
  * one of that constant's acceptable target values. Most files have exactly
  * one target (the historical behavior); finger_count.py's NUMBER is the
- * first with several (1-5 are all valid "solutions" — the lab is "pick a
+ * first with several (1-5 are all valid "solutions", the lab is "pick a
  * number to show," not "reach one specific number"). Everything else in the
  * file must match byte-for-byte (modulo trailing whitespace and blank-line
- * placement — see
+ * placement, see
  * normalize()), always, regardless of how many targets a tunable has.
  * `pattern` must match the constant's canonical line and capture the
  * current value in group 1. Keep in sync with the "Safe Things to Change"/
@@ -59,10 +59,10 @@ function formatTargets(targets){
 /**
  * Classifies submitted code against this file's default/target pair.
  * Returns one of:
- *   { valid: false, status: 'no_canonical_source' }                — not a real robot file
- *   { valid: true,  status: 'complete' }                            — exactly the target
- *   { valid: false, status: 'not_started', tunable: {name,from,to} } — exactly the untouched default
- *   { valid: false, status: 'tampered', diffs: [...] }              — anything else, diffed against the target
+ *   { valid: false, status: 'no_canonical_source' }               , not a real robot file
+ *   { valid: true,  status: 'complete' }                           , exactly the target
+ *   { valid: false, status: 'not_started', tunable: {name,from,to} }, exactly the untouched default
+ *   { valid: false, status: 'tampered', diffs: [...] }             , anything else, diffed against the target
  * `valid` is a plain boolean for callers that only need a queue/no-queue
  * gate (only 'complete' may ever be queued onto the physical robot).
  */
@@ -179,12 +179,12 @@ function applyTunableValue(canonical, tunable, value){
   }).join('\n');
 }
 
-/** Every acceptable "complete" version of this file — one combination per
+/** Every acceptable "complete" version of this file, one combination per
  * tunable-target pairing. With zero tunables that's just [canonical]; with
  * one tunable and one target (the historical case, e.g. wave.py) it's a
  * single variant, same as before; with one tunable and several targets
  * (finger_count.py's NUMBER) it's one variant per target. Multiple distinct
- * tunables in one file would multiply out combinatorially — no current file
+ * tunables in one file would multiply out combinatorially, no current file
  * needs that, but the loop is written to not silently break if one ever does. */
 function allCompleteVariants(canonical, tunables){
   let variants = [canonical];
@@ -195,13 +195,13 @@ function allCompleteVariants(canonical, tunables){
 }
 
 /**
- * A simple line-index diff — not a real LCS-based diff, just enough to
+ * A simple line-index diff, not a real LCS-based diff, just enough to
  * point a student at every line that differs from the target (a typo,
  * stray whitespace, an unauthorized edit). The target content is not
- * secret — it's the same read-only reference already shown in the lesson —
+ * secret, it's the same read-only reference already shown in the lesson,
  * so surfacing "expected" text back to the student is fine.
  * Known limitation: an earlier inserted/deleted line shifts everything
- * after it, so later "changed" lines may really just be shifted by one —
+ * after it, so later "changed" lines may really just be shifted by one,
  * acceptable since these files are meant to be copied exactly, not
  * restructured.
  */

@@ -1,10 +1,10 @@
-/* SwayForm Studio — in-page editing overlay.
+/* SwayForm Studio, in-page editing overlay.
  *
  * Injected by the STUDIO PREVIEW SERVER ONLY (never part of the deployed
  * portal). Loaded on every preview page but completely dormant unless the
  * page is embedded in the Studio UI AND Studio sends `studio:init` with
- * editMode on. It decorates the REAL rendered notebook — the same DOM
- * students get — with Notion-style editing affordances:
+ * editMode on. It decorates the REAL rendered notebook, the same DOM
+ * students get, with Notion-style editing affordances:
  *
  *   hover   → left cluster [+ | ⋮⋮ drag | ⋯ menu], faint outline
  *   gaps    → thin insert line with a + between blocks
@@ -12,7 +12,7 @@
  *             complex blocks select and open Studio's right inspector
  *   drag    → move blocks within or across steps
  *
- * Every change becomes a Studio op posted to the parent — the overlay
+ * Every change becomes a Studio op posted to the parent, the overlay
  * NEVER touches source files. After the op lands, Studio sends back the
  * updated activity and the affected steps re-render through the portal's
  * own lesson-renderer, so what you see stays exactly what students see.
@@ -79,7 +79,7 @@ function boot() {
     .nb-section-title.st-t-edit, .nb-title.st-t-edit { cursor: text; }
     .nb-section-title.st-t-edit:hover, .nb-title.st-t-edit:hover { outline: 1px dashed rgba(61,139,255,.4); outline-offset: 3px; border-radius: 4px; }
     /* Everything Studio-only is scoped under st-edit-mode, toggled only by
-       studio:init — this is the single gate that makes Preview Mode an
+       studio:init, this is the single gate that makes Preview Mode an
        exact, control-free match for the student experience. */
     .st-hamburger { display: none; }
     html.st-edit-mode .st-hamburger { display: flex; align-items: center; justify-content: center;
@@ -147,7 +147,7 @@ function boot() {
     }
   });
 
-  /** Preview Mode must look and behave exactly like the student portal —
+  /** Preview Mode must look and behave exactly like the student portal,
    * drop every overlay affordance and any edit in flight. */
   function exitEditModeUI() {
     hideCluster(); hideGap(); closeMenu(); closeFmtbar();
@@ -159,7 +159,7 @@ function boot() {
 
   /* ------------------------------------------------------------ helpers */
   // studio:scrollTo can arrive (e.g. straight off a search jump) before the
-  // notebook window has finished mounting — retry briefly rather than
+  // notebook window has finished mounting, retry briefly rather than
   // silently dropping the jump.
   function scrollToStepWhenReady(step, triesLeft) {
     if (triesLeft === undefined) triesLeft = 20;
@@ -234,7 +234,7 @@ function boot() {
     armed = true;
 
     // The notebook window may mount/remount at any time (SPA nav, window
-    // reopen) — watch for .nb-doc and refresh titles when it appears.
+    // reopen), watch for .nb-doc and refresh titles when it appears.
     const mo = new MutationObserver(() => {
       if (doc() && !doc().dataset.stArmed) {
         doc().dataset.stArmed = '1';
@@ -275,7 +275,7 @@ function boot() {
   }
 
   /** The Insert/Widgets entry point from the brief: a small ☰ docked into
-   * the notebook's own top bar (a real flex child, not an absolute overlay —
+   * the notebook's own top bar (a real flex child, not an absolute overlay,
    * so it never floats over lesson content). Opens the same block menu as
    * the per-block "+", targeting the end of whichever step is currently
    * scrolled into view. */
@@ -496,7 +496,7 @@ function boot() {
     if (!block) return;
 
     // Never hijack interactive elements (Show Solution, troubleshoot
-    // accordions, links) — those still work in edit mode.
+    // accordions, links): those still work in edit mode.
     if (e.target.closest('a, button, video, iframe')) { setSelected(hit.step, hit.block); return; }
 
     if (TEXT_BLOCKS.has(block.type)) {
@@ -667,7 +667,7 @@ function boot() {
     fmtbar.style.top = Math.max(8, r.top + window.scrollY - 34) + 'px';
 
     function queueHeadingLevel(level) {
-      // Heading level changes the BLOCK, not the selection — commit it as
+      // Heading level changes the BLOCK, not the selection, commit it as
       // part of the block.set that fires when editing finishes.
       pendingHeadingLevel = level;
       el.blur(); // commit now with the new level
@@ -710,7 +710,7 @@ function boot() {
     try {
       range.surroundContents(wrapper);
     } catch {
-      // Selection crosses element boundaries — flatten it into the wrapper.
+      // Selection crosses element boundaries, flatten it into the wrapper.
       wrapper.appendChild(range.extractContents());
       range.insertNode(wrapper);
     }

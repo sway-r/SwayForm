@@ -1,4 +1,4 @@
-/* SwayForm Studio — dense professional dev-tool styling (VS Code / Linear
+/* SwayForm Studio, dense professional dev-tool styling (VS Code / Linear
    register, dark). One sheet, custom properties, no component library. */
 
 :root {
@@ -331,7 +331,7 @@ code, pre, .mono { font-family: var(--mono); }
 
 /* ---------------------------------------------------------------- live notebook (real portal in an iframe) */
 /* height:100% (not flex:1) because .lesson-main is a plain overflow:auto
-   block, not a flex container — flex:1 here is inert and the iframe was
+   block, not a flex container, flex:1 here is inert and the iframe was
    silently collapsing to the browser's ~150px default iframe height. */
 .live-nb-wrap { height: 100%; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .steps-bar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg-raised); flex-shrink: 0; }

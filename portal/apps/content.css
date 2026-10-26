@@ -1,5 +1,5 @@
 /* ============================================================
-   Shared "notebook"/docs content renderer styles — used by the
+   Shared "notebook"/docs content renderer styles, used by the
    Learn app's lesson pane and the Help app's reference viewer.
    Uses the same --la-* theme tokens as the rest of the light app
    chrome, so it follows Light/Dark Mode automatically with no
@@ -111,14 +111,14 @@
 .cb-hl{background:rgba(224,169,64,.28);color:inherit;border-radius:3px;padding:0 2px}
 .cb-p em,.cb-li em,.cb-lead em{font-style:italic}
 
-/* Video block — clean responsive player, controls on, never autoplay. */
+/* Video block, clean responsive player, controls on, never autoplay. */
 .cb-video{margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid var(--la-border)}
 .cb-video-frame{width:100%;background:#05080e;position:relative}
 .cb-video-frame video,.cb-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 .cb-video-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#5a6578;font-size:12px}
 .cb-video-empty svg{width:28px;height:28px;stroke:#5a6578;fill:none;stroke-width:1.6}
 
-/* Code block extras: line-number gutter (pre.ln) — gutter and code share
+/* Code block extras: line-number gutter (pre.ln), gutter and code share
    the pre's vertical scroll; code alone scrolls horizontally. */
 .cb-code pre.ln{display:flex;gap:0;padding:0}
 .cb-code pre.ln .cb-code-gutter{padding:14px 10px 14px 14px;font-size:12px;line-height:1.7;color:#4a5468;text-align:right;user-select:none;white-space:pre;border-right:1px solid rgba(255,255,255,.07);background:#0a0d12;flex-shrink:0}

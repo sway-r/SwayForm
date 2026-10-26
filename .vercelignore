@@ -1,8 +1,8 @@
-# SwayForm Learning Portal Studio — internal dev tool, never deployed.
+# SwayForm Learning Portal Studio, internal dev tool, never deployed.
 # See studio/README.md.
 studio/
 
-# Bridge server — deployed to its own VPS (or run locally for testing),
+# Bridge server, deployed to its own VPS (or run locally for testing),
 # never to Vercel. See bridge/README.md.
 bridge/
 

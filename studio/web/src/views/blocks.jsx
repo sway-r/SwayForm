@@ -1,5 +1,5 @@
 /* Notebook block preview + editors. The type set mirrors the REAL renderer
- * (portal/apps/learn/lesson-renderer.js) exactly — no invented block types,
+ * (portal/apps/learn/lesson-renderer.js) exactly: no invented block types,
  * and text formatting is the renderer's actual inline grammar
  * (**bold**, `code`, [label](url)), inserted via the toolbar. Pixel-true
  * rendering lives in the student preview iframe; these previews are for
@@ -30,7 +30,7 @@ export const BLOCK_TYPES = [
 
 export function defaultBlock(type) {
   switch (type) {
-    case 'lead': return { type, text: 'Lead paragraph — set up what this step is about.' };
+    case 'lead': return { type, text: 'Lead paragraph, set up what this step is about.' };
     case 'heading': return { type, text: 'Heading', level: 2 };
     case 'p': return { type, text: 'Paragraph text.' };
     case 'code': return { type, lang: 'python', filename: '', code: '# code here\n' };
@@ -107,7 +107,7 @@ export function BlockPreview({ block }) {
       <div>{(b.items || []).map((t, i) => (
         <div key={i} style={{ marginBottom: 4 }}>
           <strong style={{ color: 'var(--ink)' }}>{t.term}</strong>
-          <span> — </span><span dangerouslySetInnerHTML={{ __html: inline(t.def) }} />
+          <span>, </span><span dangerouslySetInnerHTML={{ __html: inline(t.def) }} />
         </div>
       ))}</div>
     );
@@ -385,7 +385,7 @@ export function BlockForm({ block, onChange }) {
       void assets;
       return (
         <div>
-          <Field label="Image path" hint="Site-absolute, e.g. /images/RobotOverview.png — upload new files in Assets.">
+          <Field label="Image path" hint="Site-absolute, e.g. /images/RobotOverview.png, upload new files in Assets.">
             <input className="mono" list="studio-image-list" value={block.src || ''} onChange={(e) => set({ src: e.target.value })} />
           </Field>
           <div className="field-row">
@@ -470,7 +470,7 @@ export function BlockForm({ block, onChange }) {
       );
     }
     case 'divider':
-      return <div className="small muted">A horizontal rule — nothing to configure.</div>;
+      return <div className="small muted">A horizontal rule, nothing to configure.</div>;
     default:
       return <div className="small muted">No editor for “{block.type}”.</div>;
   }

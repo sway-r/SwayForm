@@ -2,7 +2,7 @@
 -- sign-in, so SwayForm has a durable, queryable record of who accepted
 -- which published version and when (Meyer v. Uber-style "continuing means
 -- agreeing" notice, logged server-side rather than only shown client-side).
--- Not tied to user_profiles (which only exists after onboarding) — this
+-- Not tied to user_profiles (which only exists after onboarding), this
 -- table is written on every Google sign-in, including a user's very first
 -- one, before onboarding has run. Additive only. Run once in the Neon SQL
 -- Editor. After this, db/schema.sql already reflects the new shape for

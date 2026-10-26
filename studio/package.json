@@ -2,7 +2,7 @@
   "name": "swayform-learning-portal-studio",
   "private": true,
   "version": "0.1.0",
-  "description": "Local-only visual editor for the SwayForm Learning Portal source content. Never deployed — see ../.vercelignore.",
+  "description": "Local-only visual editor for the SwayForm Learning Portal source content. Never deployed, see ../.vercelignore.",
   "type": "module",
   "scripts": {
     "studio": "node server/index.mjs",

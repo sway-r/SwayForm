@@ -1,7 +1,7 @@
 # SwayForm Learning Portal Studio
 
 A **local-only** visual editor for the SwayForm Learning Portal
-(`learning.swayform.net`). Studio is a GUI layer over the real repository —
+(`learning.swayform.net`). Studio is a GUI layer over the real repository,
 it reads the actual source files students are served, and writes surgical,
 validated, Git-committed changes back to them. There is no separate
 database, no CMS service, and no duplicated content.
@@ -14,14 +14,14 @@ references Studio.
 
 ## Setting up on a new computer
 
-Studio is just a folder inside the main repo — there's nothing to install
+Studio is just a folder inside the main repo, there's nothing to install
 separately.
 
 1. Install [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/)
    (LTS or newer).
 2. Clone the repo: `git clone https://github.com/sway-r/SwayForm.git`
 3. Install dependencies once: `cd SwayForm/studio && npm install`
-4. Launch it the same way every time after that — see **Launching** below.
+4. Launch it the same way every time after that, see **Launching** below.
 
 That's the whole setup. Studio reads/writes the same repo files a clone
 always has; there's no separate database, config, or API key to copy over.
@@ -38,7 +38,7 @@ npm run studio
 ```
 
 - **Studio UI** → http://127.0.0.1:4600
-- **Student preview** → http://127.0.0.1:4601 — this is the *real* portal,
+- **Student preview** → http://127.0.0.1:4601, this is the *real* portal,
   served from the repo exactly as `learning.swayform.net` serves it (same
   rewrites), with one difference: any file your unsaved draft modifies is
   substituted in memory. What you see is literally the production code
@@ -51,10 +51,10 @@ written to a temp dir, never the repo).
 
 | Page | Edits |
 |---|---|
-| **Curriculum** | Sections and items in `curriculum.js`: rename/describe/icon, reorder (buttons for sections, drag & drop for items — including across sections), hide (unlist, content preserved — the file's existing pattern), restore, duplicate, permanent delete, **+ New Lesson** wizard, add/remove sections, placeholders |
-| **Lesson editor** | Opens from any item. **Notebook**: the lesson *is* the editor — an iframe onto the real portal (real components, CSS, renderer) with an in-page editing overlay, instantly switchable between **Edit** and **Preview**. Click text to edit it in place with a floating format toolbar; hover a block for drag/duplicate/delete; use the gap `+` or the `☰` in the notebook's own top bar to insert (lead/heading/p/list/steps/checklist/callout/divider/terminal/table/terms/troubleshoot/reveal/image/**video**/code); click a block to open a Figma-style right-hand inspector for its structured fields (code language/filename/height/line-numbers/copy button/Open-in-Editor, image width/align/corners/lightbox, video source/ratio/caption, …). Preview Mode strips every Studio affordance — pixel-identical to the student view. **Starter Code**: Monaco on the lesson's workspace file. **Workspace**: starter file, default-open file, per-lesson terminal bounds, read-only files. **Metadata**: title/summary/kind/difficulty/time/concepts, listing form (real/demo), display-title override, completion screen |
+| **Curriculum** | Sections and items in `curriculum.js`: rename/describe/icon, reorder (buttons for sections, drag & drop for items, including across sections), hide (unlist, content preserved, the file's existing pattern), restore, duplicate, permanent delete, **+ New Lesson** wizard, add/remove sections, placeholders |
+| **Lesson editor** | Opens from any item. **Notebook**: the lesson *is* the editor, an iframe onto the real portal (real components, CSS, renderer) with an in-page editing overlay, instantly switchable between **Edit** and **Preview**. Click text to edit it in place with a floating format toolbar; hover a block for drag/duplicate/delete; use the gap `+` or the `☰` in the notebook's own top bar to insert (lead/heading/p/list/steps/checklist/callout/divider/terminal/table/terms/troubleshoot/reveal/image/**video**/code); click a block to open a Figma-style right-hand inspector for its structured fields (code language/filename/height/line-numbers/copy button/Open-in-Editor, image width/align/corners/lightbox, video source/ratio/caption, …). Preview Mode strips every Studio affordance, pixel-identical to the student view. **Starter Code**: Monaco on the lesson's workspace file. **Workspace**: starter file, default-open file, per-lesson terminal bounds, read-only files. **Metadata**: title/summary/kind/difficulty/time/concepts, listing form (real/demo), display-title override, completion screen |
 | **Workspace Files** | The students' virtual ROS 2 filesystem (`workspace-files.js`): IDE tree, Monaco, add/rename/delete. Renames retarget every lesson and notebook block referencing the file; deletes are refused while referenced |
-| **Portal Home** | The post-login desktop: drag icons to reorder, rename, pick icons from the portal set, default window sizes, hide/show icons (hidden apps stay reachable by URL — routes never break) |
+| **Portal Home** | The post-login desktop: drag icons to reorder, rename, pick icons from the portal set, default window sizes, hide/show icons (hidden apps stay reachable by URL, routes never break) |
 | **Assets** | `/images`: upload, replace, reference-guarded delete, per-asset usage (lessons + site files) |
 | **Global Settings** | Global terminal bounds (min/default/max, allow-create, name prefix) and global read-only files → `workspace-config.js` |
 | **Changes & History** | Unsaved-change list with old → new, revert-one, Advanced (unified git-style diff), validation status, **Save Changes**, and recent commits with patch view |
@@ -86,7 +86,7 @@ studio/server/
 studio/preview/
   edit-overlay.js    Injected into the preview server's HTML only (never
                      the deployable portal). Dormant until the Studio UI
-                     posts studio:init — decorates the REAL rendered
+                     posts studio:init, decorates the REAL rendered
                      notebook DOM with hover/click/drag affordances and
                      posts studio:op / studio:insert / studio:selected
                      back to the parent. It never writes source itself;
@@ -100,12 +100,12 @@ API everything else uses, pushes the fresh draft-merged activity back into
 the iframe after each change, and renders a narrow inspector panel
 (reusing the same `BlockForm` component the old block-list editor used)
 when a block is selected. Preview Mode just flips `editMode:false`, which
-the overlay uses to hide every one of its own DOM nodes — the rendered
+the overlay uses to hide every one of its own DOM nodes, the rendered
 page is then byte-for-byte what `renderBlocks()` produces for a student.
 
 The content model mirrors the real architecture: `curriculum.js` is a
 listing layer over `learning-path.js`'s content store, and Studio keeps
-them separate the same way. "Hide lesson" removes only the listing —
+them separate the same way. "Hide lesson" removes only the listing,
 identical to the hand-authored pattern already documented inside
 `curriculum.js`.
 
@@ -113,28 +113,28 @@ identical to the hand-authored pattern already documented inside
 
 Nothing touches the repo until you press **Save Changes**. Then:
 
-1. **Stale check** — every tracked file's hash must match what Studio
+1. **Stale check**: every tracked file's hash must match what Studio
    loaded (edits made outside Studio block the save until you reload).
-2. **Generate** — draft → candidate sources via the AST reconcilers; every
+2. **Generate**: draft → candidate sources via the AST reconcilers; every
    candidate must parse.
-3. **Curriculum validation** — the structural checks above; errors block.
-4. **Automated review** — heuristics over the diffs (unexpected large
+3. **Curriculum validation**: the structural checks above; errors block.
+4. **Automated review**: heuristics over the diffs (unexpected large
    deletions, serialization artifacts).
-5. **Write** — candidates written; originals snapshotted for rollback.
-6. **Reload & verify** — the written files are re-imported and the result
+5. **Write**: candidates written; originals snapshotted for rollback.
+6. **Reload & verify**: the written files are re-imported and the result
    must deep-equal the draft (a failed round-trip rolls everything back).
-7. **Hand off for review** — Studio stops here. It does **not** commit.
+7. **Hand off for review**: Studio stops here. It does **not** commit.
    It drops `studio/.pending-review.json` (gitignored) with the suggested
    commit message and diff stat, and the files sit in the working tree,
    written but uncommitted.
 
 Any failure before step 7 restores every file and reports what failed,
-why, and where. Failure UIs offer "Return to editing" — the draft is kept.
+why, and where. Failure UIs offer "Return to editing", the draft is kept.
 
 After a successful save, tell **Claude Code** to review it. Claude reads
 the real `git diff` (not just Studio's own heuristics), confirms the
 change is healthy and doesn't break the site, then asks which branch to
-commit to and commits there — it never assumes. This is the "Claude
+commit to and commits there, it never assumes. This is the "Claude
 review" step referenced below: no API key or live model call inside
 Studio, just Studio stopping short of committing so a real review happens
 in the same session that's already looking at the repo.
@@ -151,15 +151,15 @@ in the same session that's already looking at the repo.
 
 ## Limitations / future work
 
-- **No renaming of lesson/section IDs** — routes and progress records key
+- **No renaming of lesson/section IDs**: routes and progress records key
   on them; changing them is a migration, done deliberately in code.
-- **New desktop apps** are code, not content — Studio edits the five
+- **New desktop apps** are code, not content, Studio edits the five
   existing apps' presentation, not app creation.
-- **Block types are the renderer's real set** — Studio deliberately cannot
+- **Block types are the renderer's real set**: Studio deliberately cannot
   invent block types the portal can't render; the video block was added to
   BOTH `lesson-renderer.js` and Studio together for exactly this reason.
 - **Automated review (step 4)** is deterministic heuristics, not an LLM
-  call — it catches obvious mistakes (large unexplained deletions, stray
+  call, it catches obvious mistakes (large unexplained deletions, stray
   `undefined`) before anything is written. The actual judgment-call review
   happens after, when Claude Code reads the real diff (see Save Changes).
 - **reference.js (Help app)** and login-page copy are not yet exposed;
@@ -172,7 +172,7 @@ in the same session that's already looking at the repo.
 
 - Both servers bind `127.0.0.1` explicitly; no external exposure.
 - All writes go through a hard **allowlist** of ten content files
-  (`repo.mjs WRITABLE_FILES`) — adapters cannot write anywhere else.
+  (`repo.mjs WRITABLE_FILES`), adapters cannot write anywhere else.
 - IDs are validated as kebab-case slugs; workspace paths must match
   `swayform_ws/...` with no traversal; asset uploads are basename-validated
   image files capped at 20 MB.

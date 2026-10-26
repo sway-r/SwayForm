@@ -1,9 +1,9 @@
-/* Mock shell — command interpreter for the standalone Terminal app.
+/* Mock shell, command interpreter for the standalone Terminal app.
  * Deliberately its own module (no DOM, no window-manager knowledge) so it
  * can later be swapped for a real backend/websocket terminal without
  * touching terminal-app.js's rendering. Operates on the SAME shared
  * mock filesystem the Code Editor uses (portal/apps/learn/editor/mock-fs.js)
- * — one workspace, not a second fake copy. */
+ *: one workspace, not a second fake copy. */
 import * as fs from '../editor/mock-fs.js';
 
 const ROOT = 'swayform_ws';
@@ -40,7 +40,7 @@ function findNode(tree, path) {
   return node || null;
 }
 
-/** Finds `<file>.py` inside a package's folder, searching subfolders too —
+/** Finds `<file>.py` inside a package's folder, searching subfolders too,
  *  packages like swayform_robot nest executables under behaviors/, hardware/,
  *  not flat under the package root, so `ros2 run <pkg> <file>` needs to look
  *  a level or two deeper than a plain child lookup. */
@@ -63,9 +63,9 @@ function findExecutableFile(pkg, file) {
 }
 
 /** The same staged mocked run sequence used by both `ros2 run` / `python3`
- *  in the Terminal and the Code Editor's Run button — one source of truth.
+ *  in the Terminal and the Code Editor's Run button, one source of truth.
  *  Reads like a real `ros2 run` session (no meta/explainer lines about the
- *  run being mocked) — direct terminal output, not a teaching aside. */
+ *  run being mocked), direct terminal output, not a teaching aside. */
 export function buildRunSequence(pkg, file, content) {
   const hasTodo = /#\s*TODO/i.test(content || '');
   return [

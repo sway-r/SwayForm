@@ -1,5 +1,5 @@
 /* Repo location + write-safety. Every file write Studio ever performs goes
- * through writeAllowed() — a hard allowlist, not a denylist, so a bug in an
+ * through writeAllowed(): a hard allowlist, not a denylist, so a bug in an
  * adapter can't wander outside the handful of content files Studio owns.
  */
 import path from 'node:path';
@@ -44,7 +44,7 @@ export function repoFileExists(rel) {
 /** Throws unless `rel` is one of the explicitly writable content files. */
 export function assertWritable(rel) {
   if (!WRITABLE_FILES.includes(rel)) {
-    throw new Error(`Refusing to write "${rel}" — not on Studio's writable-file allowlist.`);
+    throw new Error(`Refusing to write "${rel}", not on Studio's writable-file allowlist.`);
   }
 }
 
@@ -80,7 +80,7 @@ function assertAssetRel(rel) {
   const inImages = rel.startsWith(ASSET_DIR + '/');
   const inVideos = rel.startsWith(VIDEO_DIR + '/');
   if (!inImages && !inVideos) throw new Error(`Asset paths must stay inside /${ASSET_DIR} or /${VIDEO_DIR}`);
-  // Re-validate the basename — never trust a caller-supplied path.
+  // Re-validate the basename, never trust a caller-supplied path.
   const base = rel.slice(rel.indexOf('/') + 1);
   if (assetPathFor(base) !== rel) throw new Error(`Asset path/extension mismatch: "${rel}"`);
 }
@@ -98,7 +98,7 @@ export function deleteAssetFile(rel) {
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 export function assertSlug(id, what) {
   if (typeof id !== 'string' || !SLUG_RE.test(id) || id.length > 80) {
-    throw new Error(`Invalid ${what || 'id'}: "${id}" — must be lowercase kebab-case.`);
+    throw new Error(`Invalid ${what || 'id'}: "${id}", must be lowercase kebab-case.`);
   }
 }
 

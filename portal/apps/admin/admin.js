@@ -11,7 +11,7 @@ export const meta = {
 };
 
 // The server (api/_lib/limits.js) is the actual source of truth and
-// enforcement point for these — mirrored here only for display, since a
+// enforcement point for these, mirrored here only for display, since a
 // browser module can't import server-only code. Keep in sync by hand.
 const MAX_ACTIVE_SEATS = 15;
 const MAX_TOTAL_STUDENTS = 40;
@@ -56,7 +56,7 @@ async function postQueueAction(body){
 }
 
 const STATUS_LABEL = {
-  pending: 'Pending review', approved: 'Approved — waiting for robot',
+  pending: 'Pending review', approved: 'Approved, waiting for robot',
   running: 'Running on robot', succeeded: 'Succeeded', failed: 'Failed',
   rejected: 'Rejected', cancelled: 'Cancelled',
 };
@@ -83,7 +83,7 @@ function jobRow(job, pendingJobs, detail){
   } else if (job.status === 'running'){
     // Read-only: the admin sees the student's live view without taking the controls.
     if (isInteractiveRobotPath(job.workspacePath)) actions.push(`<button type="button" class="p-btn primary" data-watch-live="${job.id}">Watch live</button>`);
-    // Sends a stop request to the connected agent — it does not touch this
+    // Sends a stop request to the connected agent; it does not touch this
     // row's status itself (see the cancel action: a browser click never
     // gets to unilaterally declare a running job stopped). The row only
     // moves once the agent reports back what actually happened on the
@@ -91,9 +91,9 @@ function jobRow(job, pendingJobs, detail){
     // handle a stop request, physically stop the robot and reconcile the
     // stuck row with support.
     actions.push(`<button type="button" class="p-btn ghost" data-stop="${job.id}">Send stop signal</button>`);
-    actions.push(`<span class="p-muted rq-stop-note">Confirms delivery to the robot's connection, not that it physically stopped — verify in person.</span>`);
+    actions.push(`<span class="p-muted rq-stop-note">Confirms delivery to the robot's connection, not that it physically stopped, verify in person.</span>`);
     // Last resort: a job with no connected agent (crash, reconnect, pulled
-    // plug) has no automatic way out of "running" — it would otherwise block
+    // plug) has no automatic way out of "running"; it would otherwise block
     // every future job for this robot forever. This clears the database
     // lock only; it never claims to know or affect physical state, which is
     // why the confirm dialog itself carries that requirement.
@@ -126,7 +126,7 @@ function queueSectionHtml(jobs, details, stale){
       Run on Robot queue ${pendingCount ? `<span class="set-mock-badge">${pendingCount} pending</span>` : ''}
       <a class="p-btn ghost rq-export" href="/api/robot/queue?format=csv">Export CSV</a>
     </div>
-    ${stale ? `<p class="p-muted" role="status">Couldn't refresh the queue${jobs ? ' — showing the last known state' : ''}. Retrying…</p>` : ''}`;
+    ${stale ? `<p class="p-muted" role="status">Couldn't refresh the queue${jobs ? ', showing the last known state' : ''}. Retrying…</p>` : ''}`;
 
   if (!jobs) return `${title(0)}${stale ? '' : '<div class="set-card"><p class="adm-loading">Loading queue…</p></div>'}`;
 
@@ -156,7 +156,7 @@ function adminEmailRow(slot, email){
   }
   return `
     <div class="set-row">
-      <span class="set-row-text"><span class="set-row-label">Admin ${slot}</span><span class="set-row-desc">Empty — add a second admin email</span></span>
+      <span class="set-row-text"><span class="set-row-label">Admin ${slot}</span><span class="set-row-desc">Empty, add a second admin email</span></span>
       <form class="adm-inline-form" data-add-admin-email data-slot="${slot}">
         <input type="email" placeholder="email@school.edu" required>
         <button type="submit" class="p-btn ghost">Save</button>
@@ -198,7 +198,7 @@ function seatRow(seatNumber, student){
 function archivedRow(student){
   return `
     <div class="set-row">
-      <span class="set-row-text"><span class="set-row-label">${escapeHtml(student.email)}</span><span class="set-row-desc">Archived — personal progress preserved</span></span>
+      <span class="set-row-text"><span class="set-row-label">${escapeHtml(student.email)}</span><span class="set-row-desc">Archived, personal progress preserved</span></span>
       <span class="adm-row-actions">
         <button type="button" class="p-btn ghost" data-restore="${escapeHtml(student.email)}">Invite again</button>
         <button type="button" class="p-btn ghost" data-delete="${student.id}">Remove from class</button>
@@ -214,7 +214,7 @@ function showError(container, message){
 }
 
 /** Binds the roster/settings actions (seats, admin emails, archive/delete).
- * Only called from fullRender() — these nodes are never touched by the 5s
+ * Only called from fullRender(); these nodes are never touched by the 5s
  * queue poll, so there's no risk of re-binding onto the same DOM twice. */
 function bindRosterActions(container, ctx, { fullRender }){
   container.querySelectorAll('[data-cancel-invitation]').forEach((button) => {
@@ -275,7 +275,7 @@ function bindRosterActions(container, ctx, { fullRender }){
   });
 }
 
-/** Binds the queue subtree's own actions — scoped to `root` (the
+/** Binds the queue subtree's own actions, scoped to `root` (the
  * `[data-queue-root]` element), never the whole panel, so the 5s poll's
  * innerHTML swap-and-rebind can't accumulate duplicate listeners on
  * roster/settings nodes it never touches. */
@@ -309,12 +309,12 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
 
   root.querySelectorAll('[data-stop]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!window.confirm("Send a stop request to the robot's connected agent? This does not mark the job stopped here — verify physically.")) return;
+      if (!window.confirm("Send a stop request to the robot's connected agent? This does not mark the job stopped here, verify physically.")) return;
       try {
         const result = await postQueueAction({ action: 'stop', jobId: Number(btn.dataset.stop) });
         window.alert(result.delivered
-          ? "Stop signal delivered to the robot's connection. This does not confirm physical motion actually stopped — verify in person."
-          : "The robot's agent isn't currently connected — nothing was delivered. Stop it physically.");
+          ? "Stop signal delivered to the robot's connection. This does not confirm physical motion actually stopped, verify in person."
+          : "The robot's agent isn't currently connected; nothing was delivered. Stop it physically.");
       }
       catch (err){ showError(container, err.message); }
     });
@@ -324,7 +324,7 @@ function bindQueueActions(root, container, { pendingJobs, refreshQueue }){
     btn.addEventListener('click', async () => {
       if (!window.confirm(
         "Only do this after physically confirming the robot is stopped and this job is not moving it.\n\n" +
-        "This clears the database lock so future jobs can run again — it does NOT stop the robot and does not " +
+        "This clears the database lock so future jobs can run again; it does NOT stop the robot and does not " +
         "verify anything on its own. Use this when the agent crashed, reconnected, or was disconnected mid-job " +
         "and will never report back.\n\nMark this job reconciled?"
       )) return;
@@ -441,7 +441,7 @@ export function mount(container, ctx){
     const seatRows = [];
     for (let n = 1; n <= MAX_ACTIVE_SEATS; n++) seatRows.push(seatRow(n, seatMap.get(n)));
 
-    // Queue first — it's the thing that needs an admin's attention right
+    // Queue first, it's the thing that needs an admin's attention right
     // now (a student is waiting on a review), everything below it is
     // steady-state roster management that doesn't page an admin in.
     container.innerHTML = `
@@ -451,7 +451,7 @@ export function mount(container, ctx){
         <div class="set-section">
           <div class="set-section-title">Robot</div>
           <div class="set-card">
-            <div class="set-row"><span class="set-row-text"><span class="set-row-label">Serial number</span></span><span>${escapeHtml(state.robotSerial || '—')}</span></div>
+            <div class="set-row"><span class="set-row-text"><span class="set-row-label">Serial number</span></span><span>${escapeHtml(state.robotSerial || '-')}</span></div>
           </div>
         </div>
 

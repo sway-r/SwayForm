@@ -1,6 +1,6 @@
 /* The Save Changes pipeline (brief §12): generate → inspect → validate →
  * reimport-verify → write, with full rollback on any failure. Studio itself
- * never commits — it stops once the files are written and verified, and
+ * never commits, it stops once the files are written and verified, and
  * drops a pending-review summary (.pending-review.json) for Claude Code to
  * read, review against the real git diff, and commit (Claude picks the
  * branch with the user each time; see studio/README.md).
@@ -46,12 +46,12 @@ function reviewChecks(changes, ops) {
     const afterLines = c.after.split('\n').length;
     const shrink = beforeLines - afterLines;
     if (shrink > 50 && !hasDeleteOps) {
-      findings.push({ level: 'error', where: c.path, msg: `File shrank by ${shrink} lines but no deletion-type change was made — refusing to proceed.` });
+      findings.push({ level: 'error', where: c.path, msg: `File shrank by ${shrink} lines but no deletion-type change was made, refusing to proceed.` });
     } else if (shrink > 20 && !hasDeleteOps) {
-      findings.push({ level: 'warn', where: c.path, msg: `File shrank by ${shrink} lines without an explicit delete operation — review the diff.` });
+      findings.push({ level: 'warn', where: c.path, msg: `File shrank by ${shrink} lines without an explicit delete operation, review the diff.` });
     }
     if (/\bundefined\b/.test(c.after) && !/\bundefined\b/.test(c.before)) {
-      findings.push({ level: 'warn', where: c.path, msg: 'Generated source introduces the token "undefined" — check for a serialization bug.' });
+      findings.push({ level: 'warn', where: c.path, msg: 'Generated source introduces the token "undefined", check for a serialization bug.' });
     }
   }
   return findings;
@@ -76,7 +76,7 @@ function commitMessage(ops, changes) {
     '',
     'Made via SwayForm Learning Portal Studio (validated: syntax, reimport,',
     'structural curriculum checks, automated review). Written but not yet',
-    'committed — reviewed and committed by Claude Code.',
+    'committed, reviewed and committed by Claude Code.',
   ].join('\n');
   return title + '\n' + body;
 }
@@ -102,7 +102,7 @@ export async function runSave(draft) {
   if (!ops.length) return { ok: false, steps, message: 'No unsaved changes.' };
 
   // Blocks any concurrent /op, /undo, /redo, /revert from mutating the draft
-  // while this save is in flight (several awaits below) — otherwise an edit
+  // while this save is in flight (several awaits below), otherwise an edit
   // accepted from another tab mid-save gets silently wiped out by this
   // function's own final _reset() call below, having never been written to
   // disk either. Always cleared in the finally, including on every
@@ -111,7 +111,7 @@ export async function runSave(draft) {
   draft.saving = true;
   try {
 
-  /* 1 — stale check (files changed outside Studio since base load?) */
+  /* 1, stale check (files changed outside Studio since base load?) */
   {
     const s = step('stale', 'Verify source files unchanged outside Studio');
     const stale = draft.staleFiles();
@@ -122,7 +122,7 @@ export async function runSave(draft) {
     s.detail = 'All tracked files match their loaded state.';
   }
 
-  /* 2 — generate candidate sources (includes per-file syntax check) */
+  /* 2, generate candidate sources (includes per-file syntax check) */
   let changes;
   const merged = draft.merged();
   {
@@ -135,13 +135,13 @@ export async function runSave(draft) {
     if (!changes.length) {
       s.ok = true;
       s.detail = 'Draft operations produced no net source change.';
-      return { ok: false, steps, message: 'Nothing to save — the draft has no net effect.' };
+      return { ok: false, steps, message: 'Nothing to save, the draft has no net effect.' };
     }
     s.ok = true;
     s.detail = `${changes.length} file(s): ${changes.map((c) => c.path).join(', ')}`;
   }
 
-  /* 3 — validate final model structurally (pre-write) */
+  /* 3, validate final model structurally (pre-write) */
   {
     const s = step('validate', 'Curriculum validation');
     const { errors, warnings } = validateModel(merged);
@@ -150,7 +150,7 @@ export async function runSave(draft) {
     s.detail = warnings.length ? `${warnings.length} warning(s): ${warnings.slice(0, 5).map((w) => `${w.where}: ${w.msg}`).join(' · ')}` : 'No structural problems.';
   }
 
-  /* 4 — automated review of the diffs */
+  /* 4, automated review of the diffs */
   {
     const s = step('review', 'Automated review checks');
     const findings = reviewChecks(changes, ops.map((e) => e.op));
@@ -160,7 +160,7 @@ export async function runSave(draft) {
     s.detail = findings.length ? findings.map((f) => `${f.where}: ${f.msg}`).join(' · ') : 'No suspicious patterns in the generated diffs.';
   }
 
-  /* 5 — write files (snapshot originals for rollback) */
+  /* 5, write files (snapshot originals for rollback) */
   const written = [];
   const rollback = () => {
     for (const c of written) {
@@ -184,14 +184,14 @@ export async function runSave(draft) {
     s.detail = `${written.length} file(s) written.`;
   }
 
-  /* 6 — reimport the written files and prove the round trip */
+  /* 6, reimport the written files and prove the round trip */
   {
     const s = step('reimport', 'Reload written sources and verify content');
     try {
       const reloaded = await loadContent();
       if (!modelsEquivalent(reloaded, merged)) {
         rollback();
-        return fail(s, [{ msg: 'Reimported content does not match the draft — writer round-trip mismatch. All files rolled back; nothing was committed.' }]);
+        return fail(s, [{ msg: 'Reimported content does not match the draft, writer round-trip mismatch. All files rolled back; nothing was committed.' }]);
       }
       const { errors } = validateModel(reloaded);
       if (errors.length) {
@@ -206,8 +206,8 @@ export async function runSave(draft) {
     }
   }
 
-  /* 7 — leave the commit to Claude Code. Write a pending-review summary
-   * (uncommitted — the files are already on disk from step 5) instead of
+  /* 7, leave the commit to Claude Code. Write a pending-review summary
+   * (uncommitted: the files are already on disk from step 5) instead of
    * committing here, so a human/Claude reviews the real diff before it
    * enters history. */
   const summary = commitMessage(ops, changes);
@@ -224,15 +224,15 @@ export async function runSave(draft) {
       s.ok = true;
       s.detail = `Written, uncommitted.\n${stat.trim()}`;
     } catch (err) {
-      // Files are written and verified even if this note-taking step fails —
+      // Files are written and verified even if this note-taking step fails,
       // never roll back good work over a bookkeeping error.
       s.ok = true;
       s.detail = `Written, uncommitted. (Could not write pending-review note: ${err.message})`;
     }
   }
 
-  /* 8 — reset draft onto the new (written, still uncommitted) base */
-  draft._reset(); // not discard() — that's guarded by draft.saving, still true here
+  /* 8, reset draft onto the new (written, still uncommitted) base */
+  draft._reset(); // not discard(), that's guarded by draft.saving, still true here
   await draft.reloadBase();
 
   return { ok: true, steps, summary };

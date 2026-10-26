@@ -1,4 +1,4 @@
-/* SwayForm Learning Portal — curriculum data model v3 (information architecture pass).
+/* SwayForm Learning Portal, curriculum data model v3 (information architecture pass).
  *
  * Single source of truth for ALL learning navigation: Learning Home, the
  * Curriculum Index drawer, Section pages, search, and progress counting all
@@ -10,21 +10,21 @@
  * The curriculum-shape and writing-style spec (~20 foundational labs, then
  * ~10-lab sections that shed the training wheels toward a from-scratch
  * finale, Notebook-style writing) lives once, at the top of
- * portal/data/learning-path.js — read it there, don't restate it here.
+ * portal/data/learning-path.js, read it there, don't restate it here.
  *
  * This is a reorganization, not a rewrite of content: every real activity's
  * steps/blocks are pulled BY REFERENCE from the existing, unchanged
- * portal/data/learning-path.js content store (findActivity(id).activity) —
+ * portal/data/learning-path.js content store (findActivity(id).activity),
  * nothing here retypes lesson content. Only the grouping/numbering/labeling
  * around that content is new.
  *
  * Five sections:
- *   1. Getting Started    — orientation, safety, and how the portal works (5 items, active)
- *   2. Introduction to ROS 2 — the software ideas behind the labs (9 items, active)
- *   3. Pre-Installed Demos — explore existing behaviors (5 items, all built)
- *   4. Foundation Labs    — 20 labs, one behavior or task each: labs 1-10
+ *   1. Getting Started   , orientation, safety, and how the portal works (5 items, active)
+ *   2. Introduction to ROS 2, the software ideas behind the labs (9 items, active)
+ *   3. Pre-Installed Demos, explore existing behaviors (5 items, all built)
+ *   4. Foundation Labs   , 20 labs, one behavior or task each: labs 1-10
  *        available, labs 11-20 planned placeholders
- *   5. Behavior Sections  — labs 21+, about 10 sections of 10-12 labs each
+ *   5. Behavior Sections , labs 21+, about 10 sections of 10-12 labs each
  *        built around one behavior; Planned, nothing authored yet
  *
  * Item shape (superset of the learning-path.js activity shape):
@@ -44,20 +44,20 @@ function pull(id) {
 
 /** A real lab/reading activity. `overrides` corrects display metadata (title/
  * difficulty/estimatedTime) to match the canonical copy already published on
- * swayform.net/learning-path — it does not touch the underlying Notebook
+ * swayform.net/learning-path, it does not touch the underlying Notebook
  * step/block content in learning-path.js, only what's shown in headers,
  * lists, and the curriculum index. */
 function real(id, sectionId, number, overrides) {
   return { ...pull(id), ...overrides, sectionId, number };
 }
 
-/** A finished swayform_demos/ program, reclassified from 'activity' to 'demo' —
+/** A finished swayform_demos/ program, reclassified from 'activity' to 'demo',
  * same content, different framing (study existing code, not write it from scratch). */
 function demo(id, sectionId, number) {
   return { ...pull(id), kind: 'demo', sectionId, number };
 }
 
-/** An honest "not written yet" slot — never rendered as if it were real curriculum. */
+/** An honest "not written yet" slot, never rendered as if it were real curriculum. */
 function placeholder(id, sectionId, number, title, note) {
   return {
     id, sectionId, number, title, kind: 'placeholder', status: 'planned',
@@ -140,7 +140,7 @@ const s4 = [
 // Behavior sections: about 10 sections of 10-12 labs each, starting at lab 21.
 // No individual lab titles are published yet, so one honest placeholder.
 const s5 = [
-  placeholder('behavior-sections-21', 'behavior-sections', '5.01', 'Labs 21+ — Coming Soon',
+  placeholder('behavior-sections-21', 'behavior-sections', '5.01', 'Labs 21+: Coming Soon',
     'About 10 sections of 10-12 labs, each built around one behavior. Students write more of the code in each section, from about 25% in the first to about 75% by the tenth. Exact section and lab titles will be finalized as development continues.'),
 ];
 
@@ -165,7 +165,7 @@ export const CURRICULUM = {
     },
     {
       id: 'foundation', number: 4, title: 'Foundation Labs', type: 'lab', icon: 'terminal',
-      description: 'One new behavior or task per lab — from a single finger curl to rock paper scissors.',
+      description: 'One new behavior or task per lab, from a single finger curl to rock paper scissors.',
       items: s4,
     },
     {
@@ -176,9 +176,9 @@ export const CURRICULUM = {
   ],
 };
 
-/* ---- Lookup helpers — the single source of truth for every Learn view ---- */
+/* ---- Lookup helpers: the single source of truth for every Learn view ---- */
 
-/** Sections 4-5 only — the lab sections. Getting Started / ROS 2 / Demos are
+/** Sections 4-5 only: the lab sections. Getting Started / ROS 2 / Demos are
  * NOT part of the lab count. */
 export const LAB_SECTION_IDS = ['foundation', 'behavior-sections'];
 
@@ -198,7 +198,7 @@ export function findItem(itemId) {
   return flattenItems().find((e) => e.item.id === itemId) || null;
 }
 
-/** Next item in curriculum order after itemId — used for the Notebook's
+/** Next item in curriculum order after itemId, used for the Notebook's
  * "next activity" action at the end of a lab. */
 export function nextItem(itemId) {
   const flat = flattenItems();
@@ -226,7 +226,7 @@ export function sectionProgress(sectionId, completedIds) {
   return { complete: real.filter((i) => done.has(i.id)).length, total: real.length ? section.items.length : 0 };
 }
 
-/** Simple metadata search across section/item titles and related concepts —
+/** Simple metadata search across section/item titles and related concepts,
  * intentionally not semantic search, see spec: "simple metadata search is enough". */
 export function search(query) {
   const q = query.trim().toLowerCase();

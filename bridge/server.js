@@ -90,7 +90,7 @@ function readJsonBody(req){
 // MediaMTX's authHTTPAddress webhook. A WHIP/WHEP client's Authorization:
 // Bearer header arrives here as `token`; `path` is the MediaMTX path name,
 // which we use as the robot serial. Publish reuses the same token the Pi
-// agent already authenticates its WebSocket connection with — no new
+// agent already authenticates its WebSocket connection with, no new
 // Pi-side credential. Read uses a short-lived viewer JWT minted by
 // api/robot/status.js, verified locally (no Vercel round-trip per viewer).
 async function handleMediamtxAuth(req, res){
@@ -123,13 +123,13 @@ async function handleMediamtxAuth(req, res){
     return;
   }
 
-  // Deny by default — nothing else (api/metrics/pprof/playback) is needed here.
+  // Deny by default, nothing else (api/metrics/pprof/playback) is needed here.
   res.writeHead(401); res.end();
 }
 
 // ── code-server access: single-use JWT (minted by api/admin.js, admin-only)
 // exchanged here for a 30-min httpOnly cookie on code.bridge.swayform.net.
-// Two small in-memory maps — fine at this scale, this process already
+// Two small in-memory maps, fine at this scale, this process already
 // tracks per-connection state the same way (see dispatchedJobIds below).
 const CODE_SESSION_TTL_MS = 30 * 60 * 1000;
 const usedExchangeJtis = new Map(); // jti -> expiryMs, so a stolen/replayed link can't be reused
@@ -199,14 +199,14 @@ function handleCodeAuthCheck(req, res){
 // public internet, not just from localhost like /mediamtx-auth.
 //
 // This delivers a job.stop frame to whichever agent is currently connected
-// for that robotId — it does NOT touch the database (the run-queue's
+// for that robotId, it does NOT touch the database (the run-queue's
 // physical-execution-lock principle: a browser action can request a stop,
 // but only the agent's own eventual job.exit/job.error, reporting what
 // actually happened on the hardware, may change a running row's status).
-// Delivery only confirms the message reached a connected agent — whether
+// Delivery only confirms the message reached a connected agent, whether
 // the agent acts on it depends on that agent's own implementation of the
 // job.stop frame (see docs/robot-connectivity.md).
-/** Constant-time secret comparison — hashing first means both sides compare
+/** Constant-time secret comparison, hashing first means both sides compare
  *  as fixed-size buffers, avoiding both a length-based timingSafeEqual throw
  *  and any timing signal a plain `===` on the raw secret would leak. */
 function secureEqual(a, b){
@@ -241,7 +241,7 @@ async function handleAdminStop(req, res){
 // Admin's "Live Robot Session" toggle, mirroring /admin-stop's shape: api/
 // calls this (server-to-server, secret-gated) when an admin flips the idle
 // switch on the Robot tab, or when api/robot/queue.js's approve action turns
-// it off to make way for a real job. Unlike /video-request, no refcounting —
+// it off to make way for a real job. Unlike /video-request, no refcounting,
 // this is a single admin-controlled on/off per robot, not a multi-viewer
 // concern. See docs/robot-connectivity.md for the idle.start/idle.stop wire
 // protocol entries.
@@ -626,7 +626,7 @@ async function handleDispatchNotify(req, res){
 // (server-to-server, secret-gated) when a browser viewer opens/closes the
 // "Show feed" panel, instead of the Pi encoding around the clock. Refcounted
 // per robot so one viewer closing early doesn't cut the feed for another
-// still watching — the agent only gets a real video.stop once the count
+// still watching: the agent only gets a real video.stop once the count
 // drops back to zero. See docs/robot-connectivity.md for the video.start/
 // video.stop frames themselves; the real agent doesn't handle them yet,
 // same NOT YET HANDLED status job.stop shipped with.
@@ -634,7 +634,7 @@ async function handleDispatchNotify(req, res){
 // Each "viewer" is an expiry timestamp, not a bare count: a 'stop' can be
 // lost (tab crash, network drop, notifyBridgeStop's best-effort fetch never
 // landing) with nothing upstream ever retrying it, which would otherwise
-// wedge the count above zero forever — silently skipping every future
+// wedge the count above zero forever, silently skipping every future
 // video.start on this process until it's restarted (see the incident this
 // was found from, in project_video_on_demand memory). Pruning expired
 // entries before every read bounds that wedge to VIEWER_TTL_MS instead.
@@ -693,7 +693,7 @@ async function handleVideoRequest(req, res){
       ws.send(JSON.stringify({ t: 'video.stop' }));
       delivered = true;
     } else {
-      delivered = true; // already in the requested state — no frame needed
+      delivered = true; // already in the requested state, no frame needed
     }
   }
 
@@ -786,7 +786,7 @@ wss.on('connection', (ws, req) => {
   const authTimer = setTimeout(() => ws.close(4001, 'auth_timeout'), 10_000);
   ws.on('error', (e) => console.error('agent socket error:', e.message));
   ws.on('pong', () => { alive = true; });
-  // jobIds already sent as job.run this connection — avoids re-sending the
+  // jobIds already sent as job.run this connection, avoids re-sending the
   // same approved job on every poll tick. Cleared on reconnect (a fresh
   // connection re-polls the dispatch-queue action fresh, which is also how a job
   // approved while the agent was briefly offline still gets delivered).
@@ -860,7 +860,7 @@ wss.on('connection', (ws, req) => {
       await callApi('/api/robot/agent', { action: 'job-started', robotId, jobId: msg.jobId }).catch((e) => {
         // Only a refusal (the row is no longer running) cancels; an API blip must not kill a claimed job.
         if (!isPermanentApiError(e)){ console.error('job-started failed:', e.message); return; }
-        console.error('job-started refused:', e.message, '— telling agent to cancel');
+        console.error('job-started refused:', e.message, 'telling agent to cancel');
         if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ t: 'job.cancel', robotId, jobId: msg.jobId }));
       });
       return;
@@ -877,9 +877,9 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.t === 'job.error'){
-      console.error(`agent reported job.error for job ${msg.jobId}: ${msg.code} — ${msg.message}`);
+      console.error(`agent reported job.error for job ${msg.jobId}: ${msg.code} - ${msg.message}`);
       // Surface the agent's reason through the same job-output pipe a normal
-      // run's stdout uses — otherwise a rejection (bad hash, joint-limit
+      // run's stdout uses, otherwise a rejection (bad hash, joint-limit
       // violation, anything) reaches the student/admin as a bare "Exit code:
       // 1" with no explanation at all.
       queueJobOutput(robotId, msg.jobId, `[agent error] ${msg.code || 'error'}: ${msg.message || 'unknown error'}\n`);
@@ -889,7 +889,7 @@ wss.on('connection', (ws, req) => {
 
     // Agent 0.6.0+: its answer to movement.start / movement.stop. A refusal arrives as movement.error, then robot.state.
     if (msg.t === 'movement.error'){
-      console.error(`agent refused movement for robot ${robotId}: ${msg.code} — ${msg.message}`);
+      console.error(`agent refused movement for robot ${robotId}: ${msg.code} - ${msg.message}`);
       const waiter = movementWaiters.get(robotId);
       if (waiter) waiter.reason = msg.code === 'session_off' ? 'session_off' : 'refused';
       return;
@@ -981,7 +981,7 @@ function createDispatcher(ws, robotId, dispatchedJobIds){
         if (!open()){
           // Claimed but never sent, so nothing moved: fail it rather than leave it blocking the queue.
           console.error(`job ${job.jobId} was claimed but robotId=${robotId} disconnected before delivery`);
-          await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: job.jobId, text: '[bridge] The robot disconnected before this job could be delivered. Nothing ran — submit it again.\n' }).catch(() => {});
+          await callApi('/api/robot/agent', { action: 'job-output', robotId, jobId: job.jobId, text: '[bridge] The robot disconnected before this job could be delivered. Nothing ran, submit it again.\n' }).catch(() => {});
           reportJobEnd(robotId, job.jobId, 1);
           continue;
         }

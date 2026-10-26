@@ -71,12 +71,12 @@ test('video-request requires the bridge secret, only pings the agent on 0->1/1->
   let r=await post('start',secret); assert.equal((await r.json()).delivered,true);
   assert.deepEqual(await next,{t:'video.start'});
 
-  // Second viewer joining sends no additional frame — refcount is now 2.
+  // Second viewer joining sends no additional frame, refcount is now 2.
   const noFrame=Promise.race([frame().then(()=>'frame'),new Promise((resolve)=>setTimeout(()=>resolve('timeout'),300))]);
   r=await post('start',secret); assert.equal((await r.json()).delivered,true);
   assert.equal(await noFrame,'timeout');
 
-  // First stop (2->1) sends nothing either — someone's still watching.
+  // First stop (2->1) sends nothing either, someone's still watching.
   const noFrame2=Promise.race([frame().then(()=>'frame'),new Promise((resolve)=>setTimeout(()=>resolve('timeout'),300))]);
   r=await post('stop',secret); assert.equal((await r.json()).delivered,true);
   assert.equal(await noFrame2,'timeout');

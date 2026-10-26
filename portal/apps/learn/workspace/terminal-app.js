@@ -1,11 +1,11 @@
-/* Terminal application — multiple independent shell tabs (Shell 1 | Shell 2 | +),
+/* Terminal application, multiple independent shell tabs (Shell 1 | Shell 2 | +),
  * not a tab bolted onto the Code Editor. Command parsing lives entirely in
  * mock-shell.js; this file only renders tabs/panes and schedules output.
  *
  * Each tab is a fully independent session: its own scrollback, its own
  * command history, its own createShellState() (own cwd/prompt). That
  * per-session state object is deliberately the ONLY thing a session needs
- * to run a command (`execute(input, session.state)`) — see mock-shell.js's
+ * to run a command (`execute(input, session.state)`); see mock-shell.js's
  * own header comment. A future real backend swaps that one call for a
  * WebSocket message keyed by `session.id` (student cloud container -> real
  * PTY -> shared ROS 2 workspace); everything above this file (tab UI,
@@ -95,7 +95,7 @@ export function mount(bodyEl, winApi, opts) {
     sessions.forEach((s) => {
       const tab = document.createElement('div');
       tab.className = 'term-shell-tab' + (s.id === activeId ? ' active' : '');
-      tab.title = s.label + ' — double-click to rename';
+      tab.title = s.label + ', double-click to rename';
       tab.innerHTML = `<span class="term-shell-tab-label"></span>` +
         (sessions.length > config.min ? `<button type="button" class="term-shell-tab-close" aria-label="Close ${s.label}">${icon('close')}</button>` : '');
       tab.querySelector('.term-shell-tab-label').textContent = s.label;
@@ -141,7 +141,7 @@ export function mount(bodyEl, winApi, opts) {
     session.inputEl = pane.querySelector('[data-input]');
 
     updatePrompt(session);
-    appendLine(session, 'SwayForm mock shell — type "help" to see available commands.', 'term-app-banner');
+    appendLine(session, 'SwayForm mock shell, type "help" to see available commands.', 'term-app-banner');
     wireInput(session);
   }
 
@@ -216,13 +216,13 @@ export function mount(bodyEl, winApi, opts) {
 
   return {
     /** Cross-window integration point: Code Editor's Run button calls this
-     *  to make it look like the command was typed directly into the shell —
+     *  to make it look like the command was typed directly into the shell,
      *  runs in whichever tab is currently active/visible. */
     appendRunSequence(pkg, file, content) {
       winApi.focus();
       const session = activeSession();
       if (!session) return;
-      // buildRunSequence's own first line is the "$ ros2 run …" command echo —
+      // buildRunSequence's own first line is the "$ ros2 run …" command echo,
       // no separate appendCommandEcho here, matching how a typed command looks.
       runStream(session, buildRunSequence(pkg, file, content));
       session.inputEl.focus();

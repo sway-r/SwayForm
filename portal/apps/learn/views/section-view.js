@@ -46,7 +46,7 @@ export function mount(container, params, nav, ctx){
   const itemsEl = root.querySelector('[data-items]');
 
   // Renders this section's lesson rows regardless of whether progress
-  // actually loaded — completedIds/current default to "nothing known" so a
+  // actually loaded, completedIds/current default to "nothing known" so a
   // failed /api/progress request still lets the student see and open every
   // lesson, instead of an indefinitely empty list (there was previously no
   // .catch() at all, so a rejection here silently rendered nothing).
@@ -101,7 +101,7 @@ export function mount(container, params, nav, ctx){
     }
   }
 
-  let lastState = { completedIds: [], current: null, note: 'Progress unavailable — showing lessons only.' };
+  let lastState = { completedIds: [], current: null, note: 'Progress unavailable, showing lessons only.' };
   Promise.all([getCompletedActivities(), getCurrentActivity()])
     .then(([completedIds, current]) => { lastState = { completedIds, current, note: undefined }; renderItems(completedIds, current); })
     .catch(() => renderItems([], null, lastState.note));

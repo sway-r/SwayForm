@@ -1,7 +1,7 @@
 /* Studio-only Node module loader.
  *
  * The Learning Portal has no package.json anywhere (it's a no-build-step
- * site — browsers read <script type="module"> directly), so Node's default
+ * site, browsers read <script type="module"> directly), so Node's default
  * module resolution treats every portal/**\/*.js file as CommonJS and fails
  * on `import`/`export` syntax. Adding a package.json to the main repo just
  * to satisfy Node would be a real change to production static assets for a

@@ -1,7 +1,7 @@
 /* Reconciles the normalized workspace-file map (base vs final) into
  * portal/data/workspace-files.js source edits.
  *
- * Untouched entries keep their exact source form — including entries whose
+ * Untouched entries keep their exact source form, including entries whose
  * value is a helper CALL like PACKAGE_XML("swayform_demos", ...). An entry
  * whose CONTENT was edited is rewritten as a template literal of the new
  * text (if it was a helper call before, the diff honestly shows that
@@ -34,7 +34,7 @@ export function writeWorkspaceFiles(source, baseModel, finalModel) {
   const removed = baseKeys.filter((k) => !(k in final));
   const added = finalKeys.filter((k) => !(k in base));
 
-  /* Detect renames: removed key + added key with identical content — keep
+  /* Detect renames: removed key + added key with identical content, keep
    * the property node, swap the key only. */
   const renamedFrom = new Map(); // newKey -> oldKey
   for (const newKey of added) {

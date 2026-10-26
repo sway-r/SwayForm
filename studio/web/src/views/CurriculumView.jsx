@@ -1,7 +1,7 @@
-/* Curriculum manager — the real Section → Item hierarchy with drag-and-drop
+/* Curriculum manager: the real Section → Item hierarchy with drag-and-drop
  * reordering and cross-section moves, matching the live curriculum.js
  * architecture (real/demo/placeholder listing forms; hide = unlist, content
- * preserved — same pattern the file already documents).
+ * preserved, same pattern the file already documents).
  */
 import React, { useMemo, useState } from 'react';
 import {
@@ -41,7 +41,7 @@ function SortableItemRow({ item, section, nav, model, onAction }) {
         )}
         <button className="btn" onClick={() => onAction('duplicate', item)} title="Duplicate"
           disabled={item.form === 'placeholder'}><Icon name="copy" size={12} /></button>
-        <button className="btn" onClick={() => onAction('hide', item)} title="Hide (unlist — content preserved)"><Icon name="eyeOff" size={12} /></button>
+        <button className="btn" onClick={() => onAction('hide', item)} title="Hide (unlist, content preserved)"><Icon name="eyeOff" size={12} /></button>
         <button className="btn danger" onClick={() => onAction('delete', item)} title="Delete permanently"><Icon name="trash" size={12} /></button>
       </div>
     </div>
@@ -101,7 +101,7 @@ export default function CurriculumView({ nav }) {
         return;
       }
       const a = model.activities[item.id];
-      if (window.confirm(`PERMANENTLY DELETE "${d.title}"?\n\nThis removes the lesson content (${a.steps.length} step(s)) from learning-path.js — recoverable only through Git history.`)
+      if (window.confirm(`PERMANENTLY DELETE "${d.title}"?\n\nThis removes the lesson content (${a.steps.length} step(s)) from learning-path.js, recoverable only through Git history.`)
         && window.confirm(`Really delete "${d.title}" permanently? This is the destructive one.`)) {
         await sendOp({ type: 'activity.remove', activityId: item.id });
       }
@@ -171,7 +171,7 @@ export default function CurriculumView({ nav }) {
               <Icon name="eyeOff" size={14} />
               <span className="section-title">Hidden content</span>
               <span className="chip gray">{hiddenActivities.length}</span>
-              <span className="view-sub" style={{ marginLeft: 8 }}>in learning-path.js but not listed — restore or leave as archive</span>
+              <span className="view-sub" style={{ marginLeft: 8 }}>in learning-path.js but not listed, restore or leave as archive</span>
             </div>
             {hiddenActivities.map((a) => (
               <div className="item-row" key={a.id}>
@@ -207,10 +207,10 @@ function EditSectionModal({ section, onClose }) {
   const [levelLabel, setLevelLabel] = useState(section.levelLabel || '');
   const realCount = section.items.filter((i) => i.form !== 'placeholder').length;
   return (
-    <Modal title={`Section — ${section.title}`} onClose={onClose} footer={
+    <Modal title={`Section, ${section.title}`} onClose={onClose} footer={
       <>
         <button className="btn danger" disabled={realCount > 0}
-          title={realCount ? `${realCount} real item(s) still listed — move or hide them first` : 'Remove this section'}
+          title={realCount ? `${realCount} real item(s) still listed, move or hide them first` : 'Remove this section'}
           onClick={async () => {
             if (window.confirm(`Remove section "${section.title}"?`)) {
               if (await sendOp({ type: 'section.remove', sectionId: section.id })) onClose();
@@ -408,7 +408,7 @@ function NewLessonModal({ onClose, nav }) {
           {starter === 'existing' && (
             <Field label="File">
               <select value={starterExisting} onChange={(e) => setStarterExisting(e.target.value)}>
-                <option value="">— choose —</option>
+                <option value="">Choose...</option>
                 {Object.keys(model.workspaceFiles).map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             </Field>
@@ -426,7 +426,7 @@ function DuplicateModal({ item, onClose }) {
   const [newId, setNewId] = useState('');
   const autoId = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return (
-    <Modal title={`Duplicate — ${src.title}`} onClose={onClose} footer={
+    <Modal title={`Duplicate, ${src.title}`} onClose={onClose} footer={
       <>
         <button className="btn" onClick={onClose}>Cancel</button>
         <button className="btn primary" onClick={async () => {
@@ -447,7 +447,7 @@ function RestoreModal({ activity, onClose }) {
   const [sectionId, setSectionId] = useState(model.curriculum.sections[0].id);
   const [form, setForm] = useState('real');
   return (
-    <Modal title={`Restore — ${activity.title}`} onClose={onClose} footer={
+    <Modal title={`Restore, ${activity.title}`} onClose={onClose} footer={
       <>
         <button className="btn" onClick={onClose}>Cancel</button>
         <button className="btn primary" onClick={async () => {

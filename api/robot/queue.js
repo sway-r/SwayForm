@@ -49,7 +49,7 @@ function csvEscape(value){
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-// Deliberately excludes `code`/`output` — those can be large multi-line
+// Deliberately excludes `code`/`output`: those can be large multi-line
 // blobs and this export is for grading/record-keeping (who ran what,
 // when, with what result), not a full audit dump. The full code/output is
 // still visible per-job in the Admin app itself.
@@ -61,7 +61,7 @@ function jobsToCsv(rows){
 
 const RECENT_TERMINAL_LIMIT = 15; // what the Admin app renders; the CSV export is unlimited
 
-// No code/output here — those are served per job by the job view.
+// No code/output here: those are served per job by the job view.
 function jobSummary(row){
   return {
     id: row.id,
@@ -156,8 +156,8 @@ export default async function handler(req, res){
   // (validateAgainstCanonicalSource never reads robotId or anything else
   // robot-specific) and fires automatically on every Run click, including
   // from accounts with no robot/school link yet ('member' sessions). Gating
-  // it behind requireCurrentRobotMember like the actions below — which
-  // genuinely do need a current robot linkage — meant an unregistered
+  // it behind requireCurrentRobotMember like the actions below, which
+  // genuinely do need a current robot linkage, meant an unregistered
   // email got a bare 401 here, and the client had no case for that, so it
   // silently rendered as "no verified working version of this file": Run
   // appeared to behave differently depending on school registration when
@@ -178,7 +178,7 @@ export default async function handler(req, res){
     return;
   }
   const robotId = member.robotId;
-  // The CURRENT database role, not session.mode — the JWT cookie can be up
+  // The CURRENT database role, not session.mode, the JWT cookie can be up
   // to 7 days stale, so a removed/demoted admin must not keep approve/
   // reject/reorder rights just because their cookie hasn't expired yet.
   const isAdmin = member.role === 'admin';
@@ -186,7 +186,7 @@ export default async function handler(req, res){
   if (req.method === 'GET'){
     if (req.query.format === 'csv'){
       if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
-      // No LIMIT here (unlike the live-view query below) — this is the
+      // No LIMIT here (unlike the live-view query below), this is the
       // full historical record for grading, not "what needs my attention
       // right now", so it should include everything, not just the last 50.
       const rows = await sql`SELECT * FROM robot_jobs WHERE robot_id = ${robotId} ORDER BY submitted_at ASC`;
@@ -312,7 +312,7 @@ export default async function handler(req, res){
         RETURNING id
       `;
       if (!updated.length){ res.status(400).json({ error: 'not_pending' }); return; }
-      // A real job is about to be dispatched — the admin's "Live Robot
+      // A real job is about to be dispatched, the admin's "Live Robot
       // Session" (and Movement with it) must yield so it can never overlap with an
       // actual job on the physical robot. Turn off the DB intent and relay
       // best-effort. What was on is remembered (resume_*) and put back by the
@@ -350,7 +350,7 @@ export default async function handler(req, res){
     case 'cancel': {
       const jobId = Number(body.jobId);
       if (!jobId){ res.status(400).json({ error: 'missing_job_id' }); return; }
-      // Not using neon's sql tag for the conditional clause — its template
+      // Not using neon's sql tag for the conditional clause, its template
       // function doesn't support composing sub-fragments the way some other
       // SQL-template libraries do, so this is two explicit query shapes
       // rather than one query built from parts.
@@ -375,7 +375,7 @@ export default async function handler(req, res){
     }
 
     // Admin-only. Relays a stop request to whichever agent is currently
-    // connected for this robot — it does NOT change the job's database
+    // connected for this robot, it does NOT change the job's database
     // status itself (see the cancel case above: a browser action never
     // gets to unilaterally declare a running job stopped). Whether this
     // actually halts the robot depends on the Pi-side agent implementing
@@ -399,11 +399,11 @@ export default async function handler(req, res){
 
     // Admin-only, last resort. A running job with no connected agent (a
     // reconnect, a crash, a pulled plug) has no automatic path back to a
-    // terminal status — cancel refuses 'running' rows on purpose (see
+    // terminal status, cancel refuses 'running' rows on purpose (see
     // above), and stop only ever relays a signal, never touches the
     // database. Without this action such a row blocks every future job for
     // this robot forever (the one-running-job-at-a-time constraint). This
-    // does NOT verify or claim anything about physical state — it exists
+    // does NOT verify or claim anything about physical state, it exists
     // for exactly the case the docs already describe ("have the operator
     // reconcile that specific running record before restarting"), so an
     // admin must explicitly confirm they've physically checked the robot
@@ -457,7 +457,7 @@ export default async function handler(req, res){
 
     case 'clear_history': {
       if (!isAdmin){ res.status(403).json({ error: 'admin_only' }); return; }
-      // Only ever touches terminal statuses — pending/approved/running jobs
+      // Only ever touches terminal statuses, pending/approved/running jobs
       // are never in reach of this, regardless of what the client sends.
       const deleted = await sql`
         DELETE FROM robot_jobs

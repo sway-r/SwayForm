@@ -34,7 +34,7 @@ export class WorkspaceToolbar {
     this.robotDivider = container.querySelector('[data-robot-divider]');
 
     // Queue on Robot has two independent gates, both of which must be clear
-    // for the button to be enabled: not currently busy, and "ready" — Run
+    // for the button to be enabled: not currently busy, and "ready"; Run
     // must have confirmed the current content first (see code-editor-app.js,
     // which flips this back to false on every edit and on a fresh file).
     this.queueReady = false;

@@ -1,8 +1,8 @@
-/* Curriculum Index — the "what learning material exists?" drawer, distinct
+/* Curriculum Index: the "what learning material exists?" drawer, distinct
  * from the Notebook's own per-activity Contents panel (which answers "what
  * is inside THIS lab?"). Mounted once at the Learn app shell level so it
  * persists (open/closed, expanded sections) across Home/Section/Activity
- * view switches without disturbing whatever the current view is doing —
+ * view switches without disturbing whatever the current view is doing,
  * opening it must never reset window bounds, file edits, or scroll position.
  */
 import { icon } from '../../icons.js';
@@ -12,7 +12,7 @@ import { getCompletedActivities } from '../../services/progress-service.js';
 import { escapeHtml } from '../../utils.js';
 
 // Module-level so expanded sections survive close/reopen within the session
-// (not persisted across page reloads — that would be over-engineering this).
+// (not persisted across page reloads, that would be over-engineering this).
 const expandedSections = new Set();
 const expandedCompleted = new Set();
 
@@ -71,7 +71,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
         row.innerHTML = `
           ${statusIcon(r.item, completedIds, getCurrentItemId())}
           <span class="ci-item-num">${r.item.number}</span>
-          <span class="ci-item-title">${r.item.title}<span class="ci-search-parent"> — ${r.section.title}</span></span>
+          <span class="ci-item-title">${r.item.title}<span class="ci-search-parent">, ${r.section.title}</span></span>
           ${kindBadge(r.item)}`;
         row.addEventListener('click', () => { close(); onNavigate({ type: 'item', id: r.item.id }); });
       }

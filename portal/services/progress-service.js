@@ -1,6 +1,6 @@
 /* Learning-progress abstraction. Guest sessions stay on localStorage
    (namespaced per-account, so switching accounts in the same browser never
-   mixes up progress — with a one-time migration from the older unnamespaced
+   mixes up progress, with a one-time migration from the older unnamespaced
    keys, so a guest who used the portal before that isolation shipped
    doesn't lose progress). Real accounts sync to the database: the full
    state is fetched once per page load and cached in memory (every read
@@ -16,7 +16,7 @@ const GUEST_COMPLETED_KEY = `${COMPLETED_KEY}.guest`;
 const GUEST_CURRENT_KEY = `${CURRENT_KEY}.guest`;
 
 // The session can't change without a full page reload (logout navigates
-// away), so resolving this once per page load is safe — cached as the
+// away), so resolving this once per page load is safe, cached as the
 // in-flight promise itself (not the resolved value) so concurrent callers
 // during that first await all share one fetch instead of each firing their
 // own request to /api/auth/session.
@@ -26,7 +26,7 @@ function resolveSession(){
     if (!s) throw new Error('Please sign in again.');
     return s;
   }).catch((error) => {
-    // A rejected promise is still a truthy cache entry — without clearing
+    // A rejected promise is still a truthy cache entry, without clearing
     // it here, one transient failure (a network hiccup, not an actual
     // logout) would permanently fail every progress read/write for the
     // rest of the page's life instead of retrying next call, same fix
@@ -79,7 +79,7 @@ function writeGuestCurrent(current){
 
 /* ------------------------------------------------------------ backend (real accounts) */
 // Cached as the in-flight promise itself, same reasoning as resolveSession()
-// above — otherwise two components mounting in the same tick (e.g. a
+// above, otherwise two components mounting in the same tick (e.g. a
 // section view's Promise.all) would each fire their own GET /api/progress.
 let remoteStatePromise = null;
 function reportError(error){

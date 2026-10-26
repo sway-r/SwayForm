@@ -4,7 +4,7 @@ import { mountVideoPlayer } from './video-player.js';
 import { createPoller } from '../../services/adaptive-poller.js';
 
 // The admin-only embedded editor lives in its own desktop app, "Workspace"
-// (apps/workspace/workspace.js), not as a tab here — see that file for
+// (apps/workspace/workspace.js), not as a tab here; see that file for
 // the exchange-token/iframe details, unchanged from when it was a tab.
 
 export const meta = {
@@ -42,7 +42,7 @@ export async function mount(container, ctx){
     return;
   }
 
-  // Status and Live Video used to be separate tabs — merged into one
+  // Status and Live Video used to be separate tabs, merged into one
   // always-visible view (a compact status bar, video filling the rest)
   // since there was no real reason to hide one to see the other, and it
   // also removes a second piece of "which tab was I on" state that a
@@ -164,7 +164,7 @@ export async function mount(container, ctx){
       const turningOn = !idleToggle.classList.contains('is-on') && !idleToggle.classList.contains('is-paused');
       change(idleToggle, turningOn ? 'idle-on' : 'idle-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
         data.error === 'job_in_progress'
-          ? "Can't start — a student's job is pending, approved, or running right now."
+          ? "Can't start: a student's job is pending, approved, or running right now."
           : (data.message || "Couldn't change the live session.")
       ));
     });
@@ -172,7 +172,7 @@ export async function mount(container, ctx){
       const turningOn = !movementToggle.classList.contains('is-on') && !movementToggle.classList.contains('is-paused');
       change(movementToggle, turningOn ? 'movement-on' : 'movement-off', turningOn ? 'Starting…' : 'Stopping…', (data) => (
         data.error === 'job_in_progress'
-          ? "Can't start Movement — a student's job is running right now."
+          ? "Can't start Movement; a student's job is running right now."
           : (data.message || "Couldn't change Movement.")
       ));
     });

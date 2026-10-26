@@ -1,4 +1,4 @@
--- SwayForm Learning Portal — auth schema (Phase 1)
+-- SwayForm Learning Portal, auth schema (Phase 1)
 -- Run this once in the Neon/Vercel Postgres SQL editor. Safe to re-run.
 
 CREATE TABLE IF NOT EXISTS robots (
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS admin_accounts (
 );
 
 -- `slot` (1 or 2) is a real column, not an implicit position inferred from
--- row id order — the unique index below makes "only one admin per slot"
+-- row id order: the unique index below makes "only one admin per slot"
 -- a database guarantee that api/admin.js's set_admin_email upserts against
 -- (ON CONFLICT (admin_account_id, slot)), instead of a read-existing-rows-
 -- then-insert check in application code, which two concurrent requests for
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 );
 
 -- Learning progress, mirroring progress-service.js's two localStorage keys.
--- Keyed by email (any real account — admin/student/member all get a
+-- Keyed by email (any real account, admin/student/member all get a
 -- user_profiles row via onboarding), not student_id, since simulation
 -- progress belongs to the person, not to a specific robot seat. Cascades
 -- automatically when a user_profiles row is deleted (the admin panel's
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS progress_current (
 
 -- "Run on Robot" submission queue. See db/migrations/004_robot_jobs.sql and
 -- docs/robot-connectivity.md. Terminal jobs are purged after 90 days by
--- api/cron/cleanup-robot-jobs.js — see /data-retention on the public site.
+-- api/cron/cleanup-robot-jobs.js, see /data-retention on the public site.
 CREATE TABLE IF NOT EXISTS robot_jobs (
   id             SERIAL PRIMARY KEY,
   robot_id       INTEGER NOT NULL REFERENCES robots(id) ON DELETE CASCADE,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS robot_jobs (
   reject_reason  TEXT,
   exit_code      INTEGER,
   output         TEXT,
-  -- Monotonic running total of characters ever appended via job-output —
+  -- Monotonic running total of characters ever appended via job-output,
   -- independent of `output`'s own length, which is capped/truncated (a
   -- rolling tail, see api/robot/agent.js's MAX_OUTPUT_CHARS). See
   -- db/migrations/006_robot_job_output_counter.sql for why this exists.

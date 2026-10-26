@@ -35,8 +35,8 @@ const PARKING = ' The robot opens its hand and returns to centre by itself.';
 const ENDED_TEXT = {
   stopped: 'Session stopped from the admin workspace.' + PARKING,
   user: 'Session ended.' + PARKING,
-  abandoned: 'Session ended — no input for a while.' + PARKING,
-  max_time: 'Session ended — time limit reached.' + PARKING,
+  abandoned: 'Session ended: no input for a while.' + PARKING,
+  max_time: 'Session ended, time limit reached.' + PARKING,
   error: 'The robot stopped the session because a step or check failed.',
   job_ended: 'The program finished.',
   replaced: 'This session was opened somewhere else.',
@@ -55,7 +55,7 @@ export function openTargetLockPopup({ spectate = false } = {}){
   root.innerHTML = `
     <div class="tl-popup" role="dialog" aria-modal="true" aria-label="Target Lock live view">
       <div class="tl-head">
-        <span class="tl-title">${spectate ? 'Target Lock — watching live (view only)' : "Target Lock — robot's eyes"}</span>
+        <span class="tl-title">${spectate ? 'Target Lock: watching live (view only)' : "Target Lock: robot's eyes"}</span>
         <button type="button" class="tl-close" data-role="close">${spectate ? 'Close' : 'End session'}</button>
       </div>
       <ol class="tl-stages" data-role="stages">${'<li></li>'.repeat(Object.keys(STAGE_LABELS).length)}</ol>
@@ -231,15 +231,15 @@ export function openTargetLockPopup({ spectate = false } = {}){
       ready = true;
       root.classList.add('is-live');
       lightStage('movement');
-      statusEl.textContent = 'Movement unlocked — the arrow keys turn the head.';
+      statusEl.textContent = 'Movement unlocked: the arrow keys turn the head.';
     } else if (kind === 'unlocked'){
       unlocked = true;
       root.classList.add('is-armed');
       lightStage('arm');
-      statusEl.textContent = 'Arm unlocked — the arm is moving to its ready position…';
+      statusEl.textContent = 'Arm unlocked; the arm is moving to its ready position…';
       clearTimeout(armTimer);
       armTimer = setTimeout(() => {
-        if (!ended) statusEl.textContent = spectate ? 'The driver has control of the robot.' : 'You have control — grab the object and lift it.';
+        if (!ended) statusEl.textContent = spectate ? 'The driver has control of the robot.' : 'You have control, grab the object and lift it.';
       }, ARM_READY_MS);
     } else if (kind === 'head'){
       role('readout').textContent = `pan ${a}°  tilt ${b}°`;
@@ -289,7 +289,7 @@ export function openTargetLockPopup({ spectate = false } = {}){
       socket.onopen = () => {
         reconnects = 0;
         if (!spectate) send({ t: 'ping' });
-        if (!ready) statusEl.textContent = spectate ? 'Watching — waiting for the sequence…' : 'Connected — starting the sequence…';
+        if (!ready) statusEl.textContent = spectate ? 'Watching, waiting for the sequence…' : 'Connected, starting the sequence…';
       };
       socket.onmessage = (event) => {
         let msg;

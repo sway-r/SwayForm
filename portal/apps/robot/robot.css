@@ -8,7 +8,7 @@
 .robot-status-badge.is-online{color:#0a7a3d;background:rgba(10,122,61,.08);border-color:rgba(10,122,61,.25)}
 
 /* Status + Live Video merged into one view: a slim status bar (badge +
-   serial + note, all inline — no more full-height hero card for this
+   serial + note, all inline, no more full-height hero card for this
    case) with the video panel filling whatever's left below it. */
 .robot-connected{display:flex;flex-direction:column;height:100%;min-height:0}
 .robot-status-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--la-border);flex:0 0 auto}

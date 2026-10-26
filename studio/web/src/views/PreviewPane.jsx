@@ -1,4 +1,4 @@
-/* Student preview — an iframe onto the REAL portal (preview server, port
+/* Student preview: an iframe onto the REAL portal (preview server, port
  * 4601) with draft data substituted. Device presets resize the frame;
  * revision changes reload it so edits appear immediately.
  */

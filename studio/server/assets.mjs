@@ -73,7 +73,7 @@ export function uploadAsset(name, base64, { overwrite = false } = {}) {
   const rel = assetPathFor(name);
   const kind = assetKindFor(name);
   const exists = fs.existsSync(absPath(rel));
-  if (exists && !overwrite) throw new Error(`"${name}" already exists — use replace to overwrite it.`);
+  if (exists && !overwrite) throw new Error(`"${name}" already exists, use replace to overwrite it.`);
   const buffer = Buffer.from(base64, 'base64');
   if (!buffer.length) throw new Error('Empty upload');
   const cap = kind === 'video' ? 200 : 20;

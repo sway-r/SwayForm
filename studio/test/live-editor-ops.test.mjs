@@ -1,6 +1,6 @@
 /* Round-trip coverage for the ops introduced by the live-editor overlay
  * work: block.transfer (cross-step drag), video blocks, and the extended
- * code/image presentation fields — through the SAME writer/validate/reimport
+ * code/image presentation fields, through the SAME writer/validate/reimport
  * pipeline as every other Studio edit.
  */
 import test from 'node:test';

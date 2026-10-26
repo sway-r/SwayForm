@@ -57,7 +57,7 @@ export async function upsertProfile(email, { displayName, schoolName }){
 
 /**
  * Logs clickwrap acceptance of the Terms of Use + Privacy Policy at sign-in.
- * One row per (email, version) — ON CONFLICT DO NOTHING keeps this cheap to
+ * One row per (email, version), ON CONFLICT DO NOTHING keeps this cheap to
  * call on every login without duplicating rows for repeat acceptances of the
  * same version.
  */
@@ -73,7 +73,7 @@ export async function recordTermsAcceptance(email, version){
 /**
  * Per-email progress summary for the admin panel's student list: how many
  * activities completed, and what (if anything) they're currently on.
- * Returns a map keyed by email — emails with no progress rows simply don't
+ * Returns a map keyed by email, emails with no progress rows simply don't
  * appear in the result, callers should treat a missing entry as "0 completed,
  * nothing in progress" rather than an error.
  */
@@ -108,10 +108,10 @@ export async function fetchProgressSummary(emails){
 /**
  * Keeps a person's self-reported school in sync with reality whenever an
  * admin links their email to a robot (add_student / set_admin_email in
- * api/admin.js) — a robot's school is the authoritative source once
+ * api/admin.js): a robot's school is the authoritative source once
  * someone's actually tied to it, not whatever they picked from a dropdown
  * at onboarding (which could predate the link, or just be a mistake). A
- * no-op if they haven't onboarded yet (nothing to correct — the onboarding
+ * no-op if they haven't onboarded yet (nothing to correct, the onboarding
  * flow itself locks the school field for anyone already linked at that
  * point) or if the robot has no school_name set yet.
  */
@@ -138,7 +138,7 @@ export async function listSchoolNames(){
 
 /**
  * Merges the mutable, user-editable profile (name/school, if onboarding is
- * done) into an otherwise-static session object from the signed cookie —
+ * done) into an otherwise-static session object from the signed cookie,
  * looked up fresh on every call so a saved profile shows up immediately,
  * with no need to re-sign the cookie.
  */

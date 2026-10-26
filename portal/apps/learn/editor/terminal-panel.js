@@ -1,4 +1,4 @@
-/* Small Output/Problems strip inside the Code Editor window — diagnostics
+/* Small Output/Problems strip inside the Code Editor window, diagnostics
  * only (Check results, save confirmations). The primary terminal experience
  * now lives in its own standalone application:
  * portal/apps/learn/workspace/terminal-app.js + mock-shell.js. */

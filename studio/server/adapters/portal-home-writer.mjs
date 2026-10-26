@@ -12,7 +12,7 @@ const APP_IDENT = {
   learn: 'LearnApp', account: 'AccountApp',
   help: 'HelpApp', settings: 'SettingsApp',
   // robot/admin/workspace are role-gated at runtime (visibleApps() in
-  // portal.js), not part of REGISTRY_ORDER()'s static array — registered
+  // portal.js), not part of REGISTRY_ORDER()'s static array, registered
   // here only so a save that includes them (e.g. via allIds) doesn't throw
   // "Unknown app id"; reordering/enabling them here has no effect on real
   // visibility.
@@ -29,7 +29,7 @@ export const APP_FILES = {
   workspace: 'portal/apps/workspace/workspace.js',
 };
 
-/** portal.js — rewrite the REGISTRY_ORDER() return array to the final
+/** portal.js, rewrite the REGISTRY_ORDER() return array to the final
  * enabled apps, in order. Returns null when unchanged. */
 export function writePortalOrder(source, baseModel, finalModel) {
   const baseOrder = baseModel.portalHome.apps.filter((a) => a.enabled).map((a) => a.id);
@@ -54,7 +54,7 @@ export function writePortalOrder(source, baseModel, finalModel) {
   return print(ast);
 }
 
-/** One app module — patch meta.title / meta.icon / meta.defaultSize.
+/** One app module, patch meta.title / meta.icon / meta.defaultSize.
  * Returns null when unchanged. */
 export function writeAppMeta(source, baseApp, finalApp) {
   const changed = baseApp.title !== finalApp.title

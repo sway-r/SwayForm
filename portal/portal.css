@@ -1,5 +1,5 @@
 /* ============================================================
-   SwayForm Learning Portal — desktop shell & window manager
+   SwayForm Learning Portal, desktop shell & window manager
    Layered on top of /styles.css brand tokens (--blue, --font, --mono…).
    This file owns the dark "OS" surface tokens used by every app.
 ============================================================ */
@@ -26,7 +26,7 @@
   --taskbar-h:52px;
   --topline-h:40px;
 
-  /* ── Light "app" chrome — every application surface EXCEPT the Portal
+  /* ── Light "app" chrome: every application surface EXCEPT the Portal
      Desktop wallpaper/chrome, the Code Editor, and the Terminal, which stay
      on the dark --p-* tokens above. Values match the existing content-surface
      reading-pane palette (already used by Notebook/Help/curriculum) so the
@@ -49,7 +49,7 @@
   --la-focus-border:rgba(20,26,44,.28);
 }
 
-/* ── Dark Mode — overrides the --la-* light-app tokens only. The Portal
+/* ── Dark Mode, overrides the --la-* light-app tokens only. The Portal
    Desktop wallpaper/chrome and the Code Editor/Terminal are unaffected by
    design (see spec: "Code Editor dark in both light and dark portal mode is
    fine" / "desktop wallpaper remains appropriate"). Toggled by Settings via
@@ -80,7 +80,7 @@
   background-image:url('/images/background.png');
   background-size:cover;background-position:center;
   transform:scale(1.02);
-  /* Brighter, less harsh read on the source image — closer to the premium,
+  /* Brighter, less harsh read on the source image, closer to the premium,
      lighter feel of swayform.net without losing the desktop's dark identity. */
   filter:brightness(1.22) contrast(0.94) saturate(1.05);
 }
@@ -89,7 +89,7 @@
   background:
     /* soft SwayForm-blue haze, tasteful not neon */
     radial-gradient(ellipse 70% 55% at 52% 34%,rgba(150,190,255,.10) 0%,transparent 62%),
-    /* lighter overlay than before — kept slightly darker at the very top/
+    /* lighter overlay than before, kept slightly darker at the very top/
        bottom (topline and taskbar/dock text sit there) and much lighter
        through the middle where the wallpaper's own detail lives */
     linear-gradient(180deg,rgba(6,10,20,.46) 0%,rgba(8,13,24,.20) 22%,rgba(8,13,24,.22) 78%,rgba(4,7,14,.56) 100%);
@@ -111,9 +111,9 @@
 .desktop-clock{font-family:var(--mono);font-size:11.5px;color:var(--p-soft);letter-spacing:.02em}
 .desktop-guest-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7fb2ff;background:var(--p-accent-dim);border:1px solid var(--p-accent-line);padding:4px 10px;border-radius:20px}
 
-/* ── Desktop icons — the entire homepage content. A vertical column of
+/* ── Desktop icons: the entire homepage content. A vertical column of
    shortcuts pinned to the upper-left, like a real computer desktop. No
-   hero, no widgets, no dashboard — the wallpaper does the rest of the work. ── */
+   hero, no widgets, no dashboard, the wallpaper does the rest of the work. ── */
 .desktop-icons{
   position:relative;z-index:5;flex:1;min-height:0;overflow:hidden;
   display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;
@@ -213,7 +213,7 @@
 .taskbar-win.active{background:var(--p-accent-dim);border-color:var(--p-accent-line);color:#eaf2ff}
 .taskbar-spacer{flex:1}
 
-/* ── Logout — a persistent system control, bottom-right of the taskbar.
+/* ── Logout: a persistent system control, bottom-right of the taskbar.
    Subtle by default; only leans toward "warning red" on hover, not at rest. ── */
 .taskbar-logout{
   flex-shrink:0;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;
@@ -243,11 +243,11 @@
 .p-empty{padding:40px 24px;text-align:center;color:var(--p-muted);font-size:13px}
 .p-empty svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:.5;margin-bottom:10px}
 
-/* ── Light app surface — the default for every application EXCEPT the
+/* ── Light app surface: the default for every application EXCEPT the
    Portal Desktop chrome, Code Editor, and Terminal (see --la-* tokens
    above). .p-btn/.p-scroll default to the dark OS-chrome look (used by
    the Desktop icons and the Code Editor toolbar), so light surfaces need
-   this override — same pattern content.css already uses for .content-surface. ── */
+   this override, same pattern content.css already uses for .content-surface. ── */
 .la-surface{background:var(--la-bg2);color:var(--la-ink)}
 .la-surface .p-btn,.content-surface .p-btn{color:var(--la-ink);background:var(--la-bg);border-color:var(--la-border)}
 .la-surface .p-btn:hover,.content-surface .p-btn:hover{background:var(--la-hover-strong);border-color:rgba(20,26,44,.18)}

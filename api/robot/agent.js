@@ -7,12 +7,12 @@ import { logDbRead } from '../_lib/metrics.js';
 const MAX_OUTPUT_CHARS = 64 * 1024;
 
 /**
- * All machine-to-machine endpoints the bridge server calls — never a
+ * All machine-to-machine endpoints the bridge server calls, never a
  * browser. Consolidated into one function (was 4 separate files:
  * agent-auth, heartbeat, job-update, dispatch-queue) because Vercel's
  * Hobby plan caps Serverless Functions at 12 per deployment and this repo
  * was about to exceed it (14), which fails the deployment silently at the
- * "Deploying outputs" stage with no clear error in the CLI logs — the
+ * "Deploying outputs" stage with no clear error in the CLI logs, the
  * build itself reports success, only the platform-level function-count
  * check fails afterward. Routed by `action` (POST body) or `?action=`
  * (GET query) rather than by path.
@@ -90,7 +90,7 @@ async function handleJobStarted(req, res){
     return;
   }
   // The partial unique index on (robot_id) WHERE status='running' makes
-  // "only one job moves the robot at a time" a database guarantee — a
+  // "only one job moves the robot at a time" a database guarantee, a
   // second concurrent 'started' for the same robot fails here with 23505.
   try {
     const updated = await sql`
@@ -132,7 +132,7 @@ async function handleJobFinished(req, res){
   const status = code === 0 ? 'succeeded' : 'failed';
   // dispatch-queue claims the job (status='running') atomically before code
   // is ever sent to the agent, so by the time any job.* message arrives the
-  // row is always already 'running' — a job.error before job.accepted can
+  // row is always already 'running', a job.error before job.accepted can
   // no longer strand a row in 'approved' the way it did under the old
   // accept-then-claim ordering (found + patched narrowly 2026-09-15, job id
   // 14; superseded here by claiming at dispatch time instead).

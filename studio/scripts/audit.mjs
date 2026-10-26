@@ -1,6 +1,6 @@
 /* Phase 1 proof: read the Learning Portal's real content modules the same
  * way the browser does (live `import`, not a re-parsed copy), and report a
- * structural map + cross-reference check. Read-only — writes nothing.
+ * structural map + cross-reference check. Read-only, writes nothing.
  */
 import { register } from 'node:module';
 import { pathToFileURL } from 'node:url';
@@ -16,7 +16,7 @@ const { LEARNING_PATH, flattenActivities, findActivity } = await import(dataUrl(
 const { WORKSPACE_FILES } = await import(dataUrl('portal/data/workspace-files.js'));
 const { REFERENCE } = await import(dataUrl('portal/data/reference.js'));
 
-console.log('=== SwayForm Learning Portal — content audit (read-only) ===\n');
+console.log('=== SwayForm Learning Portal, content audit (read-only) ===\n');
 
 // ---- curriculum.js -------------------------------------------------------
 const items = flattenItems();
@@ -65,13 +65,13 @@ let missingFiles = 0;
 activities.forEach((a) => {
   if (a.workspaceFile && !Object.prototype.hasOwnProperty.call(WORKSPACE_FILES, a.workspaceFile)) {
     missingFiles += 1;
-    console.log(`  [MISSING FILE] activity "${a.id}" references workspaceFile "${a.workspaceFile}" — not in workspace-files.js`);
+    console.log(`  [MISSING FILE] activity "${a.id}" references workspaceFile "${a.workspaceFile}", not in workspace-files.js`);
   }
 });
-console.log(`Workspace-file reference check: ${missingFiles === 0 ? 'OK — every workspaceFile reference resolves.' : `${missingFiles} BROKEN.`}\n`);
+console.log(`Workspace-file reference check: ${missingFiles === 0 ? 'OK, every workspaceFile reference resolves.' : `${missingFiles} BROKEN.`}\n`);
 
 // ---- reference.js -----------------------------------------------------------
 console.log(`Reference (Help app): "${REFERENCE.title || REFERENCE.id || '(untitled)'}"`);
 console.log(`  Top-level keys: ${Object.keys(REFERENCE).join(', ')}\n`);
 
-console.log('=== Audit complete — no files were modified. ===');
+console.log('=== Audit complete: no files were modified. ===');

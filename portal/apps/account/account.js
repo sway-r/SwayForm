@@ -15,7 +15,7 @@ export const meta = {
 
 const ROLE_LABELS = { admin: 'Admin', student: 'Student', member: 'Member' };
 
-// Still genuinely true — features SwayForm hasn't built yet, not fabricated
+// Still genuinely true, features SwayForm hasn't built yet, not fabricated
 // data about this account.
 const COMING_SOON = [
   {
@@ -46,8 +46,8 @@ async function render(container, ctx){
   const session = await getSession();
 
   // getSession() can transiently return null (a network/DB hiccup, not an
-  // actual logout — portal.js's boot()/showDesktop() already confirmed a
-  // real session exists before this window could even open) — show a
+  // actual logout, portal.js's boot()/showDesktop() already confirmed a
+  // real session exists before this window could even open), show a
   // recoverable message instead of crashing on session.displayName below.
   if (!session){
     container.innerHTML = `
@@ -114,10 +114,10 @@ async function render(container, ctx){
           ${isGuest
             ? `<div class="acct-row"><span>Mode</span><span>Guest</span></div>
                <div class="acct-row"><span>Progress</span><span>Local to this browser</span></div>
-               <div class="acct-row"><span>Session started</span><span>${session.startedAt ? new Date(session.startedAt).toLocaleString(undefined, { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}</span></div>`
-            : `<div class="acct-row"><span>Member since</span><span>${session.profileCreatedAt ? new Date(session.profileCreatedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}</span></div>
-               <div class="acct-row"><span>School / organization</span><span>${escapeHtml(session.schoolName || '—')}</span></div>
-               <div class="acct-row"><span>Email</span><span>${escapeHtml(session.email || '—')}</span></div>`}
+               <div class="acct-row"><span>Session started</span><span>${session.startedAt ? new Date(session.startedAt).toLocaleString(undefined, { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '-'}</span></div>`
+            : `<div class="acct-row"><span>Member since</span><span>${session.profileCreatedAt ? new Date(session.profileCreatedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : '-'}</span></div>
+               <div class="acct-row"><span>School / organization</span><span>${escapeHtml(session.schoolName || '-')}</span></div>
+               <div class="acct-row"><span>Email</span><span>${escapeHtml(session.email || '-')}</span></div>`}
         </div>
       </div>
 
@@ -147,7 +147,7 @@ async function render(container, ctx){
   container.querySelector('[data-reset]').addEventListener('click', async () => {
     const confirmMsg = isGuest
       ? 'Reset all locally saved progress? Every activity will show as not started. This cannot be undone.'
-      : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
+      : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser); every activity will show as not started. This cannot be undone.';
     if (!await confirmDialog(container, { title: 'Reset progress', message: confirmMsg, confirmLabel: 'Reset progress', typeWord: 'DELETE' })) return;
     try { await resetProgress(); await render(container, ctx); }
     catch { /* save notice explains the failure */ }

@@ -1,6 +1,6 @@
-/* SwayForm Learning Portal — Help / Documentation reference content.
+/* SwayForm Learning Portal: Help / Documentation reference content.
    Ported from the static learning-hub pages (glossary, technical-reference,
-   troubleshooting, repair). Plain data only — the Help app renders these
+   troubleshooting, repair). Plain data only; the Help app renders these
    blocks; this module has no logic and no imports. */
 
 export const REFERENCE = {
@@ -22,7 +22,7 @@ export const REFERENCE = {
             { term: "Pose", def: "A saved set of joint positions that creates a specific robot position or gesture." },
             { term: "Safe limit", def: "A tested range that keeps a joint from moving too far." },
             { term: "RealSense", def: "A camera used for visual input, depth information, and camera-assisted demos." },
-            { term: "Robot Connection", def: "The bridge between the Learning Portal and the physical robot. Coming soon — Run currently shows a simulated result." },
+            { term: "Robot Connection", def: "The bridge between the Learning Portal and the physical robot. Coming soon; Run currently shows a simulated result." },
             { term: "Workspace", def: "The folder where robot code, packages, demos, and labs are organized." },
             { term: "ROS 2", def: "A robotics software framework that helps organize robot programs into nodes, topics, services, and launch files." },
             { term: "Motion lock", def: "A software rule that prevents two behaviors from trying to control the same robot part at the same time." },
@@ -47,19 +47,19 @@ export const REFERENCE = {
         {
           type: "list",
           items: [
-            "**Node** — a program that does one part of the robot's work: a camera node reads vision data, a motion node controls joint movement, a demo script decides what behavior to run.",
-            "**Topic** — a named stream of information that one part of the robot publishes and another subscribes to.",
-            "**Publisher / Subscriber** — a publisher sends information onto a topic; a subscriber listens for it and reacts.",
-            "**Service** — a request-and-response interaction, such as requesting a safe motion or checking system status.",
-            "**Launch file** — starts multiple nodes together in one workflow instead of many manual terminals.",
-            "**Behavior script** — decides what the robot should do, such as the Wave demo sending a sequence of arm movements to the motion system.",
+            "**Node**: a program that does one part of the robot's work: a camera node reads vision data, a motion node controls joint movement, a demo script decides what behavior to run.",
+            "**Topic**: a named stream of information that one part of the robot publishes and another subscribes to.",
+            "**Publisher / Subscriber**: a publisher sends information onto a topic; a subscriber listens for it and reacts.",
+            "**Service**: a request-and-response interaction, such as requesting a safe motion or checking system status.",
+            "**Launch file**: starts multiple nodes together in one workflow instead of many manual terminals.",
+            "**Behavior script**: decides what the robot should do, such as the Wave demo sending a sequence of arm movements to the motion system.",
           ],
         },
 
         { type: "heading", level: 2, id: "motion-node", text: "Motion node" },
         {
           type: "p",
-          text: "The motion node is the single software layer permitted to send final commands to the servo controllers and base motor system — see the full architecture on the [Safety](https://swayform.net/safety) page. A behavior does not throw raw values at every servo; it requests safe poses, joint groups, or controlled movement sequences, and the motion node enforces limits before anything moves.",
+          text: "The motion node is the single software layer permitted to send final commands to the servo controllers and base motor system; see the full architecture on the [Safety](https://swayform.net/safety) page. A behavior does not throw raw values at every servo; it requests safe poses, joint groups, or controlled movement sequences, and the motion node enforces limits before anything moves.",
         },
         {
           type: "p",
@@ -69,7 +69,7 @@ export const REFERENCE = {
         { type: "heading", level: 2, id: "servo-mapping", text: "Servo controller mapping" },
         {
           type: "p",
-          text: "SwayForm uses two Adafruit PCA9685 16-channel PWM controllers on the I²C bus (12-bit resolution, 50Hz default). Controller `0x40` uses all 16 of its channels; controller `0x41` uses 4 of its 16, leaving 12 free for future expansion. The waist rotation is not a PCA9685 channel — it is a DC motor with encoder feedback, powered directly from the 12V bus.",
+          text: "SwayForm uses two Adafruit PCA9685 16-channel PWM controllers on the I²C bus (12-bit resolution, 50Hz default). Controller `0x40` uses all 16 of its channels; controller `0x41` uses 4 of its 16, leaving 12 free for future expansion. The waist rotation is not a PCA9685 channel; it is a DC motor with encoder feedback, powered directly from the 12V bus.",
         },
         {
           type: "table",
@@ -95,14 +95,14 @@ export const REFERENCE = {
             ["L. Middle", "left_middle", "0x41", "1", "0°", "+90°", "15°", "MG90S"],
             ["L. Ring", "left_ring", "0x41", "2", "0°", "+90°", "15°", "MG90S"],
             ["L. Pinky", "left_pinky", "0x41", "3", "0°", "+80°", "15°", "MG90S"],
-            ["Waist Rotation", "waist_yaw", "— (12V direct)", "—", "−60°", "+60°", "0°", "DC+encoder"],
+            ["Waist Rotation", "waist_yaw", "n/a (12V direct)", "-", "−60°", "+60°", "0°", "DC+encoder"],
           ],
         },
         {
           type: "callout",
           tone: "warn",
           label: "Caution",
-          text: "A wrong mapping can make the wrong joint move — edit servo mapping carefully, and re-verify against this table after any repair.",
+          text: "A wrong mapping can make the wrong joint move; edit servo mapping carefully, and re-verify against this table after any repair.",
         },
 
         { type: "heading", level: 2, id: "power", text: "Power architecture" },
@@ -118,7 +118,7 @@ export const REFERENCE = {
         },
         {
           type: "p",
-          text: "The two 6V servo rails are separately regulated — not galvanically isolated — so current spikes from motors are dampened before they reach the Pi's dedicated 5V rail. Both PCA9685 controllers draw power from the two 6V rails and receive position commands over a separate I²C signal path.",
+          text: "The two 6V servo rails are separately regulated, not galvanically isolated, so current spikes from motors are dampened before they reach the Pi's dedicated 5V rail. Both PCA9685 controllers draw power from the two 6V rails and receive position commands over a separate I²C signal path.",
         },
         {
           type: "callout",
@@ -167,7 +167,7 @@ export const REFERENCE = {
             {
               symptom: "Robot does not move",
               cause: "The motion node is not running, power is not enabled, or the behavior is blocked by a safety condition.",
-              fix: "Check terminal output, confirm the robot is powered, and verify the motion system is active. If Robot Connection is still pending, Run shows a simulated result instead of physical motion — that's expected, not an error.",
+              fix: "Check terminal output, confirm the robot is powered, and verify the motion system is active. If Robot Connection is still pending, Run shows a simulated result instead of physical motion; that's expected, not an error.",
             },
             {
               symptom: "Camera not detected",
@@ -187,7 +187,7 @@ export const REFERENCE = {
             {
               symptom: "Wrong file edited",
               cause: "The student edited a copy, a demo file, or a file outside their own project.",
-              fix: "Check the file path and confirm the command is running the same file the student edited — see [Student Projects](https://learning.swayform.net/projects).",
+              fix: "Check the file path and confirm the command is running the same file the student edited; see [Student Projects](https://learning.swayform.net/projects).",
             },
           ],
         },
@@ -201,7 +201,7 @@ export const REFERENCE = {
       blocks: [
         {
           type: "lead",
-          text: "SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. When something breaks, schools replace the affected part rather than the whole robot — and many repairs are a supervised student learning opportunity, not a service ticket.",
+          text: "SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. When something breaks, schools replace the affected part rather than the whole robot, and many repairs are a supervised student learning opportunity, not a service ticket.",
         },
 
         { type: "heading", level: 2, text: "Component identification" },
@@ -209,9 +209,9 @@ export const REFERENCE = {
         {
           type: "list",
           items: [
-            "**Structural / printed part** — a cracked bracket, broken mount, or worn joint housing. Usually a 3D-printed part.",
-            "**Servo** — MG996R (large joints) or MG90S (small joints, fingers). See the joint table on the [Robot](https://swayform.net/robot) page for which servo drives which joint.",
-            "**Electronics** — Raspberry Pi, PCA9685 controller, power converter, camera, or wiring. See [Technical Reference](https://learning.swayform.net/technical-reference).",
+            "**Structural / printed part**: a cracked bracket, broken mount, or worn joint housing. Usually a 3D-printed part.",
+            "**Servo**: MG996R (large joints) or MG90S (small joints, fingers). See the joint table on the [Robot](https://swayform.net/robot) page for which servo drives which joint.",
+            "**Electronics**: Raspberry Pi, PCA9685 controller, power converter, camera, or wiring. See [Technical Reference](https://learning.swayform.net/technical-reference).",
           ],
         },
 
@@ -227,10 +227,10 @@ export const REFERENCE = {
           items: [
             "Power off and disconnect before touching any wiring.",
             "Check for visible damage: cracked plastic, loose screws, disconnected cables, burnt smell.",
-            "If a joint won't move, check [Troubleshooting](https://learning.swayform.net/troubleshooting) first — many 'broken' joints are a software or power issue, not a physical one.",
+            "If a joint won't move, check [Troubleshooting](https://learning.swayform.net/troubleshooting) first; many 'broken' joints are a software or power issue, not a physical one.",
             "If a joint moves but grinds or catches, suspect a mechanical/structural issue.",
             "If a joint doesn't respond to any command but others on the same controller do, suspect the individual servo.",
-            "If an entire side or group of joints doesn't respond, suspect that PCA9685 controller or its power rail — see Technical Reference for which controller and rail serve which joints.",
+            "If an entire side or group of joints doesn't respond, suspect that PCA9685 controller or its power rail; see Technical Reference for which controller and rail serve which joints.",
           ],
         },
 
@@ -266,7 +266,7 @@ export const REFERENCE = {
         { type: "heading", level: 2, text: "Replacement parts" },
         {
           type: "p",
-          text: "Every individual 3D-printed replacement part is priced below $20. Schools may download the available print files and produce replacement structural parts themselves. Electronic and mechanical replacement costs vary by component — when a larger assembly is damaged, schools replace only the affected printed or electronic components rather than purchasing a new robot.",
+          text: "Every individual 3D-printed replacement part is priced below $20. Schools may download the available print files and produce replacement structural parts themselves. Electronic and mechanical replacement costs vary by component, when a larger assembly is damaged, schools replace only the affected printed or electronic components rather than purchasing a new robot.",
         },
         {
           type: "callout",
@@ -290,7 +290,7 @@ export const REFERENCE = {
       blocks: [
         {
           type: "lead",
-          text: "SwayForm is designed for classroom robotics learning, but it is still a physical robot. This is a quick-reference summary — the full protected motion-control architecture and layered emergency-stop system are documented on the public [Safety](https://swayform.net/safety) page and the [Robot Safety and Acceptable Use Policy](https://swayform.net/robot-safety). The in-portal [Safety First](https://learning.swayform.net/learn/activity/safety-first) activity covers this in lesson form.",
+          text: "SwayForm is designed for classroom robotics learning, but it is still a physical robot. This is a quick-reference summary; the full protected motion-control architecture and layered emergency-stop system are documented on the public [Safety](https://swayform.net/safety) page and the [Robot Safety and Acceptable Use Policy](https://swayform.net/robot-safety). The in-portal [Safety First](https://learning.swayform.net/learn/activity/safety-first) activity covers this in lesson form.",
         },
         { type: "heading", level: 2, text: "Core safety checklist" },
         {
@@ -311,7 +311,7 @@ export const REFERENCE = {
           type: "callout",
           tone: "safety",
           label: "Safety",
-          text: "Never touch SwayForm while it is powered, enabled, or moving. If something goes wrong: stop the program, don't grab the robot — see Safety and Ground Rules in Getting Started.",
+          text: "Never touch SwayForm while it is powered, enabled, or moving. If something goes wrong: stop the program, don't grab the robot; see Safety and Ground Rules in Getting Started.",
         },
         { type: "heading", level: 2, text: "Working on the physical robot" },
         {
@@ -346,7 +346,7 @@ export const REFERENCE = {
           type: "callout",
           tone: "note",
           label: "Note",
-          text: "Files also autosave a short moment after you stop typing — Ctrl/Cmd+S is for saving immediately, not the only way your work is kept.",
+          text: "Files also autosave a short moment after you stop typing; Ctrl/Cmd+S is for saving immediately, not the only way your work is kept.",
         },
       ],
     },
@@ -358,22 +358,22 @@ export const REFERENCE = {
       blocks: [
         {
           type: "lead",
-          text: "There's no live chat or support-ticket system inside the Learning Portal yet — here's what actually works today.",
+          text: "There's no live chat or support-ticket system inside the Learning Portal yet; here's what actually works today.",
         },
         { type: "heading", level: 2, text: "Stuck on a lab or demo" },
         {
           type: "steps",
           items: [
-            "Re-read the Textbook's Expected Behavior for that step — most mismatches are a small, specific difference from what's described.",
+            "Re-read the Textbook's Expected Behavior for that step; most mismatches are a small, specific difference from what's described.",
             "Check Troubleshooting for the symptom you're seeing.",
             "Check Glossary if a term in the instructions is unfamiliar.",
-            "Ask your instructor — they can help directly in the classroom.",
+            "Ask your instructor; they can help directly in the classroom.",
           ],
         },
         { type: "heading", level: 2, text: "Something in the Learning Portal itself is broken" },
         {
           type: "p",
-          text: "Guest progress and workspace files are stored locally in your browser — clearing site data or switching browsers will lose them. For a bug in the portal itself (not your lab code), contact [SwayForm](https://swayform.net/contact).",
+          text: "Guest progress and workspace files are stored locally in your browser; clearing site data or switching browsers will lose them. For a bug in the portal itself (not your lab code), contact [SwayForm](https://swayform.net/contact).",
         },
       ],
     },

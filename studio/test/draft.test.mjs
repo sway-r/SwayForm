@@ -84,7 +84,7 @@ test('undo semantics: replay of a prefix equals never having applied the tail', 
 });
 
 test('every DraftStore mutator is blocked while saving is true, and recovers once cleared', () => {
-  // Deliberately skips init()/loadContent() — the guard in each method fires
+  // Deliberately skips init()/loadContent(): the guard in each method fires
   // before any base/ops state is touched, so this stays isolated from
   // studio/.draft.json and doesn't need real content loaded to prove the
   // race-condition fix: runSave() (save.mjs) sets draft.saving = true for
@@ -99,6 +99,6 @@ test('every DraftStore mutator is blocked while saving is true, and recovers onc
   assert.throws(() => draft.discard(), /save is in progress/);
   assert.throws(() => draft.revertOp(0), /save is in progress/);
   draft.saving = false;
-  // Guard cleared — undo() now runs its normal logic (nothing to undo) instead of throwing.
+  // Guard cleared, undo() now runs its normal logic (nothing to undo) instead of throwing.
   assert.equal(draft.undo(), false);
 });

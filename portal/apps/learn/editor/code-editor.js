@@ -1,5 +1,5 @@
 /* Monaco Editor wrapper. Loaded from a CDN via Monaco's own AMD loader
-   (this repo has no bundler, so there's no npm-installed copy) — with a
+   (this repo has no bundler, so there's no npm-installed copy), with a
    plain-<textarea> fallback if the CDN can't be reached, so the Learn app
    still works offline / with a slow network instead of hard-failing. */
 
@@ -17,7 +17,7 @@ function loadMonaco(){
     if (window.monaco) { resolve(window.monaco); return; }
     const timer = setTimeout(() => finish(null, new Error('Monaco load timed out')), LOAD_TIMEOUT_MS);
 
-    // Don't cache a failed load — a transient CDN/network hiccup would
+    // Don't cache a failed load; a transient CDN/network hiccup would
     // otherwise permanently strand every future CodeEditor in textarea
     // fallback mode for the rest of the session, since monacoPromise is
     // module-level and loadMonaco() short-circuits to it once set.
@@ -64,7 +64,7 @@ export class CodeEditor {
     try {
       const monaco = await loadMonaco();
       // dispose() can run while the CDN load above is still in flight (the
-      // window/tab was closed before Monaco finished loading) — without this,
+      // window/tab was closed before Monaco finished loading), without this,
       // mount() would go on to create a live editor bound to a container
       // nobody will ever dispose, on a model nobody asked for anymore.
       if (this.disposed) return;
@@ -144,7 +144,7 @@ export class CodeEditor {
 
   /** First time a file is opened this session, collapse every top-level
    *  function/class so students see the shape of the file first, then
-   *  re-expand only the one(s) containing a `# TODO` — the part they
+   *  re-expand only the one(s) containing a `# TODO`: the part they
    *  actually need to change. Files with no TODO (read-only demos like
    *  wave.py) just stay fully folded. Only runs once per model so a
    *  student's own fold/unfold choices persist across switching files. */

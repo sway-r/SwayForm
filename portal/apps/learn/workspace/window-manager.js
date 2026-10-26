@@ -1,18 +1,18 @@
-/* Reusable nested-desktop window manager. Framework-agnostic vanilla JS —
+/* Reusable nested-desktop window manager. Framework-agnostic vanilla JS,
  * this repo has no bundler, so this is hand-rolled rather than pulling a
  * drag/resize library over the network (same reasoning as loading Monaco
  * via its own CDN script: keep dependencies to what's already established).
  *
  * One instance manages one "desktop" element (here: the Activity Workspace's
- * body). Apps are registered lazily — nothing mounts until first `open()`.
+ * body). Apps are registered lazily, nothing mounts until first `open()`.
  * Layout (position/size/minimized/maximized/open) persists to localStorage
- * under a caller-supplied storageKey — activity-workspace.js scopes that key
+ * under a caller-supplied storageKey, activity-workspace.js scopes that key
  * per activity.id, so each activity remembers its own arrangement.
  *
  * A window that's never been dragged/resized/snapped stays "pristine": its
  * bounds are always re-derived from the percentage-based defaultLayout
  * against the CURRENT desktop size (on open and on every resize), rather
- * than trusting whatever pixel bounds got persisted last time — otherwise
+ * than trusting whatever pixel bounds got persisted last time, otherwise
  * reopening on a differently-sized desktop (portal window not maximized,
  * a different monitor, a fullscreen toggle) reapplies stale pixels sized
  * for a different viewport. The moment a window is actually customized,
@@ -30,7 +30,7 @@ export class WorkspaceWindowManager {
   constructor(desktopEl, { storageKey, defaultLayout }) {
     this.desktopEl = desktopEl;
     this.storageKey = storageKey;
-    this.defaultLayout = defaultLayout; // { [id]: {x,y,w,h,minimized,maximized,open} } in %/px mix — see below
+    this.defaultLayout = defaultLayout; // { [id]: {x,y,w,h,minimized,maximized,open} } in %/px mix; see below
     this.apps = new Map();   // id -> { title, icon, minWidth, minHeight, render }
     this.windows = new Map(); // id -> runtime state + el + instance
     this.zCounter = 10;
@@ -48,7 +48,7 @@ export class WorkspaceWindowManager {
   }
 
   /** Disconnects the ResizeObserver. Call when the desktop element is about
-   * to be torn down — otherwise a resize notification for the (now zero-size
+   * to be torn down, otherwise a resize notification for the (now zero-size
    * or removed) element can fire asynchronously afterward, and _reclampAll's
    * _persist() would overwrite the just-saved layout with an empty one since
    * this.windows was already cleared by close(). */
@@ -86,7 +86,7 @@ export class WorkspaceWindowManager {
   }
 
   /** minW/minH floor the computed size at each app's registered minWidth/
-   *  minHeight (falling back to the global MIN_W/MIN_H) — without this, a
+   *  minHeight (falling back to the global MIN_W/MIN_H), without this, a
    *  percentage of a narrow desktop can land well under what the app can
    *  actually render (e.g. the Notebook shrinking to ~160px and going
    *  effectively blank). x/y are then clamped so a floored window never
@@ -100,7 +100,7 @@ export class WorkspaceWindowManager {
     return { x, y, w, h, minimized: !!d.minimized, maximized: !!d.maximized };
   }
 
-  /** Apply an explicit named layout (e.g. a preset) — same shape as
+  /** Apply an explicit named layout (e.g. a preset), same shape as
    * defaultLayout. Apps missing from layoutMap are closed; others are
    * opened/repositioned to the given bounds, minimized if requested. */
   applyLayout(layoutMap) {
@@ -112,7 +112,7 @@ export class WorkspaceWindowManager {
       w.maximized = false;
       w.x = bounds.x; w.y = bounds.y; w.w = bounds.w; w.h = bounds.h;
       // An explicit preset (e.g. "Learn + Code") is a deliberate non-default
-      // arrangement — mark it customized so a later desktop resize clamps
+      // arrangement, mark it customized so a later desktop resize clamps
       // it in place instead of snapping it back to the tiled default.
       w.pristine = false;
       this._applyBounds(w);
@@ -129,7 +129,7 @@ export class WorkspaceWindowManager {
   }
 
   _persist() {
-    // Merge into this._layout rather than rebuilding it from this.windows —
+    // Merge into this._layout rather than rebuilding it from this.windows,
     // this.windows only holds apps instantiated so far *this session*, so a
     // wholesale rebuild would silently drop the saved position of an app
     // that hasn't been open()'d yet (e.g. mid-boot-sequence), before its own
@@ -145,8 +145,8 @@ export class WorkspaceWindowManager {
     try { localStorage.removeItem(this.storageKey); } catch (e) { /* noop */ }
     this._layout = {};
     // open() focuses each app as it opens, so whichever app opens LAST ends
-    // up active. Reopen with codeEditor last — matching bootDefault()'s
-    // explicit open order in activity-workspace.js — so Code Editor, the
+    // up active. Reopen with codeEditor last, matching bootDefault()'s
+    // explicit open order in activity-workspace.js, so Code Editor, the
     // primary work surface, ends up focused after a reset, not Terminal
     // (registration order alone would open Notebook, Code Editor, Terminal).
     const keys = Array.from(this.apps.keys());
@@ -173,7 +173,7 @@ export class WorkspaceWindowManager {
       // dragged/resized/snapped this window ("pristine" is false). A window
       // that's never been touched re-derives its bounds fresh from the
       // percentage-based default every time, against the CURRENT desktop
-      // size — otherwise reopening an activity on a differently-sized
+      // size, otherwise reopening an activity on a differently-sized
       // desktop (portal window not maximized this time, a different
       // monitor, browser fullscreen toggled) reapplied stale pixel bounds
       // computed for whatever size the desktop happened to be the last
@@ -195,11 +195,11 @@ export class WorkspaceWindowManager {
       this._createEl(w, cfg);
     }
     // A maximized window's stored x/y/w/h are a snapshot of the desktop size
-    // at the moment it was maximized — reopening it (e.g. after a reload,
+    // at the moment it was maximized, reopening it (e.g. after a reload,
     // or a viewport resize since it was closed) must refit to the CURRENT
     // desktop, matching what _reclampAll already does on a live resize.
     // Otherwise it renders "maximized" at stale dimensions with its resize
-    // handles hidden and dragging disabled — a stuck window.
+    // handles hidden and dragging disabled, a stuck window.
     if (w.maximized) {
       const { w: dw, h: dh } = this._desktopBounds();
       w.x = 0; w.y = 0; w.w = dw; w.h = dh;
@@ -317,7 +317,7 @@ export class WorkspaceWindowManager {
     el.querySelectorAll('.ww-resize').forEach((handle) => this._makeResizable(handle, w));
 
     const winApi = {
-      setTitle: (sub) => { w.titleEl.textContent = sub ? `${cfg.title} — ${sub}` : cfg.title; },
+      setTitle: (sub) => { w.titleEl.textContent = sub ? `${cfg.title} - ${sub}` : cfg.title; },
       focus: () => this.focus(w.id),
       close: () => this.close(w.id),
       isMaximized: () => w.maximized,
@@ -335,11 +335,11 @@ export class WorkspaceWindowManager {
     w.el.querySelectorAll('.ww-resize').forEach((h) => { h.style.display = w.maximized ? 'none' : ''; });
   }
 
-  /** The single place bounds actually reach the DOM — floors w/h at this
+  /** The single place bounds actually reach the DOM, floors w/h at this
    *  window's minW/minH (and re-clamps x/y to stay on-desktop) no matter
    *  where the bounds came from. Without this, a too-small width restored
-   *  from a *persisted* ("customized"/non-pristine) layout — saved before
-   *  this floor existed, or from any future bug — would render exactly as
+   *  from a *persisted* ("customized"/non-pristine) layout, saved before
+   *  this floor existed, or from any future bug; would render exactly as
    *  undersized as whatever got saved; only the default-layout calculation
    *  itself was floored before. */
   _applyBounds(w) {
@@ -358,7 +358,7 @@ export class WorkspaceWindowManager {
     this.windows.forEach((w) => {
       if (w.maximized) { w.x = 0; w.y = 0; w.w = dw; w.h = dh; this._applyBounds(w); return; }
       if (w.pristine) {
-        // Never dragged/resized/snapped — always re-derive from the
+        // Never dragged/resized/snapped, always re-derive from the
         // percentage default against the CURRENT desktop size instead of
         // clamping stale pixels. Clamping each tiled window independently
         // doesn't preserve their relationship to each other, so a viewport
@@ -370,7 +370,7 @@ export class WorkspaceWindowManager {
         this._applyBounds(w);
         return;
       }
-      // Full containment on an automatic reclamp (viewport resize) — unlike
+      // Full containment on an automatic reclamp (viewport resize), unlike
       // the interactive drag clamp, a window must never end up with its
       // title bar controls hanging off the edge after the browser resizes.
       w.w = Math.min(w.w, Math.max(w.minW || MIN_W, dw));
@@ -384,7 +384,7 @@ export class WorkspaceWindowManager {
 
   /* ---------------------------------------------------------------- drag */
   _makeDraggable(handle, w) {
-    const DRAG_THRESHOLD = 4; // px — below this, treat mousedown+mouseup as a plain click, not a drag
+    const DRAG_THRESHOLD = 4; // px, below this, treat mousedown+mouseup as a plain click, not a drag
     let drag = null;
     handle.addEventListener('mousedown', (e) => {
       if (e.target.closest('.ww-ctrl')) return;
@@ -429,7 +429,7 @@ export class WorkspaceWindowManager {
       drag = null;
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      if (!moved) return; // plain click (or the first half of a dblclick) — not a drag, nothing to snap/persist
+      if (!moved) return; // plain click (or the first half of a dblclick), not a drag, nothing to snap/persist
       w.pristine = false;
       w.el.classList.remove('ww-dragging');
       document.body.classList.remove('ww-no-select');

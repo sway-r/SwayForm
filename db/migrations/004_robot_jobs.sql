@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS robot_jobs (
   robot_id       INTEGER NOT NULL REFERENCES robots(id) ON DELETE CASCADE,
   -- References user_profiles so deleting a student's account (the admin
   -- panel's "delete this student's data forever" action, or a direct
-  -- deletion request) takes their submitted code/output with it for free —
+  -- deletion request) takes their submitted code/output with it for free,
   -- same pattern as progress_completed/progress_current in schema.sql. Any
   -- account submitting a job has already completed onboarding (a
   -- user_profiles row is required to reach this feature at all), so this
@@ -41,7 +41,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_robot_jobs_one_running
   ON robot_jobs (robot_id) WHERE status = 'running';
 
 -- Terminal jobs (succeeded/failed/rejected/cancelled) are purged 90 days
--- after they reach that terminal state — see /data-retention on the public
+-- after they reach that terminal state, see /data-retention on the public
 -- site and api/cron/cleanup-robot-jobs.js, which runs this on a schedule.
 -- Speeds up that cron's WHERE clause (status IN (...) AND the COALESCE'd
 -- terminal timestamp).

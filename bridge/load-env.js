@@ -1,4 +1,4 @@
-// Tiny manual .env loader — avoids pulling in the `dotenv` dependency for
+// Tiny manual .env loader, avoids pulling in the `dotenv` dependency for
 // one file. Only used for local dev; the real VPS sets env vars via its
 // systemd unit, not a .env file.
 import { readFileSync, existsSync } from 'node:fs';

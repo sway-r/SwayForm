@@ -5,7 +5,7 @@ import { getTheme, setTheme } from '../theme.js';
 
 export function mount(container, { session, onComplete }){
   // An admin may have already linked this email to a robot (added them as
-  // a student, or set them as an admin email) before this first login —
+  // a student, or set them as an admin email) before this first login,
   // in that case the robot's school IS their school, not a question to
   // ask and risk them picking wrong from the dropdown. Lock it instead.
   const knownSchoolName = session && session.robotSchoolName;
@@ -26,7 +26,7 @@ export function mount(container, { session, onComplete }){
           <div class="login-field">
             <label>School</label>
             <div class="ob-school-locked">${escapeHtml(knownSchoolName)}</div>
-            <p class="ob-school-locked-note">Set by your robot's admin — contact them if this is wrong.</p>
+            <p class="ob-school-locked-note">Set by your robot's admin; contact them if this is wrong.</p>
           </div>` : `
           <div class="login-field">
             <label for="ob-school">School</label>
@@ -93,7 +93,7 @@ export function mount(container, { session, onComplete }){
     e.preventDefault();
     const displayName = nameInput.value.trim();
     // When locked, the server re-derives the robot's school itself rather
-    // than trusting this value — it's sent along only so the "missing
+    // than trusting this value, it's sent along only so the "missing
     // fields" check below behaves the same either way.
     const schoolName = knownSchoolName || (notListedCheckbox.checked ? otherInput.value : schoolSelect.value).trim();
 

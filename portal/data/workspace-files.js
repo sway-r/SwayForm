@@ -2,7 +2,7 @@
    mock-fs.js loads this map once per browser session; after that, edits
    live in localStorage and this module is never re-read for an edited file.
    Paths follow the convention already used in the real Getting Started docs:
-   ~/swayform_ws/src/<package>/<file>.py — represented here without the leading ~. */
+   ~/swayform_ws/src/<package>/<file>.py, represented here without the leading ~. */
 
 const PACKAGE_XML = (name, description) => `<?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
@@ -45,7 +45,7 @@ setup(
 export const WORKSPACE_FILES = {
   /* === REAL ROBOT SOURCE (agent-authored, synced from the swayform_ws repo,
      public-src branch, src/swayform_robot/swayform_robot/): this is the
-     actual code running on the robot for wave/handshake/idle/finger_wave —
+     actual code running on the robot for wave/handshake/idle/finger_wave,
      not a teaching simplification. See swayform_demos/ below for the
      planned-but-not-yet-real demos (pick and place, rock paper scissors),
      which stay separate until they're real too. === */
@@ -55,7 +55,7 @@ export const WORKSPACE_FILES = {
 <package format="3">
   <name>swayform_robot</name>
   <version>0.1.0</version>
-  <description>SwayForm's real, running behaviors: wave, handshake, idle, and finger_wave — direct PCA9685 servo control, plus the shared hardware and config layers they're built on.</description>
+  <description>SwayForm's real, running behaviors: wave, handshake, idle, and finger_wave, direct PCA9685 servo control, plus the shared hardware and config layers they're built on.</description>
   <maintainer email="contact@swayform.net">SwayForm</maintainer>
   <license>Proprietary</license>
 
@@ -83,7 +83,7 @@ setup(
     zip_safe=True,
     maintainer="SwayForm",
     maintainer_email="contact@swayform.net",
-    description="SwayForm's real, running behaviors — direct PCA9685 servo control.",
+    description="SwayForm's real, running behaviors, direct PCA9685 servo control.",
     license="Proprietary",
     entry_points={
         "console_scripts": [
@@ -1146,7 +1146,7 @@ from swayform_robot.hardware import servo_control as sc
 PCA_HAND = 0x40
 
 THUMB = 0
-FINGERS = [1, 2, 3, 4]  # index, middle, ring, pinky — ripple order
+FINGERS = [1, 2, 3, 4]  # index, middle, ring, pinky, ripple order
 
 FINGER_OPEN = 135  # fully open reference; curling decreases from here
 
@@ -2500,7 +2500,7 @@ import lgpio
 
 from swayform_robot.config import load_config as _load_robot_config
 
-PWM_FREQ = 1000  # Hz — works well with BTS7960
+PWM_FREQ = 1000  # Hz, works well with BTS7960
 
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -2525,18 +2525,18 @@ def load_config():
 
 # ── GPIO ──────────────────────────────────────────────────────────────────────
 
-chip = None  # lgpio chip handle — set during setup
+chip = None  # lgpio chip handle, set during setup
 
 
 def setup_gpio(cfg):
     global chip
     chip = lgpio.gpiochip_open(4)  # Pi 5 GPIO is on gpiochip4
 
-    # Enable pins — set HIGH so the driver is active
+    # Enable pins, set HIGH so the driver is active
     lgpio.gpio_claim_output(chip, cfg["ren_gpio"], 1)
     lgpio.gpio_claim_output(chip, cfg["len_gpio"], 1)
 
-    # PWM pins — start LOW (motor stopped)
+    # PWM pins, start LOW (motor stopped)
     lgpio.gpio_claim_output(chip, cfg["rpwm_gpio"], 0)
     lgpio.gpio_claim_output(chip, cfg["lpwm_gpio"], 0)
 
@@ -2561,7 +2561,7 @@ def stop_motor(cfg):
 
 
 def rotate_right(cfg, speed_pct):
-    # Always kill the opposite side first — never both active at once
+    # Always kill the opposite side first, never both active at once
     lgpio.tx_pwm(chip, cfg["lpwm_gpio"], PWM_FREQ, 0)
     lgpio.tx_pwm(chip, cfg["rpwm_gpio"], PWM_FREQ, speed_pct)
 
@@ -2614,7 +2614,7 @@ def main():
             ready, _, _ = select.select([sys.stdin], [], [], 0.1)
 
             if not ready:
-                # No key within timeout — key was released, stop motor
+                # No key within timeout, key was released, stop motor
                 if current_state != "stopped":
                     stop_motor(cfg)
                     current_state = "stopped"
@@ -2658,10 +2658,10 @@ if __name__ == "__main__":
 `,
 
 
-  /* === PLANNED DEMOS (not yet real — no production robot behavior exists
+  /* === PLANNED DEMOS (not yet real, no production robot behavior exists
      for these). Kept separate from swayform_robot/ above; promote a demo
      here into swayform_robot/behaviors/ once it has real source to sync. === */
-  "swayform_ws/src/swayform_demos/package.xml": PACKAGE_XML("swayform_demos", "Planned demos: Pick and Place, Rock Paper Scissors. Wave and Handshake moved to swayform_robot/ — see the real source there."),
+  "swayform_ws/src/swayform_demos/package.xml": PACKAGE_XML("swayform_demos", "Planned demos: Pick and Place, Rock Paper Scissors. Wave and Handshake moved to swayform_robot/, see the real source there."),
   "swayform_ws/src/swayform_demos/setup.py": SETUP_PY("swayform_demos"),
 
   "swayform_ws/src/swayform_demos/pick_and_place.py": `from time import sleep
@@ -2671,7 +2671,7 @@ from swayform.motion import MotionClient
 LIFT_HOLD_SECONDS = 0.6
 TRANSPORT_HOLD_SECONDS = 0.8
 
-# fixed, tested poses — not object localization
+# fixed, tested poses, not object localization
 PICKUP_APPROACH = {"shoulder_pitch": 30, "shoulder_roll": 5, "elbow_pitch": 55, "wrist_yaw": 0}
 PICKUP_GRASP    = {"shoulder_pitch": 34, "shoulder_roll": 5, "elbow_pitch": 62, "wrist_yaw": 0}
 LIFT_POSE       = {"shoulder_pitch": 10, "shoulder_roll": 5, "elbow_pitch": 40, "wrist_yaw": 0}
@@ -2748,7 +2748,7 @@ def countdown(audio: AudioPrompt) -> None:
 
 
 def get_user_choice() -> str:
-    # keyboard input — no camera/gesture detection in this version
+    # keyboard input: no camera/gesture detection in this version
     while True:
         raw = input("Your move (rock / paper / scissors): ").strip().lower()
         if raw in VALID_CHOICES:
@@ -2794,7 +2794,7 @@ def main() -> None:
         winner = play_round(motion, audio)
         scores[winner] += 1
 
-    print(f"\\nFinal score — Robot: {scores['robot']}  You: {scores['user']}  Ties: {scores['tie']}")
+    print(f"\\nFinal score: Robot: {scores['robot']}  You: {scores['user']}  Ties: {scores['tie']}")
     motion.safe_pose("idle")
 
 
@@ -2808,7 +2808,7 @@ if __name__ == "__main__":
      lab_10_combined_keyboard_control.py, insert further entries below each
      keyed "swayform_ws/src/swayform_labs/lab_NN_slug.py", before the closing
      brace. (The earlier Level 1 curriculum's lab_01_hello_motion.py through
-     lab_10_mini_demo_challenge.py have been removed — unlisted from
+     lab_10_mini_demo_challenge.py have been removed, unlisted from
      CURRICULUM and unreferenced, they only cluttered the File Explorer;
      recoverable via git history if that content is ever revived.) === */
 
@@ -2934,7 +2934,7 @@ HOLD_SECONDS = 1.5
 def basic_handshake(motion: MotionClient) -> None:
     motion.move_joint(RIGHT_ELBOW, ELBOW_BEND)
 
-    # TODO: close the hand — motion.set_hand_pose("right_hand", "gentle_close")
+    # TODO: close the hand with motion.set_hand_pose("right_hand", "gentle_close")
 
     sleep(HOLD_SECONDS)
     motion.set_hand_pose("right_hand", "open")
@@ -3164,12 +3164,12 @@ STOP_KEY = "q"
 
 
 def handle_head_key(motion: MotionClient, key: str, current_pitch_yaw):
-    # Reuses the same idea as Lab 06 — left as an exercise to extend.
+    # Reuses the same idea as Lab 06, left as an exercise to extend.
     return current_pitch_yaw
 
 
 def handle_torso_key(motion: MotionClient, key: str, current_angle: int) -> int:
-    # Reuses the same idea as Lab 05 — left as an exercise to extend.
+    # Reuses the same idea as Lab 05, left as an exercise to extend.
     return current_angle
 
 

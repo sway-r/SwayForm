@@ -62,7 +62,7 @@ export default function App() {
     <div className={`app${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <div className="topbar">
         <button className="tb-btn" onClick={() => setSidebarCollapsed((v) => !v)}
-          title={sidebarCollapsed ? 'Show sidebar' : 'Collapse sidebar — more room for the lesson'}>
+          title={sidebarCollapsed ? 'Show sidebar' : 'Collapse sidebar, more room for the lesson'}>
           <Icon name="menu" className="icn" />
         </button>
         <div className="brand"><span><span className="s">S</span>wayForm</span><span className="sub">Studio</span></div>
@@ -74,7 +74,7 @@ export default function App() {
         {store.staleFiles.length > 0 && (
           <button className="tb-btn" style={{ color: 'var(--amber)' }} title={store.staleFiles.join('\n')}
             onClick={async () => { const r = await api.post('/reload'); await refreshState(); toast(r.dropped.length ? `Reloaded. Dropped ${r.dropped.length} conflicting change(s).` : 'Reloaded external file changes.', 'info'); }}>
-            <Icon name="warning" className="icn" /> Files changed outside Studio — reload
+            <Icon name="warning" className="icn" /> Files changed outside Studio, reload
           </button>
         )}
         <button className="tb-btn" disabled={!store.canUndo} onClick={undo} title="Undo (Ctrl+Z)"><Icon name="undo" className="icn" /></button>

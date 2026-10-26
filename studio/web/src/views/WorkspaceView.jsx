@@ -1,4 +1,4 @@
-/* Workspace Files — the students' virtual ROS 2 filesystem (the seed map in
+/* Workspace Files: the students' virtual ROS 2 filesystem (the seed map in
  * workspace-files.js): IDE-style tree, Monaco editing, add/rename/delete,
  * with per-file usage shown (which lessons open it).
  */
@@ -79,7 +79,7 @@ export default function WorkspaceView({ nav, params }) {
             <button className="btn" style={{ flex: 1 }} onClick={() => setModal({ type: 'add' })}><Icon name="plus" size={11} /> File</button>
             <button className="btn" disabled={!active} onClick={() => setModal({ type: 'rename', path: active })} title="Rename"><Icon name="edit" size={11} /></button>
             <button className="btn danger" disabled={!active} title="Delete file" onClick={async () => {
-              if (window.confirm(`Delete workspace file ${active}?\n${usage[active] ? `\nUsed by: ${usage[active].join(', ')} — deletion will be refused.` : ''}`)) {
+              if (window.confirm(`Delete workspace file ${active}?\n${usage[active] ? `\nUsed by: ${usage[active].join(', ')}, deletion will be refused.` : ''}`)) {
                 if (await sendOp({ type: 'file.remove', path: active })) {
                   setActive(paths.find((p) => p !== active) || null);
                   setDirty(null);

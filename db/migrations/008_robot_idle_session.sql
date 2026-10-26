@@ -5,7 +5,7 @@
 --
 -- It is set back to false server-side the moment a job is approved
 -- (api/robot/queue.js's approve action) so idle and a real running job can
--- never overlap on the physical robot — matches the same one-thing-moves-
+-- never overlap on the physical robot, matches the same one-thing-moves-
 -- the-robot-at-a-time principle as idx_robot_jobs_one_running below, just
 -- enforced in application code here since idle sessions aren't rows in
 -- robot_jobs. It does not auto-resume after the job finishes; the admin

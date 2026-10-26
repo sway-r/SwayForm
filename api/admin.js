@@ -41,12 +41,12 @@ export default async function handler(req, res){
       sql`SELECT id, email, expires_at FROM school_invitations WHERE robot_id = ${robotId} AND expires_at > now() ORDER BY created_at`,
     ]);
 
-    // Only active students' progress is worth the admin's time — archived
+    // Only active students' progress is worth the admin's time, archived
     // students' work is preserved in the DB but not surfaced here.
     const activeEmails = studentRows.filter((r) => r.status === 'active').map((r) => r.email);
     const progress = await fetchProgressSummary(activeEmails);
 
-    // Indexed by slot explicitly (not row insertion order) — filling slot 2
+    // Indexed by slot explicitly (not row insertion order), filling slot 2
     // before slot 1 is possible (fill slot 2 first, add slot 1 later), and
     // an id-ordered read would have silently shown slot 2's email under
     // "Admin 1" in that case.
@@ -134,7 +134,7 @@ export default async function handler(req, res){
         RETURNING email
       `;
       // Every other roster action (invite/cancel/remove) writes an audit
-      // row — this one didn't, leaving no record of who archived a student
+      // row, this one didn't, leaving no record of who archived a student
       // or when.
       if (rows.length) await audit('archive_student', rows[0].email);
       res.status(200).json({ ok: true });
@@ -167,7 +167,7 @@ export default async function handler(req, res){
       const adminAccountId = accountRows[0] && accountRows[0].id;
 
       try {
-        // A single atomic upsert keyed on (admin_account_id, slot) — the
+        // A single atomic upsert keyed on (admin_account_id, slot), the
         // unique index on that pair (db/migrations/007_admin_email_slots.sql)
         // makes "this slot already has a row" a database guarantee, not a
         // read-existing-then-decide race: the previous version read existing
@@ -198,7 +198,7 @@ export default async function handler(req, res){
     // (bridge/server.js's /_exchange route) for a 30-min httpOnly cookie
     // on code.bridge.swayform.net. requireCurrentAdmin above already
     // re-validated the admin role fresh from Postgres for this whole
-    // request — no separate check needed here. Full arbitrary code
+    // request: no separate check needed here. Full arbitrary code
     // execution on the robot's Pi sits behind this, so admin-only and a
     // short, single-use token are load-bearing, not just tidiness.
     case 'code-server-token': {

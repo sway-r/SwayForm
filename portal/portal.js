@@ -1,4 +1,4 @@
-/* SwayForm Learning Portal — window manager, desktop, router.
+/* SwayForm Learning Portal, window manager, desktop, router.
    No build step: this is a plain ES module loaded directly by the browser. */
 import { icon } from './icons.js';
 import * as LearnApp from './apps/learn/learn.js';
@@ -36,7 +36,7 @@ let activeAppId = null;
 
 /* -------------------------------------------------------- Desktop icons */
 // The entire purpose of Home: a place to launch applications. No hero, no
-// progress widgets, no dashboard — just shortcuts, like a real desktop.
+// progress widgets, no dashboard, just shortcuts, like a real desktop.
 function renderDesktopIcons(session){
   desktopIconsEl.innerHTML = '';
   const positions = loadIconPositions();
@@ -52,7 +52,7 @@ function renderDesktopIcons(session){
       <span class="desktop-icon-label">${mod.meta.title}</span>`;
     btn.addEventListener('click', () => {
       // A drag-then-release fires a click right after mouseup on the same
-      // element — swallow exactly that one so dropping an icon doesn't also
+      // element, swallow exactly that one so dropping an icon doesn't also
       // launch the app underneath your cursor.
       if (btn._justDragged){ btn._justDragged = false; return; }
       openApp(mod.meta.id);
@@ -69,7 +69,7 @@ function renderDesktopIcons(session){
 }
 
 /** Purely cosmetic, per-browser (same as window layout below, not synced
- * across devices) — lets someone arrange their desktop icons how they like.
+ * across devices), lets someone arrange their desktop icons how they like.
  * Nothing reads these positions except this render function. */
 const ICON_POSITIONS_KEY = 'swayform_desktop_icon_positions';
 
@@ -83,11 +83,11 @@ function saveIconPosition(appId, left, top){
     const positions = loadIconPositions();
     positions[appId] = { left, top };
     localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify(positions));
-  } catch (e) { /* storage unavailable — position just won't stick, non-fatal */ }
+  } catch (e) { /* storage unavailable, position just won't stick, non-fatal */ }
 }
 
 /** Free-drag a desktop icon to an absolute position within .desktop-icons.
- * Icons nobody has ever dragged stay in the normal flex-column flow — only
+ * Icons nobody has ever dragged stay in the normal flex-column flow, only
  * a moved icon gets pulled out of flow via position:absolute, so the rest
  * of the stack reflows to fill the gap, same as a real desktop. */
 function makeIconDraggable(btn, appId){
@@ -102,7 +102,7 @@ function makeIconDraggable(btn, appId){
   function onMove(e){
     if (!drag) return;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (!drag.moved && Math.hypot(dx, dy) < 4) return; // ignore jitter — not a real drag yet
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return; // ignore jitter, not a real drag yet
     drag.moved = true;
     btn.classList.add('dragging');
     btn.style.position = 'absolute';
@@ -141,7 +141,7 @@ function setAdminJobBadge(count){
 }
 
 // Studio (studio/server/content-load.mjs + adapters/portal-home-writer.mjs)
-// statically AST-parses this exact function for its desktop-icon editor —
+// statically AST-parses this exact function for its desktop-icon editor,
 // it must stay a plain `return [Ident, ...]` with no logic, or Studio's
 // parser silently falls through to "every imported app" and its writer
 // throws when saving. Keep any conditional/session-based app visibility out
@@ -151,7 +151,7 @@ function REGISTRY_ORDER(){
 }
 
 // Session-gated apps (Robot, Admin) are spliced in here rather than in
-// REGISTRY_ORDER() itself — their visibility is role-based access, not a
+// REGISTRY_ORDER() itself, their visibility is role-based access, not a
 // content-editorial on/off toggle, so it's deliberately outside what
 // Studio's desktop-icon editor manages. robot.js itself further branches on
 // whether a robot is actually linked, since "not linked yet" is a real,
@@ -178,7 +178,7 @@ function maximizedRect(){
 
 /** A maximized window owns the whole screen above the taskbar: the brand/
  *  clock topline is hidden while any visible window is maximized, which
- *  changes the layer's height — so every maximized window is re-fitted
+ *  changes the layer's height, so every maximized window is re-fitted
  *  afterwards. Call after anything that changes maximized/minimized/open
  *  state. */
 function syncMaximizedLayout(){
@@ -229,7 +229,7 @@ function createWindow(mod, saved){
   const el = document.createElement('section');
   // A window reopened from a saved desktop session resumes the same
   // maximized/restored state and bounds it had before refresh, instead of
-  // always forcing maximized — otherwise "restore on refresh" only ever
+  // always forcing maximized, otherwise "restore on refresh" only ever
   // restored WHICH apps were open, never how the student had arranged them.
   const startMaximized = saved ? !!saved.maximized : true;
   el.className = 'window ' + (startMaximized ? 'maximized' : 'restored');
@@ -275,7 +275,7 @@ function createWindow(mod, saved){
 
   const ctx = {
     windowEl: body,
-    setTitle(sub){ subEl.textContent = sub ? '— ' + sub : ''; },
+    setTitle(sub){ subEl.textContent = sub ? '- ' + sub : ''; },
     setAppTitle(t){ titleEl.textContent = t; },
     navigate(path, params){ navigateForApp(mod.meta.id, params, path); },
     openApp(id, p){ openApp(id, p); },
@@ -283,7 +283,7 @@ function createWindow(mod, saved){
   };
 
   // Robot and Code Editor mount asynchronously (they await getSession()
-  // before rendering) — mod.mount() then returns a Promise, not the
+  // before rendering), mod.mount() then returns a Promise, not the
   // {unmount()} instance itself. Storing that Promise directly as
   // win.instance meant closeWindow()'s `typeof win.instance.unmount ===
   // 'function'` check never matched, so closing Robot never cleared its
@@ -335,7 +335,7 @@ function makeDraggable(handle, el, win){
 
 /** Restored windows use native CSS `resize:both` (see .window.restored in
  * portal.css) rather than a custom handle. win.geometry only tracked
- * left/top from dragging — a manual corner-drag resize was applied to the
+ * left/top from dragging, a manual corner-drag resize was applied to the
  * element's style directly but never written back, so restoring from
  * maximized silently reverted to the size at creation/last drag. This
  * keeps win.geometry.w/h in sync with whatever size the user last set,
@@ -362,7 +362,7 @@ function focusWindow(appId){
   renderTaskbar();
   syncFocusUrl(appId, win);
   // Every focus change is a candidate "this is what a refresh should come
-  // back to" — see restoreOpenApps()/showDesktop() for why recording this
+  // back to", see restoreOpenApps()/showDesktop() for why recording this
   // explicitly (not inferring it from window-creation order) matters.
   persistOpenApps();
 }
@@ -370,12 +370,12 @@ function focusWindow(appId){
 /** Keep the address bar pointing at whichever app is actually focused.
  * openApp() already does this itself via navigateForApp() below, but
  * switching focus by clicking the taskbar or an already-open window calls
- * focusWindow() directly and skipped it entirely — so the URL stayed on
+ * focusWindow() directly and skipped it entirely, so the URL stayed on
  * whatever app was last opened/deep-linked, and refreshing reopened THAT
  * app on top instead of the one you were actually looking at. Uses the
  * window's own last known path when there is one (so a deep link, e.g.
  * into a specific Learn activity, survives a focus switch), falling back
- * to the app's bare path otherwise. replaceState, not pushState —
+ * to the app's bare path otherwise. replaceState, not pushState,
  * refocusing an already-open window isn't a new place to "go back" to. */
 function syncFocusUrl(appId, win){
   const path = win.lastPath || pathForApp(appId, {});
@@ -421,7 +421,7 @@ function minimizeWindow(appId){
   else { persistOpenApps(); renderTaskbar(); }
 }
 
-/** "Show desktop" — minimizes every open window in one shot, without
+/** "Show desktop", minimizes every open window in one shot, without
  * closing any of them (unlike closeWindow, nothing here unmounts an app or
  * touches persisted layout). One renderTaskbar() call at the end instead of
  * one per window. */
@@ -548,12 +548,12 @@ window.addEventListener('popstate', () => {
 
 /* ---------------------------------------------------------- Persistence */
 // Stores each open app's full geometry (left/top/w/h/maximized), not just
-// which apps are open — otherwise every reopened window came back centered
+// which apps are open, otherwise every reopened window came back centered
 // at its default size, discarding any drag/resize/maximize the student did
 // before refreshing. Also records activeAppId (called from focusWindow() on
-// every focus change) — restoreOpenApps() recreates windows in whatever
+// every focus change), restoreOpenApps() recreates windows in whatever
 // order they happen to iterate in, which is creation order, not "what was
-// actually on top" — without an explicit record, a refresh could resurface
+// actually on top", without an explicit record, a refresh could resurface
 // a different app than the one you were actually looking at.
 function persistOpenApps(){
   try {
@@ -563,11 +563,11 @@ function persistOpenApps(){
       windowState[id] = { left: win.geometry.left, top: win.geometry.top, w: win.geometry.w, h: win.geometry.h, maximized: win.maximized, minimized: !!win.minimized, path: win.lastPath || null };
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeAppId, windows: windowState }));
-  } catch (e) { /* storage unavailable — non-fatal */ }
+  } catch (e) { /* storage unavailable, non-fatal */ }
 }
 
 /** Recreates every previously-open window (geometry restored, not focused
- * yet — see the noFocus opt) and returns whichever app id was actually
+ * yet, see the noFocus opt) and returns whichever app id was actually
  * active when the state was saved, for the caller to focus once at the end
  * instead of leaving whatever this loop's creation order happened to land
  * on. */
@@ -619,7 +619,7 @@ launcherEl.addEventListener('keydown', (e) => {
 });
 
 /* ---------------------------------------------------------- Logout */
-// The one primary way to end the session — Account's own Sign Out button
+// The one primary way to end the session, Account's own Sign Out button
 // calls this same function, so there's a single consistent logout path
 // regardless of where it's triggered from.
 logoutBtnEl.querySelector('.taskbar-logout-glyph').innerHTML = icon('logout');
@@ -636,7 +636,7 @@ window.addEventListener('resize', () => {
   const { w: lw, h: lh } = layerBounds();
   windows.forEach((win) => {
     if (win.maximized) return;
-    // Reclamp restored windows too — otherwise shrinking the viewport (or
+    // Reclamp restored windows too, otherwise shrinking the viewport (or
     // rotating a tablet) can strand a window's header entirely off-screen
     // with no way to grab it back, since drag/resize bounds above were only
     // ever checked against the viewport size at the time of that gesture.
@@ -656,7 +656,7 @@ async function showDesktop(){
   setWorkspaceAccount(session);
 
   // Every path into the desktop (boot, Google login, guest login) funnels
-  // through here — so this is the one place a first-time real login gets
+  // through here, so this is the one place a first-time real login gets
   // routed to onboarding instead, before anything renders fabricated-looking
   // fallback state for a profile that doesn't exist yet.
   if (session && session.mode !== 'guest' && session.hasProfile === false){
@@ -679,7 +679,7 @@ async function showDesktop(){
     setAdminJobBadge(0);
   }
 
-  // Capture the actual refresh-time URL before restoring anything — restored
+  // Capture the actual refresh-time URL before restoring anything, restored
   // windows don't focus themselves anymore (see restoreOpenApps()'s noFocus),
   // but this is still the most specific signal available for a deep-linked
   // view (e.g. one particular Learn activity), so it still takes priority
@@ -688,7 +688,7 @@ async function showDesktop(){
   const initialRoute = routeFromPath(bootPath);
 
   // Always restore whatever was open last session first (with its saved
-  // geometry) — otherwise refreshing on a deep link like /learn or /account
+  // geometry), otherwise refreshing on a deep link like /learn or /account
   // skipped this branch entirely and every window came back at its default
   // maximized bounds, discarding position/size for THIS window even though
   // the general case (refresh on the bare desktop) preserved it correctly.
@@ -696,12 +696,12 @@ async function showDesktop(){
 
   if (initialRoute){
     // A specific deep-linked view (e.g. /learn/activity/finger-count) beats
-    // "whichever app was active" — it's more specific about what the
+    // "whichever app was active", it's more specific about what the
     // student was actually looking at, down to the sub-view.
     openApp(initialRoute.appId, initialRoute.params, { silent: true, path: bootPath });
     history.replaceState({}, '', bootPath);
   } else if (savedActiveAppId && windows.has(savedActiveAppId) && !windows.get(savedActiveAppId).minimized){
-    // No specific deep link — fall back to whichever app was actually
+    // No specific deep link, fall back to whichever app was actually
     // focused when state was last saved (none, if the student was looking
     // at the bare desktop: that stays the bare desktop), instead of leaving
     // restoreOpenApps()'s creation-order artifact focused. This also fixes

@@ -37,7 +37,7 @@ export default async function handler(req, res){
 
   // Any verified Google account may sign in. If it's linked to a robot
   // (admin or student), the session carries that binding; otherwise it's a
-  // plain 'member' session — simulations only, no Robot desktop icon.
+  // plain 'member' session, simulations only, no Robot desktop icon.
   const match = await findRoleForEmail(payload.email);
 
   const session = {
@@ -55,7 +55,7 @@ export default async function handler(req, res){
   };
 
   // The login screen shows "by continuing you agree to our Terms and
-  // Privacy Policy" next to the Google button — record that acceptance here,
+  // Privacy Policy" next to the Google button, record that acceptance here,
   // server-side, so there's a durable record independent of the client.
   await recordTermsAcceptance(session.email, CURRENT_TERMS_VERSION);
 

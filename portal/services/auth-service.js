@@ -1,6 +1,6 @@
 /* Auth abstraction. Guest sessions are backed by localStorage; real Google
    sessions are backed by an httpOnly cookie set by /api/auth/*, which is why
-   getSession() has to ask the server — it deliberately can't read that
+   getSession() has to ask the server; it deliberately can't read that
    cookie itself. */
 const SESSION_KEY = 'swayform.portal.session';
 const LOGOUT_PENDING_KEY = 'swayform.portal.logout-pending';
@@ -50,8 +50,8 @@ function writeGuestSession(session){
 // mounting in the same tick (a common case: boot() + several restored
 // windows each calling getSession()) share one network request instead of
 // each firing their own. Must be cleared by anything that actually changes
-// server-side session state (login, logout, completing onboarding) — see
-// invalidateSessionCache() — or callers would keep seeing stale state right
+// server-side session state (login, logout, completing onboarding); see
+// invalidateSessionCache(), or callers would keep seeing stale state right
 // after one of those events.
 let sessionFetchPromise = null;
 

@@ -19,24 +19,24 @@ function bridgeSecretKey(){
 }
 
 /**
- * GET: polled by the portal's Robot app Status tab — reads whatever the
+ * GET: polled by the portal's Robot app Status tab, reads whatever the
  * bridge last wrote via api/robot/agent.js's heartbeat action.
  *
- * POST {action:'start'|'stop'}: on-demand video, not an always-on relay —
+ * POST {action:'start'|'stop'}: on-demand video, not an always-on relay,
  * the Pi used to encode around the clock regardless of viewers, which is
  * the whole bandwidth cost this replaces. 'start' relays to the bridge
- * (best-effort — see callBridge below) so it can ping the connected agent
+ * (best-effort, see callBridge below) so it can ping the connected agent
  * to begin encoding, then mints a short-lived viewer JWT for the Live Video
  * tab's WHEP connection. Signed with BRIDGE_SERVICE_SECRET (already shared
- * between Vercel and the bridge VPS for the opposite direction —
+ * between Vercel and the bridge VPS for the opposite direction,
  * bridge-to-api calls) so the bridge's /mediamtx-auth webhook can verify it
  * locally, with no Vercel round-trip per viewer join. 'stop' relays a
  * matching stop request and returns no token. Any current robot member
- * (admin or student) can call this — video is visible to everyone linked to
+ * (admin or student) can call this, video is visible to everyone linked to
  * the robot, not admin-only.
  *
  * POST {action:'idle-on'|'idle-off'}: admin-only "Live Robot Session"
- * toggle — holds the physical robot still in its safe rest pose between
+ * toggle, holds the physical robot still in its safe rest pose between
  * real jobs (agents before 0.6.0 looped idle.py's gestures here). 'idle-on' is refused (409) if any job is pending/approved/
  * running for this robot, so idle can never start into a race with a job
  * about to be dispatched, and (502) if the robot couldn't be told to start,
@@ -44,10 +44,10 @@ function bridgeSecretKey(){
  * `delivered` so the UI can say when the stop didn't reach the robot, and
  * also relays job.stop for any job stuck 'running' (its own job.exit never
  * arrived) so "off" stops everything holding the robot, not just the idle
- * loop — reported as `stoppedJobId`.
+ * loop, reported as `stoppedJobId`.
  * Persisted in robots.idle_session_enabled (the
  * admin's intent, not a live status report) and reset to false server-side
- * by api/robot/queue.js's approve action the moment a job is approved —
+ * by api/robot/queue.js's approve action the moment a job is approved,
  * see db/migrations/008_robot_idle_session.sql.
  *
  * POST {action:'movement-on'|'movement-off'}: admin-only "Movement" toggle.
@@ -203,7 +203,7 @@ export default async function handler(req, res){
     const rawViewerId = req.body && req.body.viewerId;
     const viewerId = typeof rawViewerId === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(rawViewerId) ? rawViewerId : undefined;
     // Best-effort: a bridge hiccup here must never block the viewer JWT
-    // below — worst case the Pi doesn't get the memo to start encoding and
+    // below, worst case the Pi doesn't get the memo to start encoding and
     // the WHEP connection just fails to find a path (viewer sees "offline"),
     // same as if the bridge were unreachable before this feature existed.
     try { await callBridge('/video-request', { robotId, action, viewerId }); } catch (e) { /* best-effort */ }

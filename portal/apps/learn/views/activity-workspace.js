@@ -9,7 +9,7 @@ import { getSession } from '../../../services/auth-service.js';
 import { getPrefs } from '../../../prefs.js';
 import { startTracking, formatClock, formatTotal } from '../../../services/time-tracker.js';
 
-// Per-activity, not a single shared key — the layout was previously stored
+// Per-activity, not a single shared key; the layout was previously stored
 // under one constant key for every activity, so customizing one lab's
 // windows (e.g. the "Code Focus" preset, which maximizes Code Editor)
 // silently carried over into the next, unrelated activity you opened,
@@ -33,7 +33,7 @@ const LEARN_CODE_LAYOUT = {
 };
 
 // "Workspace" preset: the one arrangement that actually shows all three
-// windows at once, terminal included — everything else (the boot default,
+// windows at once, terminal included, everything else (the boot default,
 // "Learn + Code") keeps the terminal off-screen since Run/Check/Queue all
 // report through the Code Editor's own Output/Problems panel now and a
 // student never has to open a shell to do the labs. Same two-column split
@@ -62,7 +62,7 @@ export function mount(container, params, nav, ctx){
   if (!found){ nav.home(); return { unmount(){} }; }
   const { section, item: activity } = found;
   // Reading (orientation/ROS 2 intro) and not-yet-written placeholders are
-  // Notebook-only — there's no code to run. Demos and labs get the full
+  // Notebook-only, there's no code to run. Demos and labs get the full
   // three-window workstation; a demo is still real, runnable code, just
   // framed as "study this" rather than "write this from scratch".
   const isReading = activity.kind === 'reading' || activity.kind === 'placeholder';
@@ -98,7 +98,7 @@ export function mount(container, params, nav, ctx){
     defaultLayout: isReading ? READING_DEFAULT_LAYOUT : LEARN_CODE_LAYOUT,
   });
 
-  // A placeholder has no learning-path.js content at all — its id doesn't
+  // A placeholder has no learning-path.js content at all, its id doesn't
   // resolve server-side (api/progress.js's findActivity), so any progress
   // write for one is rejected as invalid_activity. That rejection still
   // fires the shared save-error banner even when the caller swallows the
@@ -123,7 +123,7 @@ export function mount(container, params, nav, ctx){
       isDone: resumeDone,
       lessonCtx: {
         openFile: (path, line) => openInCodeEditor(path, line),
-        // Must open/focus the window first like openInCodeEditor does —
+        // Must open/focus the window first like openInCodeEditor does,
         // otherwise this either no-ops entirely (window was closed, so
         // getInstance returns null) or edits an invisible, still-minimized
         // Monaco model with no feedback the insert happened at all.
@@ -194,14 +194,14 @@ export function mount(container, params, nav, ctx){
   container.querySelector('[data-reset-layout]').addEventListener('click', () => wm.resetLayout());
 
   // Settings' own "Reset window layout" control (a separate window) can't
-  // reach this wm instance directly — it clears localStorage itself and
+  // reach this wm instance directly, it clears localStorage itself and
   // broadcasts this event so a currently-open workspace updates live too.
   function onExternalLayoutReset(){ wm.resetLayout(); }
   window.addEventListener('swayform:workspace-layout-reset', onExternalLayoutReset);
 
   // Workspace-wide keyboard shortcuts: Ctrl/Cmd+S saves the active Code
   // Editor file (and stops the browser's own Save Page dialog), Ctrl/Cmd+`
-  // opens/focuses Terminal — a common convention (VS Code, etc).
+  // opens/focuses Terminal: a common convention (VS Code, etc).
   function onKeydown(e){
     const mod = e.ctrlKey || e.metaKey;
     if (!mod || isReading) return;
@@ -250,7 +250,7 @@ export function mount(container, params, nav, ctx){
   }
 
   // If this view is closed (unmount() below) before this resolves, the view
-  // is already torn down — bootDefault() must not go on to open fresh
+  // is already torn down; bootDefault() must not go on to open fresh
   // Notebook/Terminal/Code Editor instances (and setCurrentActivity must
   // not fire) into a workspace nobody will ever clean up again.
   let disposed = false;

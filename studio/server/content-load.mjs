@@ -2,10 +2,10 @@
  * model. Two complementary readers, both over the same files:
  *
  *  - LIVE IMPORT (node --import of the actual modules): gives the exact
- *    runtime data the portal renders — always accurate, catches load errors.
+ *    runtime data the portal renders, always accurate, catches load errors.
  *  - AST PARSE of curriculum.js: gives source-structure facts the runtime
- *    can't (which builder call each item uses — real()/demo()/placeholder()
- *    — its overrides argument, and each section's number-padding style),
+ *    can't (which builder call each item uses, real()/demo()/placeholder()
+ *   , its overrides argument, and each section's number-padding style),
  *    which the writers need to reproduce the file's conventions.
  *
  * The normalized model mirrors the REAL architecture on purpose:
@@ -50,7 +50,7 @@ function parseCurriculumSource(source) {
       itemsArr = itemsVal;
     }
     // Sections whose items are GENERATED (s6/s7 use Array.from(...)) have no
-    // per-item source nodes to parse — mark the whole section generated; the
+    // per-item source nodes to parse, mark the whole section generated; the
     // runtime import still supplies its item data, and the writer knows to
     // leave (or fully materialize) such sections rather than patch elements.
     const generated = !itemsArr || itemsArr.type !== 'ArrayExpression';
@@ -66,7 +66,7 @@ function parseCurriculumSource(source) {
 }
 
 /** One element of an sN array: real(...) / demo(...) / placeholder(...) call
- * (or, defensively, a generated-array element like Array.from output —
+ * (or, defensively, a generated-array element like Array.from output,
  * those sections are represented as opaque). */
 function parseItemCall(el, sectionId) {
   if (el.type === 'CallExpression' && el.callee.type === 'Identifier') {
@@ -122,7 +122,7 @@ const APP_MODULES = {
   help: 'portal/apps/help/help.js',
   settings: 'portal/apps/settings/settings.js',
   // robot/admin are role-gated at runtime (see visibleApps() in portal.js),
-  // not part of REGISTRY_ORDER()'s static array — registered here only so
+  // not part of REGISTRY_ORDER()'s static array, registered here only so
   // liveImport() below doesn't crash on them; Studio's order/visibility
   // editor doesn't meaningfully control whether they show for a session.
   robot: 'portal/apps/robot/robot.js',
@@ -231,7 +231,7 @@ export async function loadContent() {
   /* ---- workspace files ---- */
   const workspaceFiles = { ...WORKSPACE_FILES };
 
-  /* ---- workspace config (may not exist yet — Phase 7 creates it) ---- */
+  /* ---- workspace config (may not exist yet, Phase 7 creates it) ---- */
   let workspaceConfig = structuredClone(DEFAULT_WORKSPACE_CONFIG);
   let workspaceConfigExists = false;
   if (repoFileExists('portal/data/workspace-config.js')) {
@@ -276,7 +276,7 @@ export async function loadContent() {
   };
 }
 
-/** Icon names available in portal/icons.js (regex scan — PATHS is not
+/** Icon names available in portal/icons.js (regex scan, PATHS is not
  * exported and Studio must not modify the portal just to enumerate it). */
 export function listIconNames() {
   const src = readRepoFile('portal/icons.js');

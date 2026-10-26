@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 /* Subset of portal/icons.js paths + a few Studio-only glyphs. Kept in sync
- * by the /api/content iconNames list — Studio renders any portal icon name
+ * by the /api/content iconNames list, Studio renders any portal icon name
  * via this map; unknown names fall back to a dot. */
 export const ICON_PATHS = {
   learn: '<polyline points="8 5 3 12 8 19"/><polyline points="16 5 21 12 16 19"/>',
@@ -103,7 +103,7 @@ export function Field({ label, hint, children }) {
 }
 
 /** Text input that keeps local state and commits (fires onCommit) on blur or
- * Enter — the pattern that keeps ops off the keystroke path. */
+ * Enter: the pattern that keeps ops off the keystroke path. */
 export function CommitInput({ value, onCommit, textarea, className, ...rest }) {
   const [local, setLocal] = useState(value ?? '');
   const committed = useRef(value ?? '');

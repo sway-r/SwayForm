@@ -1,4 +1,4 @@
-/* Thin API client + a tiny app store (no state library — one subscriber set,
+/* Thin API client + a tiny app store (no state library, one subscriber set,
  * refetch-on-revision). Ops are sent on explicit user actions (blur, click,
  * drop), never per keystroke, so refetching content after each op is cheap.
  */

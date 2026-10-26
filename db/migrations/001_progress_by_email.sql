@@ -1,5 +1,5 @@
 -- One-time migration: re-key progress from student_id to email.
--- Safe to run — nothing has ever written to progress_completed/progress_current
+-- Safe to run, nothing has ever written to progress_completed/progress_current
 -- yet, so there's no data to lose. Run this once in the Neon SQL editor.
 -- After this, db/schema.sql already reflects the new shape for fresh installs.
 

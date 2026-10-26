@@ -1,4 +1,4 @@
-// Admin-only embedded editor for the robot's real filesystem — a separate
+// Admin-only embedded editor for the robot's real filesystem, a separate
 // desktop app (not a Robot-app tab) so it reads as its own tool, not a
 // sub-feature. code-server running on the Pi, reached through the bridge;
 // see docs/robot-connectivity.md's Phase 4 for the full exchange-token/

@@ -2,7 +2,7 @@
  *
  * Printing rules learned in the Phase 1 POC (see scripts/recast-poc.mjs):
  * recast's auto-detection injects \r\n on this repo's pure-\n files and
- * defaults new strings to double quotes — both must be forced explicitly or
+ * defaults new strings to double quotes, both must be forced explicitly or
  * every save would carry spurious whitespace/quote churn.
  */
 import * as recast from 'recast';
@@ -16,7 +16,7 @@ export function parse(source) {
 }
 
 export function print(ast) {
-  // trailingComma matches the repo's house style — without it, any reprinted
+  // trailingComma matches the repo's house style, without it, any reprinted
   // array/object gets a one-line spurious diff at its final element.
   return recast.print(ast, { lineTerminator: '\n', quote: 'single', tabWidth: 2, trailingComma: true }).code;
 }

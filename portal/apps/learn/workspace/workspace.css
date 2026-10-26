@@ -1,5 +1,5 @@
 /* ============================================================
-   Activity Workspace — nested desktop: independent Notebook /
+   Activity Workspace, nested desktop: independent Notebook /
    Code Editor / Terminal windows over a slim top bar + dock.
 ============================================================ */
 .aw-root{flex:1;min-height:0;display:flex;flex-direction:column}
@@ -20,7 +20,7 @@
 .aw-reset-btn:hover{color:var(--la-ink);background:var(--la-hover);border-color:var(--la-border)}
 .aw-reset-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 
-/* ── The nested desktop surface — a light "workbench" the Notebook (light)
+/* ── The nested desktop surface, a light "workbench" the Notebook (light)
    and Code Editor/Terminal (dark, see .ww-app-codeEditor/.ww-app-terminal
    below) float over, mirroring the Portal Desktop's dark-wallpaper/
    light-window contrast one level down. ── */
@@ -31,7 +31,7 @@
     var(--la-bg3);
 }
 
-/* ── Window chrome (default: light — Notebook) ──────────── */
+/* ── Window chrome (default: light, Notebook) ──────────── */
 .ww-window{
   position:absolute;display:flex;flex-direction:column;
   background:var(--la-bg);border:1px solid var(--la-border);border-radius:6px;
@@ -63,7 +63,7 @@
 
 .ww-body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--la-bg);overflow:hidden}
 
-/* ── Dark override — Code Editor and Terminal stay a developer-dark theme
+/* ── Dark override: Code Editor and Terminal stay a developer-dark theme
    regardless of the rest of the workspace (see spec: "Code Editor can
    remain dark. Terminal can also remain dark."). Applied via the app-id
    class window-manager.js adds to each window element. ── */
@@ -130,7 +130,7 @@ body.ww-resizing-cursor-nw,body.ww-resizing-cursor-se{cursor:nwse-resize!importa
   .ww-window{min-width:220px}
 }
 
-/* Target Lock live popup — a 4:3 stage like the camera frame, with the key legend beside it */
+/* Target Lock live popup: a 4:3 stage like the camera frame, with the key legend beside it */
 .tl-backdrop{position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;background:rgba(6,9,18,.72);backdrop-filter:blur(3px)}
 .tl-popup{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#0b0f1a;border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 80px rgba(0,0,0,.5);color:#e8ecf5}
 .tl-head{display:flex;align-items:center;justify-content:space-between;gap:16px}

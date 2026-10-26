@@ -1,5 +1,5 @@
 /* Shared between the browser (code-editor-app.js, mock-shell.js) and the
-   backend (api/_lib/canonical-source.js) — single source of truth for how a
+   backend (api/_lib/canonical-source.js), single source of truth for how a
    workspace path maps to a ROS 2 (package, executable) pair, and for which
    paths have real, verified robot source behind them worth validating
    against. Keep in sync with swayform_ws/src/swayform_robot/setup.py's
@@ -11,7 +11,7 @@ export function packageAndEntry(path){
 }
 
 // Paths with real, verified robot source behind them (see
-// portal/data/workspace-files.js's "REAL ROBOT SOURCE" block) — eligible for
+// portal/data/workspace-files.js's "REAL ROBOT SOURCE" block), eligible for
 // the Run on Robot queue. Everything else (labs' simplified MotionClient
 // exercises, not-yet-real demos) has no canonical answer to validate
 // against, so that option simply isn't offered there.

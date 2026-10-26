@@ -1,5 +1,5 @@
 /* Git operations, always spawned with argument arrays (never shell strings)
- * and always scoped to explicit paths — Studio must not be able to sweep
+ * and always scoped to explicit paths, Studio must not be able to sweep
  * unrelated working-tree changes (e.g. the user's own in-progress edits)
  * into a commit.
  */

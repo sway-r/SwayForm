@@ -89,7 +89,9 @@
     { "source": "/security",      "destination": "/security.html"      },
     { "source": "/data-retention", "destination": "/data-retention.html" },
     { "source": "/accessibility", "destination": "/accessibility.html" },
-    { "source": "/robot-safety",  "destination": "/robot-safety.html"  }
+    { "source": "/robot-safety",  "destination": "/robot-safety.html"  },
+    { "source": "/verify",        "destination": "/verify.html"        },
+    { "source": "/verify/:id",    "destination": "/verify.html"        }
   ],
   "headers": [
     { "source": "/api/:path*", "headers": [{ "key": "Cache-Control", "value": "private, no-store" }] },

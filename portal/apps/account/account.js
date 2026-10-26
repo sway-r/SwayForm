@@ -3,6 +3,8 @@ import { CURRICULUM, labTotals, sectionProgress } from '../../data/curriculum.js
 import { getSession, logout, invalidateSessionCache } from '../../services/auth-service.js';
 import { getCompletedActivities, resetProgress } from '../../services/progress-service.js';
 import { escapeHtml } from '../../utils.js';
+import { confirmDialog } from '../../confirm-dialog.js';
+import { mountCertificates } from './certificates.js';
 
 export const meta = {
   id: 'account',
@@ -102,6 +104,11 @@ async function render(container, ctx){
       </div>
 
       <div class="acct-section">
+        <div class="acct-section-title">Certificates</div>
+        <div data-certificates></div>
+      </div>
+
+      <div class="acct-section">
         <div class="acct-section-title">Account</div>
         <div class="acct-rows">
           ${isGuest
@@ -129,6 +136,8 @@ async function render(container, ctx){
       <a href="https://swayform.net/" target="_blank" rel="noopener noreferrer" class="acct-external-link">Visit swayform.net ${icon('externalLink')}</a>
     </div>`;
 
+  mountCertificates(container.querySelector('[data-certificates]'), { isGuest, defaultName: session.displayName || session.name || '' });
+
   container.querySelector('[data-signout]').addEventListener('click', async () => {
     if (!window.confirm('Log out of SwayForm Learning Portal?')) return;
     container.textContent = 'Signing out…';
@@ -139,7 +148,7 @@ async function render(container, ctx){
     const confirmMsg = isGuest
       ? 'Reset all locally saved progress? Every activity will show as not started. This cannot be undone.'
       : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser) — every activity will show as not started. This cannot be undone.';
-    if (!window.confirm(confirmMsg)) return;
+    if (!await confirmDialog(container, { title: 'Reset progress', message: confirmMsg, confirmLabel: 'Reset progress', typeWord: 'DELETE' })) return;
     try { await resetProgress(); await render(container, ctx); }
     catch { /* save notice explains the failure */ }
   });

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verify a Certificate | SwayForm</title>
+<meta name="description" content="Check that a SwayForm certificate is real.">
+<link rel="canonical" href="https://www.swayform.net/verify">
+<meta property="og:title" content="Verify a Certificate | SwayForm">
+<meta property="og:description" content="Check that a SwayForm certificate is real.">
+<meta property="og:url" content="https://www.swayform.net/verify">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Verify a Certificate | SwayForm">
+<meta name="twitter:description" content="Check that a SwayForm certificate is real.">
+<meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+#topbar{top:0!important}
+.policy-wrap{max-width:760px;margin:0 auto;padding:calc(var(--nav-h) + 80px) 24px 100px}
+.policy-wrap h1{font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-.03em;margin-bottom:8px;color:var(--ink)}
+.policy-updated{font-size:13px;color:var(--faint);margin-bottom:40px}
+.policy-wrap h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:40px 0 12px;color:var(--ink)}
+.policy-wrap p{color:var(--muted);line-height:1.75;margin-bottom:14px}
+.policy-wrap ul{margin:0 0 14px 20px;list-style:disc;color:var(--muted);line-height:1.75}
+.policy-wrap li{margin-bottom:6px}
+.policy-wrap a{color:var(--blue);text-decoration:underline}
+.policy-note{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);margin:20px 0}
+.verify-form{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+.verify-input{flex:1;min-width:240px;padding:13px 16px;font:inherit;font-family:var(--mono);font-size:16px;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.verify-result{border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-top:8px}
+.verify-result.ok{border-color:rgba(26,92,56,.35);background:rgba(26,92,56,.05)}
+.verify-result.bad{border-color:rgba(192,57,43,.3);background:rgba(192,57,43,.05)}
+.verify-status{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.verify-result.ok .verify-status{color:#1a5c38}
+.verify-result.bad .verify-status{color:#c0392b}
+.verify-name{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-bottom:6px}
+.verify-line{color:var(--muted);line-height:1.6;margin:0}
+</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="s">S</span>wayForm</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/robot">The Robot</a>
+      <a href="/for-schools">For Schools</a>
+      <a href="/purpose">Our Mission</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size:13px;padding:8px 18px">Open Learning Portal <span aria-hidden="true">&#8599;</span></a>
+      <a href="/contact" class="btn btn-primary" style="font-size:13px;padding:9px 20px">Contact Sales</a>
+      <div class="hamburger" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+<div id="mobile-nav">
+  <span class="mob-close" onclick="document.getElementById('mobile-nav').classList.remove('open')">&times;</span>
+  <a href="/">Overview</a>
+  <a href="/robot">The Robot</a>
+  <a href="/for-schools">For Schools</a>
+  <a href="/purpose">Our Mission</a>
+  <a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer" style="color:#0057ff!important">Open Learning Portal &#8599;</a>
+  <a href="/contact" style="color:var(--blue)!important">Contact Sales</a>
+</div>
+
+<div class="policy-wrap">
+  <h1>Verify a certificate</h1>
+  <p>Every SwayForm certificate has a certificate ID printed at the bottom, like <strong>SF-FL-XXXX-XXXX</strong>. Enter it below to confirm the certificate is real and see who earned it and when.</p>
+  <form class="verify-form" id="verify-form">
+    <input class="verify-input" id="verify-id" name="id" placeholder="SF-FL-XXXX-XXXX" maxlength="20" autocomplete="off" spellcheck="false" aria-label="Certificate ID">
+    <button class="btn btn-primary" type="submit">Verify</button>
+  </form>
+  <div id="verify-out" aria-live="polite"></div>
+  <p class="policy-note">Certificates are issued automatically when a student finishes every lab in the program on the real robot and passes the assessment. This page only shows the name, the program and the date.</p>
+</div>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo footer-logo"><span class="s">S</span>wayForm</a>
+        <p class="footer-tagline">Educational humanoid robotics for schools — middle school, high school, and beyond. Real hardware, real ROS 2, real learning.</p>
+      </div>
+      <div class="footer-col"><h5>Navigation</h5><ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/robot">The Robot</a></li>
+        <li><a href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Learning Portal</a></li>
+        <li><a href="/learning-path">Curriculum</a></li>
+        <li><a href="/safety">Safety</a></li>
+        <li><a href="/for-schools">For Schools</a></li>
+        <li><a href="/purpose">Our Mission</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Contact</h5><ul>
+        <li><a href="/contact">Contact Sales</a></li>
+        <li><a href="mailto:contact@swayform.net">contact@swayform.net</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom" style="flex-wrap:wrap;gap:14px">
+      <span class="footer-copy">© <span class="copy-year">2026</span> SwayForm. All rights reserved.</span>
+      <div class="footer-sub" style="flex-wrap:wrap">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/student-privacy">Student Privacy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="/school-data-agreement">School Data Agreement</a>
+        <a href="/security">Security</a>
+        <a href="/data-retention">Data Retention</a>
+        <a href="/accessibility" class="active">Accessibility</a>
+        <a href="/robot-safety">Robot Safety &amp; Acceptable Use</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+window.addEventListener('scroll',function(){
+  var tb=document.getElementById('topbar');
+  if(tb) tb.classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+var ham=document.querySelector('.hamburger');
+if(ham) ham.addEventListener('click',function(){
+  document.getElementById('mobile-nav').classList.add('open');
+});
+</script>
+<script>
+(function(){
+  var form=document.getElementById('verify-form'), input=document.getElementById('verify-id'), out=document.getElementById('verify-out');
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function show(html,cls){out.innerHTML='<div class="verify-result '+cls+'">'+html+'</div>';}
+  function check(id){
+    id=id.trim().toUpperCase();
+    if(!id){out.innerHTML='';return;}
+    show('<p class="verify-line">Checking\u2026</p>','');
+    fetch('/api/certificates?verify='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+      if(d&&d.valid){
+        var date=new Date(d.issuedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+        show('<div class="verify-status">Valid certificate</div><div class="verify-name">'+esc(d.name)+'</div><p class="verify-line">'+esc(d.program)+' &middot; issued '+esc(date)+'</p><p class="verify-line">Certificate ID '+esc(id)+'</p>','ok');
+      } else {
+        show('<div class="verify-status">No certificate found</div><p class="verify-line">We couldn\u2019t find a certificate with that ID. Check for typos, or ask the person to send it again.</p>','bad');
+      }
+    }).catch(function(){show('<p class="verify-line">Couldn\u2019t check right now. Please try again in a moment.</p>','bad');});
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();history.replaceState({},'','/verify/'+encodeURIComponent(input.value.trim().toUpperCase()));check(input.value);});
+  var m=location.pathname.match(/^\/verify\/([^\/]+)/);
+  if(m){input.value=decodeURIComponent(m[1]).toUpperCase();check(input.value);}
+})();
+</script>
+<script src="/site-data.js"></script>
+</body>
+</html>

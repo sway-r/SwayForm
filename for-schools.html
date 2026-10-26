@@ -89,19 +89,26 @@
 .fs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)}
 .fs-price{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
 .fs-plan{position:relative;background:#fff;border:1px solid rgba(0,0,0,.14);border-radius:14px;padding:24px;cursor:pointer;transition:border-color .15s,background .15s}
+.fs-plan[data-plan="Connect"]{--a:#2f6fed;--t:#e8f0ff}
+.fs-plan[data-plan="Simulate"]{--a:#0e9a6a;--t:#e3f6ec}
+.fs-plan[data-plan="Classroom+"]{--a:#7a4fe0;--t:#eee8ff}
+.fs-plan{background:linear-gradient(180deg,var(--t) 0,#fff 170px)}
+.fs-plan .fs-pn{color:var(--a)}
+.fs-n{text-decoration:none;color:var(--a);font-weight:inherit}
 .fs-plan::after{content:"+";position:absolute;top:18px;right:18px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;color:#111}
-.fs-plan.on::after{content:"\2713";background:#111;color:#fff;border-color:#111;font-size:14px}
+.fs-plan.on::after{content:"\2713";background:var(--a);color:#fff;border-color:var(--a);font-size:14px}
 .fs-plan:hover{border-color:rgba(0,0,0,.45)}
-.fs-plan.on{border-color:#111;box-shadow:0 0 0 1px #111}
+.fs-plan.on{border-color:var(--a);box-shadow:0 0 0 1px var(--a)}
 .fs-plan:focus-visible{outline:2px solid #111;outline-offset:2px}
 .fs-cmp{list-style:none;margin:18px 0 0;padding:0;border-top:1px solid rgba(0,0,0,.1)}
 .fs-cmp li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:14px;color:#111}
 .fs-cmp li span{flex:1}
-.fs-cmp li em{font-style:normal;font-size:13px;color:#8b9098}
+.fs-cmp li em{font-style:normal;font-size:13px;color:var(--a)}
+.fs-cmp li.n em{color:#9a9fa7}
 .fs-cmp li.n{color:#9a9fa7}
 .fs-tag{display:inline-block;margin-bottom:10px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 .fs-tag.req{background:var(--blue);color:#fff}
-.fs-tag.opt{background:#eceef1;color:#5b6068}
+.fs-tag.opt{background:#fff;color:var(--a);border:1px solid var(--a)}
 .fs-more{display:inline-block;margin-top:16px;color:#111;font-weight:700;font-size:14px}
 .fs-due{position:relative;margin-top:24px;padding:20px 40px 0 0;border-top:1px solid rgba(0,0,0,.2);max-width:640px}
 .fs-due[hidden]{display:none}
@@ -433,7 +440,7 @@
 <!-- pricing -->
 <section style="background:#f4f5f7;color:#111;padding:72px 0">
   <div class="section-wide">
-    <span class="label" style="display:block;margin-bottom:12px;color:#6b7078">Pricing</span>
+    <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Pricing</span>
     <h2 style="font-size:clamp(24px,3.2vw,32px);font-weight:800;letter-spacing:-.025em;margin-bottom:28px;color:#111">One price for the complete program.</h2>
     <div class="fs-price">
       <div>
@@ -450,8 +457,8 @@
     <p style="color:#111;font-weight:700;margin-bottom:20px">Tap a plan to see what you would pay.</p>
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
       <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Connect" data-tot="$6,999" data-y1="Free" data-yr="$100"><span class="fs-tag req">Required for every robot</span><div style="font-weight:700;color:#3f444d;margin-bottom:6px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#111;font-weight:700;font-size:14px;margin:6px 0 14px">Free the first year</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span><em>Included</em></li><li><span>Live view through the robot’s eyes</span><em>Included</em></li><li><span>Code sent straight to the robot</span><em>Included</em></li><li class="n"><span>Remote coding from anywhere</span><em>—</em></li><li class="n"><span>Simulation environments at once</span><em>—</em></li><li class="n"><span>Simulation hours per month</span><em>—</em></li><li class="n"><span>Access to more labs</span><em>—</em></li><li class="n"><span>Printed-parts replacement</span><em>—</em></li></ul></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-tot="$7,299" data-y1="$300" data-yr="$500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#111;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span><em>Included</em></li><li><span>Live view through the robot’s eyes</span><em>Included</em></li><li><span>Code sent straight to the robot</span><em>Included</em></li><li><span>Remote coding from anywhere</span><em>Included</em></li><li><span>3 simulation environments at once</span></li><li><span>60 hours of simulation per month</span></li><li class="n"><span>Access to more labs</span><em>—</em></li><li class="n"><span>Printed-parts replacement</span><em>—</em></li></ul></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-tot="$7,999" data-y1="$1,000" data-yr="$1,500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#111;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span><em>Included</em></li><li><span>Live view through the robot’s eyes</span><em>Included</em></li><li><span>Code sent straight to the robot</span><em>Included</em></li><li><span>Remote coding from anywhere</span><em>Included</em></li><li><span>15 simulation environments at once</span></li><li><span>180 hours of simulation per month</span></li><li><span>Access to more labs</span><em>Included</em></li><li><span>$300 per year of printed-parts replacement, like a new body panel</span></li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-tot="$7,299" data-y1="$300" data-yr="$500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#111;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span><em>Included</em></li><li><span>Live view through the robot’s eyes</span><em>Included</em></li><li><span>Code sent straight to the robot</span><em>Included</em></li><li><span>Remote coding from anywhere</span><em>Included</em></li><li><span><u class="fs-n">3</u> simulation environments at once</span></li><li><span><u class="fs-n">60</u> hours of simulation per month</span></li><li class="n"><span>Access to more labs</span><em>—</em></li><li class="n"><span>Printed-parts replacement</span><em>—</em></li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-tot="$7,999" data-y1="$1,000" data-yr="$1,500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#111;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span><em>Included</em></li><li><span>Live view through the robot’s eyes</span><em>Included</em></li><li><span>Code sent straight to the robot</span><em>Included</em></li><li><span>Remote coding from anywhere</span><em>Included</em></li><li><span><u class="fs-n">15</u> simulation environments at once</span></li><li><span><u class="fs-n">180</u> hours of simulation per month</span></li><li><span>Access to more labs</span><em>Included</em></li><li><span><u class="fs-n">$300</u> per year of printed-parts replacement, like a new body panel</span></li></ul></div>
     </div>
     <div class="fs-due" id="fs-due" hidden aria-live="polite"></div>
     <script>

@@ -3,6 +3,8 @@ import { getTheme, setTheme } from '../../theme.js';
 import { getSession } from '../../services/auth-service.js';
 import { resetProgress } from '../../services/progress-service.js';
 import { getPrefs, setPref, resetPrefs, TEXT_SIZE_MIN, TEXT_SIZE_MAX } from '../../prefs.js';
+import '../../sounds.js';
+import { exportProgress } from '../../services/export-progress.js';
 
 export const meta = {
   id: 'settings',
@@ -87,6 +89,16 @@ export function mount(container, ctx){
               <button type="button" data-step="1" aria-label="Larger">+</button>
             </div>
           </div>
+          ${toggleRow('pref-motion', 'Reduce motion', 'Turns off the small fades and transitions. On by default if your device asks for reduced motion.', prefs.reduceMotion)}
+          ${toggleRow('pref-sounds', 'Sound effects', 'Soft sounds for clicks, opening windows and finishing a lab.', prefs.sounds)}
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="set-section-title">Learning</div>
+        <div class="set-card">
+          ${toggleRow('pref-hide-done', 'Hide completed labs', 'Hides finished labs in section lists and the curriculum menu so you only see what is left.', prefs.hideCompleted)}
+          ${toggleRow('pref-timer', 'Show lab timer', 'Shows your time in this session, on this lab, and in total at the top of every lab. Time only counts while you are active.', prefs.showTimer)}
         </div>
       </div>
 
@@ -99,10 +111,20 @@ export function mount(container, ctx){
       </div>
 
       <div class="set-section">
+        <div class="set-section-title">Your data</div>
+        <div class="set-card">
+          <div class="set-row">
+            <span class="set-row-text"><span class="set-row-label">Export my progress</span><span class="set-row-desc">Downloads a zip with your completed labs, time spent, and the code you wrote (saved in this browser).</span></span>
+            <button type="button" class="p-btn ghost" data-export>Export</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-section">
         <div class="set-section-title">Reset</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts text size and the Code Editor settings back to their defaults. Theme is separate.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts every setting above, except theme, back to its default.</span></span>
             <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
           </div>
           <div class="set-row">
@@ -120,7 +142,10 @@ export function mount(container, ctx){
     });
   });
 
-  const switchPrefs = { 'pref-wrap': 'editorWordWrap', 'pref-minimap': 'editorMinimap' };
+  const switchPrefs = {
+    'pref-wrap': 'editorWordWrap', 'pref-minimap': 'editorMinimap', 'pref-motion': 'reduceMotion',
+    'pref-sounds': 'sounds', 'pref-hide-done': 'hideCompleted', 'pref-timer': 'showTimer',
+  };
   container.querySelectorAll('.set-switch input').forEach((input) => {
     input.addEventListener('change', () => setPref(switchPrefs[input.id], input.checked));
   });
@@ -134,12 +159,25 @@ export function mount(container, ctx){
     });
   });
 
+  container.querySelector('[data-export]').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Exporting…';
+    try {
+      const result = await exportProgress();
+      btn.textContent = `Exported ${result.completed} lab${result.completed === 1 ? '' : 's'}`;
+    } catch (err) {
+      btn.textContent = 'Export failed';
+    }
+    setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 2200);
+  });
+
   container.querySelector('[data-reset-prefs]').addEventListener('click', async () => {
-    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put text size, word wrap and minimap back to their defaults?', confirmLabel: 'Reset preferences' })) return;
+    if (!await confirmDialog(container, { title: 'Reset preferences', message: 'Put every setting on this page except theme back to its default?', confirmLabel: 'Reset preferences' })) return;
     resetPrefs();
     const fresh = getPrefs();
-    container.querySelector('#pref-wrap').checked = fresh.editorWordWrap;
-    container.querySelector('#pref-minimap').checked = fresh.editorMinimap;
+    Object.entries(switchPrefs).forEach(([id, name]) => { container.querySelector('#' + id).checked = fresh[name]; });
     fontValueEl.textContent = fresh.textSize;
   });
 

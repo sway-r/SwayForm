@@ -185,3 +185,8 @@ body.ww-resizing-cursor-nw,body.ww-resizing-cursor-se{cursor:nwse-resize!importa
   .tl-legend{width:auto;align-self:stretch;flex-direction:row;flex-wrap:wrap}
   .tl-group{flex:1 1 150px}
 }
+
+.aw-timer{display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
+.aw-timer[hidden]{display:none}
+.aw-timer strong{color:var(--la-ink);font-weight:700}
+@media(max-width:900px){.aw-timer span:nth-child(n+2){display:none}}

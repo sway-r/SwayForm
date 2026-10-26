@@ -278,3 +278,16 @@
 
 /* Settings -> Accessibility -> Text size */
 .la-surface,.nb-doc{zoom:var(--p-text-zoom,1)}
+
+/* Subtle motion, 0.15-0.25s. Settings -> Accessibility -> Reduce motion turns it all off. */
+@keyframes p-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes p-rise-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes p-pop-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.window{animation:p-pop-in .18s ease-out}
+.lh-root,.sv-root,.acct-root,.set-root,.nb-doc{animation:p-rise-in .22s ease-out}
+.set-modal-overlay{animation:p-fade-in .15s ease-out}
+.set-modal{animation:p-pop-in .18s ease-out}
+.p-btn,.sv-item-row,.ci-item,.aw-dock-item,.aw-preset-btn{transition:background .15s,border-color .15s,color .15s,box-shadow .15s}
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

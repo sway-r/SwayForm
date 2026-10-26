@@ -1,5 +1,6 @@
 import { icon } from '../../../icons.js';
 import { CURRICULUM, findSection, sectionProgress } from '../../../data/curriculum.js';
+import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
 
 function diffTag(item){
@@ -59,7 +60,12 @@ export function mount(container, params, nav, ctx){
       <span class="sv-progress-text">${complete} / ${total} complete</span>`;
 
     itemsEl.innerHTML = '';
-    section.items.forEach((item) => {
+    const hideDone = getPrefs().hideCompleted && !progressNote;
+    const visible = section.items.filter((item) => !(hideDone && done.has(item.id) && !(current && current.activityId === item.id)));
+    if (hideDone && !visible.length){
+      itemsEl.innerHTML = '<p class="sv-all-done">Every lab here is complete. Turn off “Hide completed labs” in Settings to see them again.</p>';
+    }
+    visible.forEach((item) => {
       const isDone = done.has(item.id);
       const isCurrent = current && current.activityId === item.id;
       const row = document.createElement('button');
@@ -82,13 +88,16 @@ export function mount(container, params, nav, ctx){
     });
   }
 
+  let lastState = { completedIds: [], current: null, note: 'Progress unavailable — showing lessons only.' };
   Promise.all([getCompletedActivities(), getCurrentActivity()])
-    .then(([completedIds, current]) => renderItems(completedIds, current))
-    .catch(() => renderItems([], null, 'Progress unavailable — showing lessons only.'));
+    .then(([completedIds, current]) => { lastState = { completedIds, current, note: undefined }; renderItems(completedIds, current); })
+    .catch(() => renderItems([], null, lastState.note));
+  const onPrefs = () => renderItems(lastState.completedIds, lastState.current, lastState.note);
+  window.addEventListener('swayform:prefs-changed', onPrefs);
 
   ctx.setTitle && ctx.setTitle(section.title);
 
   return {
-    unmount(){},
+    unmount(){ window.removeEventListener('swayform:prefs-changed', onPrefs); },
   };
 }

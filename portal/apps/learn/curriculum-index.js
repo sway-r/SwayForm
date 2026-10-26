@@ -7,6 +7,7 @@
  */
 import { icon } from '../../icons.js';
 import { CURRICULUM, LAB_SECTION_IDS, search as searchCurriculum } from '../../data/curriculum.js';
+import { getPrefs } from '../../prefs.js';
 import { getCompletedActivities } from '../../services/progress-service.js';
 import { escapeHtml } from '../../utils.js';
 
@@ -107,6 +108,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
 
       const itemsEl = block.querySelector(`[data-items="${section.id}"]`);
       section.items.forEach((item) => {
+        if (getPrefs().hideCompleted && completedIds.has(item.id) && item.id !== currentId) return;
         const row = document.createElement('button');
         row.type = 'button';
         row.className = 'ci-item' + (item.id === currentId ? ' active' : '') + (item.kind === 'placeholder' ? ' is-placeholder' : '');

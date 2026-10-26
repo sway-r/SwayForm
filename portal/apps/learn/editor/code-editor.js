@@ -42,7 +42,7 @@ function loadMonaco(){
 function monacoPrefs(){
   const p = getPrefs();
   const fontSize = p.textSize;
-  return { fontSize, lineHeight: Math.round(fontSize * 1.6), wordWrap: p.editorWordWrap ? 'on' : 'off', minimap: { enabled: p.editorMinimap } };
+  return { smoothScrolling: !p.reduceMotion, fontSize, lineHeight: Math.round(fontSize * 1.6), wordWrap: p.editorWordWrap ? 'on' : 'off', minimap: { enabled: p.editorMinimap } };
 }
 
 export class CodeEditor {
@@ -76,7 +76,7 @@ export class CodeEditor {
         ...monacoPrefs(),
         automaticLayout: true,
         scrollBeyondLastLine: false,
-        smoothScrolling: true,
+        smoothScrolling: !getPrefs().reduceMotion,
         renderLineHighlight: 'line',
         padding: { top: 14 },
         tabSize: 4,

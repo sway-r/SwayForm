@@ -6,6 +6,7 @@
  * only how many steps render at once has changed. */
 import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
+import { getPrefs } from '../../../prefs.js';
 
 export const meta = { id: 'notebook', title: 'Textbook', icon: 'book' };
 
@@ -113,7 +114,7 @@ export function mount(bodyEl, winApi, opts) {
           : ''}
       </div>`;
     completeBlock.querySelector('[data-mark-complete]').addEventListener('click', async () => {
-      try { await onFinish(); done = true; renderComplete(); }
+      try { await onFinish(); if (!done) window.dispatchEvent(new CustomEvent('swayform:lab-complete')); done = true; renderComplete(); }
       catch { /* shared save notice explains why completion was not confirmed */ }
     });
     const nextBtn = completeBlock.querySelector('[data-next-activity]');
@@ -140,7 +141,7 @@ export function mount(bodyEl, winApi, opts) {
 
   function scrollToStep(i, opts) {
     const el = sectionEls[i];
-    if (el) el.scrollIntoView({ behavior: (opts && opts.instant) ? 'auto' : 'smooth', block: 'start' });
+    if (el) el.scrollIntoView({ behavior: (opts && opts.instant) || getPrefs().reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
   /* ---------------------------------------------------------------- scroll-spy */

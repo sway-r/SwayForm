@@ -5,6 +5,9 @@ import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
 import * as TerminalApp from '../workspace/terminal-app.js';
 import { markComplete, setCurrentActivity, getCurrentActivity, isActivityComplete } from '../../../services/progress-service.js';
+import { getSession } from '../../../services/auth-service.js';
+import { getPrefs } from '../../../prefs.js';
+import { startTracking, formatClock, formatTotal } from '../../../services/time-tracker.js';
 
 // Per-activity, not a single shared key — the layout was previously stored
 // under one constant key for every activity, so customizing one lab's
@@ -71,6 +74,7 @@ export function mount(container, params, nav, ctx){
         <button type="button" class="aw-back" data-back>${icon('arrowLeft')}<span>${section.title}</span></button>
         <div class="aw-crumb">${section.title} / <strong>${activity.title}</strong></div>
         <div class="aw-header-spacer"></div>
+        <div class="aw-timer" data-timer hidden></div>
         ${isReading ? '' : `<div class="aw-presets" data-presets></div>`}
         <button type="button" class="aw-reset-btn" data-reset-layout title="Reset Layout">${icon('refresh')}</button>
       </div>
@@ -212,6 +216,27 @@ export function mount(container, params, nav, ctx){
   }
   document.addEventListener('keydown', onKeydown);
 
+  /* ---------------------------------------------------------------- lab timer */
+  const timerEl = container.querySelector('[data-timer]');
+  let tracker = null;
+  let timerTick = null;
+  function renderTimer(){
+    const show = getPrefs().showTimer && !!tracker;
+    timerEl.hidden = !show;
+    if (!show) return;
+    const t = tracker.getTimes();
+    timerEl.innerHTML = `<span>Session <strong>${formatClock(t.session)}</strong></span><span>This lab <strong>${formatClock(t.lab)}</strong></span><span>Total <strong>${formatTotal(t.total)}</strong></span>`;
+  }
+  if (!isPlaceholder){
+    getSession().catch(() => null).then((session) => {
+      if (disposed) return;
+      tracker = startTracking(activity.id, session && session.email);
+      renderTimer();
+      timerTick = setInterval(renderTimer, 1000);
+    });
+  }
+  window.addEventListener('swayform:prefs-changed', renderTimer);
+
   /* ---------------------------------------------------------------- boot */
   function bootDefault(){
     // Open order matters: the last one opened ends up focused/on top, so
@@ -241,6 +266,9 @@ export function mount(container, params, nav, ctx){
   return {
     unmount(){
       disposed = true;
+      clearInterval(timerTick);
+      if (tracker) tracker.stop();
+      window.removeEventListener('swayform:prefs-changed', renderTimer);
       window.removeEventListener('swayform:workspace-layout-reset', onExternalLayoutReset);
       document.removeEventListener('keydown', onKeydown);
       wm.apps.forEach((cfg, id) => wm.close(id));

@@ -3,7 +3,8 @@
  * the saved reduce-motion setting; changes broadcast 'swayform:prefs-changed'. */
 const KEY = 'swayform.portal.prefs';
 const DEFAULTS = { editorFontSize: 13, editorWordWrap: false, editorMinimap: false, reduceMotion: false };
-export const FONT_SIZES = [12, 13, 14, 16, 18];
+export const FONT_SIZE_MIN = 10;
+export const FONT_SIZE_MAX = 32;
 
 export function getPrefs(){
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }

@@ -2,7 +2,7 @@ import { icon } from '../../icons.js';
 import { getTheme, setTheme } from '../../theme.js';
 import { getSession } from '../../services/auth-service.js';
 import { resetProgress } from '../../services/progress-service.js';
-import { getPrefs, setPref, resetPrefs, FONT_SIZES } from '../../prefs.js';
+import { getPrefs, setPref, resetPrefs, FONT_SIZE_MIN, FONT_SIZE_MAX } from '../../prefs.js';
 
 export const meta = {
   id: 'settings',
@@ -88,8 +88,10 @@ export function mount(container, ctx){
         <div class="set-card">
           <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Font size</span><span class="set-row-desc">Text size in the Code Editor.</span></span>
-            <div class="set-theme-toggle" data-font-size>
-              ${FONT_SIZES.map((n) => `<button type="button" data-size="${n}" class="${prefs.editorFontSize === n ? 'active' : ''}">${n}</button>`).join('')}
+            <div class="set-stepper" data-font-size>
+              <button type="button" data-step="-1" aria-label="Smaller">−</button>
+              <span class="set-stepper-value" data-font-value>${prefs.editorFontSize}</span>
+              <button type="button" data-step="1" aria-label="Larger">+</button>
             </div>
           </div>
           ${toggleRow('pref-wrap', 'Word wrap', 'Wrap long lines instead of scrolling sideways.', prefs.editorWordWrap)}
@@ -124,10 +126,12 @@ export function mount(container, ctx){
     input.addEventListener('change', () => setPref(switchPrefs[input.id], input.checked));
   });
 
+  const fontValueEl = container.querySelector('[data-font-value]');
   container.querySelectorAll('[data-font-size] button').forEach((btn) => {
     btn.addEventListener('click', () => {
-      setPref('editorFontSize', Number(btn.dataset.size));
-      container.querySelectorAll('[data-font-size] button').forEach((b) => b.classList.toggle('active', b === btn));
+      const next = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, getPrefs().editorFontSize + Number(btn.dataset.step)));
+      setPref('editorFontSize', next);
+      fontValueEl.textContent = next;
     });
   });
 
@@ -138,7 +142,7 @@ export function mount(container, ctx){
     container.querySelector('#pref-motion').checked = fresh.reduceMotion;
     container.querySelector('#pref-wrap').checked = fresh.editorWordWrap;
     container.querySelector('#pref-minimap').checked = fresh.editorMinimap;
-    container.querySelectorAll('[data-font-size] button').forEach((b) => b.classList.toggle('active', Number(b.dataset.size) === fresh.editorFontSize));
+    fontValueEl.textContent = fresh.editorFontSize;
   });
 
   container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {

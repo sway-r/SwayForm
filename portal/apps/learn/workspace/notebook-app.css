@@ -28,13 +28,13 @@
 .nb-toc-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .nb-scroll{flex:1;min-height:0;overflow-y:auto;container-type:inline-size}
-.nb-doc{max-width:700px;margin:0 auto;padding:32px 32px 80px}
+.nb-doc{max-width:780px;margin:0 auto;padding:32px 32px 80px}
 
 /* Wide window (Learn Focus / maximized): grow the column and step the type
    up together, so the extra room becomes larger, easier reading rather than
    the same small text on longer lines. */
 @container (min-width: 1100px){
-  .nb-doc{max-width:880px;padding:40px 40px 96px}
+  .nb-doc{max-width:1080px;padding:40px 48px 96px}
   .nb-title{margin-bottom:34px}
   .nb-section-title{font-size:20px}
   .nb-doc .cb-lead{font-size:17.5px}

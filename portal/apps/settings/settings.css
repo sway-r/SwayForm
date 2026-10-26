@@ -29,3 +29,7 @@
 .set-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .set-modal-danger{background:#c0392b;border-color:#c0392b;color:#fff}
 .set-modal-danger:disabled{opacity:.4;cursor:not-allowed}
+
+.set-stepper{display:flex;align-items:center;gap:4px;background:var(--la-bg2);border:1px solid var(--la-border);border-radius:7px;padding:3px;flex-shrink:0}
+.set-stepper button{width:30px;height:28px;border-radius:5px;border:none;background:var(--la-bg);color:var(--la-ink);font-size:16px;font-weight:600;box-shadow:0 1px 3px rgba(10,14,24,.12);cursor:pointer}
+.set-stepper-value{min-width:34px;text-align:center;font-size:13px;font-weight:700;color:var(--la-ink);font-family:var(--mono)}

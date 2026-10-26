@@ -103,6 +103,7 @@
 .fs-dr{display:flex;justify-content:space-between;gap:16px;padding:7px 0;font-size:15px;color:#3f444d}
 .fs-dr i{display:block;font-style:normal;font-size:13px;color:#6b7078}
 .fs-dr b{color:#111;white-space:nowrap}
+.fs-fine{margin:14px 0 0;font-size:11px;line-height:1.4;color:#6b7078}
 .fs-tot{font-weight:700;color:#111}
 .fs-pn{font-size:clamp(26px,3.5vw,34px);font-weight:800;color:#111;line-height:1.1}
 @media(max-width:900px){.fs-hero,.fs-price{grid-template-columns:1fr;gap:28px}}
@@ -459,7 +460,8 @@
           +'<div class="fs-dr"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.y1+'</b></div>'
           +'<div class="fs-dr fs-tot"><span>Year 1 total</span><b>'+p.dataset.tot+'</b></div>'
           +'<div class="fs-dl">Every year after</div>'
-          +'<div class="fs-dr fs-tot"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.yr+'/yr</b></div>';
+          +'<div class="fs-dr fs-tot"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.yr+'/yr</b></div>'
+          +'<p class="fs-fine">Estimate only, not a final price. Taxes and other charges may apply.</p>';
         box.hidden=false;
         box.querySelector('.fs-x').addEventListener('click',close);
       }

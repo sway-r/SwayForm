@@ -835,6 +835,19 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
 .faq-item[open] .faq-q{margin-bottom:10px}
 .faq-a{font-size:14px;color:var(--muted);line-height:1.75}
 .faq-q:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.faq-head{max-width:620px;margin-bottom:44px}
+.faq-hint{margin-top:12px;font-size:15px;color:var(--muted)}
+.faq-grid{gap:16px 24px;align-items:start}
+.faq-grid>div{display:flex;flex-direction:column;gap:16px}
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 24px;box-shadow:0 1px 2px rgba(0,0,0,.03);transition:border-color .2s,box-shadow .2s,transform .2s}
+.faq-item:last-child{border-bottom:1px solid var(--line)}
+.faq-item:hover{border-color:rgba(0,87,255,.35);box-shadow:0 8px 24px rgba(0,40,120,.08);transform:translateY(-2px)}
+.faq-item[open]{border-color:rgba(0,87,255,.45);box-shadow:0 10px 28px rgba(0,40,120,.10)}
+.faq-q{font-size:17px;font-weight:700}
+.faq-q::after{content:"+";width:30px;height:30px;border-radius:50%;background:var(--bg2);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500}
+.faq-item[open] .faq-q::after{background:var(--blue);color:#fff}
+.faq-item[open] .faq-q{margin-bottom:12px}
+.faq-a{font-size:15px}
 /* ── SPECS BAND ── */
 .specs-band{background:var(--ink);padding:72px 0}
 .specs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(255,255,255,.06)}
@@ -1044,6 +1057,7 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
       <div class="faq-head">
         <span class="label" style="display:block;margin-bottom:12px">Common questions</span>
         <h2 class="d3">Questions we get asked.</h2>
+        <p class="faq-hint">Tap any question to see the answer.</p>
       </div>
       <div class="faq-grid">
         <div>
@@ -1076,10 +1090,6 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
           <details class="faq-item">
             <summary class="faq-q">What comes with the unit?</summary>
             <div class="faq-a">S1 with Linux, ROS 2, and five demo programs pre-installed, plus free access to the Learning Portal. Currently in pilot development — commercial availability targeted for Fall 2027.</div>
-          </details>
-          <details class="faq-item">
-            <summary class="faq-q">What does the cloud subscription cost?</summary>
-            <div class="faq-a">The Connect plan is $100 per year, free the first year with every purchase. It covers hosted classroom accounts, the code queue that sends student programs to the robot, and live video of robot runs. Simulate ($500/yr, 3 simulation environments, 60 hours a month) and Classroom+ ($1,500/yr, 15 environments, 180 hours a month, printed-parts replacement up to $250/yr) are optional, with a discounted first year of $300 and $1,000 respectively. <a href="/contact">Contact sales</a> for institutional terms.</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">Are there any hidden fees?</summary>

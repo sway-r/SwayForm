@@ -79,6 +79,9 @@ CREATE TABLE IF NOT EXISTS progress_completed (
   email TEXT NOT NULL REFERENCES user_profiles(email) ON DELETE CASCADE,
   activity_id TEXT NOT NULL,
   completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  -- The student's code for this lab ran successfully on the robot (kept here
+  -- because robot_jobs rows are purged after 90 days). See migration 012.
+  robot_verified BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (email, activity_id)
 );
 
@@ -190,10 +193,7 @@ CREATE TABLE IF NOT EXISTS certificate_attempts (
   id                  SERIAL PRIMARY KEY,
   email               TEXT NOT NULL REFERENCES user_profiles(email) ON DELETE CASCADE,
   certificate_key     TEXT NOT NULL,
-  questions           JSONB NOT NULL,
-  answers             JSONB NOT NULL DEFAULT '[]'::jsonb,
-  current_index       INTEGER NOT NULL DEFAULT 0,
-  question_started_at TIMESTAMPTZ,
+  attempt_number      INTEGER NOT NULL DEFAULT 1,
   status              TEXT NOT NULL DEFAULT 'in_progress'
                       CHECK (status IN ('in_progress','passed','failed')),
   score               INTEGER,

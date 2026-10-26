@@ -29,16 +29,21 @@ process.env.VERCEL_ENV = 'production';
 
 const { createSessionCookie } = await import('../api/_lib/session.js');
 const { default: certificates } = await import('../api/certificates.js');
+const { default: progress } = await import('../api/progress.js');
 const { CURRICULUM } = await import('../portal/data/curriculum.js');
-const { requiredLabs, evaluateLabs, labsUnlocked, cleanHolderName, validCertificateId } = await import('../api/_lib/certification.js');
+const { QUESTION_BANK } = await import('../api/_lib/question-bank.js');
+const {
+  requiredLabs, evaluateLabs, labsUnlocked, cleanHolderName, validCertificateId,
+  decodeToken, encodeToken, shuffledOptions, questionIdsForAttempt,
+} = await import('../api/_lib/certification.js');
 
 const ORIGIN = 'https://learning.swayform.net';
 function response(){
   return { headers: {}, code: 200, setHeader(k, v){ this.headers[k.toLowerCase()] = v; }, status(code){ this.code = code; return this; }, json(data){ this.data = data; return this; } };
 }
-async function post(cookie, body){
+async function post(cookie, body, handler = certificates){
   const res = response();
-  await certificates({ method: 'POST', body, headers: { cookie, origin: ORIGIN, 'content-type': 'application/json' }, query: {} }, res);
+  await handler({ method: 'POST', body, headers: { cookie, origin: ORIGIN, 'content-type': 'application/json' }, query: {} }, res);
   return res;
 }
 async function get(cookie, query = {}){
@@ -65,28 +70,42 @@ before(async () => {
     await db.query('INSERT INTO user_profiles (email, display_name, school_name) VALUES ($1, $2, $3)', [email, email.split('@')[0], 'Cert School']);
     cookies[email] = await cookieFor(email);
   }
-  const insertRuns = async (email, status = 'succeeded', repeat = 1) => {
-    for (const [i, item] of builtItems.entries()){
-      for (let r = 0; r < repeat; r++){
-        await db.query(
-          `INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, status, finished_at)
-           VALUES (1, $1, $2, 'pkg', 'exe', $3, 'sha', $4, now() - ($5 || ' minutes')::interval)`,
-          [email, item.workspaceFile, `CURL_ANGLE = ${60 + i}\nHOLD_SECONDS = 1.5\n`, status, String(100 - i * 5 - r)],
-        );
-      }
+  const insertRuns = async (email) => {
+    for (const item of builtItems){
+      await db.query(
+        `INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, status, finished_at)
+         VALUES (1, $1, $2, 'pkg', 'exe', 'x', 'sha', 'succeeded', now())`, [email, item.workspaceFile]);
     }
   };
   const complete = async (email) => {
     for (const item of builtItems) await db.query('INSERT INTO progress_completed (email, activity_id) VALUES ($1, $2)', [email, item.id]);
   };
-  await complete('ready@example.test'); await insertRuns('ready@example.test', 'succeeded', 2);
+  await complete('ready@example.test'); await insertRuns('ready@example.test');
   await complete('norobot@example.test'); // marked complete but never ran on the robot
   await complete('slacker@example.test'); await insertRuns('slacker@example.test');
 });
 
+function correctChoice(token){
+  return shuffledOptions(token.q[token.i], token.a).correctIndex;
+}
+async function takeAttempt(email, { right = 10 } = {}){
+  const start = await post(cookies[email], { action: 'start' });
+  if (start.code !== 200) return { start };
+  let token = start.data.token;
+  let last;
+  for (let i = 0; i < 10; i++){
+    const decoded = decodeToken(token);
+    const choice = i < right ? correctChoice(decoded) : (correctChoice(decoded) + 1) % 4;
+    last = await post(cookies[email], { action: 'answer', token, index: i + 1, choice });
+    assert.equal(last.code, 200);
+    token = last.data.token;
+  }
+  return { start, last };
+}
+
 test('the real foundation section is locked: placeholders can never be completed', () => {
   setRequired(allItems);
-  const labs = evaluateLabs('foundation', new Set(builtItems.map((i) => i.id)), new Set(builtItems.map((i) => i.workspaceFile)));
+  const labs = evaluateLabs('foundation', new Map(builtItems.map((i) => [i.id, true])), new Set(builtItems.map((i) => i.workspaceFile)));
   assert.equal(requiredLabs('foundation').length, 20);
   assert.equal(labsUnlocked(labs), false);
 });
@@ -105,31 +124,53 @@ test('guests and signed-out visitors cannot reach it', async () => {
   assert.equal(res.code, 401);
 });
 
-test('assessment hides answers, serves one question at a time, and passes only with enough right', async () => {
+test('the bank has 50 questions, each with 4 distinct options, in 5 fixed sets', () => {
+  assert.equal(QUESTION_BANK.length, 50);
+  for (const [prompt, ...options] of QUESTION_BANK){
+    assert.ok(prompt.length > 10);
+    assert.equal(options.length, 4);
+    assert.equal(new Set(options).size, 4);
+  }
+  assert.deepEqual(questionIdsForAttempt(1), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  assert.deepEqual(questionIdsForAttempt(5), [40, 41, 42, 43, 44, 45, 46, 47, 48, 49]);
+  const sixth = questionIdsForAttempt(6);
+  assert.equal(new Set(sixth).size, 10);
+  assert.ok(sixth.every((id) => id >= 0 && id < 50));
+});
+
+test('answering a question costs no database queries, and answers never reach the browser', async () => {
   setRequired(builtItems);
   const email = 'ready@example.test';
-  const status = await get(cookies[email]);
-  assert.equal(status.data.labsUnlocked, true);
-
   const start = await post(cookies[email], { action: 'start' });
   assert.equal(start.code, 200);
   assert.equal(start.data.question.total, 10);
   assert.equal(start.data.question.index, 1);
-  assert.ok(!JSON.stringify(start.data).includes('correctIndex'));
+  assert.equal(start.data.question.secondsLeft, 45);
+  assert.ok(!JSON.stringify(start.data).includes('correct'));
 
-  const [attempt] = (await db.query("SELECT questions FROM certificate_attempts WHERE email = $1", [email])).rows;
-  assert.ok(attempt.questions.some((q) => q.personal), 'some questions come from the student’s own robot runs');
+  const realQuery = db.query.bind(db);
+  let queries = 0;
+  db.query = (...args) => { queries += 1; return realQuery(...args); };
+  const token = decodeToken(start.data.token);
+  const out = await post(cookies[email], { action: 'answer', token: start.data.token, index: 1, choice: correctChoice(token) });
+  db.query = realQuery;
+  assert.equal(out.code, 200);
+  assert.equal(queries, 0);
+  assert.equal(out.data.finished, false);
+  assert.ok(!JSON.stringify(out.data).includes('correct'));
 
-  // answering out of order is rejected
-  const bad = await post(cookies[email], { action: 'answer', index: 3, choice: 0 });
+  const bad = await post(cookies[email], { action: 'answer', token: start.data.token, index: 5, choice: 0 });
   assert.equal(bad.code, 409);
+  const forged = await post(cookies[email], { action: 'answer', token: start.data.token.slice(0, -3) + 'abc', index: 1, choice: 0 });
+  assert.equal(forged.code, 409);
+  await db.query('DELETE FROM certificate_attempts WHERE email = $1', [email]);
+});
 
-  let last;
-  for (let i = 0; i < 10; i++){
-    last = await post(cookies[email], { action: 'answer', index: i + 1, choice: attempt.questions[i].correctIndex });
-    assert.equal(last.code, 200);
-    if (i < 9) assert.ok(!JSON.stringify(last.data).includes('correctIndex'));
-  }
+test('first attempt uses fixed set 1; passing and issuing a certificate works end to end', async () => {
+  setRequired(builtItems);
+  const email = 'ready@example.test';
+  const { start, last } = await takeAttempt(email);
+  assert.deepEqual(decodeToken(start.data.token).q, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   assert.equal(last.data.finished, true);
   assert.equal(last.data.passed, true);
   assert.equal(last.data.score, 10);
@@ -140,7 +181,6 @@ test('assessment hides answers, serves one question at a time, and passes only w
   assert.equal(issued.code, 200);
   assert.equal(issued.data.certificate.name, 'Ada Lovelace');
   assert.ok(validCertificateId(issued.data.certificate.id));
-
   const again = await post(cookies[email], { action: 'issue', name: 'Someone Else' });
   assert.equal(again.code, 409);
 
@@ -148,48 +188,103 @@ test('assessment hides answers, serves one question at a time, and passes only w
   assert.equal(verified.data.valid, true);
   assert.equal(verified.data.name, 'Ada Lovelace');
   assert.deepEqual(Object.keys(verified.data).sort(), ['issuedAt', 'name', 'program', 'valid']);
-  const fake = await get('', { verify: 'SF-FL-AAAA-BBBB' });
-  assert.equal(fake.data.valid, false);
-  const junk = await get('', { verify: "' OR 1=1 --" });
-  assert.equal(junk.data.valid, false);
+  assert.equal((await get('', { verify: 'SF-FL-AAAA-BBBB' })).data.valid, false);
+  assert.equal((await get('', { verify: "' OR 1=1 --" })).data.valid, false);
 });
 
-test('failing the assessment locks retries for a while, and wrong or slow answers do not pass', async () => {
+test('a finished attempt cannot be replayed', async () => {
+  setRequired(builtItems);
+  const email = 'slacker@example.test';
+  const start = await post(cookies[email], { action: 'start' });
+  let token = start.data.token;
+  const tokens = [token];
+  let last;
+  for (let i = 0; i < 10; i++){
+    const decoded = decodeToken(token);
+    last = await post(cookies[email], { action: 'answer', token, index: i + 1, choice: correctChoice(decoded) });
+    token = last.data.token; tokens.push(token);
+  }
+  assert.equal(last.data.passed, true);
+  const replay = await post(cookies[email], { action: 'answer', token: tokens[9], index: 10, choice: 0 });
+  assert.equal(replay.code, 409);
+  assert.equal(replay.data.error, 'attempt_closed');
+  await db.query('DELETE FROM certificate_attempts WHERE email = $1', [email]);
+});
+
+test('failing locks retries for a while, then the next fixed set is used', async () => {
   setRequired(builtItems);
   const email = 'slacker@example.test';
   const noPass = await post(cookies[email], { action: 'issue', name: 'Slack Er' });
   assert.equal(noPass.code, 403);
 
-  await post(cookies[email], { action: 'start' });
-  const [attempt] = (await db.query('SELECT questions FROM certificate_attempts WHERE email = $1', [email])).rows;
-  let last;
-  for (let i = 0; i < 10; i++){
-    const wrong = (attempt.questions[i].correctIndex + 1) % attempt.questions[i].options.length;
-    last = await post(cookies[email], { action: 'answer', index: i + 1, choice: wrong });
-  }
-  assert.equal(last.data.passed, false);
-  assert.equal(last.data.score, 0);
-
+  const first = await takeAttempt(email, { right: 0 });
+  assert.equal(first.last.data.passed, false);
+  assert.equal(first.last.data.score, 0);
   const retry = await post(cookies[email], { action: 'start' });
   assert.equal(retry.code, 429);
   assert.ok(retry.data.retryAt);
+  const status = await get(cookies[email]);
+  assert.ok(status.data.assessment.retryAt);
+  assert.equal(status.data.assessment.lastResult.status, 'failed');
+
+  await db.query("UPDATE certificate_attempts SET finished_at = now() - interval '2 hours' WHERE email = $1", [email]);
+  const second = await post(cookies[email], { action: 'start' });
+  assert.equal(second.code, 200);
+  assert.deepEqual(decodeToken(second.data.token).q, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
   const issue = await post(cookies[email], { action: 'issue', name: 'Slack Er' });
   assert.equal(issue.code, 403);
+
+  // walking away from an open attempt counts as a failed one and moves to the next set
+  await db.query("UPDATE certificate_attempts SET started_at = now() - interval '2 hours' WHERE email = $1 AND status = 'in_progress'", [email]);
+  const third = await post(cookies[email], { action: 'start' });
+  assert.equal(third.code, 200);
+  assert.deepEqual(decodeToken(third.data.token).q, [20, 21, 22, 23, 24, 25, 26, 27, 28, 29]);
+  const rows = (await db.query('SELECT status FROM certificate_attempts WHERE email = $1 ORDER BY id', [email])).rows.map((r) => r.status);
+  assert.deepEqual(rows, ['failed', 'failed', 'in_progress']);
 });
 
 test('an answer that arrives after the time limit counts as wrong', async () => {
   setRequired(builtItems);
   const email = 'ready@example.test';
   await db.query('DELETE FROM certificates WHERE email = $1', [email]);
-  await db.query("DELETE FROM certificate_attempts WHERE email = $1", [email]);
-  await post(cookies[email], { action: 'start' });
-  const [attempt] = (await db.query('SELECT id, questions FROM certificate_attempts WHERE email = $1', [email])).rows;
-  await db.query("UPDATE certificate_attempts SET question_started_at = now() - interval '5 minutes' WHERE id = $1", [attempt.id]);
-  const late = await post(cookies[email], { action: 'answer', index: 1, choice: attempt.questions[0].correctIndex });
-  assert.equal(late.code, 200);
-  const [row] = (await db.query('SELECT answers FROM certificate_attempts WHERE id = $1', [attempt.id])).rows;
-  assert.equal(row.answers[0].correct, false);
-  assert.equal(row.answers[0].timedOut, true);
+  await db.query('DELETE FROM certificate_attempts WHERE email = $1', [email]);
+  const start = await post(cookies[email], { action: 'start' });
+  const late = decodeToken(start.data.token);
+  late.t -= 5 * 60 * 1000;
+  const out = await post(cookies[email], { action: 'answer', token: encodeToken(late), index: 1, choice: correctChoice(late) });
+  assert.equal(out.code, 200);
+  assert.equal(decodeToken(out.data.token).c, 0, 'a correct but late answer scores nothing');
+});
+
+test('marking a lab complete records whether its code already ran on the robot', async () => {
+  const email = 'newbie@example.test';
+  const item = builtItems[0];
+  const complete = () => post(cookies[email], { action: 'complete', activityId: item.id }, progress);
+  assert.equal((await complete()).code, 200);
+  let [row] = (await db.query('SELECT robot_verified FROM progress_completed WHERE email = $1 AND activity_id = $2', [email, item.id])).rows;
+  assert.equal(row.robot_verified, false);
+
+  await db.query(
+    `INSERT INTO robot_jobs (robot_id, student_email, workspace_path, package, executable, code, code_sha256, status, finished_at)
+     VALUES (1, $1, $2, 'pkg', 'exe', 'x', 'sha', 'succeeded', now())`, [email, item.workspaceFile]);
+  await complete();
+  [row] = (await db.query('SELECT robot_verified FROM progress_completed WHERE email = $1 AND activity_id = $2', [email, item.id])).rows;
+  assert.equal(row.robot_verified, true);
+
+  // the robot_jobs row is purged after 90 days, but the recorded run keeps counting
+  await db.query('DELETE FROM robot_jobs WHERE student_email = $1', [email]);
+  setRequired([item]);
+  const status = await get(cookies[email]);
+  assert.equal(status.data.labs[0].ran, true);
+  setRequired(builtItems);
+});
+
+test('an existing completed lab is upgraded once its robot run is seen', async () => {
+  const email = 'ready@example.test';
+  setRequired(builtItems);
+  await get(cookies[email]);
+  const rows = (await db.query('SELECT robot_verified FROM progress_completed WHERE email = $1', [email])).rows;
+  assert.ok(rows.length > 0 && rows.every((r) => r.robot_verified === true));
 });
 
 test('holder names are restricted to plain names', () => {

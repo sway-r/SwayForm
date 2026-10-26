@@ -43,9 +43,15 @@ export default async function handler(req, res){
   switch (body.action){
     case 'complete': {
       if (!body.activityId){ res.status(400).json({ error: 'missing_activity_id' }); return; }
+      // Remember now whether this lab's own file already ran successfully on the robot; the
+      // robot_jobs rows that prove it are purged after 90 days (see certificates.js).
+      const labFile = findActivity(body.activityId).activity.workspaceFile || '';
       await sql`
-        INSERT INTO progress_completed (email, activity_id) VALUES (${email}, ${body.activityId})
-        ON CONFLICT (email, activity_id) DO NOTHING
+        INSERT INTO progress_completed (email, activity_id, robot_verified)
+        VALUES (${email}, ${body.activityId}, ${labFile} <> '' AND EXISTS (
+          SELECT 1 FROM robot_jobs WHERE student_email = ${email} AND workspace_path = ${labFile} AND status = 'succeeded'))
+        ON CONFLICT (email, activity_id) DO UPDATE SET robot_verified = TRUE
+          WHERE NOT progress_completed.robot_verified AND EXCLUDED.robot_verified
       `;
       res.status(200).json({ ok: true });
       return;

@@ -13,6 +13,17 @@ async function call(method, body){
   return data;
 }
 
+const SAVED_KEY = 'swayform.portal.certificateAttempt';
+function loadSaved(){
+  try { return JSON.parse(sessionStorage.getItem(SAVED_KEY) || 'null'); } catch (e) { return null; }
+}
+function saveAttempt(token, question){
+  try { sessionStorage.setItem(SAVED_KEY, JSON.stringify({ token, question, at: Date.now() })); } catch (e) { /* storage unavailable */ }
+}
+function clearSaved(){
+  try { sessionStorage.removeItem(SAVED_KEY); } catch (e) { /* storage unavailable */ }
+}
+
 function download(blob, filename){
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -59,7 +70,8 @@ export async function mountCertificates(host, { isGuest, defaultName }){
     const quizLine = `<div class="cert-step ${a.passed ? 'ok' : ''}">
       <span class="cert-step-mark">${a.passed ? '✓' : '2'}</span>
       <span class="cert-step-text"><strong>Pass the Foundations Assessment</strong>
-      <span>${a.questionCount} questions, ${a.secondsPerQuestion} seconds each, ${a.passMark} right to pass. Some questions are about your own robot runs.</span></span></div>`;
+      <span>${a.questionCount} questions, ${a.secondsPerQuestion} seconds each, ${a.passMark} right to pass. Leaving partway counts as an attempt.</span></span></div>`;
+    const saved = loadSaved();
     const certLine = `<div class="cert-step ${cert ? 'ok' : ''}">
       <span class="cert-step-mark">${cert ? '✓' : '3'}</span>
       <span class="cert-step-text"><strong>Get your certificate</strong><span>Download it as a PNG or PDF. Anyone can verify it at swayform.net/verify.</span></span></div>`;
@@ -82,7 +94,7 @@ export async function mountCertificates(host, { isGuest, defaultName }){
     } else if (state.labsUnlocked){
       action = a.retryAt
         ? `<button type="button" class="p-btn" disabled>Try again in ${waitText(a.retryAt)}</button>`
-        : `<button type="button" class="p-btn primary" data-start>${a.current ? 'Continue assessment' : 'Start assessment'}</button>
+        : `<button type="button" class="p-btn primary" data-start>${saved ? 'Continue assessment' : 'Start assessment'}</button>
            ${a.lastResult && a.lastResult.status === 'failed' ? `<p class="cert-note">Last attempt: ${a.lastResult.score} of ${a.questionCount}. You need ${a.passMark}.</p>` : ''}`;
     } else {
       action = '<button type="button" class="p-btn" disabled>Locked until every foundation lab is finished</button>';
@@ -98,8 +110,14 @@ export async function mountCertificates(host, { isGuest, defaultName }){
     if (startBtn) startBtn.addEventListener('click', async () => {
       startBtn.disabled = true;
       try {
-        const out = a.current ? { question: a.current } : await call('POST', { action: 'start' });
-        await runAssessment(out.question);
+        let out;
+        if (saved){
+          const elapsed = Math.floor((Date.now() - saved.at) / 1000);
+          out = { token: saved.token, question: { ...saved.question, secondsLeft: Math.max(0, saved.question.secondsLeft - elapsed) } };
+        } else {
+          out = await call('POST', { action: 'start' });
+        }
+        await runAssessment(out);
       } catch (error){
         startBtn.disabled = false;
         if (error.status === 429) { await render(); return; }
@@ -139,6 +157,8 @@ export async function mountCertificates(host, { isGuest, defaultName }){
   }
 
   function runAssessment(first){
+    let token = first.token;
+    saveAttempt(token, first.question);
     return new Promise((resolve) => {
       const overlay = document.createElement('div');
       overlay.className = 'cert-quiz-overlay';
@@ -180,11 +200,14 @@ export async function mountCertificates(host, { isGuest, defaultName }){
         clearInterval(timer);
         box.querySelectorAll('button').forEach((b) => { b.disabled = true; });
         try {
-          const out = await call('POST', { action: 'answer', index: q.index, choice });
-          if (out.finished) return showResult(out);
+          const out = await call('POST', { action: 'answer', token, index: q.index, choice });
+          if (out.finished){ clearSaved(); return showResult(out); }
+          token = out.token;
+          saveAttempt(token, out.question);
           showQuestion(out.question);
         } catch (error){
-          box.innerHTML = '<p class="cert-note">Something went wrong. Close this and reopen it to continue.</p><button type="button" class="p-btn" data-close>Close</button>';
+          if (error.status === 409) clearSaved();
+          box.innerHTML = '<p class="cert-note">' + (error.status === 409 ? 'This attempt has ended. You can start a new one from the Account window.' : 'Something went wrong. Close this and reopen it to continue.') + '</p><button type="button" class="p-btn" data-close>Close</button>';
           box.querySelector('[data-close]').addEventListener('click', close);
         }
       }
@@ -198,7 +221,7 @@ export async function mountCertificates(host, { isGuest, defaultName }){
       }
 
       function close(){ clearInterval(timer); overlay.remove(); resolve(); }
-      showQuestion(first);
+      showQuestion(first.question);
     });
   }
 

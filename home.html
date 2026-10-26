@@ -1115,6 +1115,10 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
             <div class="faq-a">Yes. Start with 20 foundation labs, then about 10 behavior sections of 10–12 labs each. Programs can use selected labs as part of an existing syllabus or follow the full path in order. Two tracks are planned — a Middle School track and a High School track — at different difficulty levels, sharing overlapping features and skills and connecting together at the end of the path.</div>
           </details>
           <details class="faq-item">
+            <summary class="faq-q">Do students earn a certificate?</summary>
+            <div class="faq-a">Yes. A student who completes all 20 foundation labs on the real robot and passes a short assessment earns a verifiable SwayForm certificate. It is coming with the full set of foundation labs, and more certificates are planned for the behavior sections.</div>
+          </details>
+          <details class="faq-item">
             <summary class="faq-q">What happens if a component breaks?</summary>
             <div class="faq-a">SwayForm combines commercially available electronics and actuators with custom, replaceable 3D-printed structural parts. Every individual printed part is priced below $20, and the Learning Portal includes a full repair guide.</div>
           </details>
@@ -1244,6 +1248,39 @@ pre[class*="language-"]{margin:0!important;border-radius:0!important;background:
   </section>
 
   <!-- ═══ FINAL CTA / CONTACT SALES ═══ -->
+  <section class="ov-cert reveal" id="certificates">
+    <style>
+      .ov-cert{padding:clamp(72px,10vw,130px) 0;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+      .ov-cert-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(28px,5vw,64px);align-items:center}
+      .ov-cert-soon{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:4px 12px;margin-bottom:16px}
+      .ov-cert-list{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+      .ov-cert-list li{display:flex;gap:12px;color:var(--muted);line-height:1.55}
+      .ov-cert-list li::before{content:"";flex-shrink:0;width:7px;height:7px;margin-top:9px;border-radius:50%;background:var(--blue)}
+      .ov-cert-img{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.18)}
+      .ov-cert-cap{margin-top:12px;font-size:12px;color:var(--faint);text-align:center}
+      @media(max-width:860px){.ov-cert-grid{grid-template-columns:1fr}}
+    </style>
+    <div class="wrap">
+      <div class="ov-cert-grid">
+        <div>
+          <span class="ov-cert-soon">Coming with the full Foundation Labs</span>
+          <span class="label" style="display:block;color:var(--blue)">Student certificates</span>
+          <h2 class="ov-h2">Finish the labs. Earn a certificate.</h2>
+          <p style="color:var(--muted);line-height:1.65">Students who complete all 20 foundation labs on the real robot and pass a short assessment earn a SwayForm certificate they can put on a resume or a college application.</p>
+          <ul class="ov-cert-list">
+            <li>Every lab has to run on the physical robot, not just be clicked through.</li>
+            <li>A timed assessment, with questions about each student's own robot runs.</li>
+            <li>A certificate ID that anyone can check at swayform.net/verify.</li>
+          </ul>
+        </div>
+        <div>
+          <img class="ov-cert-img" src="/images/certificate-preview.jpg" alt="Sample SwayForm certificate: Certificate of Achievement, Foundations of Humanoid Robotics, with a gold border and the SwayForm mark" loading="lazy" width="1800" height="1391">
+          <p class="ov-cert-cap">Sample certificate</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="schools-cta" class="section">
     <div class="wrap">
       <div class="cta-split">

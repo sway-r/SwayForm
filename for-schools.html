@@ -88,14 +88,13 @@
 .fs-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px}
 .fs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)}
 .fs-price{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.fs-plan{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:24px;align-self:start}
-.fs-plan summary{list-style:none;cursor:pointer}
-.fs-plan summary::-webkit-details-marker{display:none}
-.fs-plan:hover{border-color:rgba(110,160,255,.5)}
+.fs-plan{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:24px;cursor:pointer;transition:border-color .15s,background .15s}
+.fs-plan:hover{border-color:rgba(255,255,255,.4)}
+.fs-plan.on{border-color:#fff;background:rgba(255,255,255,.12)}
+.fs-plan:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .fs-more{display:inline-block;margin-top:16px;color:#fff;font-weight:700;font-size:14px}
-.fs-more::after{content:" \25BE"}
-.fs-plan[open] .fs-more::after{content:" \25B4"}
-.fs-due{margin-top:16px;border-top:1px solid rgba(255,255,255,.14);padding-top:6px}
+.fs-due{margin-top:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:20px 24px}
+.fs-due h4{font-size:18px;font-weight:800;color:#fff;margin:0 0 6px}
 .fs-due div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;color:#cfdcff}
 .fs-due b{color:#fff;text-align:right}
 .fs-pn{font-size:clamp(26px,3.5vw,34px);font-weight:800;color:#fff;line-height:1.1}
@@ -434,10 +433,25 @@
     <h3 style="font-size:clamp(20px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;margin:56px 0 8px;color:#fff">Cloud plans, per robot</h3>
     <p style="color:#cfdcff;margin-bottom:24px;max-width:680px">The Learning Portal curriculum is always free. These plans pay for the cloud link to your robot, and the higher plans add simulation for remote coding.</p>
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
-      <details class="fs-plan"><summary><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">Free the first year</div><ul class="fs-list" style="color:#cfdcff"><li>Student accounts and the code queue</li><li>Live video of every robot run</li><li>Code sent to the robot over the cloud</li></ul><span class="fs-more">See what you pay</span></summary><div class="fs-due"><div><span>Due for year 1</span><b>Free</b></div><div><span>Due every year after</span><b>$100</b></div><div><span>Reserve</span><b>$1,000 deposit, Jan 2027</b></div><div><span>Deposit refundable through</span><b>Feb 28, 2027</b></div></div></details>
-      <details class="fs-plan"><summary><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Connect</li><li>3 concurrent simulation environments</li><li>Students code the robot remotely, from anywhere</li><li>Up to 60 hours per month</li></ul><span class="fs-more">See what you pay</span></summary><div class="fs-due"><div><span>Due for year 1</span><b>$300</b></div><div><span>Due every year after</span><b>$500</b></div><div><span>Reserve</span><b>$1,000 deposit, Jan 2027</b></div><div><span>Deposit refundable through</span><b>Feb 28, 2027</b></div></div></details>
-      <details class="fs-plan"><summary><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Simulate</li><li>15 concurrent simulation environments</li><li>Up to 180 hours per month</li><li>Printed-parts replacement, up to $250 per year</li></ul><span class="fs-more">See what you pay</span></summary><div class="fs-due"><div><span>Due for year 1</span><b>$1,000</b></div><div><span>Due every year after</span><b>$1,500</b></div><div><span>Reserve</span><b>$1,000 deposit, Jan 2027</b></div><div><span>Deposit refundable through</span><b>Feb 28, 2027</b></div></div></details>
+      <div class="fs-plan on" role="button" tabindex="0" aria-pressed="true" data-plan="Connect" data-y1="Free" data-yr="$100"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">Free the first year</div><ul class="fs-list" style="color:#cfdcff"><li>Student accounts and the code queue</li><li>Live video of every robot run</li><li>Code sent to the robot over the cloud</li></ul><span class="fs-more">See what you pay</span></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-y1="$300" data-yr="$500"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Connect</li><li>3 concurrent simulation environments</li><li>Students code the robot remotely, from anywhere</li><li>Up to 60 hours per month</li></ul><span class="fs-more">See what you pay</span></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-y1="$1,000" data-yr="$1,500"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Simulate</li><li>15 concurrent simulation environments</li><li>Up to 180 hours per month</li><li>Printed-parts replacement, up to $250 per year</li></ul><span class="fs-more">See what you pay</span></div>
     </div>
+    <div class="fs-due" id="fs-due" aria-live="polite"></div>
+    <script>
+    (function(){
+      var plans=document.querySelectorAll('.fs-plan'),box=document.getElementById('fs-due');
+      function show(p){
+        plans.forEach(function(x){var on=x===p;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+        box.innerHTML='<h4>'+p.dataset.plan+'</h4><div><span>Due for year 1</span><b>'+p.dataset.y1+'</b></div><div><span>Due every year after</span><b>'+p.dataset.yr+'</b></div><div><span>Reserve</span><b>$1,000 deposit, Jan 2027</b></div><div><span>Deposit refundable through</span><b>Feb 28, 2027</b></div>';
+      }
+      plans.forEach(function(p){
+        p.addEventListener('click',function(){show(p)});
+        p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(p)}});
+      });
+      show(plans[0]);
+    })();
+    </script>
     <div style="margin-top:28px;color:#cfdcff;font-weight:600">Deposit refundable through Feb 28, 2027</div>
   </div>
 </section>

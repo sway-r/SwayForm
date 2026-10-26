@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SwayForm Robot | 21 DOF Humanoid Educational Robotics Platform</title>
-<meta name="description" content="SwayForm, 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5 (8 GB), ROS 2. Technical reference for the humanoid robotics platform built for schools.">
+<title>The SwayForm S1 Robot | A Humanoid Robot for the Classroom</title>
+<meta name="description" content="Meet SwayForm S1, a humanoid robot built for schools. Students write code in the Learning Portal and watch the robot move, with their teacher in charge.">
 <link rel="canonical" href="https://www.swayform.net/robot">
-<meta property="og:title" content="SwayForm Robot | 21 DOF Humanoid Educational Robotics Platform">
-<meta property="og:description" content="SwayForm, 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5 (8 GB), ROS 2. Technical reference for the humanoid robotics platform built for schools.">
+<meta property="og:title" content="The SwayForm S1 Robot | A Humanoid Robot for the Classroom">
+<meta property="og:description" content="Meet SwayForm S1, a humanoid robot built for schools. Students write code in the Learning Portal and watch the robot move, with their teacher in charge.">
 <meta property="og:url" content="https://www.swayform.net/robot">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.swayform.net/images/socialshare.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="SwayForm Robot | 21 DOF Humanoid Educational Robotics Platform">
-<meta name="twitter:description" content="SwayForm, 21 degrees of freedom, Intel D435i depth camera, Raspberry Pi 5 (8 GB), ROS 2. Technical reference for the humanoid robotics platform built for schools.">
+<meta name="twitter:title" content="The SwayForm S1 Robot | A Humanoid Robot for the Classroom">
+<meta name="twitter:description" content="Meet SwayForm S1, a humanoid robot built for schools. Students write code in the Learning Portal and watch the robot move, with their teacher in charge.">
 <meta name="twitter:image" content="https://www.swayform.net/images/socialshare.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
@@ -42,13 +42,28 @@
   overflow:visible;
 }
 .robot-hero-photo{
-  width:108%;
-  max-width:640px;
+  width:100%;
+  max-width:600px;
   height:auto;
   display:block;
   margin:0;
-  border-radius:20px;
-  filter:drop-shadow(0 32px 64px rgba(0,0,0,.55));
+  border-radius:18px;
+  box-shadow:0 24px 60px rgba(10,15,30,.18);
+}
+
+/* ── WATCH GRID: three wide clips stacked beside one tall clip, so there are no gaps ── */
+.watch-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.watch-stack{display:flex;flex-direction:column;gap:20px}
+.watch-tile{position:relative;margin:0;overflow:hidden;border-radius:14px;border:1px solid var(--line);background:#000}
+.watch-stack .watch-tile{aspect-ratio:16/9}
+.watch-tall .watch-tile{aspect-ratio:9/16}
+.watch-tile video{display:block;width:100%;height:100%;object-fit:cover}
+.watch-tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:38px 16px 14px;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.74));color:#fff}
+.watch-tile figcaption b{display:block;font-size:16px;margin-bottom:2px}
+.watch-tile figcaption span{font-size:13px;line-height:1.5;opacity:.88}
+@media(max-width:760px){
+  .watch-grid{grid-template-columns:1fr}
+  .watch-tall{max-width:380px;width:100%;margin:0 auto}
 }
 
 /* ── ANATOMY SECTION ── */
@@ -236,7 +251,7 @@
   }
   .robot-hero-grid{grid-template-columns:1fr}
   .robot-hero-img-col{order:2;justify-content:center !important}
-  .robot-hero-photo{width:100%;max-width:340px;margin:0 auto;max-height:260px;object-fit:contain}
+  .robot-hero-photo{width:100%;max-width:520px;margin:0 auto}
   .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
   .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   /* compact labels on mobile, smaller text, no blur (perf), solid bg */
@@ -261,7 +276,6 @@
 }
 @media(max-width:480px){
   .stat-strip-inner{grid-template-columns:repeat(3,1fr) !important}
-  .robot-hero-img-col{display:none}
 }
 @media(max-width:360px){
   .stat-strip-inner{grid-template-columns:repeat(2,1fr) !important}
@@ -304,8 +318,8 @@
       <!-- Left: text -->
       <div>
         <span class="label" style="display:block;margin-bottom:16px;color:var(--blue)">The Robot</span>
-        <h1 style="font-size:clamp(32px,4.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;max-width:560px;margin-bottom:18px;color:#0a0f1e">21 programmable degrees of freedom.<br>Governed by a protected motion system.</h1>
-        <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:480px;line-height:1.65;margin-bottom:20px">A real physical platform running ROS 2 on an onboard Raspberry Pi. Students write code for all 21 joints, every command passes through validation, an execution queue, and instructor approval before it reaches the motors. Click the anatomy hotspots below to explore every system.</p>
+        <h1 style="font-size:clamp(32px,4.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;max-width:560px;margin-bottom:18px;color:#0a0f1e">A real humanoid robot your students can program.</h1>
+        <p style="font-size:clamp(15px,3.8vw,17px);color:var(--muted);max-width:480px;line-height:1.65;margin-bottom:20px">SwayForm S1 is a humanoid robot built for the classroom. Students write code in the Learning Portal and watch the robot move, with their teacher in charge of every run.</p>
         <p style="font-size:22px;font-weight:800;letter-spacing:-.01em;color:var(--blue);margin-bottom:32px">SwayForm Model S1, $6,999 <span style="font-weight:600;color:var(--muted);font-size:15px">per unit</span></p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-ghost" onclick="document.getElementById('anatomy-section').scrollIntoView({behavior:'smooth'})">Explore anatomy ↓</button>
@@ -313,12 +327,12 @@
         </div>
       </div>
 
-      <!-- Right: real robot photo -->
+      <!-- Right: the robot in a real classroom -->
       <div class="robot-hero-img-col" style="display:flex;align-items:center;justify-content:center">
-        <!-- Real SwayForm robot prototype photo -->
-        <img src="images/swayform_robot_3.png"
-             alt="SwayForm humanoid robot prototype"
+        <img src="images/DemoStill.jpg"
+             alt="Students at a school programming the SwayForm robot while their teacher watches"
              class="robot-hero-photo"
+             width="1325" height="1188"
              loading="eager">
       </div>
 
@@ -331,27 +345,27 @@
   <div class="section-wide stat-strip-inner" style="gap:0;padding:0">
     <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--blue);letter-spacing:-.03em">21</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Degrees of freedom</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Moving joints</div>
     </div>
     <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:#0e7490;letter-spacing:-.03em">8 GB</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">RPi 5 RAM</div>
+      <div style="font-size:28px;font-weight:800;color:#0e7490;letter-spacing:-.03em">5</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Demo programs included</div>
     </div>
     <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--green);letter-spacing:-.03em">12V</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Main supply rail</div>
+      <div style="font-size:28px;font-weight:800;color:var(--green);letter-spacing:-.03em">15</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Students per robot</div>
     </div>
     <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--purple);letter-spacing:-.03em">D435i</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">RealSense depth</div>
+      <div style="font-size:28px;font-weight:800;color:var(--purple);letter-spacing:-.03em">$20</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Or less per printed part</div>
     </div>
     <div style="padding:28px 20px;border-right:1px solid var(--line);text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--orange);letter-spacing:-.03em">ROS 2</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Software stack</div>
+      <div style="font-size:28px;font-weight:800;color:var(--orange);letter-spacing:-.03em">Free</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Learning Portal included</div>
     </div>
     <div style="padding:28px 20px;text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--yellow);letter-spacing:-.03em">PLA</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">3D printed frame</div>
+      <div style="font-size:28px;font-weight:800;color:var(--yellow);letter-spacing:-.03em">0</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Batteries to replace, it plugs into the wall</div>
     </div>
   </div>
 </section>
@@ -413,34 +427,27 @@
   <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:8px">What S1 can do.</h2>
   <p style="color:var(--muted);margin-bottom:40px;max-width:560px">Real clips of the real robot, running code written by students.</p>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px">
-    <figure style="margin:0">
-      <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="Screen recording of the Target Lock lab: a student driving the robot live from the Learning Portal" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:#000"></video>
-      <figcaption style="margin-top:12px"><b style="display:block;font-size:17px;color:var(--ink)">Target Lock</b><span style="font-size:14px;color:var(--muted);line-height:1.6">Students steer the head, torso, arm and hand live to grab and lift an object.</span></figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="The SwayForm robot raising both arms" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:#000"></video>
-      <figcaption style="margin-top:12px"><b style="display:block;font-size:17px;color:var(--ink)">Moving on student code</b><span style="font-size:14px;color:var(--muted);line-height:1.6">Both arms, head and torso respond to a program a student wrote.</span></figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video src="videos/vertical-handshake.mp4" poster="images/vertical-handshake-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="The robot performing a handshake" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:#000"></video>
-      <figcaption style="margin-top:12px"><b style="display:block;font-size:17px;color:var(--ink)">Handshake</b><span style="font-size:14px;color:var(--muted);line-height:1.6">A friendly greeting, built one joint at a time.</span></figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video src="videos/horizontal-control.mp4" poster="images/horizontal-control-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="Horizontal control of the robot arm" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:#000"></video>
-      <figcaption style="margin-top:12px"><b style="display:block;font-size:17px;color:var(--ink)">Arm control</b><span style="font-size:14px;color:var(--muted);line-height:1.6">Smooth, precise sweeps from simple commands.</span></figcaption>
-    </figure>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px;margin-top:20px">
-    <figure style="margin:0">
-      <img src="images/RobotInClass.jpg" alt="The SwayForm robot in a classroom" loading="lazy" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line)">
-      <figcaption style="margin-top:12px;font-size:14px;color:var(--muted)">S1 in the classroom.</figcaption>
-    </figure>
-    <figure style="margin:0">
-      <img src="images/swayform_robot_2.png" alt="The SwayForm humanoid robot" loading="lazy" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line)">
-      <figcaption style="margin-top:12px;font-size:14px;color:var(--muted)">A humanoid built to be taken apart and repaired.</figcaption>
-    </figure>
+  <div class="watch-grid">
+    <div class="watch-stack">
+      <figure class="watch-tile">
+        <video src="videos/lab5-target-lock.mp4" poster="images/lab5-target-lock-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="Screen recording of the Target Lock lab: a student driving the robot live from the Learning Portal"></video>
+        <figcaption><b>Target Lock</b><span>Students steer the head, torso, arm and hand live to grab and lift an object.</span></figcaption>
+      </figure>
+      <figure class="watch-tile">
+        <video src="videos/demo-video.mp4" poster="images/swayform_robot_1.png" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="The SwayForm robot raising both arms"></video>
+        <figcaption><b>Moving on student code</b><span>Both arms, head and torso respond to a program a student wrote.</span></figcaption>
+      </figure>
+      <figure class="watch-tile">
+        <video src="videos/horizontal-control.mp4" poster="images/horizontal-control-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="Horizontal control of the robot arm"></video>
+        <figcaption><b>Arm control</b><span>Smooth, precise sweeps from simple commands.</span></figcaption>
+      </figure>
+    </div>
+    <div class="watch-tall">
+      <figure class="watch-tile">
+        <video src="videos/vertical-handshake.mp4" poster="images/vertical-handshake-poster.jpg" autoplay loop muted playsinline preload="metadata" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback" aria-label="The robot performing a handshake"></video>
+        <figcaption><b>Handshake</b><span>A friendly greeting, built one joint at a time.</span></figcaption>
+      </figure>
+    </div>
   </div>
 </section>
 

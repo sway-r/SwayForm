@@ -93,10 +93,15 @@
 .fs-plan.on{border-color:#fff;background:rgba(255,255,255,.12)}
 .fs-plan:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .fs-more{display:inline-block;margin-top:16px;color:#fff;font-weight:700;font-size:14px}
-.fs-due{margin-top:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:20px 24px}
-.fs-due h4{font-size:18px;font-weight:800;color:#fff;margin:0 0 6px}
-.fs-due div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;color:#cfdcff}
-.fs-due b{color:#fff;text-align:right}
+.fs-due{position:relative;margin-top:24px;padding:20px 40px 0 0;border-top:1px solid rgba(255,255,255,.2);max-width:640px}
+.fs-due[hidden]{display:none}
+.fs-x{position:absolute;top:12px;right:0;background:none;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:4px 8px}
+.fs-dh{font-size:18px;font-weight:800;color:#fff;margin-bottom:14px}
+.fs-dl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a3a8b1;margin:16px 0 4px}
+.fs-dr{display:flex;justify-content:space-between;gap:16px;padding:7px 0;font-size:15px;color:#d4d7dd}
+.fs-dr i{display:block;font-style:normal;font-size:13px;color:#a3a8b1}
+.fs-dr b{color:#fff;white-space:nowrap}
+.fs-tot{font-weight:700;color:#fff}
 .fs-pn{font-size:clamp(26px,3.5vw,34px);font-weight:800;color:#fff;line-height:1.1}
 @media(max-width:900px){.fs-hero,.fs-price{grid-template-columns:1fr;gap:28px}}
 </style>
@@ -415,44 +420,53 @@
 </section>
 
 <!-- pricing -->
-<section style="background:#0b1f4b;color:#fff;padding:72px 0">
+<section style="background:#14161b;color:#fff;padding:72px 0">
   <div class="section-wide">
-    <span class="label" style="display:block;margin-bottom:12px;color:#9fb3d9">Pricing</span>
+    <span class="label" style="display:block;margin-bottom:12px;color:#a3a8b1">Pricing</span>
     <h2 style="font-size:clamp(24px,3.2vw,32px);font-weight:800;letter-spacing:-.025em;margin-bottom:28px;color:#fff">One price for the complete program.</h2>
     <div class="fs-price">
       <div>
         <div style="font-size:clamp(48px,8vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1">$6,999</div>
-        <div style="color:#cfdcff;font-weight:600;margin:8px 0 20px">Complete program, per robot</div>
-        <ul class="fs-list" style="color:#cfdcff"><li>One SwayForm Model S1 humanoid robot</li><li>First year of the connected classroom subscription</li><li>Guided labs and learning content</li><li>Administrator controls and code-run approval</li></ul>
+        <div style="color:#d4d7dd;font-weight:600;margin:8px 0 20px">Complete program, per robot</div>
+        <ul class="fs-list" style="color:#d4d7dd"><li>One SwayForm Model S1 humanoid robot</li><li>First year of the connected classroom subscription</li><li>Guided labs and learning content</li><li>Administrator controls and code-run approval</li></ul>
       </div>
       <div style="display:flex;flex-direction:column;gap:18px">
-        <div><div class="fs-pn">$1,000</div><div style="color:#cfdcff">Reservation deposit</div></div>
-        <div><div class="fs-pn">$5,999</div><div style="color:#cfdcff">Remaining balance</div></div>
+        <div><div class="fs-pn">$1,000</div><div style="color:#d4d7dd">Reservation deposit</div></div>
+        <div><div class="fs-pn">$5,999</div><div style="color:#d4d7dd">Remaining balance</div></div>
       </div>
     </div>
     <h3 style="font-size:clamp(20px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;margin:56px 0 8px;color:#fff">Cloud plans, per robot</h3>
-    <p style="color:#cfdcff;margin-bottom:24px;max-width:680px">The Learning Portal curriculum is always free. These plans pay for the cloud link to your robot, and the higher plans add simulation for remote coding.</p>
+    <p style="color:#d4d7dd;margin-bottom:24px;max-width:680px">The Learning Portal curriculum is always free. These plans pay for the cloud link to your robot, and the higher plans add simulation for remote coding.</p>
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
-      <div class="fs-plan on" role="button" tabindex="0" aria-pressed="true" data-plan="Connect" data-y1="Free" data-yr="$100"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">Free the first year</div><ul class="fs-list" style="color:#cfdcff"><li>Student accounts and the code queue</li><li>Live video of every robot run</li><li>Code sent to the robot over the cloud</li></ul><span class="fs-more">See what you pay</span></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-y1="$300" data-yr="$500"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Connect</li><li>3 concurrent simulation environments</li><li>Students code the robot remotely, from anywhere</li><li>Up to 60 hours per month</li></ul><span class="fs-more">See what you pay</span></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-y1="$1,000" data-yr="$1,500"><div style="font-weight:700;color:#cfdcff;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#6ea0ff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-list" style="color:#cfdcff"><li>Everything in Simulate</li><li>15 concurrent simulation environments</li><li>Up to 180 hours per month</li><li>Printed-parts replacement, up to $250 per year</li></ul><span class="fs-more">See what you pay</span></div>
+      <div class="fs-plan on" role="button" tabindex="0" aria-pressed="true" data-plan="Connect" data-tot="$6,999" data-y1="Free" data-yr="$100"><div style="font-weight:700;color:#d4d7dd;margin-bottom:6px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#fff;font-weight:700;font-size:14px;margin:6px 0 14px">Free the first year</div><ul class="fs-list" style="color:#d4d7dd"><li>Student accounts and the code queue</li><li>Live video of every robot run</li><li>Code sent to the robot over the cloud</li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-tot="$7,299" data-y1="$300" data-yr="$500"><div style="font-weight:700;color:#d4d7dd;margin-bottom:6px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#fff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $300 (40% off)</div><ul class="fs-list" style="color:#d4d7dd"><li>Everything in Connect</li><li>3 concurrent simulation environments</li><li>Students code the robot remotely, from anywhere</li><li>Up to 60 hours per month</li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-tot="$7,999" data-y1="$1,000" data-yr="$1,500"><div style="font-weight:700;color:#d4d7dd;margin-bottom:6px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#fff;font-weight:700;font-size:14px;margin:6px 0 14px">First year $1,000 (~33% off)</div><ul class="fs-list" style="color:#d4d7dd"><li>Everything in Simulate</li><li>15 concurrent simulation environments</li><li>Up to 180 hours per month</li><li>Printed-parts replacement, up to $250 per year</li></ul></div>
     </div>
-    <div class="fs-due" id="fs-due" aria-live="polite"></div>
+    <div class="fs-due" id="fs-due" hidden aria-live="polite"></div>
     <script>
     (function(){
       var plans=document.querySelectorAll('.fs-plan'),box=document.getElementById('fs-due');
+      function close(){box.hidden=true;plans.forEach(function(x){x.classList.remove('on');x.setAttribute('aria-pressed','false')})}
       function show(p){
         plans.forEach(function(x){var on=x===p;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
-        box.innerHTML='<h4>'+p.dataset.plan+'</h4><div><span>Due for year 1</span><b>'+p.dataset.y1+'</b></div><div><span>Due every year after</span><b>'+p.dataset.yr+'</b></div><div><span>Reserve</span><b>$1,000 deposit, Jan 2027</b></div><div><span>Deposit refundable through</span><b>Feb 28, 2027</b></div>';
+        box.innerHTML='<button type="button" class="fs-x" aria-label="Close">&times;</button>'
+          +'<div class="fs-dh">Estimated cost with '+p.dataset.plan+'</div>'
+          +'<div class="fs-dl">Year 1</div>'
+          +'<div class="fs-dr"><span>Deposit <i>Refundable through Feb 28, 2027</i></span><b>$1,000</b></div>'
+          +'<div class="fs-dr"><span>Remaining balance</span><b>$5,999</b></div>'
+          +'<div class="fs-dr"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.y1+'</b></div>'
+          +'<div class="fs-dr fs-tot"><span>Year 1 total</span><b>'+p.dataset.tot+'</b></div>'
+          +'<div class="fs-dl">Every year after</div>'
+          +'<div class="fs-dr fs-tot"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.yr+'/yr</b></div>';
+        box.hidden=false;
+        box.querySelector('.fs-x').addEventListener('click',close);
       }
       plans.forEach(function(p){
         p.addEventListener('click',function(){show(p)});
         p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(p)}});
       });
-      show(plans[0]);
     })();
     </script>
-    <div style="margin-top:28px;color:#cfdcff;font-weight:600">Deposit refundable through Feb 28, 2027</div>
   </div>
 </section>
 

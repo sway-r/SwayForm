@@ -21,7 +21,7 @@ window.SWAYFORM = {
     names: ["Wave", "Handshake", "Fist Bump", "Finger Count", "Target Lock"]
   },
   audience: {
-    summary: "Schools — including, but not limited to, high schools and middle schools.",
+    summary: "Schools.",
     tracks: ["Middle School", "High School"],
     tracksNote: "Two curriculums at different difficulty levels, with overlapping features and skills, that connect together at the end of the path. Planned."
   },

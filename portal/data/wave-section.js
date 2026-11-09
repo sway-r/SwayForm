@@ -4,6 +4,13 @@ const BUILDER = 'swayform_ws/src/swayform_labs/wave_builder.py';
 const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
 export const WAVE_QUIZ_ID = 'wv-06-quiz';
 export const WAVE_QUIZ_PASS = 80;
+const REVIEW = {
+  intro: { id: 'wv-01-intro', label: 'Lab 1, Meet the Wave' },
+  imports: { id: 'wv-02-imports', label: 'Lab 2, Imports' },
+  settings: { id: 'wv-04-settings', label: 'Lab 4, Settings' },
+  functions: { id: 'wv-05-functions', label: 'Lab 5, Functions' },
+  safety: { id: 'safety-first', label: 'Safety and Ground Rules' },
+};
 
 const openBuilder = (line) => ({
   type: 'code', lang: 'python', filename: 'wave_builder.py', workspaceFile: BUILDER, line, copy: false,
@@ -297,17 +304,25 @@ export const WAVE_LEVEL = {
             {
               id: 'the-quiz', title: 'The Quiz',
               blocks: [
-                { type: 'quiz', id: WAVE_QUIZ_ID, title: 'Building Blocks Quiz', passPercent: WAVE_QUIZ_PASS, questions: [
-                  { question: 'What does `from time import sleep` give your program?', options: ['The ability to pause', 'The ability to move the arm', 'A faster wave', 'A copy of the robot'], answer: 0, explain: 'It brings in sleep, which makes the program wait.' },
-                  { question: 'Where do import lines normally go?', options: ['At the top of the file', 'At the bottom of the file', 'Inside the last function', 'They can be left out'], answer: 0, explain: 'The code below uses what is imported, so imports come first.' },
-                  { question: 'What is `WAVE_CYCLES = 3`?', options: ['A variable named WAVE_CYCLES that holds 3', 'A function that waves 3 times', 'An import', 'A comment'], answer: 0, explain: 'The name on the left holds the value on the right.' },
-                  { question: 'Why use a named setting instead of typing the number everywhere?', options: ['Change it once and the whole program follows', 'Python refuses plain numbers', 'It makes the robot stronger', 'It is required for imports'], answer: 0, explain: 'One setting means one place to change.' },
-                  { question: 'What does `def` do in `def open_hand(motion):`?', options: ['Starts a new function', 'Runs the hand', 'Imports a tool', 'Ends the program'], answer: 0, explain: 'def defines a function. It does not run it.' },
-                  { question: 'In `open_hand(motion)`, what is `motion`?', options: ['The robot connection handed to the function', 'The name of the wave', 'A setting for speed', 'A comment'], answer: 0, explain: 'The function needs the connection so it can send moves.' },
-                  { question: 'What is `MotionClient` used for?', options: ['Sending moves to the robot', 'Counting waves', 'Saving files', 'Pausing the program'], answer: 0, explain: 'Every move goes through it.' },
-                  { question: 'An arm starts moving in a way you did not expect. What do you do first?', options: ['Stop the program and keep your hands off the robot', 'Hold the arm still', 'Push it back by hand', 'Run the program again'], answer: 0, explain: 'Never grab or resist a powered arm. Stop the program.' },
-                  { question: 'What does `sleep(0.3)` do?', options: ['Waits 0.3 seconds before the next line', 'Moves the wrist 0.3 degrees', 'Runs 0.3 waves', 'Turns the robot off'], answer: 0, explain: 'It is a pause, measured in seconds.' },
-                  { question: 'You see "NameError: name sleep is not defined". What is the most likely fix?', options: ['Import sleep at the top of the file', 'Restart the robot', 'Change WAVE_CYCLES', 'Delete the wave_once function'], answer: 0, explain: 'A NameError on a tool name usually means the import is missing.' },
+                { type: 'quiz', id: WAVE_QUIZ_ID, title: 'Building Blocks Quiz', passPercent: WAVE_QUIZ_PASS, count: 10, questions: [
+                  { question: 'What does `from time import sleep` give your program?', options: ['The ability to pause', 'The ability to move the arm', 'A faster wave', 'A copy of the robot'], answer: 0, explain: 'It brings in sleep, which makes the program wait.', review: REVIEW.imports },
+                  { question: 'Where do import lines normally go?', options: ['At the top of the file', 'At the bottom of the file', 'Inside the last function', 'They can be left out'], answer: 0, explain: 'The code below uses what is imported, so imports come first.', review: REVIEW.imports },
+                  { question: 'What is `WAVE_CYCLES = 3`?', options: ['A variable named WAVE_CYCLES that holds 3', 'A function that waves 3 times', 'An import', 'A comment'], answer: 0, explain: 'The name on the left holds the value on the right.', review: REVIEW.settings },
+                  { question: 'Why use a named setting instead of typing the number everywhere?', options: ['Change it once and the whole program follows', 'Python refuses plain numbers', 'It makes the robot stronger', 'It is required for imports'], answer: 0, explain: 'One setting means one place to change.', review: REVIEW.settings },
+                  { question: 'What does `def` do in `def open_hand(motion):`?', options: ['Starts a new function', 'Runs the hand', 'Imports a tool', 'Ends the program'], answer: 0, explain: 'def defines a function. It does not run it.', review: REVIEW.functions },
+                  { question: 'In `open_hand(motion)`, what is `motion`?', options: ['The robot connection handed to the function', 'The name of the wave', 'A setting for speed', 'A comment'], answer: 0, explain: 'The function needs the connection so it can send moves.', review: REVIEW.functions },
+                  { question: 'What is `MotionClient` used for?', options: ['Sending moves to the robot', 'Counting waves', 'Saving files', 'Pausing the program'], answer: 0, explain: 'Every move goes through it.', review: REVIEW.imports },
+                  { question: 'An arm starts moving in a way you did not expect. What do you do first?', options: ['Stop the program and keep your hands off the robot', 'Hold the arm still', 'Push it back by hand', 'Run the program again'], answer: 0, explain: 'Never grab or resist a powered arm. Stop the program.', review: REVIEW.safety },
+                  { question: 'What does `sleep(0.3)` do?', options: ['Waits 0.3 seconds before the next line', 'Moves the wrist 0.3 degrees', 'Runs 0.3 waves', 'Turns the robot off'], answer: 0, explain: 'It is a pause, measured in seconds.', review: REVIEW.imports },
+                  { question: 'You see "NameError: name sleep is not defined". What is the most likely fix?', options: ['Import sleep at the top of the file', 'Restart the robot', 'Change WAVE_CYCLES', 'Delete the wave_once function'], answer: 0, explain: 'A NameError on a tool name usually means the import is missing.', review: REVIEW.imports },
+                  { question: 'Which of these lines is an import?', options: ['`from time import sleep`', '`WAVE_CYCLES = 3`', '`def go_home(motion):`', '`say("swing")`'], answer: 0, explain: 'An import line starts with from or import and names a tool to bring in.', review: REVIEW.imports },
+                  { question: 'Which of these is a setting in `wave_builder.py`?', options: ['`WAVE_DELAY_SECONDS = 0.3`', '`from time import sleep`', '`def wave(motion):`', '`say("swing")`'], answer: 0, explain: 'A setting is a name on the left of an equals sign, holding a value.', review: REVIEW.settings },
+                  { question: '`WAVE_DELAY_SECONDS` changes from 0.3 to 0.6. What happens to the wave?', options: ['Each swing takes longer, so the wave is slower', 'The wave gets faster', 'The wrist swings more times', 'Nothing changes'], answer: 0, explain: 'It is the pause between swings, so a bigger number is a slower wave.', review: REVIEW.settings },
+                  { question: 'Which line calls the function `open_hand`?', options: ['`open_hand(motion)`', '`def open_hand(motion):`', '`import open_hand`', '`open_hand = motion`'], answer: 0, explain: 'A call is the name plus what you hand it. The def line only teaches the move.', review: REVIEW.functions },
+                  { question: 'What does `motion.safe_pose("idle")` do inside `go_home`?', options: ['Sends the robot to its resting pose', 'Starts the wave', 'Imports a pose', 'Pauses the program'], answer: 0, explain: 'go_home uses it to put the robot back in its neutral resting pose.', review: REVIEW.functions },
+                  { question: 'Why are the lines inside a function indented?', options: ['The indent shows which lines belong to the function', 'It makes the robot move slower', 'Python skips indented lines', 'It turns them into comments'], answer: 0, explain: 'Indentation is how Python knows where a function, or a loop, begins and ends.', review: REVIEW.functions },
+                  { question: 'A line starts with `#`. What does Python do with it?', options: ['Ignores it, it is a note for people', 'Runs it as a robot move', 'Imports it', 'Repeats it'], answer: 0, explain: 'A # note is for the reader. The # TODO lab N notes in your file work this way.', review: REVIEW.intro },
+                  { question: 'Who should be in the room when a program runs on the real robot?', options: ['An instructor or supervisor', 'Nobody, it is safer to run it alone', 'Only other students', 'It does not matter'], answer: 0, explain: 'Never run a program on the physical robot without an instructor or supervisor present.', review: REVIEW.safety },
                 ] },
               ],
             },

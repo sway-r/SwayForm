@@ -103,9 +103,10 @@ function renderMatch(block, h){
 /* A scored set of questions. Passing needs passPercent or better; failing shows which ones missed and allows a retry. */
 function renderQuiz(block, h){
   const pass = block.passPercent || 80;
+  const draw = Math.min(block.count || block.questions.length, block.questions.length);
   const wrap = h.el('div', 'cb-q cb-quiz');
   initGate(wrap, block, `Score at least ${pass}% on the quiz to finish this lab.`);
-  wrap.innerHTML = `<div class="cb-q-lbl">${h.inlineHtml(block.title || 'Quiz')}</div><p class="cb-q-text">${block.questions.length} questions. You need ${pass}% or better to pass, and you can try again as many times as you like.</p><div class="cb-quiz-qs"></div><div class="cb-q-actions"><button type="button" class="p-btn primary" data-submit disabled>Submit answers</button></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
+  wrap.innerHTML = `<div class="cb-q-lbl">${h.inlineHtml(block.title || 'Quiz')}</div><p class="cb-q-text">${draw} questions. You need ${pass}% or better to pass, and you can try again as many times as you like.${draw < block.questions.length ? ' Each try draws a fresh mix of questions.' : ''}</p><div class="cb-quiz-qs"></div><div class="cb-q-actions"><button type="button" class="p-btn primary" data-submit disabled>Submit answers</button></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
   const qsEl = wrap.querySelector('.cb-quiz-qs');
   const submitBtn = wrap.querySelector('[data-submit]');
   const feedback = wrap.querySelector('.cb-q-feedback');
@@ -119,7 +120,7 @@ function renderQuiz(block, h){
     feedback.textContent = '';
     submitBtn.textContent = 'Submit answers';
     submitBtn.disabled = true;
-    qs = block.questions.map((q, qi) => {
+    qs = shuffled(block.questions).slice(0, draw).map((q, qi) => {
       const box = h.el('fieldset', 'cb-quiz-q');
       box.appendChild(h.el('legend', 'cb-quiz-q-text', `<span class="cb-quiz-num">${qi + 1}</span>${h.inlineHtml(q.question)}`));
       const name = `quiz-${block.id || 'q'}-${attempt}-${qi}`;
@@ -132,7 +133,7 @@ function renderQuiz(block, h){
       const note = h.el('div', 'cb-quiz-note');
       box.appendChild(note);
       qsEl.appendChild(box);
-      return { box, note, answer: q.answer, explain: q.explain };
+      return { box, note, answer: q.answer, explain: q.explain, review: q.review };
     });
   }
 
@@ -146,10 +147,11 @@ function renderQuiz(block, h){
       q.box.classList.toggle('right', ok);
       q.box.classList.toggle('wrong', !ok);
       q.box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
-      q.note.innerHTML = ok ? '<strong>Correct.</strong>' : `<strong>Not quite.</strong> ${q.explain ? h.inlineHtml(q.explain) : 'Review this one and try again.'}`;
+      const review = q.review ? `<span class="cb-quiz-review">Review: <a href="/learn/activity/${encodeURIComponent(q.review.id)}" target="_blank" rel="noopener">${h.inlineHtml(q.review.label)}</a></span>` : '';
+      q.note.innerHTML = ok ? '<strong>Correct.</strong>' : `<strong>Not quite.</strong> ${q.explain ? h.inlineHtml(q.explain) : 'Take another look at this one.'}${review}`;
     });
     const percent = Math.round((right / qs.length) * 100);
-    const passed = percent >= pass;
+    const passed = right * 100 >= pass * qs.length;
     feedback.className = `cb-q-feedback ${passed ? 'ok' : 'bad'}`;
     feedback.innerHTML = passed
       ? `<strong>${percent}%, you passed.</strong> ${right} of ${qs.length} correct.`

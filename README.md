@@ -64,9 +64,13 @@ That test pins the TODO counts the lessons promise and the 25 to 35% share.
 
 - `{ type: 'mcq', question, options: [...], answer: 0, explain }`
 - `{ type: 'match', prompt, pairs: [[left, right], ...] }` (right-hand texts must be unique)
-- `{ type: 'quiz', id, title, passPercent: 80, questions: [{ question, options, answer, explain }] }`
+- `{ type: 'quiz', id, title, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
 
-Options are shuffled on screen, so the right answer can be first in the list.
+A quiz draws `count` questions at random from its bank on every try, so keep
+the bank bigger than `count`. `review` is the lab a missed question links back
+to. Students can retry as often as they like with no cooldown, on purpose for
+now; Swayam decides if that changes. Options are shuffled on screen, so the
+right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
 `required: false` to a block to exempt it. `lab.robotGate` (see lab 12) holds
 Queue on Robot back until named labs are complete and named files have no TODO.

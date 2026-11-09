@@ -52,7 +52,8 @@ test('every activity resolves server-side, so progress writes are accepted', () 
 test('lab 6 quiz needs 80% and lab 12 is gated on it plus a finished builder', () => {
   const quiz = blocksOf(lab(6)).find((b) => b.type === 'quiz');
   assert.equal(quiz.passPercent, 80);
-  assert.ok(quiz.questions.length >= 10);
+  assert.equal(quiz.count, 10);
+  assert.ok(quiz.questions.length > quiz.count, 'the bank is bigger than one try, so a retry is a different mix');
   const gate = lab(12).robotGate;
   assert.deepEqual(gate.needsComplete.map((g) => g.id), [lab(6).id]);
   assert.deepEqual(gate.needsNoTodos.map((g) => g.path), [BUILDER]);
@@ -95,7 +96,15 @@ test('interactive blocks are well formed', () => {
       assert.ok(unique(b.pairs.map((p) => p[1])), `${where}: right-hand texts must be unique`);
       seen++;
     }
-    if (b.type === 'quiz'){ b.questions.forEach((q, qi) => checkQuestion(q, `${where} q${qi}`)); seen++; }
+    if (b.type === 'quiz'){
+      b.questions.forEach((q, qi) => {
+        checkQuestion(q, `${where} q${qi}`);
+        assert.ok(q.review && findActivity(q.review.id) && q.review.label, `${where} q${qi}: review must point at a real lab`);
+      });
+      assert.ok(unique(b.questions.map((q) => q.question)), `${where}: repeated question`);
+      assert.ok(b.count <= b.questions.length, `${where}: count is larger than the bank`);
+      seen++;
+    }
   }));
   assert.ok(seen >= 10);
 });

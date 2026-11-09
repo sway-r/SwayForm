@@ -140,20 +140,15 @@ function setAdminJobBadge(count){
   document.title = count > 0 ? `(${count}) ${BASE_TITLE}` : BASE_TITLE;
 }
 
-// Studio (studio/server/content-load.mjs + adapters/portal-home-writer.mjs)
-// statically AST-parses this exact function for its desktop-icon editor,
-// it must stay a plain `return [Ident, ...]` with no logic, or Studio's
-// parser silently falls through to "every imported app" and its writer
-// throws when saving. Keep any conditional/session-based app visibility out
-// of this function; put it in visibleApps() below instead.
+// Keep any conditional/session-based app visibility out of this function;
+// put it in visibleApps() below instead.
 function REGISTRY_ORDER(){
   return [LearnApp, AccountApp, HelpApp, SettingsApp];
 }
 
 // Session-gated apps (Robot, Admin) are spliced in here rather than in
 // REGISTRY_ORDER() itself, their visibility is role-based access, not a
-// content-editorial on/off toggle, so it's deliberately outside what
-// Studio's desktop-icon editor manages. robot.js itself further branches on
+// content-editorial on/off toggle. robot.js itself further branches on
 // whether a robot is actually linked, since "not linked yet" is a real,
 // honest state worth showing (with a path to simulation access), not a
 // reason to hide the icon entirely.

@@ -284,7 +284,7 @@ function renderBlock(block, ctx){
 /** Renders `blocks` into `container` (cleared first). `ctx` is optional:
  *  { openFile(path), insertCode(code) }, omit to render read-only (Help app).
  *  Each block root carries data-cb-i (its index in `blocks`), inert in
- *  production; the Studio editing overlay uses it to map DOM to content. */
+ *  production. */
 export function renderBlocks(container, blocks, ctx){
   container.innerHTML = '';
   (blocks || []).forEach((b, i) => {

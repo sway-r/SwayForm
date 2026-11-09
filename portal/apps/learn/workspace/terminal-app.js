@@ -18,7 +18,7 @@ import { terminalConfigFor } from '../../../data/workspace-config.js';
 export const meta = { id: 'terminal', title: 'Terminal', icon: 'terminal' };
 
 export function mount(bodyEl, winApi, opts) {
-  // Terminal bounds come from workspace-config.js (Studio-managed): a
+  // Terminal bounds come from workspace-config.js: a
   // workspace opens with `default` tabs, students can never close below
   // `min` or open beyond `max` (1/3/5 globally unless a lesson overrides).
   const config = terminalConfigFor(opts && opts.activity ? opts.activity.id : null);

@@ -2,8 +2,7 @@
 # developer's core.autocrlf setting, so the working tree always matches
 # what's actually committed. Without this, Windows checkouts with
 # autocrlf=true silently convert LF files to CRLF on disk, which makes
-# Studio's AST-diff writers (and any other raw-file diffing) see a
-# whole-file rewrite instead of the real single-line change.
+# diffs show a whole-file rewrite instead of the real single-line change.
 * text=auto eol=lf
 
 *.png binary

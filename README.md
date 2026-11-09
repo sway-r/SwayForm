@@ -60,7 +60,6 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 | `portal/apps/learn/` | Lesson rendering, code editor, notebook workspace |
 | `api/` | Vercel serverless functions (Node), one file per endpoint |
 | `bridge/` | Service that authenticates and relays jobs to the physical robot |
-| `studio/` | Unused, ignore it |
 | `test/` | `node --test test/*.test.mjs` |
 | `db/schema.sql`, `db/migrations/` | Postgres (Neon) schema |
 

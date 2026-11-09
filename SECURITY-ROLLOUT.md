@@ -19,7 +19,7 @@ Cancel applies only to pending/approved jobs. A running record is not an emergen
 
 ## Verification
 
-Run npm ci at the root, npm ci --prefix bridge, npm ci --prefix studio, then npm test and npm test --prefix studio. Security tests use synthetic PostgreSQL data and a local fake API/WebSocket bridge; they never connect to the Pi or issue physical commands. The test harness uses node:module registerHooks and requires a recent Node version (tested with the workspace runtime).
+Run npm ci at the root and npm ci --prefix bridge, then npm test. Security tests use synthetic PostgreSQL data and a local fake API/WebSocket bridge; they never connect to the Pi or issue physical commands. The test harness uses node:module registerHooks and requires a recent Node version (tested with the workspace runtime).
 
 ## Remaining deployment checks
 

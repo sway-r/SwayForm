@@ -40,15 +40,13 @@ joint-to-keyboard teleop capstone.
 
 ## Previewing your changes
 
-Run the pages on your own computer before you commit. From the repo root:
+Run the pages on your own computer before you commit. Save a file, refresh the browser, and you see the change.
 
-```
-npx serve .
-```
+**Learning Portal (labs, anything in `portal/`):** in the repo folder run `node preview-portal.mjs`, then open `http://localhost:3000/learn`. You are signed in as a guest, so there is no login and no backend. Stop it with Ctrl+C. Anything that needs the real backend (login, saved progress, the robot) won't work here.
 
-Open the address it prints (usually `http://localhost:3000`) and add the page name: `/home`, `/robot`, `/for-schools`, and so on. Save a file, refresh the browser, and you see the change.
+**Main website (the `*.html` pages at the root):** run `npx serve .` and open a page such as `http://localhost:3000/home`.
 
-This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` at the root. The Learning Portal (`portal/`) needs the login backend, so it can't be previewed this way; if you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks.
+If you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks.
 
 ## Repo layout (quick map)
 
@@ -58,6 +56,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 | `portal/` | The Learning Portal app, static ES modules, no build step |
 | `portal/data/` | Curriculum + lesson content (see above) |
 | `portal/apps/learn/` | Lesson rendering, code editor, notebook workspace |
+| `preview-portal.mjs` | Runs the Learning Portal locally for previewing, not deployed |
 | `api/` | Vercel serverless functions (Node), one file per endpoint |
 | `bridge/` | Service that authenticates and relays jobs to the physical robot |
 | `test/` | `node --test test/*.test.mjs` |
@@ -79,8 +78,8 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
   `main` on GitHub (`github.com/sway-r/SwayForm`). Swayam reviews and merges
   it; you can't merge it yourself.
 - Don't run `vercel link`, `vercel env pull` or `vercel dev`, and never
-  ask for passwords or secrets. Preview with `npx serve .` instead (see
-  Previewing your changes).
+  ask for passwords or secrets. Preview locally instead (see Previewing
+  your changes).
 
 ## Things to know before touching content
 

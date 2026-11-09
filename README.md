@@ -60,7 +60,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 | `portal/apps/learn/` | Lesson rendering, code editor, notebook workspace |
 | `api/` | Vercel serverless functions (Node), one file per endpoint |
 | `bridge/` | Service that authenticates and relays jobs to the physical robot |
-| `studio/` | The local content-editing tool described above, never deployed |
+| `studio/` | Local editing tool, not part of the helper workflow, never deployed |
 | `test/` | `node --test test/*.test.mjs` |
 | `db/schema.sql`, `db/migrations/` | Postgres (Neon) schema |
 
@@ -87,8 +87,8 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 ## Things to know before touching content
 
 - **Don't rename lesson/section ids**: routes and student progress
-  records key on them; the Studio README calls this out explicitly as
-  something that needs a deliberate migration, not a casual rename.
+  records key on them; renaming one needs a deliberate migration, not a
+  casual rename.
 - **Pre-Installed Demos → Wave and Handshake are real**, running against
   actual robot source (mirrored from the real `swayform_ws` robot repo),
   don't treat them as mockups.
@@ -101,13 +101,8 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
   account/progress/robot-dispatch code paths (not just lesson text), be
   extra careful and ask before changing anything under `api/` or `bridge/`.
 
-## If you're Claude reading this to teach Greyson
+## If you're Claude reading this to teach a helper
 
-Walk him through, in order: (1) what SwayForm/the Learning Portal is,
-(2) the `learning-path.js` / `curriculum.js` split, (3) launching Studio
-and using its live preview to see edits land in real time, (4) the git
-workflow above. Point him at `studio/README.md` for the editor's full
-feature set once he's oriented. Don't let him hand-edit the data files
-directly unless he specifically wants to work outside Studio, the visual
-editor exists precisely so lesson authors don't need to touch raw JS/AST
-structure.
+Walk them through, in order: (1) what SwayForm and the Learning Portal are,
+(2) the `learning-path.js` / `curriculum.js` split, (3) how to preview
+pages locally with `npx serve .`, (4) the git workflow above.

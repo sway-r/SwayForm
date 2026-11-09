@@ -100,7 +100,7 @@ running (`npm run studio`), it doesn't require the Vercel backend.
 - Clone once (`git clone https://github.com/sway-r/SwayForm.git`). Never
   clone again; update the copy you have instead.
 - Each person has their own branch named after them (for example
-  `adharias`). Work and commit only on your own branch, and run
+  `greyson-labs`). Work and commit only on your own branch, and run
   `git branch --show-current` before every commit to check.
 - At the start of every work session: `git checkout <your-branch>`, then
   `git pull origin main` to bring in everyone else's merged changes, then

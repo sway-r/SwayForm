@@ -12,7 +12,7 @@ export const meta = { id: 'notebook', title: 'Textbook', icon: 'book' };
 
 function diffTag(activity) {
   if (activity.kind === 'demo') return '<span class="diff-tag demo">Demo walkthrough</span>';
-  if (activity.kind === 'reading' || activity.kind === 'placeholder') return '<span class="diff-tag reading">Reading</span>';
+  if (activity.kind === 'reading' || activity.kind === 'placeholder') return `<span class="diff-tag reading">${activity.tagLabel || 'Reading'}</span>`;
   if (!activity.difficulty) return '';
   return `<span class="diff-tag ${activity.difficulty}">${activity.difficulty}</span>`;
 }
@@ -96,14 +96,16 @@ export function mount(bodyEl, winApi, opts) {
       if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next').catch(() => {}));
       return;
     }
+    // Questions in the lab (mcq, match, quiz) hold back Mark Complete until each is solved.
+    const pendingGate = done ? null : doc.querySelector('[data-gate="pending"]');
     completeBlock.innerHTML = `
       <div class="nb-complete-icon">${icon('checkCircle')}</div>
-      <h2>${done ? `${activity.title} complete.` : 'Finished reading?'}</h2>
-      <p>${(activity.completionSummary && activity.completionSummary.text) || 'Mark this activity complete when you\'re done.'}</p>
+      <h2>${done ? `${activity.title} complete.` : pendingGate ? 'Almost there.' : 'Finished reading?'}</h2>
+      <p>${pendingGate ? pendingGate.dataset.gateHint : (activity.completionSummary && activity.completionSummary.text) || 'Mark this activity complete when you\'re done.'}</p>
       ${(done && activity.completionSummary && activity.completionSummary.conceptsUsed && activity.completionSummary.conceptsUsed.length)
         ? `<div class="nb-complete-concepts">${activity.completionSummary.conceptsUsed.map((c) => `<span class="nb-complete-chip">${c}</span>`).join('')}</div>` : ''}
       <div class="nb-complete-actions">
-        <button type="button" class="p-btn primary" data-mark-complete>${icon('checkCircle')}<span>${done ? 'Completed' : 'Mark Activity Complete'}</span></button>
+        <button type="button" class="p-btn primary" data-mark-complete${pendingGate ? ' disabled' : ''}>${icon('checkCircle')}<span>${done ? 'Completed' : 'Mark Activity Complete'}</span></button>
         ${nextActivity
           ? nextActivity.kind === 'placeholder'
             // The next real slot isn't written yet, say so up front rather
@@ -120,8 +122,9 @@ export function mount(bodyEl, winApi, opts) {
     const nextBtn = completeBlock.querySelector('[data-next-activity]');
     if (nextBtn) nextBtn.addEventListener('click', () => onFinish('next').catch(() => {}));
   }
-  renderComplete();
   doc.appendChild(completeBlock);
+  renderComplete();
+  doc.addEventListener('cb-gate', () => { if (!done) renderComplete(); });
 
   /* ---------------------------------------------------------------- TOC */
   function renderToc() {

@@ -16,6 +16,8 @@ import { buildRunSequence } from './mock-shell.js';
 import { getSession } from '../../../services/auth-service.js';
 import { watchJob } from '../../../services/job-watch.js';
 import { refreshQueueNow } from '../../../services/robot-jobs-service.js';
+import { getCompletedActivities } from '../../../services/progress-service.js';
+import { unmetRobotGates } from './robot-gate.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -120,6 +122,7 @@ export function mount(bodyEl, winApi, opts) {
       scope.push(robotPkgSrcRoot + 'setup.py');
     }
 
+    (activity.extraFiles || []).forEach((path) => scope.push(path));
     return scope;
   }
 
@@ -281,9 +284,16 @@ export function mount(bodyEl, winApi, opts) {
         if (res.status === 429){
           output.appendLine(data.message || 'Too many run checks in a row, wait a moment and try again.', 'term-warn', 'output');
         } else if (data.status === 'complete'){
-          robotValidatedPath = path;
-          if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
-          output.appendLine('Objective complete: this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
+          const unmet = await unmetRobotGates(activity, currentContent, getCompletedActivities);
+          if (unmet.length){
+            output.appendLine('This file is correct, but Queue on Robot is still locked. Before you can send it to the robot:', 'term-warn', 'output');
+            unmet.forEach((text) => { output.appendLine(`- ${text}`, 'term-warn', 'output'); output.appendLine(text, 'term-warn', 'problems'); });
+            output.setActive('output');
+          } else {
+            robotValidatedPath = path;
+            if (tabs.activePath === path) toolbar.setQueueRobotReady(true);
+            output.appendLine('Objective complete: this matches the target solution. Queue on Robot is now available.', 'term-ok', 'output');
+          }
         } else if (data.status === 'wrong_order' || (data.status === 'not_started' && data.blanks)){
           const hint = describeBlanks(data);
           output.appendLine(`Not yet, ${hint}`, 'term-err', 'output');
@@ -349,6 +359,14 @@ export function mount(bodyEl, winApi, opts) {
     }
     toolbar.setQueueRobotBusy(true);
     const content = currentContent(path);
+
+    const unmet = await unmetRobotGates(activity, currentContent, getCompletedActivities);
+    if (unmet.length){
+      unmet.forEach((text) => output.appendLine(`Locked: ${text}`, 'term-warn', 'output'));
+      output.setActive('output');
+      toolbar.setQueueRobotBusy(false);
+      return;
+    }
 
     try {
       const validateRes = await fetch('/api/robot/queue', {

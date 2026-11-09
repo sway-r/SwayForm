@@ -25,8 +25,9 @@ The curriculum lives across two files, deliberately kept separate:
   lives.
 - **`portal/data/curriculum.js`**: the listing/navigation layer on top: it
   groups activities into sections (Getting Started, Intro to ROS 2,
-  Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built), and
-  **Behavior Sections** (labs 21+, planned)), assigns numbering
+  Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built),
+  **Wave** (behavior section 1, 12 labs), and **More Sections** (planned)),
+  assigns numbering
   (`4.3`), and pulls each activity's real content *by reference* from
   `learning-path.js` via `pull(id)`. It never retypes lesson content itself.
 - **`portal/apps/learn/lesson-renderer.js`**: renders the step/block model
@@ -37,6 +38,42 @@ So "rewriting the labs" means editing lesson content in
 `curriculum.js`), most likely for the **Foundation Labs** section, the
 first 10 guided labs that take a student from ROS 2 basics to a first
 joint-to-keyboard teleop capstone.
+
+## The Wave section
+
+Behavior section 1 is section 5 in `curriculum.js`: 12 labs, all written in
+one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
+for the lab team to expand and sharpen.
+
+| Lab | Format |
+|---|---|
+| 1 | Intro, no code |
+| 2, 4, 5, 7, 9, 10 | Code labs that each fill one marked gap in a shared file |
+| 3, 8, 11 | Multiple-choice checks |
+| 6 | Quiz, 80% to pass |
+| 12 | Robot run: needs the lab 6 quiz, a finished program, and admin approval |
+
+**The 70/30 idea.** Students write about 30% of one program. The starter
+`wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
+written and a one-line `# TODO lab N` note at each gap. Check counts the notes
+left, and Run says everything is set once none remain. If you change the
+starter or what a lab asks for, update `FILLS` in `test/wave-section.test.mjs`.
+That test pins the TODO counts the lessons promise and the 25 to 35% share.
+
+**Question blocks** work in any lab (see `portal/apps/learn/interactive-blocks.js`):
+
+- `{ type: 'mcq', question, options: [...], answer: 0, explain }`
+- `{ type: 'match', prompt, pairs: [[left, right], ...] }` (right-hand texts must be unique)
+- `{ type: 'quiz', id, title, passPercent: 80, questions: [{ question, options, answer, explain }] }`
+
+Options are shuffled on screen, so the right answer can be first in the list.
+A lab can't be marked complete until every question in it is solved; add
+`required: false` to a block to exempt it. `lab.robotGate` (see lab 12) holds
+Queue on Robot back until named labs are complete and named files have no TODO.
+
+**Lab 12 sends the real `wave.py` to the robot**, not the student's file. Robot
+files are hash-pinned on the Pi, so running a student-built file needs Pi-side
+work first. Ask Swayam before changing anything about how that run works.
 
 ## Previewing your changes
 

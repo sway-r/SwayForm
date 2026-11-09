@@ -4,7 +4,7 @@ import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
 
 function diffTag(item){
-  if (item.kind === 'reading') return '<span class="diff-tag reading">Reading</span>';
+  if (item.kind === 'reading') return `<span class="diff-tag reading">${item.tagLabel || 'Reading'}</span>`;
   if (!item.difficulty) return '';
   return `<span class="diff-tag ${item.difficulty}">${item.difficulty}</span>`;
 }

@@ -18,14 +18,15 @@
  * nothing here retypes lesson content. Only the grouping/numbering/labeling
  * around that content is new.
  *
- * Five sections:
+ * Six sections:
  *   1. Getting Started   , orientation, safety, and how the portal works (5 items, active)
  *   2. Introduction to ROS 2, the software ideas behind the labs (9 items, active)
  *   3. Pre-Installed Demos, explore existing behaviors (5 items, all built)
  *   4. Foundation Labs   , 20 labs, one behavior or task each: labs 1-10
  *        available, labs 11-20 planned placeholders
- *   5. Behavior Sections , labs 21+, about 10 sections of 10-12 labs each
- *        built around one behavior; Planned, nothing authored yet
+ *   5. Wave              , behavior section 1: 12 labs, about 30% of the code
+ *        written by the student (authored in wave-section.js)
+ *   6. More Sections     , labs 21+, about 10 sections in all; the rest are Planned
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -137,11 +138,26 @@ const s4 = [
   placeholder('foundation-20', 'foundation', '4.20', 'Simple Dance Routine'),
 ];
 
-// Behavior sections: about 10 sections of 10-12 labs each, starting at lab 21.
-// No individual lab titles are published yet, so one honest placeholder.
+// Wave, behavior section 1: content lives in wave-section.js.
 const s5 = [
-  placeholder('behavior-sections-21', 'behavior-sections', '5.01', 'Labs 21+: Coming Soon',
-    'About 10 sections of 10-12 labs, each built around one behavior. Students write more of the code in each section, from about 25% in the first to about 75% by the tenth. Exact section and lab titles will be finalized as development continues.'),
+  real('wv-01-intro', 'wave', '5.01'),
+  real('wv-02-imports', 'wave', '5.02'),
+  real('wv-03-toolbox-check', 'wave', '5.03'),
+  real('wv-04-settings', 'wave', '5.04'),
+  real('wv-05-functions', 'wave', '5.05'),
+  real('wv-06-quiz', 'wave', '5.06'),
+  real('wv-07-loops', 'wave', '5.07'),
+  real('wv-08-loops-check', 'wave', '5.08'),
+  real('wv-09-order', 'wave', '5.09'),
+  real('wv-10-cleanup', 'wave', '5.10'),
+  real('wv-11-preflight', 'wave', '5.11'),
+  real('wv-12-run', 'wave', '5.12'),
+];
+
+// No other behavior section titles are published yet, so one placeholder.
+const s6 = [
+  placeholder('behavior-sections-21', 'behavior-sections', '6.01', 'More Sections: Coming Soon',
+    'Wave is the first behavior section. About 9 more follow, each built around one behavior. Students write more of the code in each one, from about 30% in Wave to about 75% by the tenth. Exact section and lab titles will be finalized as development continues.'),
 ];
 
 export const CURRICULUM = {
@@ -169,18 +185,23 @@ export const CURRICULUM = {
       items: s4,
     },
     {
-      id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects',
-      description: 'After the foundation labs: about 10 sections of 10–12 labs, each built around one behavior. Planned.',
+      id: 'wave', number: 5, title: 'Wave', type: 'lab', icon: 'play',
+      description: 'Behavior section 1. Finish a wave program one piece at a time, then send it to the robot. 12 labs.',
       items: s5,
+    },
+    {
+      id: 'behavior-sections', number: 6, title: 'More Sections', type: 'lab', icon: 'projects',
+      description: 'After Wave: about 9 more sections of 10–12 labs, each built around one behavior. Planned.',
+      items: s6,
     },
   ],
 };
 
 /* ---- Lookup helpers: the single source of truth for every Learn view ---- */
 
-/** Sections 4-5 only: the lab sections. Getting Started / ROS 2 / Demos are
+/** Sections 4-6 only: the lab sections. Getting Started / ROS 2 / Demos are
  * NOT part of the lab count. */
-export const LAB_SECTION_IDS = ['foundation', 'behavior-sections'];
+export const LAB_SECTION_IDS = ['foundation', 'wave', 'behavior-sections'];
 
 export function findSection(sectionId) {
   return CURRICULUM.sections.find((s) => s.id === sectionId) || null;

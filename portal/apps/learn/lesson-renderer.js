@@ -8,9 +8,12 @@
    'reveal' block: { type:'reveal', hint: string, solution?: { text?: string,
    code?: {lang, filename, code} } }; hint is always visible, solution is
    gated behind a Show Solution toggle (same accordion pattern as
-   'troubleshoot'). Used by Control lab "Need Help?" sections. */
+   'troubleshoot'). Used by Control lab "Need Help?" sections.
+
+   'mcq' / 'match' / 'quiz' blocks are rendered by interactive-blocks.js. */
 import { icon } from '../../icons.js';
 import { escapeHtml } from '../../utils.js';
+import { renderInteractive } from './interactive-blocks.js';
 
 function el(tag, cls, html){
   const e = document.createElement(tag);
@@ -277,7 +280,7 @@ function renderBlock(block, ctx){
     }
 
     default:
-      return el('div');
+      return renderInteractive(block, { el, inlineHtml }) || el('div');
   }
 }
 

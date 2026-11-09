@@ -46,6 +46,8 @@
  *     completionSummary?: { text, conceptsUsed?: [string] } }
  */
 
+import { WAVE_LEVEL } from './wave-section.js';
+
 export const LEARNING_PATH = {
   id: 'swayform-fundamentals',
   title: 'SwayForm Fundamentals',
@@ -1863,6 +1865,9 @@ export const LEARNING_PATH = {
         },
       ],
     },
+
+    // Wave (behavior section 1), authored in wave-section.js
+    WAVE_LEVEL,
   ],
 };
 

@@ -69,8 +69,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 - Clone once (`git clone https://github.com/sway-r/SwayForm.git`). Never
   clone again; update the copy you have instead.
 - Each person has their own branch named after them (for example
-  `greyson-labs`). Work and commit only on your own branch, and run
-  `git branch --show-current` before every commit to check.
+  `greyson-labs`). Work and commit only on your own branch.
 - At the start of every work session: `git checkout <your-branch>`, then
   `git pull origin main` to bring in everyone else's merged changes, then
   start working.

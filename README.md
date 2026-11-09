@@ -38,47 +38,17 @@ So "rewriting the labs" means editing lesson content in
 first 10 guided labs that take a student from ROS 2 basics to a first
 joint-to-keyboard teleop capstone.
 
-## The tool for this: Studio
+## Previewing your changes
 
-Don't hand-edit `learning-path.js`/`curriculum.js` as raw JS by default,
-there's a purpose-built local visual editor for exactly this:
-
-```
-cd studio
-npm run studio
-```
-
-- Studio UI → `http://127.0.0.1:4600`
-- Live student preview → `http://127.0.0.1:4601` (the *real* portal code,
-  with unsaved draft edits substituted in memory, what you see there is
-  literally production code rendering the draft)
-
-Full docs: [studio/README.md](studio/README.md), read this before editing
-labs. Key things it explains: the Curriculum page (reorder/hide/add
-sections and items), the Notebook lesson editor (click-to-edit blocks,
-inspector panel, live preview), Workspace Files (the student's virtual ROS 2
-filesystem), and the Save pipeline (validates, writes, commits locally,
-**never pushes automatically**; push manually when ready).
-
-Studio is local-only, never deployed, binds `127.0.0.1` only, writes are
-allowlisted to ten known content files. It's safe to experiment in.
-
-## Running things locally
-
-There's no bundler/build step: the portal is plain ES modules served
-directly. To run the full app (portal + API) against the real backend:
+Run the pages on your own computer before you commit. From the repo root:
 
 ```
-vercel link
-vercel env pull .env.local
-vercel dev
+npx serve .
 ```
 
-You'll need to be invited to the Vercel project for `vercel link` to work,
-ask Swayam. `.env.local` is gitignored; never commit it.
+Open the address it prints (usually `http://localhost:3000`) and add the page name: `/home`, `/robot`, `/for-schools`, and so on. Save a file, refresh the browser, and you see the change.
 
-If you only need to edit lesson content, you mostly just need `studio/`
-running (`npm run studio`), it doesn't require the Vercel backend.
+This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` at the root. The Learning Portal (`portal/`) needs the login backend, so it can't be previewed this way; if you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks. Don't use `studio/`; it isn't part of this workflow.
 
 ## Repo layout (quick map)
 
@@ -110,11 +80,9 @@ running (`npm run studio`), it doesn't require the Vercel backend.
 - When a piece of work is ready, open a pull request from your branch into
   `main` on GitHub (`github.com/sway-r/SwayForm`). Swayam reviews and merges
   it; you can't merge it yourself.
-- If Studio's Save pipeline creates commits locally (it does, as part of
-  Save Changes), those still just land on whatever branch is checked out,
-  confirm you're on your own branch before saving.
 - Don't run `vercel link`, `vercel env pull` or `vercel dev`, and never
-  ask for passwords or secrets. Preview with Studio instead.
+  ask for passwords or secrets. Preview with `npx serve .` instead (see
+  Previewing your changes).
 
 ## Things to know before touching content
 

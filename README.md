@@ -48,7 +48,7 @@ npx serve .
 
 Open the address it prints (usually `http://localhost:3000`) and add the page name: `/home`, `/robot`, `/for-schools`, and so on. Save a file, refresh the browser, and you see the change.
 
-This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` at the root. The Learning Portal (`portal/`) needs the login backend, so it can't be previewed this way; if you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks. Don't use `studio/`; it isn't part of this workflow.
+This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` at the root. The Learning Portal (`portal/`) needs the login backend, so it can't be previewed this way; if you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks.
 
 ## Repo layout (quick map)
 
@@ -60,7 +60,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 | `portal/apps/learn/` | Lesson rendering, code editor, notebook workspace |
 | `api/` | Vercel serverless functions (Node), one file per endpoint |
 | `bridge/` | Service that authenticates and relays jobs to the physical robot |
-| `studio/` | Local editing tool, not part of the helper workflow, never deployed |
+| `studio/` | Unused, ignore it |
 | `test/` | `node --test test/*.test.mjs` |
 | `db/schema.sql`, `db/migrations/` | Postgres (Neon) schema |
 

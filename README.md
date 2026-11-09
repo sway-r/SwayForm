@@ -96,15 +96,25 @@ running (`npm run studio`), it doesn't require the Vercel backend.
 
 ## Git workflow
 
-- Work happens on the **`greyson-labs`** branch (already created and pushed
-  from `main`), not directly on `main`.
-- Commit as you go; push to `origin/greyson-labs` freely.
-- When a batch of lab rewrites is ready for review, open a pull request
-  from `greyson-labs` into `main` on GitHub
-  (`github.com/sway-r/SwayForm`) rather than merging it yourself.
+- `main` is the live site and is protected. Never commit or push to it.
+- Clone once (`git clone https://github.com/sway-r/SwayForm.git`). Never
+  clone again; update the copy you have instead.
+- Each person has their own branch named after them (for example
+  `adharias`). Work and commit only on your own branch, and run
+  `git branch --show-current` before every commit to check.
+- At the start of every work session: `git checkout <your-branch>`, then
+  `git pull origin main` to bring in everyone else's merged changes, then
+  start working.
+- Commit as you go and push to `origin/<your-branch>` freely. Vercel builds
+  a private preview of the branch, and only Swayam can open that link.
+- When a piece of work is ready, open a pull request from your branch into
+  `main` on GitHub (`github.com/sway-r/SwayForm`). Swayam reviews and merges
+  it; you can't merge it yourself.
 - If Studio's Save pipeline creates commits locally (it does, as part of
   Save Changes), those still just land on whatever branch is checked out,
-  confirm you're on `greyson-labs` before saving.
+  confirm you're on your own branch before saving.
+- Don't run `vercel link`, `vercel env pull` or `vercel dev`, and never
+  ask for passwords or secrets. Preview with Studio instead.
 
 ## Things to know before touching content
 

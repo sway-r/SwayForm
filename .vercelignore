@@ -12,3 +12,6 @@ SECURITY-ROLLOUT.md
 
 # Saved copies of earlier page versions, kept for reference only.
 backups/
+
+# GitHub review settings, not part of the site.
+.github/

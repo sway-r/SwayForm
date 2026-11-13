@@ -55,15 +55,15 @@ for the lab team to expand and sharpen.
 
 **The 70/30 idea.** Students write about 30% of one program. The starter
 `wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
-written and a one-line `# TODO lab N` note at each gap. Check counts the notes
-left, and Run says everything is set once none remain. If you change the
+written and a one-line `# TODO lab N` note at each gap. Check shows a progress bar of
+the notes done (for example, 1 of 7 pieces done), and Run says everything is set once none remain. If you change the
 starter or what a lab asks for, update `FILLS` in `test/wave-section.test.mjs`.
 That test pins the TODO counts the lessons promise and the 25 to 35% share.
 
 **Question blocks** work in any lab (see `portal/apps/learn/interactive-blocks.js`):
 
 - `{ type: 'mcq', question, options: [...], answer: 0, explain }`
-- `{ type: 'match', prompt, pairs: [[left, right], ...] }` (right-hand texts must be unique)
+- `{ type: 'match', prompt, pairs: [[left, right], ...], distractors: [...] }` (right-hand texts must be unique; optional `distractors` are extra wrong answers, so the last pair can't be guessed by elimination)
 - `{ type: 'quiz', id, title, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
 
 A quiz draws `count` questions at random from its bank on every try, so keep
@@ -72,7 +72,11 @@ to. Students can retry as often as they like with no cooldown, on purpose for
 now; Swayam decides if that changes. Options are shuffled on screen, so the
 right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
-`required: false` to a block to exempt it. `lab.robotGate` (see lab 12) holds
+`required: false` to a block to exempt it. Until a lab's first required
+question is solved, the steps after it are blurred and can't be used. A section
+with `sequential: true` in `curriculum.js` (Wave) opens its labs one at a time:
+a lab stays locked until every lab before it is complete, and the lab's Next
+button opens once the lab itself is complete. `lab.robotGate` (see lab 12) holds
 Queue on Robot back until named labs are complete and named files have no TODO.
 
 **Lab 12 sends the real `wave.py` to the robot**, not the student's file. Robot

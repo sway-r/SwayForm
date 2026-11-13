@@ -93,6 +93,11 @@
 .sv-status.current{color:var(--la-accent)}
 .sv-status.current svg{fill:var(--la-accent);width:7px;height:7px}
 .sv-status.open svg{stroke:var(--la-faint);fill:none;stroke-width:1.8}
+.sv-status.locked{color:var(--la-faint)}
+.sv-status.locked svg{stroke:var(--la-faint);fill:none;stroke-width:1.8}
+.sv-item-row.is-locked{cursor:not-allowed}
+.sv-item-row.is-locked:hover{background:none}
+.sv-item-row.is-locked .sv-item-title,.sv-item-row.is-locked .sv-item-meta{opacity:.5}
 .sv-kind-badge{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:10px}
 .sv-kind-badge.demo{background:var(--la-accent-dim);color:var(--la-accent)}
 .sv-kind-badge.soon{background:var(--la-hover-strong);color:var(--la-faint)}

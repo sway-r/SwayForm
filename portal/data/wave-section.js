@@ -12,6 +12,18 @@ const REVIEW = {
   safety: { id: 'safety-first', label: 'Safety and Ground Rules' },
 };
 
+// Every lab opens with a Goals step: what the student will learn and do.
+const goals = (items) => ({
+  id: 'goals', title: 'Goals',
+  blocks: [
+    { type: 'p', text: 'Here is what this lab covers:' },
+    { type: 'list', items },
+  ],
+});
+
+// Reminder in each coding lab: undo first, Reset only to start the whole file over.
+const RESET_TIP = { type: 'callout', tone: 'tip', label: 'Deleted too much?', text: 'Press Ctrl+Z (Cmd+Z on a Mac) to undo. To start over completely, click **Reset** above the code. Reset puts the whole file back the way it was before lab 2, so you would fill in the earlier pieces again. The Show Solution in each lab has its piece.' };
+
 const openBuilder = (line) => ({
   type: 'code', lang: 'python', filename: 'wave_builder.py', workspaceFile: BUILDER, line, copy: false,
   code: 'from swayform.motion import MotionClient\n# TODO lab 2: import sleep from the time module so the wave can pause\n\n# TODO lab 4: set WAVE_CYCLES (how many waves) and WAVE_DELAY_SECONDS (seconds per swing)\nRAISED_ARM = {"right_shoulder": 42, "right_elbow": 70}\n...',
@@ -32,8 +44,9 @@ export const WAVE_LEVEL = {
           summary: 'What you are going to build, how the 12 labs work, and what it takes to run on the real robot.',
           relatedConcepts: ['Behaviors', 'Planning'],
           steps: [
+            goals(['What you will build: a wave program that runs on SwayForm.', 'The 70 / 30 idea: most of the program is written, and you fill in the marked parts.', 'The three things that must be true before the robot runs your wave.']),
             {
-              id: 'the-goal', title: 'The Goal',
+              id: 'the-goal', title: 'What You Will Build',
               blocks: [
                 { type: 'lead', text: "By the end of this section SwayForm will wave at the room, and the program that makes it wave will be one you finished yourself." },
                 { type: 'p', text: "You already watched the Wave demo. Now you build the same idea from the inside. You will not start from a blank page. A program is waiting for you with most of it written, and your job is to fill in the missing parts, one lab at a time." },
@@ -86,6 +99,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Imports', 'Modules'],
           steps: [
+            goals(['What an import line does: it brings a tool into your program.', 'What `sleep` does: it pauses the program for a number of seconds.', 'What `MotionClient` does: it sends moves to the robot.', 'Write the import for `sleep` in `wave_builder.py`.']),
             {
               id: 'open-the-file', title: 'Open the File',
               blocks: [
@@ -108,35 +122,34 @@ export const WAVE_LEVEL = {
             {
               id: 'match-the-tool', title: 'Match the Tool to the Job',
               blocks: [
-                { type: 'match', prompt: 'Match each piece of code to what it does.', pairs: [
-                  ['`from time import sleep`', 'Lets the program pause between moves'],
-                  ['`from swayform.motion import MotionClient`', 'Lets the program talk to the robot'],
-                  ['`sleep(0.3)`', 'Waits for 0.3 seconds'],
-                  ['`MotionClient()`', 'Opens the connection that every move goes through'],
-                  ['`motion.move_joint(...)`', 'Asks the robot to move one joint'],
-                ], explain: 'Imports bring tools in. Calls like sleep(0.3) and move_joint(...) use them.' },
+                { type: 'match', prompt: 'Pick what each line does. There are more answers than lines, so read each one carefully.', pairs: [
+                  ['`from time import sleep`', 'Brings in the tool that pauses the program'],
+                  ['`from swayform.motion import MotionClient`', 'Brings in the tool that talks to the robot'],
+                  ['`sleep(0.3)`', 'Pauses the program for 0.3 seconds'],
+                  ['`sleep(3)`', 'Pauses the program for 3 seconds'],
+                ], distractors: [
+                  'Pauses the program for 0.3 minutes',
+                  'Moves the robot for 3 seconds',
+                ], explain: 'Import lines bring tools in. A line like sleep(0.3) uses one, and the number is always in seconds.' },
               ],
             },
             {
               id: 'your-turn', title: 'Your Turn',
               blocks: [
-                { type: 'p', text: "Look at `wave_once` in the file. It calls `sleep(...)`, but nothing imports `sleep`. Run the program as it is and Python would stop with an error, because it has no idea what `sleep` means." },
-                { type: 'p', text: "Find the note `# TODO lab 2` near the top. Replace that whole line with the import for `sleep`:" },
+                { type: 'p', text: "Now take a look at `wave_once` in the file. It calls `sleep(WAVE_DELAY_SECONDS)` between swings, but two things are missing. `WAVE_DELAY_SECONDS` has no value yet, and nothing at the top of the file imports `sleep`, so Python has no idea what `sleep` means." },
+                { type: 'p', text: "Remember, the number inside `sleep(...)` is in **seconds**. `sleep(1)` waits one second and `sleep(0.3)` waits less than half a second. A friendly wave pauses a fraction of a second between swings. You will choose that value for `WAVE_DELAY_SECONDS` in lab 4." },
+                { type: 'p', text: "For now, bring in the tool. Find the note `# TODO lab 2` near the top and replace that whole line with the import for `sleep`:" },
                 { type: 'code', lang: 'python', filename: 'wave_builder.py', code: 'from time import sleep', copy: false },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'Delete the whole TODO line and type the import in its place. Check counts any line that still has TODO in it.' },
+                { type: 'callout', tone: 'note', label: 'If you delete the wrong thing', text: 'It happens to everyone. Press Ctrl+Z (Cmd+Z on a Mac) to undo, as many times as you need. If the file is a mess, click **Reset** above the code to put the whole file back the way it started.' },
               ],
             },
             {
               id: 'check-it', title: 'Check It',
               blocks: [
-                { type: 'p', text: "Click **Check**. The Problems tab lists the `# TODO` notes still in the file. There were 7 at the start, so you should see **6** now." },
+                { type: 'p', text: "Click **Check**. The output shows a progress bar for the whole program. The program has **7** pieces for you to write across these labs, and you just wrote the first one, so it should say **1 of 7 pieces done**." },
+                { type: 'p', text: "Still says 0 of 7? Make sure the whole `# TODO lab 2` line is gone. The Problems tab lists every piece that is left." },
                 { type: 'reveal', hint: 'The line is `from time import sleep`. It starts with the word `from`, and `time` and `sleep` are lowercase.', solution: { text: 'The top of the file after this lab:', code: { lang: 'python', filename: 'wave_builder.py', code: 'from time import sleep\nfrom swayform.motion import MotionClient' } } },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['An import brings a tool into your program.', 'Imports go at the top of the file.', 'Using a tool you never imported gives a NameError.'] },
               ],
             },
           ],
@@ -146,17 +159,19 @@ export const WAVE_LEVEL = {
         // Lab 3
         {
           id: 'wv-03-toolbox-check', title: 'Check: Toolbox', kind: 'reading', tagLabel: 'Check', estimatedTime: '5 minutes',
-          summary: 'Three quick questions on imports. Wrong answers are fine, you just try again.',
+          summary: 'Five quick questions on imports and sleep. Wrong answers are fine, you just try again.',
           relatedConcepts: ['Imports'],
           steps: [
+            goals(['Show you can pick out a correct import line.', 'Explain what happens when an import is missing.', 'Remember that the number in `sleep` is in seconds.']),
             {
               id: 'questions', title: 'Quick Questions',
               blocks: [
                 { type: 'p', text: "Pick an answer. If it is wrong, it greys out and you can try another. Nothing here is graded." },
-                { type: 'mcq', question: 'Which line lets your program pause for a moment?', options: ['`from time import sleep`', '`from swayform.motion import MotionClient`', '`import pause`', '`from wave import time`'], answer: 0, explain: '`sleep` comes from the `time` tool, and it is what waits between swings.' },
-                { type: 'mcq', question: 'You use `sleep(0.3)` but forget to import `sleep`. What happens?', options: ['Python stops with a NameError', 'The robot waits anyway', 'Python guesses what you meant', 'The line is skipped quietly'], answer: 0, explain: "Python only knows names you have defined or imported, so it stops and tells you it has never heard of sleep." },
-                { type: 'mcq', question: 'What is `MotionClient` for?', options: ['Sending moves to the robot', 'Making the program wait', 'Counting how many waves are left', 'Saving your file'], answer: 0, explain: 'Every move goes through the MotionClient, which is why the file imports it first.' },
-                { type: 'mcq', question: 'Where do import lines usually go?', options: ['At the top of the file', 'At the bottom of the file', 'Inside the loop', 'Anywhere, the order never matters'], answer: 0, explain: 'The code below uses what the imports bring in, so they come first.' },
+                { type: 'mcq', question: 'Which line lets your program pause for a moment?', options: ['`from time import sleep`', '`from sleep import time`', '`import sleep from time`', '`from motion import sleep`'], answer: 0, explain: '`sleep` comes from the `time` tool, and it is what waits between swings.' },
+                { type: 'mcq', question: 'You use `sleep(0.3)` but forget to import `sleep`. What happens when Python reaches that line?', options: ['Python stops with a NameError', 'Python waits 0.3 seconds anyway', 'Python skips that line and keeps going', 'Python imports sleep for you'], answer: 0, explain: "Python only knows names you have defined or imported, so it stops and tells you it has never heard of sleep." },
+                { type: 'mcq', question: 'How long does `sleep(2)` pause the program?', options: ['2 seconds', '2 tenths of a second', '2 milliseconds', '2 minutes'], answer: 0, explain: 'The number in sleep is always in seconds. For less than a second, use a decimal like 0.3.' },
+                { type: 'mcq', question: 'Which tool does `wave_builder.py` use to send moves to the robot?', options: ['`MotionClient`', '`sleep`', '`time`', '`say`'], answer: 0, explain: 'Every move goes through the MotionClient. sleep only waits, and say only prints a message.' },
+                { type: 'mcq', question: 'Where do import lines go?', options: ['At the top of the file', 'Right above the line that uses them', 'Inside the function that uses them', 'At the bottom, after main'], answer: 0, explain: 'The code below uses what the imports bring in, so they come first, all together at the top.' },
               ],
             },
           ],
@@ -170,6 +185,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Variables', 'Constants'],
           steps: [
+            goals(['What a variable is: a name stuck on a value.', 'Why settings are written in CAPITAL LETTERS.', 'Why one named setting beats the same number typed in many places.', 'Set `WAVE_CYCLES` and `WAVE_DELAY_SECONDS`.']),
             {
               id: 'a-name-for-a-value', title: 'A Name for a Value',
               blocks: [
@@ -208,14 +224,9 @@ export const WAVE_LEVEL = {
                   '`WAVE_DELAY_SECONDS`: the pause between swings, in seconds. Use **0.3**.',
                 ] },
                 { type: 'p', text: "Each one goes on its own line, with the name, an equals sign, and the number." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There are now 5 TODO notes left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 2 of 7 pieces done.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'The pattern is `NAME = value`. Cycles is a whole number, seconds can have a decimal point.', solution: { text: 'The two settings:', code: { lang: 'python', filename: 'wave_builder.py', code: 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3' } } },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['A variable is a name for a value.', 'Capital letters mark a setting you can change.', 'One named setting beats the same number typed in many places.'] },
               ],
             },
           ],
@@ -229,6 +240,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Functions', 'Parameters'],
           steps: [
+            goals(['What `def` does: it gives a list of steps one name.', 'What `motion` is inside a function: the robot connection it is handed.', 'The difference between defining a function and calling it.', 'Write `open_hand` and `raise_arm`.']),
             {
               id: 'a-named-recipe', title: 'A Named Recipe',
               blocks: [
@@ -269,14 +281,9 @@ export const WAVE_LEVEL = {
                   'The hand pose you want is named `"open"`.',
                   'The arm positions are already stored in a setting. Look at the settings near the top for the one that means a raised arm.',
                 ] },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There are now 3 TODO notes left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 4 of 7 pieces done.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'Both functions have one line inside. The second blank is a setting name, not a number.', solution: { text: 'Both functions:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def open_hand(motion: MotionClient) -> None:\n    motion.set_hand_pose("right_hand", "open")\n\n\ndef raise_arm(motion: MotionClient) -> None:\n    motion.move_joint_group("right_arm", RAISED_ARM)' } } },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['`def` creates a function and gives it a name.', 'A function can be handed something to work with, like `motion`.', 'Defining a function does not run it. Calling it does.'] },
               ],
             },
           ],
@@ -289,6 +296,7 @@ export const WAVE_LEVEL = {
           summary: 'Ten questions on imports, settings, and functions. Score 80% or better to pass. Lab 12 needs this.',
           relatedConcepts: ['Imports', 'Variables', 'Functions'],
           steps: [
+            goals(['Review imports, settings, and functions from labs 2 to 5.', 'Score 80% or better to unlock the robot run in lab 12.']),
             {
               id: 'quick-review', title: 'Quick Review',
               blocks: [
@@ -337,6 +345,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Loops', 'Repetition'],
           steps: [
+            goals(['What a `for` loop does: it repeats the indented lines under it.', 'What `range(n)` does: it sets how many times.', 'Why the indent decides which lines repeat.', 'Write the loop that repeats `wave_once`.']),
             {
               id: 'repeat-without-copy-paste', title: 'Repeat Without Copy and Paste',
               blocks: [
@@ -376,7 +385,8 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open the `wave` function. Replace the `# TODO lab 7` note and the `pass` below it with a `for` loop that calls `wave_once(motion)` once for each cycle." },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'The call must be indented under the for line. If it is not indented, it is not inside the loop.' },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There are now 2 TODO notes left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 5 of 7 pieces done.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'It is the same two lines from the loop way above: `for _ in range(WAVE_CYCLES):` and an indented `wave_once(motion)`.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def wave(motion: MotionClient) -> None:\n    for _ in range(WAVE_CYCLES):\n        wave_once(motion)' } } },
               ],
             },
@@ -390,12 +400,6 @@ export const WAVE_LEVEL = {
                 ] },
               ],
             },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['A `for` loop repeats the indented lines under it.', '`range(n)` says how many times.', 'Hooking a loop to a setting lets one number control the whole behavior.'] },
-              ],
-            },
           ],
           completionSummary: { text: 'You wrote the loop that repeats the wave.', conceptsUsed: ['Loops', 'Repetition'] },
         },
@@ -406,6 +410,7 @@ export const WAVE_LEVEL = {
           summary: 'Predict what loops and settings do. Wrong answers are fine, you just try again.',
           relatedConcepts: ['Loops', 'Variables'],
           steps: [
+            goals(['Predict how many times a loop runs.', 'Predict how changing a setting changes the wave.', 'Spot a loop bug caused by a missing indent.']),
             {
               id: 'predict-it', title: 'Predict It',
               blocks: [
@@ -429,6 +434,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Sequences', 'Function calls'],
           steps: [
+            goals(['Why order matters: a program runs top to bottom.', 'How to call a function you already wrote.', 'Call `open_hand`, `raise_arm`, and `wave` in the right order.']),
             {
               id: 'top-to-bottom', title: 'Top to Bottom',
               blocks: [
@@ -458,14 +464,9 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open `perform_wave`. Replace the `# TODO lab 9` note with three calls, in the order you just matched: `open_hand`, `raise_arm`, then `wave`. Each takes `motion`." },
                 { type: 'p', text: "Leave the `# TODO lab 10` note and the `pass` line alone for now. They are for the next lab." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There is now 1 TODO note left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 6 of 7 pieces done. The last piece is the next lab.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'Three lines, each one a name followed by (motion).', solution: { text: 'The three calls:', code: { lang: 'python', filename: 'wave_builder.py', code: 'open_hand(motion)\nraise_arm(motion)\nwave(motion)' } } },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['Programs run top to bottom, so order matters.', 'A call runs a function you already defined.', 'A behavior is a list of calls in the right order.'] },
               ],
             },
           ],
@@ -479,6 +480,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['try / finally', 'Safety'],
           steps: [
+            goals(['What `try` and `finally` do.', 'Why `finally` always runs, even after an error.', 'Use `finally` to send the arm home, and finish the program.']),
             {
               id: 'what-if-it-goes-wrong', title: 'What If It Goes Wrong',
               blocks: [
@@ -496,7 +498,8 @@ export const WAVE_LEVEL = {
               id: 'your-turn', title: 'Your Turn',
               blocks: [
                 { type: 'p', text: "Open `perform_wave` one more time. Wrap your three calls in `try:`, and add a `finally:` that sends `right_arm` back to `HOME_ARM`, the same way you sent it to `RAISED_ARM` in lab 5. Delete the `# TODO lab 10` note and the `pass` line." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should now say no TODO markers remain.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 7 of 7 pieces done, with no TODO notes left.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'The calls move one level to the right, under try. The finally block has one line, and it uses move_joint_group.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def perform_wave(motion: MotionClient) -> None:\n    try:\n        open_hand(motion)\n        raise_arm(motion)\n        wave(motion)\n    finally:\n        motion.move_joint_group("right_arm", HOME_ARM)' } } },
               ],
             },
@@ -505,12 +508,6 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Click **Run**. With no TODO notes left, the output says every required value is set. In this lab the Run is a simulation. It checks your file, it does not move the robot." },
                 { type: 'p', text: "Take a moment to look at the whole file. About 70% of it was there when you started and about 30% is yours, and you now know what every line does." },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['`finally` runs no matter how the `try` part ends.', 'Cleanup code is how a robot ends in a safe place.', 'You now have a complete program: pre-written code plus the pieces you wrote.'] },
               ],
             },
           ],
@@ -523,6 +520,7 @@ export const WAVE_LEVEL = {
           summary: 'Before the robot moves: five questions on the finished program and the safe way to run it.',
           relatedConcepts: ['Safety', 'Sequences'],
           steps: [
+            goals(['Check the order your finished program runs in.', 'Check which part keeps the robot safe if something fails.', 'Know the safe way to queue and watch a robot run.']),
             {
               id: 'ready-to-fly', title: 'Ready to Run?',
               blocks: [
@@ -549,6 +547,7 @@ export const WAVE_LEVEL = {
           },
           relatedConcepts: ['Behaviors', 'Safety'],
           steps: [
+            goals(['See how your `wave_builder.py` lines up with the real `wave.py`.', 'Change one setting in the real program.', 'Queue it, get an admin to approve it, and watch SwayForm wave.']),
             {
               id: 'before-you-send-it', title: 'Before You Send It',
               blocks: [

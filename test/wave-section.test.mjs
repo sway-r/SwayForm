@@ -143,3 +143,30 @@ test('new Wave files follow the repo writing rules (no em dashes)', () => {
   });
   assert.ok(!WORKSPACE_FILES[BUILDER].includes(EM_DASH));
 });
+
+test('Wave labs open one at a time, and only finished labs count as complete', async () => {
+  const { blockingItem, itemStatus, prevInSection, nextInSection } = await import('../portal/data/curriculum.js');
+  const ids = wave.items.map((i) => i.id);
+  assert.equal(blockingItem(ids[0], []), null, 'lab 1 is always open');
+  assert.equal(blockingItem(ids[1], []).id, ids[0], 'lab 2 waits on lab 1');
+  assert.equal(blockingItem(ids[3], ids.slice(0, 2)).id, ids[2], 'a gap anywhere before keeps it locked');
+  assert.equal(blockingItem(ids[3], ids.slice(0, 3)), null);
+  assert.equal(blockingItem(ids[5], [ids[5]]), null, 'a lab already complete stays open');
+  assert.equal(itemStatus(lab(1), [], null), 'open');
+  assert.equal(itemStatus(lab(1), [], { activityId: ids[0] }), 'progress');
+  assert.equal(itemStatus(lab(2), [ids[0]], null), 'progress', 'the open, unfinished lab after a finished one is in progress');
+  assert.equal(itemStatus(lab(3), [ids[0]], null), 'locked');
+  assert.equal(itemStatus(lab(1), [ids[0]], null), 'done');
+  assert.equal(prevInSection(ids[0]), null);
+  assert.equal(prevInSection(ids[1]).id, ids[0]);
+  assert.equal(nextInSection(ids[11]), null, 'Next stops at the end of the section');
+  assert.equal(blockingItem('timed-torso-rotation', []), null, 'sections without locks are unchanged');
+});
+
+test('match distractors are wrong answers, never a copy of a right one', () => {
+  wave.items.forEach((item) => blocksOf(item).filter((b) => b.type === 'match' && b.distractors).forEach((b) => {
+    const rights = new Set(b.pairs.map((p) => p[1]));
+    b.distractors.forEach((d) => assert.ok(!rights.has(d), `${item.id}: ${d}`));
+  }));
+  assert.ok(!JSON.stringify(lab(2)).includes('move_joint'), 'lab 2 no longer asks about move_joint');
+});

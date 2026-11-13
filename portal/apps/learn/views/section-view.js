@@ -1,5 +1,5 @@
 import { icon } from '../../../icons.js';
-import { CURRICULUM, findSection, sectionProgress } from '../../../data/curriculum.js';
+import { findSection, sectionProgress, itemStatus, blockingItem } from '../../../data/curriculum.js';
 import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
 
@@ -67,11 +67,16 @@ export function mount(container, params, nav, ctx){
     const tucked = section.items.filter(isHiddenDone);
 
     function addRow(item, parent){
-      const isDone = done.has(item.id);
-      const isCurrent = current && current.activityId === item.id;
+      // Without loaded progress nothing is known, so nothing shows as locked.
+      const status = progressNote ? 'open' : itemStatus(item, completedIds, current);
+      const blocker = status === 'locked' ? blockingItem(item.id, completedIds) : null;
       const row = document.createElement('button');
       row.type = 'button';
-      row.className = 'sv-item-row' + (item.kind === 'placeholder' ? ' is-placeholder' : '');
+      row.className = 'sv-item-row' + (item.kind === 'placeholder' ? ' is-placeholder' : '') + (blocker ? ' is-locked' : '');
+      if (blocker){
+        row.disabled = true;
+        row.title = `Finish ${blocker.number} ${blocker.title} first.`;
+      }
       row.innerHTML = `
         <span class="sv-item-num">${item.number}</span>
         <span class="sv-item-main">
@@ -80,11 +85,12 @@ export function mount(container, params, nav, ctx){
         </span>
         <span class="sv-item-status">${
           item.kind === 'placeholder' ? ''
-          : isDone ? `<span class="sv-status done">${icon('checkCircle')}<span>Complete</span></span>`
-          : isCurrent ? `<span class="sv-status current">${icon('dot')}<span>In Progress</span></span>`
+          : status === 'done' ? `<span class="sv-status done">${icon('checkCircle')}<span>Complete</span></span>`
+          : status === 'locked' ? `<span class="sv-status locked">${icon('lock')}<span>Locked</span></span>`
+          : status === 'progress' ? `<span class="sv-status current">${icon('dot')}<span>In Progress</span></span>`
           : `<span class="sv-status open">${icon('chevronRight')}</span>`
         }</span>`;
-      row.addEventListener('click', () => nav.activity(item.id));
+      if (!blocker) row.addEventListener('click', () => nav.activity(item.id));
       parent.appendChild(row);
     }
 

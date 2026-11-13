@@ -69,3 +69,11 @@
   .nb-doc{padding:22px 18px 60px}
   .nb-toc-panel{width:calc(100% - 16px)}
 }
+
+/* Steps after an unsolved activity: visible enough to see what is coming, not usable yet. */
+.nb-section.nb-locked,.nb-complete.nb-locked{filter:blur(4px);opacity:.45;user-select:none;pointer-events:none;transition:filter .3s,opacity .3s}
+.nb-section,.nb-complete{transition:filter .3s,opacity .3s}
+.nb-unlock-note{display:flex;align-items:center;justify-content:center;gap:8px;margin:28px 0 -8px;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--la-soft);background:var(--la-hover);border:1px dashed var(--la-border);border-radius:8px}
+.nb-unlock-note svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.nb-toc-item.locked{opacity:.5}
+@media (prefers-reduced-motion: reduce){.nb-section,.nb-complete{transition:none}}

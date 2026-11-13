@@ -56,7 +56,8 @@ function renderMcq(block, h){
   return wrap;
 }
 
-/* Pair each item on the left with its partner on the right using dropdowns. Right-hand texts must be unique. */
+/* Pair each item on the left with its partner on the right using dropdowns. Right-hand texts must be unique.
+   Optional `distractors` are extra wrong answers in every dropdown, so the last pair can't be found by elimination. */
 function renderMatch(block, h){
   const wrap = h.el('div', 'cb-q cb-match');
   initGate(wrap, block, 'Finish the matching activity to finish this lab.');
@@ -64,7 +65,7 @@ function renderMatch(block, h){
   const rowsEl = wrap.querySelector('.cb-match-rows');
   const feedback = wrap.querySelector('.cb-q-feedback');
   const checkBtn = wrap.querySelector('[data-check]');
-  const rights = shuffled(block.pairs.map((p) => p[1]));
+  const rights = shuffled(block.pairs.map((p) => p[1]).concat(block.distractors || []));
   const rows = block.pairs.map(([left, right]) => {
     const row = h.el('div', 'cb-match-row');
     const term = h.el('div', 'cb-match-left', h.inlineHtml(left));

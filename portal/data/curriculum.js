@@ -185,7 +185,7 @@ export const CURRICULUM = {
       items: s4,
     },
     {
-      id: 'wave', number: 5, title: 'Wave', type: 'lab', icon: 'play',
+      id: 'wave', number: 5, title: 'Wave', type: 'lab', icon: 'play', sequential: true,
       description: 'Behavior section 1. Finish a wave program one piece at a time, then send it to the robot. 12 labs.',
       items: s5,
     },
@@ -225,6 +225,51 @@ export function nextItem(itemId) {
   const flat = flattenItems();
   const idx = flat.findIndex((e) => e.item.id === itemId);
   return idx >= 0 && flat[idx + 1] ? flat[idx + 1].item : null;
+}
+
+/** The lab before itemId in its own section, for the Back button. */
+export function prevInSection(itemId) {
+  const found = findItem(itemId);
+  if (!found) return null;
+  const items = found.section.items;
+  const idx = items.indexOf(found.item);
+  return idx > 0 ? items[idx - 1] : null;
+}
+
+/** The lab after itemId in its own section, for the Next button. */
+export function nextInSection(itemId) {
+  const found = findItem(itemId);
+  if (!found) return null;
+  const items = found.section.items;
+  const idx = items.indexOf(found.item);
+  return items[idx + 1] || null;
+}
+
+/** In a sequential section, a lab opens only once every lab before it is complete.
+ * Returns the first earlier lab still to finish, or null when itemId is open.
+ * A lab already marked complete always stays open. */
+export function blockingItem(itemId, completedIds) {
+  const found = findItem(itemId);
+  if (!found || !found.section.sequential) return null;
+  const done = new Set(completedIds);
+  if (done.has(itemId)) return null;
+  const items = found.section.items;
+  return items.slice(0, items.indexOf(found.item)).find((i) => i.kind !== 'placeholder' && !done.has(i.id)) || null;
+}
+
+/** Status of one lab for lists: 'done', 'locked', 'progress' (started, not finished) or 'open'. */
+export function itemStatus(item, completedIds, current) {
+  const done = new Set(completedIds);
+  if (done.has(item.id)) return 'done';
+  if (blockingItem(item.id, completedIds)) return 'locked';
+  if (current && current.activityId === item.id) return 'progress';
+  // In a sequential section the one open, unfinished lab is the one being worked on.
+  const found = findItem(item.id);
+  if (found && found.section.sequential) {
+    const started = found.section.items.some((i) => done.has(i.id) || (current && current.activityId === i.id));
+    if (started) return 'progress';
+  }
+  return 'open';
 }
 
 export function labTotals(completedIds) {

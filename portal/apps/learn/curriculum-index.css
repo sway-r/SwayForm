@@ -59,6 +59,7 @@
 .ci-status-done svg{stroke:var(--p-green);stroke-width:2.2}
 .ci-status-current svg{fill:var(--la-accent);width:8px;height:8px}
 .ci-status-open{border:1.5px solid var(--la-border);width:8px;height:8px;margin:3px}
+.ci-status-locked svg{stroke:var(--la-faint);stroke-width:1.8;width:12px;height:12px}
 .ci-status-placeholder{width:8px;height:8px;margin:3px}
 
 .ci-kind-badge{flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:10px}

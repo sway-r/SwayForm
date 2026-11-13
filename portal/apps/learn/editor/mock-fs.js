@@ -74,6 +74,11 @@ export function readFile(path){
   return null;
 }
 
+/** The file as it ships, ignoring the student's edits. */
+export function readOriginal(path){
+  return Object.prototype.hasOwnProperty.call(WORKSPACE_FILES, path) ? WORKSPACE_FILES[path] : null;
+}
+
 export function writeFile(path, content){
   if (!storageKey || typeof path !== 'string' || !path.startsWith('swayform_ws/') || typeof content !== 'string') throw new Error('Invalid workspace write');
   return persist((drafts) => { drafts[path] = content; });

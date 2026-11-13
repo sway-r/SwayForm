@@ -329,14 +329,27 @@ export function mount(bodyEl, winApi, opts) {
     if (!path){ output.appendLine('No file is open to check.', 'term-warn', 'problems'); output.setActive('problems'); return; }
     const content = currentContent(path);
     const todoMatches = content.match(/#\s*TODO[^\n]*/gi) || [];
+    const name = path.split('/').pop();
+    // How many of the file's starting TODO pieces are done, shown as a bar.
+    const total = ((fs.readOriginal(path) || '').match(/#\s*TODO/gi) || []).length;
+    const doneCount = Math.max(0, total - todoMatches.length);
     output.clear('problems');
     output.clear('output');
-    if (todoMatches.length){
-      output.appendLine(`Check: ${todoMatches.length} TODO item${todoMatches.length > 1 ? 's' : ''} remaining in ${path.split('/').pop()}`, 'term-warn', 'output');
+    if (total > 0 && todoMatches.length && todoMatches.length <= total){
+      const bar = '▰'.repeat(doneCount) + '▱'.repeat(total - doneCount);
+      output.appendLine(`Progress on ${name}: ${bar}  ${doneCount} of ${total} pieces done`, doneCount ? 'term-ok' : '', 'output');
+      output.appendLine(doneCount
+        ? 'Nice work :)'
+        : `Nothing filled in yet. The Problems tab lists the ${todoMatches.length} TODO notes to fill in.`, doneCount ? 'term-ok' : 'term-warn', 'output');
+      todoMatches.forEach((m) => output.appendLine(m.trim(), 'term-warn', 'problems'));
+      output.setActive('output');
+    } else if (todoMatches.length){
+      output.appendLine(`Check: ${todoMatches.length} TODO item${todoMatches.length > 1 ? 's' : ''} remaining in ${name}`, 'term-warn', 'output');
       todoMatches.forEach((m) => output.appendLine(m.trim(), 'term-warn', 'problems'));
       output.setActive('problems');
     } else {
-      output.appendLine(`Check passed: no TODO markers remain in ${path.split('/').pop()}. Nice work.`, 'term-ok', 'output');
+      if (total > 0) output.appendLine(`Progress on ${name}: ${'▰'.repeat(total)}  ${total} of ${total} pieces done`, 'term-ok', 'output');
+      output.appendLine(`Check passed: no TODO markers remain in ${name}. Nice work.`, 'term-ok', 'output');
       output.setActive('output');
     }
   }

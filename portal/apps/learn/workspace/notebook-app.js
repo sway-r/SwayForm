@@ -112,11 +112,12 @@ export function mount(bodyEl, winApi, opts) {
             // than offering a button visually identical to "go to the next
             // real lab" that only reveals it was unfinished after the click.
             ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('clock')}<span>Coming Soon: ${nextActivity.title}</span></button>`
-            : `<button type="button" class="p-btn ghost" data-next-activity>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
+            // While a question is unsolved this stays shut: it marks the lab complete on the way out.
+            : `<button type="button" class="p-btn ghost" data-next-activity${pendingGate ? ' disabled' : ''}>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
           : ''}
       </div>`;
     completeBlock.querySelector('[data-mark-complete]').addEventListener('click', async () => {
-      try { await onFinish(); if (!done) window.dispatchEvent(new CustomEvent('swayform:lab-complete')); done = true; renderComplete(); }
+      try { await onFinish(); if (!done) window.dispatchEvent(new CustomEvent('swayform:lab-complete')); done = true; renderComplete(); updateLocks(); }
       catch { /* shared save notice explains why completion was not confirmed */ }
     });
     const nextBtn = completeBlock.querySelector('[data-next-activity]');
@@ -124,7 +125,30 @@ export function mount(bodyEl, winApi, opts) {
   }
   doc.appendChild(completeBlock);
   renderComplete();
-  doc.addEventListener('cb-gate', () => { if (!done) renderComplete(); });
+
+  /* Steps after an unanswered activity stay blurred and can't be used until
+     it is solved, so a student can't skip past it. A lab already complete
+     shows everything. */
+  const unlockNote = document.createElement('div');
+  unlockNote.className = 'nb-unlock-note';
+  unlockNote.innerHTML = `${icon('lock')}<span>Finish the activity above to unlock the rest of this lab.</span>`;
+  function updateLocks() {
+    const firstGated = done ? -1 : sectionEls.findIndex((sec) => sec.querySelector('[data-gate="pending"]'));
+    const lockedFrom = firstGated >= 0 ? firstGated + 1 : sectionEls.length;
+    sectionEls.forEach((sec, i) => {
+      const locked = i >= lockedFrom;
+      sec.classList.toggle('nb-locked', locked);
+      sec.inert = locked;
+      sec.setAttribute('aria-hidden', locked ? 'true' : 'false');
+    });
+    completeBlock.classList.toggle('nb-locked', lockedFrom < sectionEls.length);
+    completeBlock.inert = lockedFrom < sectionEls.length;
+    if (lockedFrom < sectionEls.length) sectionEls[lockedFrom - 1].after(unlockNote);
+    else unlockNote.remove();
+    tocPanel.querySelectorAll('.nb-toc-item').forEach((el, idx) => el.classList.toggle('locked', idx >= lockedFrom));
+  }
+
+  doc.addEventListener('cb-gate', () => { if (!done) { renderComplete(); updateLocks(); } });
 
   /* ---------------------------------------------------------------- TOC */
   function renderToc() {
@@ -140,6 +164,7 @@ export function mount(bodyEl, winApi, opts) {
     });
   }
   renderToc();
+  updateLocks();
   tocToggle.addEventListener('click', () => tocPanel.classList.toggle('open'));
 
   function scrollToStep(i, opts) {

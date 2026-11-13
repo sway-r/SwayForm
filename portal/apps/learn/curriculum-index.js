@@ -6,7 +6,7 @@
  * opening it must never reset window bounds, file edits, or scroll position.
  */
 import { icon } from '../../icons.js';
-import { CURRICULUM, LAB_SECTION_IDS, search as searchCurriculum } from '../../data/curriculum.js';
+import { CURRICULUM, LAB_SECTION_IDS, blockingItem, search as searchCurriculum } from '../../data/curriculum.js';
 import { getPrefs } from '../../prefs.js';
 import { getCompletedActivities } from '../../services/progress-service.js';
 import { escapeHtml } from '../../utils.js';
@@ -20,6 +20,7 @@ function statusIcon(item, completedIds, currentId) {
   if (item.kind === 'placeholder') return '<span class="ci-status ci-status-placeholder"></span>';
   if (item.id === currentId) return `<span class="ci-status ci-status-current">${icon('dot')}</span>`;
   if (completedIds.has(item.id)) return `<span class="ci-status ci-status-done">${icon('checkCircle')}</span>`;
+  if (blockingItem(item.id, completedIds)) return `<span class="ci-status ci-status-locked" title="Locked">${icon('lock')}</span>`;
   return '<span class="ci-status ci-status-open"></span>';
 }
 

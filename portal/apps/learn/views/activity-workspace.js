@@ -1,10 +1,10 @@
 import { icon } from '../../../icons.js';
-import { findItem, nextItem } from '../../../data/curriculum.js';
+import { findItem, nextItem, prevInSection, nextInSection, blockingItem } from '../../../data/curriculum.js';
 import { WorkspaceWindowManager } from '../workspace/window-manager.js';
 import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
 import * as TerminalApp from '../workspace/terminal-app.js';
-import { markComplete, setCurrentActivity, getCurrentActivity, isActivityComplete } from '../../../services/progress-service.js';
+import { markComplete, setCurrentActivity, getCurrentActivity, getCompletedActivities } from '../../../services/progress-service.js';
 import { getSession } from '../../../services/auth-service.js';
 import { getPrefs } from '../../../prefs.js';
 import { startTracking, formatClock, formatTotal } from '../../../services/time-tracker.js';
@@ -73,6 +73,10 @@ export function mount(container, params, nav, ctx){
         <button type="button" class="lh-menu-btn" data-menu title="Curriculum" aria-label="Open curriculum index">${icon('menu')}</button>
         <button type="button" class="aw-back" data-back>${icon('arrowLeft')}<span>${section.title}</span></button>
         <div class="aw-crumb">${section.title} / <strong>${activity.title}</strong></div>
+        <div class="aw-lab-nav">
+          <button type="button" class="aw-lab-nav-btn" data-prev-lab disabled>${icon('arrowLeft')}<span>Back</span></button>
+          <button type="button" class="aw-lab-nav-btn" data-next-lab disabled><span>Next</span>${icon('arrowRight')}</button>
+        </div>
         <div class="aw-header-spacer"></div>
         <div class="aw-timer" data-timer hidden></div>
         ${isReading ? '' : `<div class="aw-presets" data-presets></div>`}
@@ -92,6 +96,26 @@ export function mount(container, params, nav, ctx){
   ctx.setTitle && ctx.setTitle(activity.title);
 
   const nextActivity = nextItem(activity.id);
+
+  /* Back and Next between labs of this section. Back is always open (in a
+     sequential section every earlier lab is already complete). Next opens
+     once this lab is complete, or straight away in a section without locks. */
+  const prevLab = prevInSection(activity.id);
+  const nextLab = nextInSection(activity.id);
+  const prevBtn = container.querySelector('[data-prev-lab]');
+  const nextBtn = container.querySelector('[data-next-lab]');
+  function renderLabNav(isDone){
+    prevBtn.disabled = !prevLab;
+    prevBtn.title = prevLab ? `${prevLab.number} ${prevLab.title}` : 'This is the first lab in the section';
+    const nextOpen = !!nextLab && (isDone || !section.sequential);
+    nextBtn.disabled = !nextOpen;
+    nextBtn.title = !nextLab ? 'This is the last lab in the section'
+      : nextOpen ? `${nextLab.number} ${nextLab.title}`
+      : 'Finish this lab to unlock the next one';
+  }
+  prevBtn.addEventListener('click', () => { if (prevLab) nav.activity(prevLab.id); });
+  nextBtn.addEventListener('click', () => { if (nextLab) nav.activity(nextLab.id); });
+  renderLabNav(false);
 
   const wm = new WorkspaceWindowManager(desktopEl, {
     storageKey: LAYOUT_STORAGE_PREFIX + '.' + activity.id,
@@ -133,6 +157,7 @@ export function mount(container, params, nav, ctx){
       onFinish: async (mode) => {
         await finish();
         resumeDone = true;
+        renderLabNav(true);
         if (mode === 'next' && nextActivity) nav.activity(nextActivity.id);
       },
     }),
@@ -249,14 +274,32 @@ export function mount(container, params, nav, ctx){
     renderDock();
   }
 
+  // Reached a locked lab some other way (search, a link, the address bar).
+  function showLocked(blocker){
+    dockEl.hidden = true;
+    if (presetsEl) presetsEl.hidden = true;
+    desktopEl.innerHTML = `
+      <div class="aw-locked">
+        <div class="aw-locked-icon">${icon('lock')}</div>
+        <h2>This lab is locked</h2>
+        <p>Labs in ${section.title} open one at a time. Finish <strong>${blocker.number} ${blocker.title}</strong> to keep going.</p>
+        <button type="button" class="p-btn primary" data-go-blocker>${icon('arrowRight')}<span>Go to ${blocker.number}</span></button>
+      </div>`;
+    desktopEl.querySelector('[data-go-blocker]').addEventListener('click', () => nav.activity(blocker.id));
+  }
+
   // If this view is closed (unmount() below) before this resolves, the view
   // is already torn down; bootDefault() must not go on to open fresh
   // Notebook/Terminal/Code Editor instances (and setCurrentActivity must
   // not fire) into a workspace nobody will ever clean up again.
   let disposed = false;
 
-  Promise.all([getCurrentActivity(), isActivityComplete(activity.id)]).then(([current, done]) => {
+  Promise.all([getCurrentActivity(), getCompletedActivities()]).then(([current, completedIds]) => {
     if (disposed) return;
+    const done = completedIds.includes(activity.id);
+    renderLabNav(done);
+    const blocker = blockingItem(activity.id, completedIds);
+    if (blocker){ showLocked(blocker); return; }
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
     if (!isPlaceholder) setCurrentActivity(activity.id, resumeStep).catch(() => {});

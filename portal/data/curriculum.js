@@ -141,17 +141,11 @@ const s4 = [
 // Wave, behavior section 1: content lives in wave-section.js.
 const s5 = [
   real('wv-01-intro', 'wave', '5.01'),
-  real('wv-02-imports', 'wave', '5.02'),
-  real('wv-03-toolbox-check', 'wave', '5.03'),
-  real('wv-04-settings', 'wave', '5.04'),
-  real('wv-05-functions', 'wave', '5.05'),
-  real('wv-06-quiz', 'wave', '5.06'),
-  real('wv-07-loops', 'wave', '5.07'),
-  real('wv-08-loops-check', 'wave', '5.08'),
-  real('wv-09-order', 'wave', '5.09'),
-  real('wv-10-cleanup', 'wave', '5.10'),
-  real('wv-11-preflight', 'wave', '5.11'),
-  real('wv-12-run', 'wave', '5.12'),
+  real('wv-02-imports-settings', 'wave', '5.02'),
+  real('wv-03-functions', 'wave', '5.03'),
+  real('wv-04-loops', 'wave', '5.04'),
+  real('wv-05-order-cleanup', 'wave', '5.05'),
+  real('wv-06-run', 'wave', '5.06'),
 ];
 
 // No other behavior section titles are published yet, so one placeholder.

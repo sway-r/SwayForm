@@ -3199,12 +3199,12 @@ if __name__ == "__main__":
     main()
 `,
 
-  /* Wave section: labs 2 to 10 fill the # TODO lab N notes in this one file. */
+  /* Wave section: labs 2 to 5 fill the # TODO lab N notes in this one file. */
 
   "swayform_ws/src/swayform_labs/wave_builder.py": `from swayform.motion import MotionClient
 # TODO lab 2: import sleep from the time module so the wave can pause
 
-# TODO lab 4: set WAVE_CYCLES (how many waves) and WAVE_DELAY_SECONDS (seconds per swing)
+# TODO lab 2: set WAVE_CYCLES (how many waves) and WAVE_DELAY_SECONDS (seconds per swing)
 RAISED_ARM = {"right_shoulder": 42, "right_elbow": 70}
 HOME_ARM = {"right_shoulder": 0, "right_elbow": 0}
 WRIST_LEFT = -20
@@ -3220,8 +3220,8 @@ def go_home(motion: MotionClient) -> None:
     motion.safe_pose("idle")
 
 
-# TODO lab 5: write open_hand(motion), it sets "right_hand" to the "open" pose
-# TODO lab 5: write raise_arm(motion), it moves the "right_arm" group to RAISED_ARM
+# TODO lab 3: write open_hand(motion), it sets "right_hand" to the "open" pose
+# TODO lab 3: write raise_arm(motion), it moves the "right_arm" group to RAISED_ARM
 
 
 def wave_once(motion: MotionClient) -> None:
@@ -3234,13 +3234,13 @@ def wave_once(motion: MotionClient) -> None:
 
 
 def wave(motion: MotionClient) -> None:
-    # TODO lab 7: use a for loop to call wave_once(motion) WAVE_CYCLES times
+    # TODO lab 4: use a for loop to call wave_once(motion) WAVE_CYCLES times
     pass
 
 
 def perform_wave(motion: MotionClient) -> None:
-    # TODO lab 9: call open_hand, raise_arm, then wave, in that order
-    # TODO lab 10: wrap those calls in try and finally, and in finally move "right_arm" to HOME_ARM
+    # TODO lab 5: call open_hand, raise_arm, then wave, in that order
+    # TODO lab 5: wrap those calls in try and finally, and in finally move "right_arm" to HOME_ARM
     pass
 
 

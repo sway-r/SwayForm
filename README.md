@@ -41,17 +41,20 @@ joint-to-keyboard teleop capstone.
 
 ## The Wave section
 
-Behavior section 1 is section 5 in `curriculum.js`: 12 labs, all written in
+Behavior section 1 is section 5 in `curriculum.js`: 6 labs, all written in
 one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
 for the lab team to expand and sharpen.
 
 | Lab | Format |
 |---|---|
 | 1 | Intro, no code |
-| 2, 4, 5, 7, 9, 10 | Code labs that each fill one marked gap in a shared file |
-| 3, 8, 11 | Multiple-choice checks |
-| 6 | Quiz, 80% to pass |
-| 12 | Robot run: needs the lab 6 quiz, a finished program, and admin approval |
+| 2 | Imports and settings, code plus multiple-choice checks |
+| 3 | Functions, code, then the quiz (80% to pass) |
+| 4 | Loops, code plus multiple-choice checks |
+| 5 | Order and cleanup, code that finishes the program |
+| 6 | A short content review, then the robot run: needs the lab 3 quiz, a finished program, and admin approval |
+
+Labs 2 to 5 each fill marked gaps in one shared file.
 
 **The 70/30 idea.** Students write about 30% of one program. The starter
 `wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
@@ -72,10 +75,10 @@ to. Students can retry as often as they like with no cooldown, on purpose for
 now; Swayam decides if that changes. Options are shuffled on screen, so the
 right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
-`required: false` to a block to exempt it. `lab.robotGate` (see lab 12) holds
+`required: false` to a block to exempt it. `lab.robotGate` (see lab 6) holds
 Queue on Robot back until named labs are complete and named files have no TODO.
 
-**Lab 12 sends the real `wave.py` to the robot**, not the student's file. Robot
+**Lab 6 sends the real `wave.py` to the robot**, not the student's file. Robot
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side
 work first. Ask Swayam before changing anything about how that run works.
 

@@ -11,3 +11,6 @@ backups/
 
 # GitHub review settings, not part of the site.
 .github/
+
+# Local preview of the portal, not part of the site.
+preview-portal.mjs

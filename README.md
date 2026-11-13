@@ -25,8 +25,9 @@ The curriculum lives across two files, deliberately kept separate:
   lives.
 - **`portal/data/curriculum.js`**: the listing/navigation layer on top: it
   groups activities into sections (Getting Started, Intro to ROS 2,
-  Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built), and
-  **Behavior Sections** (labs 21+, planned)), assigns numbering
+  Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built),
+  **Wave** (behavior section 1, 12 labs), and **More Sections** (planned)),
+  assigns numbering
   (`4.3`), and pulls each activity's real content *by reference* from
   `learning-path.js` via `pull(id)`. It never retypes lesson content itself.
 - **`portal/apps/learn/lesson-renderer.js`**: renders the step/block model
@@ -38,17 +39,55 @@ So "rewriting the labs" means editing lesson content in
 first 10 guided labs that take a student from ROS 2 basics to a first
 joint-to-keyboard teleop capstone.
 
+## The Wave section
+
+Behavior section 1 is section 5 in `curriculum.js`: 12 labs, all written in
+one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
+for the lab team to expand and sharpen.
+
+| Lab | Format |
+|---|---|
+| 1 | Intro, no code |
+| 2, 4, 5, 7, 9, 10 | Code labs that each fill one marked gap in a shared file |
+| 3, 8, 11 | Multiple-choice checks |
+| 6 | Quiz, 80% to pass |
+| 12 | Robot run: needs the lab 6 quiz, a finished program, and admin approval |
+
+**The 70/30 idea.** Students write about 30% of one program. The starter
+`wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
+written and a one-line `# TODO lab N` note at each gap. Check counts the notes
+left, and Run says everything is set once none remain. If you change the
+starter or what a lab asks for, update `FILLS` in `test/wave-section.test.mjs`.
+That test pins the TODO counts the lessons promise and the 25 to 35% share.
+
+**Question blocks** work in any lab (see `portal/apps/learn/interactive-blocks.js`):
+
+- `{ type: 'mcq', question, options: [...], answer: 0, explain }`
+- `{ type: 'match', prompt, pairs: [[left, right], ...] }` (right-hand texts must be unique)
+- `{ type: 'quiz', id, title, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
+
+A quiz draws `count` questions at random from its bank on every try, so keep
+the bank bigger than `count`. `review` is the lab a missed question links back
+to. Students can retry as often as they like with no cooldown, on purpose for
+now; Swayam decides if that changes. Options are shuffled on screen, so the
+right answer can be first in the list.
+A lab can't be marked complete until every question in it is solved; add
+`required: false` to a block to exempt it. `lab.robotGate` (see lab 12) holds
+Queue on Robot back until named labs are complete and named files have no TODO.
+
+**Lab 12 sends the real `wave.py` to the robot**, not the student's file. Robot
+files are hash-pinned on the Pi, so running a student-built file needs Pi-side
+work first. Ask Swayam before changing anything about how that run works.
+
 ## Previewing your changes
 
-Run the pages on your own computer before you commit. From the repo root:
+Run the pages on your own computer before you commit. Save a file, refresh the browser, and you see the change.
 
-```
-npx serve .
-```
+**Learning Portal (labs, anything in `portal/`):** in the repo folder run `node preview-portal.mjs`, then open `http://localhost:3000/learn`. You are signed in as a guest, so there is no login and no backend. Stop it with Ctrl+C. Anything that needs the real backend (login, saved progress, the robot) won't work here.
 
-Open the address it prints (usually `http://localhost:3000`) and add the page name: `/home`, `/robot`, `/for-schools`, and so on. Save a file, refresh the browser, and you see the change.
+**Main website (the `*.html` pages at the root):** run `npx serve .` and open a page such as `http://localhost:3000/home`.
 
-This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` at the root. The Learning Portal (`portal/`) needs the login backend, so it can't be previewed this way; if you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks.
+If you change files in `portal/`, say so in your pull request. Don't edit `api/` unless Swayam asks.
 
 ## Repo layout (quick map)
 
@@ -58,6 +97,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 | `portal/` | The Learning Portal app, static ES modules, no build step |
 | `portal/data/` | Curriculum + lesson content (see above) |
 | `portal/apps/learn/` | Lesson rendering, code editor, notebook workspace |
+| `preview-portal.mjs` | Runs the Learning Portal locally for previewing, not deployed |
 | `api/` | Vercel serverless functions (Node), one file per endpoint |
 | `bridge/` | Service that authenticates and relays jobs to the physical robot |
 | `test/` | `node --test test/*.test.mjs` |
@@ -69,8 +109,7 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
 - Clone once (`git clone https://github.com/sway-r/SwayForm.git`). Never
   clone again; update the copy you have instead.
 - Each person has their own branch named after them (for example
-  `greyson-labs`). Work and commit only on your own branch, and run
-  `git branch --show-current` before every commit to check.
+  `greyson-labs`). Work and commit only on your own branch.
 - At the start of every work session: `git checkout <your-branch>`, then
   `git pull origin main` to bring in everyone else's merged changes, then
   start working.
@@ -80,8 +119,8 @@ This runs the main website: the `*.html` pages, `styles.css` and `site-data.js` 
   `main` on GitHub (`github.com/sway-r/SwayForm`). Swayam reviews and merges
   it; you can't merge it yourself.
 - Don't run `vercel link`, `vercel env pull` or `vercel dev`, and never
-  ask for passwords or secrets. Preview with `npx serve .` instead (see
-  Previewing your changes).
+  ask for passwords or secrets. Preview locally instead (see Previewing
+  your changes).
 
 ## Things to know before touching content
 

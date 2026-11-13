@@ -154,15 +154,20 @@ export class CodeEditor {
     if (!editor || !model) return;
     const foldAll = editor.getAction('editor.foldAll');
     if (!foldAll) return;
-    this._foldPass = foldAll.run().then(() => {
+    this._foldPass = foldAll.run().then(async () => {
       const todoLines = [];
       for (let i = 1; i <= model.getLineCount(); i++){
         if (/#\s*TODO/.test(model.getLineContent(i))) todoLines.push(i);
       }
       if (!todoLines.length) return;
-      editor.setSelections(todoLines.map((line) => new monaco.Selection(line, 1, line, 1)));
+      // One TODO at a time: with several cursors Monaco only unfolds around the first one.
       const unfold = editor.getAction('editor.unfoldRecursively');
-      if (unfold) unfold.run();
+      if (unfold){
+        for (const line of todoLines){
+          editor.setSelection(new monaco.Selection(line, 1, line, 1));
+          await unfold.run();
+        }
+      }
       const first = todoLines[0];
       editor.revealLineInCenter(first);
       editor.setSelection(new monaco.Selection(first, 1, first, 1));

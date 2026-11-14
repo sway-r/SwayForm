@@ -50,8 +50,8 @@ export default async function handler(req, res){
     // before slot 1 is possible (fill slot 2 first, add slot 1 later), and
     // an id-ordered read would have silently shown slot 2's email under
     // "Admin 1" in that case.
-    const adminEmails = [null, null, null];
-    emailRows.forEach((r) => { if (r.slot === 1 || r.slot === 2 || r.slot === 3) adminEmails[r.slot - 1] = r.email; });
+    const adminEmails = [null, null];
+    emailRows.forEach((r) => { if (r.slot === 1 || r.slot === 2) adminEmails[r.slot - 1] = r.email; });
 
     res.status(200).json({
       robotSerial: robotRows[0] && robotRows[0].serial_number,
@@ -161,7 +161,7 @@ export default async function handler(req, res){
     case 'set_admin_email': {
       const slot = Number(body.slot);
       const email = String(body.email || '').trim().toLowerCase();
-      if (![1, 2, 3].includes(slot) || !validEmail(email)){ res.status(400).json({ error: 'invalid_input' }); return; }
+      if (![1, 2].includes(slot) || !validEmail(email)){ res.status(400).json({ error: 'invalid_input' }); return; }
 
       const accountRows = await sql`SELECT id FROM admin_accounts WHERE robot_id = ${robotId}`;
       const adminAccountId = accountRows[0] && accountRows[0].id;

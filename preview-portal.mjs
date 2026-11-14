@@ -19,7 +19,15 @@ const TYPES = {
 const PORTAL_ROUTES = [/^\/$/, /^\/login$/, /^\/learn(\/.*)?$/, /^\/account$/, /^\/help(\/.*)?$/, /^\/settings$/, /^\/my-robot$/, /^\/admin$/, /^\/workspace$/];
 
 // Starts you signed in as a guest so there is no login screen and no backend.
-const GUEST = `<script>try{if(!localStorage.getItem('swayform.portal.session'))localStorage.setItem('swayform.portal.session',JSON.stringify({mode:'guest',displayName:'Local Preview',startedAt:new Date().toISOString()}))}catch(e){}</script>`;
+// With --admin (node preview-portal.mjs --admin) it starts you in the admin view
+// instead, so every lab is unlocked with answers shown. Local preview only.
+const ADMIN = process.argv.includes('--admin');
+// There is no backend here, so a sign-out can never be "confirmed". Clear any
+// leftover pending sign-out, or the login screen disables Continue as Guest.
+const CLEAR_PENDING_LOGOUT = `<script>try{localStorage.removeItem('swayform.portal.logout-pending');const u=new URL(location.href);if(u.searchParams.get('logout')==='pending'){u.searchParams.delete('logout');history.replaceState(null,'',u)}}catch(e){}</script>`;
+const GUEST = CLEAR_PENDING_LOGOUT + (ADMIN
+  ? `<script>try{localStorage.setItem('swayform.portal.session',JSON.stringify({mode:'admin',displayName:'Local Preview (admin view)',startedAt:new Date().toISOString()}))}catch(e){}</script>`
+  : `<script>try{const s=JSON.parse(localStorage.getItem('swayform.portal.session')||'null');if(!s||s.mode==='admin')localStorage.setItem('swayform.portal.session',JSON.stringify({mode:'guest',displayName:'Local Preview',startedAt:new Date().toISOString()}))}catch(e){}</script>`);
 
 function send(res, code, type, body) {
   res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store' });
@@ -31,6 +39,9 @@ http.createServer((req, res) => {
   try { p = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); }
   catch { return send(res, 400, 'text/plain', 'Bad request'); }
 
+  // Let sign-out finish locally (only guest sessions exist in preview).
+  if (p === '/api/auth/logout') return send(res, 200, 'application/json', '{"ok":true}');
+  if (p === '/api/auth/session') return send(res, 200, 'application/json', '{"session":null}');
   if (p.startsWith('/api/')) return send(res, 404, 'application/json', '{"error":"No backend in local preview"}');
 
   if (PORTAL_ROUTES.some((re) => re.test(p))) {
@@ -47,4 +58,4 @@ http.createServer((req, res) => {
     if (err) return send(res, 404, 'text/plain', 'Not found');
     send(res, 200, TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', data);
   });
-}).listen(PORT, '127.0.0.1', () => console.log(`Learning Portal preview: http://localhost:${PORT}/learn`));
+}).listen(PORT, '127.0.0.1', () => console.log(`Learning Portal preview${ADMIN ? ' (admin view)' : ''}: http://localhost:${PORT}/learn`));

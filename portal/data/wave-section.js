@@ -5,11 +5,18 @@ const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.
 // The quiz sits at the end of lab 3, so the robot run is gated on that lab.
 export const WAVE_QUIZ_ID = 'wv-03-functions';
 export const WAVE_QUIZ_PASS = 80;
+// Lab 6 opens with a final quiz. Queue on Robot stays locked until it is passed
+// (robotGate.needsQuiz, remembered in this browser by quiz-passes.js).
+const WAVE_FINAL_QUIZ_ID = 'wv-06-final-quiz';
 const REVIEW = {
   intro: { id: 'wv-01-intro', label: 'Lab 1, Meet the Wave' },
   imports: { id: 'wv-02-imports-settings', label: 'Lab 2, Imports' },
   settings: { id: 'wv-02-imports-settings', label: 'Lab 2, Settings' },
   functions: { id: 'wv-03-functions', label: 'Lab 3, Functions' },
+  loops: { id: 'wv-04-loops', label: 'Lab 4, Loops' },
+  order: { id: 'wv-05-order-cleanup', label: 'Lab 5, Order' },
+  cleanup: { id: 'wv-05-order-cleanup', label: 'Lab 5, Cleanup' },
+  realWave: { id: 'wv-06-run', label: 'Lab 6, Your Program and the Real One' },
   safety: { id: 'safety-first', label: 'Safety and Ground Rules' },
 };
 
@@ -64,7 +71,7 @@ export const WAVE_LEVEL = {
                   ['4', 'Loops', 'A loop that repeats the wave'],
                   ['5', 'Order of steps, and cleanup (try / finally)', 'The three steps in order, and a safe way to end'],
                 ] },
-                { type: 'p', text: "Lab 1 has no code to write. Labs 2 to 5 each include a few quick questions that check what you know, and lab 3 ends with the quiz. Lab 6 is the robot run, where you change one number." },
+                { type: 'p', text: "Lab 1 has no code to write. Labs 2 and 3 include a few quick questions, and lab 3 ends with a quiz. Labs 4 and 5 have bug hunts, where you find out what went wrong. Lab 6 starts with a final quiz, then the robot run, where you change one number." },
               ],
             },
             {
@@ -81,7 +88,7 @@ export const WAVE_LEVEL = {
                 { type: 'p', text: "Lab 6 sends your wave to the real robot. Three things have to be true first:" },
                 { type: 'checklist', items: [
                   'Your program is finished, with no `# TODO` notes left (labs 2 to 5).',
-                  'You scored **80% or better** on the quiz in lab 3.',
+                  'You scored **80% or better** on the quiz in lab 3, and on the final quiz in lab 6.',
                   'An **admin approves** the run. Nobody can start the robot moving without that.',
                 ] },
                 { type: 'callout', tone: 'safety', label: 'Safety', text: 'A real arm moves in lab 6. Keep your hands clear, and only run it with an instructor in the room.' },
@@ -302,9 +309,11 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Loops', 'Repetition'],
           steps: [
+            goals(['What a loop does: it repeats lines so you do not have to copy and paste them.', 'The two kinds of loop, `for` and `while`, and when to use each one.', 'Why the indent decides which lines repeat.', 'Write the loop in `wave` that repeats the swing `WAVE_CYCLES` times.', 'Give your wave a personality by changing two numbers.']),
             {
               id: 'repeat-without-copy-paste', title: 'Repeat Without Copy and Paste',
               blocks: [
+                { type: 'lead', text: 'A coach at practice says "Ten jumping jacks!" They do not say "jumping jack" ten times in a row. A loop is how you give a robot that kind of instruction.' },
                 { type: 'p', text: "One swing of the wrist is not much of a wave. You want several. You could write the same call again and again:" },
                 { type: 'code', lang: 'python', filename: 'The slow way', code: 'wave_once(motion)\nwave_once(motion)\nwave_once(motion)' },
                 { type: 'p', text: "That works, but for 5 waves you would have to add more lines. A **loop** repeats lines for you. The number of repeats comes from a setting, so you change one number instead of the code." },
@@ -315,6 +324,7 @@ export const WAVE_LEVEL = {
               id: 'two-kinds-of-loops', title: 'Two Kinds of Loops',
               blocks: [
                 { type: 'p', text: "Python has two kinds of loop. Both repeat the indented lines under them. The difference is how they decide when to stop." },
+                { type: 'p', text: "Think of gym class. **\"Run 5 laps\"** is a `for` loop: you know the number before you start. **\"Keep running until the whistle blows\"** is a `while` loop: you keep going until something changes." },
                 { type: 'table', headers: ['Loop', 'Repeats', 'Use it when'], rows: [
                   ['`for`', 'A set number of times', 'You know how many times up front, like `WAVE_CYCLES`'],
                   ['`while`', 'As long as a condition is true', 'You want to keep going until something changes'],
@@ -323,6 +333,11 @@ export const WAVE_LEVEL = {
                 { type: 'code', lang: 'python', filename: 'A while loop that does the same thing', code: 'count = 0\nwhile count < WAVE_CYCLES:\n    wave_once(motion)\n    count = count + 1', copy: false },
                 { type: 'p', text: "Both wave `WAVE_CYCLES` times. The `while` loop keeps its own counter, `count`. Before each repeat it checks `count < WAVE_CYCLES`. Each time through, `count` goes up by one. Once `count` reaches `WAVE_CYCLES`, the check is false and the loop stops." },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'A `while` loop has to change something each time through, like `count = count + 1`. If nothing changes, the condition stays true and the loop never stops.' },
+                { type: 'code', lang: 'python', filename: 'Bug hunt: something is missing', code: 'count = 0\nwhile count < WAVE_CYCLES:\n    wave_once(motion)', copy: false },
+                { type: 'p', text: "Can you spot what is missing? Make a guess, then open the box to check." },
+                { type: 'troubleshoot', items: [
+                  { symptom: 'Bug hunt: the robot waves forever and never stops', cause: 'Nothing inside the loop changes `count`, so it stays 0 and `count < WAVE_CYCLES` is true forever. Someone would have to stop the program by hand. This bug is called an **infinite loop**.', fix: 'Add `count = count + 1` as the last indented line inside the loop.' },
+                ] },
                 { type: 'p', text: "In this lab you write a `for` loop, because you know exactly how many waves you want. You will see a `while` loop again in lab 6, in the real `wave.py`." },
               ],
             },
@@ -351,16 +366,16 @@ export const WAVE_LEVEL = {
               ],
             },
             {
-              id: 'trace-it', title: 'Trace It',
+              id: 'trace-it', title: 'Predict the Swings',
               blocks: [
-                { type: 'p', text: "Here is what the loop does for different settings:" },
-                { type: 'table', headers: ['WAVE_CYCLES', 'Times wave_once runs', 'What you see'], rows: [
-                  ['1', '1', 'One quick swing'],
-                  ['3', '3', 'A friendly wave'],
-                  ['5', '5', 'A long wave'],
-                  ['0', '0', 'The arm lifts but never swings'],
+                { type: 'p', text: "Time to think like the robot. Each loop below has `wave_once(motion)` indented under it. Cover the right side of the table, guess how many swings each one gives, then check yourself." },
+                { type: 'table', headers: ['Loop', 'Swings', 'What you see'], rows: [
+                  ['`for _ in range(2):`', '2', 'A quick hello'],
+                  ['`for _ in range(WAVE_CYCLES):` with `WAVE_CYCLES = 4`', '4', 'A big friendly wave'],
+                  ['`for _ in range(10):`', '10, not 11', 'A very excited robot'],
+                  ['`for _ in range(0):`', '0', 'The arm lifts and never swings. Awkward!'],
                 ] },
-                { type: 'p', text: "`range(0)` repeats zero times, so with `WAVE_CYCLES = 0` the line inside the loop never runs." },
+                { type: 'p', text: "`range(n)` repeats exactly n times. `range(0)` repeats zero times, so the line inside the loop never runs." },
               ],
             },
             {
@@ -369,33 +384,35 @@ export const WAVE_LEVEL = {
                 { type: 'p', text: "Open the `wave` function. Replace the `# TODO lab 4` note and the `pass` below it with a `for` loop that calls `wave_once(motion)` once for each cycle." },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'The call must be indented under the for line. If it is not indented, it is not inside the loop.' },
                 { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 5 of 7 pieces done.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'It is the same two lines from the loop way above: `for _ in range(WAVE_CYCLES):` and an indented `wave_once(motion)`.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def wave(motion: MotionClient) -> None:\n    for _ in range(WAVE_CYCLES):\n        wave_once(motion)' } } },
               ],
             },
             {
-              id: 'try-changing-this', title: 'Try Changing This',
+              id: 'try-changing-this', title: 'Give Your Wave a Personality',
               blocks: [
-                { type: 'table', headers: ['Thing', 'Safe to change?', 'What happens'], rows: [
-                  ['WAVE_CYCLES', 'Yes, up to about 10', 'More or fewer swings'],
-                  ['WAVE_DELAY_SECONDS', 'Yes, keep it at 0.1 or more', 'A faster or slower wave'],
-                  ['WRIST_LEFT / WRIST_RIGHT', 'No', 'These are tested angles'],
+                { type: 'p', text: "Same loop, different settings, different mood. Your loop reads both settings, so you can change how the wave feels without touching the loop itself." },
+                { type: 'table', headers: ['Personality', 'WAVE_CYCLES', 'WAVE_DELAY_SECONDS', 'What it looks like'], rows: [
+                  ['Shy', '1', '0.6', 'One slow little wave'],
+                  ['Sleepy', '2', '0.8', 'Two very slow swings'],
+                  ['Friendly', '3', '0.3', 'The wave you are building'],
+                  ['Excited', '6', '0.15', 'Lots of quick swings'],
                 ] },
-                { type: 'p', text: "A smaller `WAVE_DELAY_SECONDS` means a shorter pause between swings, so the wave is faster. A bigger `WAVE_CYCLES` means more swings. Your loop reads both settings, so you never have to touch the loop itself." },
+                { type: 'p', text: "A bigger `WAVE_CYCLES` means more swings. A smaller `WAVE_DELAY_SECONDS` means a shorter pause between swings, so the wave is faster." },
+                { type: 'p', text: "Which personality would you give SwayForm when the class walks in? Pick one and tell the person next to you why." },
+                { type: 'callout', tone: 'safety', label: 'Safety', text: 'Keep `WAVE_CYCLES` at 10 or less and `WAVE_DELAY_SECONDS` at 0.1 or more. Never change `WRIST_LEFT` or `WRIST_RIGHT`. Those angles are tested.' },
               ],
             },
             {
-              id: 'check-your-understanding', title: 'Check Your Understanding',
+              id: 'bug-hunt', title: 'Bug Hunt: Indent Edition',
               blocks: [
-                { type: 'p', text: "Two quick questions on loops. Pick an answer. If it is wrong, it greys out and you can try another. Nothing here is graded." },
-                { type: 'mcq', question: 'With `WAVE_CYCLES = 5`, how many times does `wave_once` run?', options: ['5', '1', '3', '0'], answer: 0, explain: 'The loop repeats once for each cycle.' },
-                { type: 'code', lang: 'python', filename: 'A loop with a line after it', code: 'for _ in range(3):\n    wave_once(motion)\nsay("done")', copy: false },
-                { type: 'mcq', question: 'How many times does `say("done")` run?', options: ['Once, after the loop is done', 'Three times', 'Never', 'Four times'], answer: 0, explain: 'It is not indented, so it is outside the loop. It runs one time, after the three swings.' },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['A `for` loop repeats the indented lines under it.', '`range(n)` says how many times.', 'A `while` loop repeats as long as a condition is true.', 'Only indented lines are inside the loop.', 'Hooking a loop to a setting lets one number control the whole behavior.'] },
+                { type: 'p', text: "Each of these programs has one indent in the wrong place. Read the code, guess what goes wrong, then open the box to check." },
+                { type: 'code', lang: 'python', filename: 'Bug 1', code: 'for _ in range(3):\n    wave_once(motion)\n    say("done")', copy: false },
+                { type: 'code', lang: 'python', filename: 'Bug 2', code: 'for _ in range(WAVE_CYCLES):\nwave_once(motion)', copy: false },
+                { type: 'troubleshoot', items: [
+                  { symptom: 'Bug 1: "done" shows up three times instead of once', cause: '`say("done")` is indented, so it is inside the loop and repeats with every swing.', fix: 'Move `say("done")` all the way to the left so it runs once, after the loop.' },
+                  { symptom: 'Bug 2: Python stops with an IndentationError before the robot moves', cause: 'Nothing is indented under the `for` line, so the loop has no body and Python refuses to run it.', fix: 'Indent `wave_once(motion)` under the `for` line.' },
+                ] },
               ],
             },
           ],
@@ -409,9 +426,11 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Sequences', 'Function calls', 'try / finally', 'Safety'],
           steps: [
+            goals(['Why order matters: the robot does exactly what you wrote, top to bottom.', 'The difference between defining a function and calling it.', 'How `try` and `finally` make sure the arm always comes home.', 'Call the three wave steps in order, then add the cleanup. This finishes your program.']),
             {
               id: 'top-to-bottom', title: 'Top to Bottom',
               blocks: [
+                { type: 'lead', text: 'Try this with a friend. Tell them how to put on a jacket, one step at a time, and have them do exactly what you say. Say "zip it up" before "put your arms in the sleeves" and you get a very confused friend. A robot is that friend, every single time.' },
                 { type: 'p', text: "A program runs one line at a time, starting at the top. The robot does not know what you meant. It only knows what you wrote, in the order you wrote it." },
                 { type: 'code', lang: 'python', filename: 'Right order', code: 'raise_arm(motion)\nwave(motion)', copy: false },
                 { type: 'p', text: "The arm goes up, then the wrist swings. That is a wave." },
@@ -429,6 +448,12 @@ export const WAVE_LEVEL = {
                   '**Swing the wrist**. This is the wave itself, repeated `WAVE_CYCLES` times by your loop from lab 4.',
                 ] },
                 { type: 'p', text: "The robot has already gone home before step 1, because `main` calls `go_home` first. The real wave on the robot uses this same order." },
+                { type: 'p', text: "**What went wrong?** Three robots got their orders mixed up. Read what each one did, guess which call is missing or in the wrong place, then open the box to check." },
+                { type: 'troubleshoot', items: [
+                  { symptom: 'Robot 1 waved at the floor, then lifted its arm after the wave was over', cause: 'Its calls were `wave`, then `raise_arm`. Right steps, wrong order.', fix: 'Call `raise_arm(motion)` before `wave(motion)`.' },
+                  { symptom: 'Robot 2 waved with a closed fist', cause: '`open_hand(motion)` was never called, so the hand stayed closed.', fix: 'Call `open_hand(motion)` first, before the arm goes up.' },
+                  { symptom: 'Robot 3 opened its hand and waved, but its arm never went up', cause: '`raise_arm(motion)` was never called.', fix: 'Call `raise_arm(motion)` after `open_hand` and before `wave`.' },
+                ] },
               ],
             },
             {
@@ -448,6 +473,7 @@ export const WAVE_LEVEL = {
                 { type: 'p', text: "Open `perform_wave`. Replace the first `# TODO lab 5` note with three calls, in the wave order above: `open_hand`, `raise_arm`, then `wave`. Each takes `motion`." },
                 { type: 'p', text: "Leave the second `# TODO lab 5` note and the `pass` line alone for now. They are for the cleanup, later in this lab." },
                 { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 6 of 7 pieces done. The last piece is the cleanup, later in this lab.' },
+                RESET_TIP,
                 { type: 'reveal', hint: 'Three lines, each one a name followed by (motion).', solution: { text: 'The three calls:', code: { lang: 'python', filename: 'wave_builder.py', code: 'open_hand(motion)\nraise_arm(motion)\nwave(motion)' } } },
               ],
             },
@@ -455,6 +481,7 @@ export const WAVE_LEVEL = {
               id: 'what-if-it-goes-wrong', title: 'Cleanup: What If It Goes Wrong',
               blocks: [
                 { type: 'p', text: "Say something fails halfway through the wave, with the arm still up. If the program just stops there, the arm stays raised. A robot should always end in a safe place." },
+                { type: 'p', text: "Think about leaving a room. Whether you finished your work or got called away halfway through, you switch the lights off on your way out. `finally` is that rule for robots." },
                 { type: 'p', text: "`try` and `finally` fix this. Put the main steps under `try:`, and the cleanup under `finally:`." },
                 { type: 'code', lang: 'python', filename: 'try and finally', code: 'try:\n    open_hand(motion)\n    raise_arm(motion)\n    wave(motion)\nfinally:\n    motion.move_joint_group("right_arm", HOME_ARM)', copy: false },
                 { type: 'list', items: [
@@ -480,25 +507,29 @@ export const WAVE_LEVEL = {
             {
               id: 'run-the-finished-program', title: 'Run the Finished Program',
               blocks: [
-                { type: 'p', text: "Click **Run**. With no TODO notes left, the output says every required value is set. In this lab the Run is a simulation. It checks your file, it does not move the robot." },
-                { type: 'p', text: "Take a moment to look at the whole file. About 70% of it was there when you started and about 30% is yours, and you now know what every line does." },
+                { type: 'lead', text: 'This is the big moment: 7 of 7. Your wave program is complete.' },
+                { type: 'p', text: "Click **Run**. With no TODO notes left, the output says every required value is set. In this lab the Run is a simulation. It checks your file, it does not move the robot. That happens in lab 6." },
+                { type: 'p', text: "About 70% of the file was there when you started. The other 30% is yours. Scroll through and find every piece you wrote:" },
+                { type: 'checklist', items: [
+                  'The `sleep` import (lab 2)',
+                  'The two settings, `WAVE_CYCLES` and `WAVE_DELAY_SECONDS` (lab 2)',
+                  '`open_hand` and `raise_arm` (lab 3)',
+                  'The loop in `wave` (lab 4)',
+                  'The three calls in `perform_wave` (lab 5)',
+                  'The `try` / `finally` cleanup (lab 5)',
+                ] },
+                { type: 'p', text: "You now know what every line in this file does. Next stop: the real robot." },
               ],
             },
             {
-              id: 'check-your-understanding', title: 'Check Your Understanding',
+              id: 'bug-hunt', title: 'Bug Hunt: Cleanup Edition',
               blocks: [
-                { type: 'p', text: "Four quick questions on order and cleanup. Pick an answer. If it is wrong, it greys out and you can try another. Nothing here is graded." },
-                { type: 'code', lang: 'python', filename: 'A mixed-up perform_wave', code: 'raise_arm(motion)\nwave(motion)\nopen_hand(motion)', copy: false },
-                { type: 'mcq', question: 'A student put the calls in this order. What does the robot do?', options: ['It waves with a closed hand, then opens the hand at the end', 'The same wave as before, order does not matter', 'Python stops with an error', 'It opens the hand first anyway'], answer: 0, explain: 'The robot does exactly what is written, top to bottom. The hand only opens after the wave is over.' },
-                { type: 'mcq', question: 'You forget the `raise_arm(motion)` call. What happens?', options: ['The wrist swings with the arm still down', 'Python raises the arm for you', 'The robot skips the wave', 'Python stops with a NameError'], answer: 0, explain: 'A function only runs when it is called. With no call, the arm never lifts, so you get a wave at the floor.' },
-                { type: 'mcq', question: 'Where should the line that sends the arm back to `HOME_ARM` go?', options: ['Under `finally:`', 'Under `try:`, after `wave(motion)`', 'Before `try:`', 'Inside `wave_once`'], answer: 0, explain: 'Under try, a crash in the wave would skip it. Under finally, it runs no matter what.' },
-                { type: 'mcq', question: 'Everything works and the wave finishes normally. Does the `finally` block still run?', options: ['Yes, it runs after a normal finish too', 'No, it only runs after a crash', 'Only if WAVE_CYCLES is more than 1', 'Only when an admin approves it'], answer: 0, explain: 'finally runs every time, after a normal finish or after a crash. That is why the arm always comes home.' },
-              ],
-            },
-            {
-              id: 'what-you-learned', title: 'What You Learned',
-              blocks: [
-                { type: 'list', items: ['Programs run top to bottom, so order matters.', 'A call runs a function you already defined.', 'A behavior is a list of calls in the right order.', '`finally` runs no matter how the `try` part ends.', 'Cleanup code is how a robot ends in a safe place.', 'You now have a complete program: pre-written code plus the pieces you wrote.'] },
+                { type: 'p', text: "One last bug before the robot. This program looks almost right. Read it, guess what goes wrong when the wave crashes halfway, then open the box to check." },
+                { type: 'code', lang: 'python', filename: 'Bug: something is in the wrong place', code: 'try:\n    open_hand(motion)\n    raise_arm(motion)\n    wave(motion)\n    motion.move_joint_group("right_arm", HOME_ARM)\nfinally:\n    say("all done")', copy: false },
+                { type: 'troubleshoot', items: [
+                  { symptom: 'The wave crashed halfway, and the arm stayed up in the air', cause: 'The line that sends the arm home is under `try`. When the wave crashed, Python skipped the rest of `try`, and the line home with it.', fix: 'Move the home line under `finally:`, which runs no matter what.' },
+                ] },
+                { type: 'callout', tone: 'note', label: 'Myth or fact?', text: '**Myth:** `finally` only runs after a crash. **Fact:** it runs every time, after a normal finish too. That is why the arm always comes home.' },
               ],
             },
           ],
@@ -508,15 +539,17 @@ export const WAVE_LEVEL = {
         // Lab 6
         {
           id: 'wv-06-run', title: 'Wave Behavior Review and Robot Run', kind: 'activity', difficulty: 'beginner', estimatedTime: '15 to 25 minutes',
-          summary: 'A quick review of labs 2 to 5, then run the real wave on SwayForm. Needs a finished builder, 80% on the lab 3 quiz, and an admin to approve.',
+          summary: 'A quick review of labs 2 to 5, a final quiz, then run the real wave on SwayForm. Needs a finished builder, 80% on the lab 3 quiz and on the final quiz, and an admin to approve.',
           workspaceFile: REAL_WAVE,
           extraFiles: [BUILDER],
           robotGate: {
             needsComplete: [{ id: WAVE_QUIZ_ID, text: `Pass the lab 3 quiz with ${WAVE_QUIZ_PASS}% or better and mark that lab complete.` }],
+            needsQuiz: [{ id: WAVE_FINAL_QUIZ_ID, text: `Pass the final quiz in this lab with ${WAVE_QUIZ_PASS}% or better.` }],
             needsNoTodos: [{ path: BUILDER, text: 'Finish wave_builder.py. It still has # TODO notes (labs 2 to 5).' }],
           },
           relatedConcepts: ['Behaviors', 'Safety', 'Review'],
           steps: [
+            goals(['A quick warm-up on everything from labs 2 to 5.', 'How your `wave_builder.py` lines up with the real `wave.py` the robot runs.', 'Change one setting in `wave.py`, then send your wave to SwayForm.', 'Watch the robot do each step of the recipe you built.']),
             {
               id: 'last-minute-review', title: 'Last-Minute Review',
               blocks: [
@@ -536,10 +569,11 @@ export const WAVE_LEVEL = {
             {
               id: 'before-you-send-it', title: 'Before You Send It',
               blocks: [
-                { type: 'p', text: "Three gates stand between your code and a moving robot:" },
+                { type: 'p', text: "Four gates stand between your code and a moving robot:" },
                 { type: 'checklist', items: [
                   '`wave_builder.py` is finished, with no `# TODO` notes left.',
                   'You scored 80% or better on the lab 3 quiz and marked that lab complete.',
+                  'You pass the final quiz, coming up next, with 80% or better.',
                   'An admin approves the run after you queue it.',
                 ] },
                 { type: 'callout', tone: 'safety', label: 'Safety', text: 'The arm really moves. Keep your hands clear, stay back from it, and only run with an instructor in the room. If anything looks wrong, stop and tell them.' },
@@ -558,6 +592,61 @@ export const WAVE_LEVEL = {
                 ] },
                 { type: 'p', text: "The real wave swings the elbow and ripples the fingers while it does, where yours swings the wrist, but the recipe is the same. Open the real file from the explorer and read through it. You will recognize the shape." },
                 { type: 'callout', tone: 'note', label: 'Note: this is a while loop', text: 'In `elbow_wave` you will find `while cycles is None or i < cycles:` where your program had a `for` loop. Read it as: keep waving while the count `i` is below the number of `cycles`. The `cycles is None` part lets the robot wave forever in a different mode, so you can ignore it here. See "Two Kinds of Loops" in lab 4 if you need a refresher.' },
+              ],
+            },
+            {
+              id: 'final-quiz', title: 'The Final Quiz',
+              blocks: [
+                { type: 'lead', text: 'One last challenge before the robot moves. This quiz covers everything from labs 2 to 5.' },
+                { type: 'p', text: "There are 10 questions: 7 multiple choice and 3 matching. On a matching question you get credit for every pair you get right, so 2 of 3 pairs still earns most of the point. Pass with 80% or better to unlock the robot run. Each try draws a fresh mix, and if you miss one, the note under it links back to the lab that explains it." },
+                { type: 'quiz', id: WAVE_FINAL_QUIZ_ID, savePass: true, title: 'Final Wave Quiz', passPercent: WAVE_QUIZ_PASS, count: 10, matchCount: 3, questions: [
+                  { type: 'match', question: 'Match each loop to how many times `wave_once` runs inside it.', pairs: [
+                    ['`for _ in range(2):`', '2 times'],
+                    ['`for _ in range(0):`', 'Never'],
+                    ['`for _ in range(WAVE_CYCLES):` with `WAVE_CYCLES = 5`', '5 times'],
+                  ], distractors: ['6 times', 'Forever'], explain: '`range(n)` repeats exactly n times, and `range(0)` never runs the line inside.', review: REVIEW.loops },
+                  { type: 'match', question: 'Match each mixed-up order of calls to what the robot does.', pairs: [
+                    ['`wave`, then `raise_arm`', 'Swings first and lifts the arm too late'],
+                    ['`raise_arm`, then `wave`', 'Waves with a closed fist'],
+                    ['`open_hand`, then `wave`', 'Waves without ever raising the arm'],
+                  ], distractors: ['A normal, friendly wave', 'Python stops with an error'], explain: 'The robot does exactly what is written, top to bottom. A step that is never called never happens.', review: REVIEW.order },
+                  { type: 'match', question: 'Match each line to the kind of line it is.', pairs: [
+                    ['`from time import sleep`', 'An import'],
+                    ['`WAVE_CYCLES = 3`', 'A setting'],
+                    ['`def open_hand(motion):`', 'Defines a function'],
+                    ['`open_hand(motion)`', 'Calls a function'],
+                  ], distractors: ['A loop'], explain: 'Imports bring tools in, settings hold values, def teaches a move, and a call runs it.', review: REVIEW.functions },
+                  { type: 'match', question: 'Match each part of `perform_wave` to when it runs.', pairs: [
+                    ['The lines under `try:`', 'First, top to bottom'],
+                    ['The lines under `finally:`', 'Every time, even after a crash'],
+                    ['Lines in `try:` after a crash', 'Skipped'],
+                  ], distractors: ['Only when an admin approves'], explain: 'A crash skips the rest of try, but finally always runs. That is where the cleanup goes.', review: REVIEW.cleanup },
+                  { type: 'match', question: 'Match each function in your `wave_builder.py` to its partner in the real `wave.py`.', pairs: [
+                    ['`go_home`', 'center_all'],
+                    ['`raise_arm`', 'wave_ready_pose'],
+                    ['`wave_once` and your loop in `wave`', 'elbow_wave'],
+                  ], distractors: ['wave_forever'], explain: 'The real wave.py follows the same recipe as yours, with different names and all the motor details filled in.', review: REVIEW.realWave },
+                  { question: 'With `WAVE_CYCLES = 4`, how many times does `wave_once` run inside `for _ in range(WAVE_CYCLES):`?', options: ['4', '1', '3', '5'], answer: 0, explain: 'range(WAVE_CYCLES) repeats once for each cycle.', review: REVIEW.loops },
+                  { question: 'You know exactly how many times you want to repeat something. Which loop fits best?', options: ['A `for` loop', 'A `while` loop', 'An import', 'A `finally` block'], answer: 0, explain: 'A for loop repeats a set number of times. A while loop keeps going until a condition changes.', review: REVIEW.loops },
+                  { question: 'What happens with `for _ in range(0):` and `wave_once(motion)` indented under it?', options: ['The line inside never runs', 'It runs once', 'It runs forever', 'Python stops with an error'], answer: 0, explain: 'range(0) repeats zero times, so the arm lifts and never swings.', review: REVIEW.loops },
+                  { question: 'A `while` loop never changes its counter. What happens?', options: ['It never stops, an infinite loop', 'It stops after one repeat', 'Python changes the counter for you', 'Python skips the loop'], answer: 0, explain: 'If nothing changes, the condition stays true forever.', review: REVIEW.loops },
+                  { question: 'A `say("done")` line sits right after a `for` loop and is **not** indented. When does it run?', options: ['Once, after the loop is done', 'Once for every repeat', 'Never', 'Before the loop starts'], answer: 0, explain: 'Only indented lines are inside the loop. A line that is not indented runs once, after it.', review: REVIEW.loops },
+                  { question: 'Which lines repeat in a `for` loop?', options: ['Only the lines indented under it', 'Every line in the file', 'The line above the loop', 'Only lines that start with #'], answer: 0, explain: 'The indent shows which lines belong to the loop.', review: REVIEW.loops },
+                  { question: '`WAVE_DELAY_SECONDS` changes from 0.3 to 0.15. What happens to the wave?', options: ['It gets faster', 'It gets slower', 'It waves more times', 'Nothing changes'], answer: 0, explain: 'It is the pause between swings, so a smaller number means quicker swings.', review: REVIEW.settings },
+                  { question: 'The calls are in this order: `wave`, then `raise_arm`. What does the robot do?', options: ['Swings first, then lifts the arm after the wave is over', 'A normal wave, order does not matter', 'Python stops with an error', 'It skips the wave'], answer: 0, explain: 'The robot does exactly what is written, top to bottom.', review: REVIEW.order },
+                  { question: 'You forget to call `open_hand(motion)`. What happens?', options: ['The robot waves with a closed hand', 'Python opens the hand for you', 'The robot skips the wave', 'Python stops with a NameError'], answer: 0, explain: 'A function only runs when it is called. No call, no open hand.', review: REVIEW.order },
+                  { question: 'What is the right order for the wave?', options: ['Open the hand, raise the arm, then wave', 'Wave, raise the arm, then open the hand', 'Raise the arm, wave, then open the hand', 'Open the hand, wave, then raise the arm'], answer: 0, explain: 'Open palm first, then the arm goes up, then the wrist swings.', review: REVIEW.order },
+                  { question: 'Which line **calls** a function?', options: ['`raise_arm(motion)`', '`def raise_arm(motion):`', '`from time import sleep`', '`# TODO lab 3`'], answer: 0, explain: 'A call is the name followed by brackets. The def line only teaches the move.', review: REVIEW.order },
+                  { question: 'You wrote `def open_hand(motion):` but nothing ever calls it. What happens?', options: ['The hand never opens', 'The hand opens on its own', 'Python stops with an error', 'The hand opens twice'], answer: 0, explain: 'Defining a function teaches the move. Only a call runs it.', review: REVIEW.functions },
+                  { question: 'When does a `finally` block run?', options: ['Every time, after a normal finish or a crash', 'Only after a crash', 'Only when everything works', 'Only when an admin approves'], answer: 0, explain: 'finally always runs. That is what makes it good for cleanup.', review: REVIEW.cleanup },
+                  { question: 'Where should the line that sends the arm back to `HOME_ARM` go?', options: ['Under `finally:`', 'Under `try:`, after `wave(motion)`', 'Before `try:`', 'Inside `wave_once`'], answer: 0, explain: 'Under try, a crash would skip it. Under finally, it runs no matter what.', review: REVIEW.cleanup },
+                  { question: 'Why does a robot program need cleanup code?', options: ['So the robot always ends in a safe place', 'To make the wave faster', 'To import tools', 'To count the waves'], answer: 0, explain: 'If something fails halfway, cleanup still brings the arm home.', review: REVIEW.cleanup },
+                  { question: 'Which line brings in `sleep`?', options: ['`from time import sleep`', '`from sleep import time`', '`import sleep from time`', '`sleep = time`'], answer: 0, explain: 'The shape is from <where it lives> import <the tool>.', review: REVIEW.imports },
+                  { question: 'Why put a number in a setting like `WAVE_CYCLES` instead of typing it everywhere?', options: ['Change it once and the whole program follows', 'Python only accepts capital letters', 'It makes the robot stronger', 'Imports need it'], answer: 0, explain: 'One setting means one place to change.', review: REVIEW.settings },
+                  { question: 'In this lab you change `WAVE_CYCLES` in `wave.py` from 1 to 5. Why does that one change give five waves?', options: ['The loop in `elbow_wave` reads the setting', 'Python copies the wave five times', 'The admin sets the number', '`wave.py` ignores the setting'], answer: 0, explain: 'Same idea as your own loop: the loop reads the setting, so one number controls it.', review: REVIEW.realWave },
+                  { question: 'An arm starts moving in a way you did not expect. What do you do first?', options: ['Stop the program and keep your hands clear', 'Grab the arm and hold it still', 'Push it back by hand', 'Run the program again'], answer: 0, explain: 'Never grab or resist a powered arm. Stop the program.', review: REVIEW.safety },
+                  { question: 'Who should be in the room when your wave runs on the real robot?', options: ['An instructor or supervisor', 'Nobody, it is safer to run it alone', 'Only other students', 'It does not matter'], answer: 0, explain: 'Never run a program on the physical robot without an instructor or supervisor present.', review: REVIEW.safety },
+                ] },
               ],
             },
             {
@@ -580,10 +669,24 @@ export const WAVE_LEVEL = {
               ],
             },
             {
+              id: 'robot-spotter', title: 'Robot Spotter',
+              blocks: [
+                { type: 'p', text: "While the robot runs, be a spotter. Watch for each step of the recipe you built, and count the waves out loud with your class:" },
+                { type: 'checklist', items: [
+                  'It goes to its rest pose (`center_all`).',
+                  'The hand opens (`open_hand`).',
+                  'The arm lifts into the wave pose (`wave_ready_pose`).',
+                  'The elbow waves **5 times** while the fingers ripple (`elbow_wave`).',
+                  'It goes back to its rest pose at the end.',
+                ] },
+                { type: 'callout', tone: 'note', label: 'You did it', text: 'You built a robot behavior piece by piece, learned what every line does, and sent it to a real robot. Wave back!' },
+              ],
+            },
+            {
               id: 'if-it-is-stuck', title: 'If It Is Stuck',
               blocks: [
                 { type: 'troubleshoot', items: [
-                  { symptom: 'Queue on Robot stays locked', cause: 'One of the gates is not met yet.', fix: 'Click Run. The Problems tab names what is missing: the quiz, or a TODO still in wave_builder.py.' },
+                  { symptom: 'Queue on Robot stays locked', cause: 'One of the gates is not met yet.', fix: 'Click Run. The Problems tab names what is missing: the lab 3 quiz, the final quiz in this lab, or a TODO still in wave_builder.py.' },
                   { symptom: 'Run says the code does not match', cause: 'Something other than the number was changed in wave.py.', fix: 'Click Reset to put the file back, then change only the WAVE_CYCLES line.' },
                   { symptom: 'It sits in the queue for a long time', cause: 'An admin has not approved it yet.', fix: 'Tell your instructor it is waiting. The robot will not move until it is approved.' },
                 ] },

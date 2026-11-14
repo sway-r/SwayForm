@@ -87,7 +87,14 @@
 .cb-tr-item.open .cb-tr-plus{transform:rotate(45deg)}
 .cb-tr-body{display:none;padding:2px 14px 14px}
 .cb-tr-item.open .cb-tr-body,.cb-reveal-item.open .cb-tr-body{display:block}
-.cb-reveal-item.open .cb-tr-plus{transform:rotate(45deg)}
+.cb-reveal-item.open .cb-reveal-sol-btn .cb-tr-plus,.cb-reveal-item.hint-open .cb-reveal-hint-btn .cb-tr-plus{transform:rotate(45deg)}
+.cb-reveal-hint-btn{border-bottom:1px solid var(--la-border-soft)}
+.cb-reveal-item .cb-reveal-hint{display:none}
+.cb-reveal-item.hint-open .cb-reveal-hint{display:block}
+.cb-reveal-sol-btn:disabled{cursor:not-allowed;opacity:.55}
+.cb-reveal-sol-btn:disabled:hover{background:none}
+.cb-reveal-locked-note{font-weight:500;color:var(--la-faint)}
+.cb-reveal-item.hint-seen .cb-reveal-locked-note{display:none}
 .cb-tr-row{margin-bottom:7px}
 .cb-tr-lbl{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--la-faint);margin-bottom:2px}
 .cb-tr-val{font-size:12.5px;color:var(--la-soft);line-height:1.6}
@@ -157,9 +164,11 @@
 @media (max-width:560px){.cb-match-row{grid-template-columns:1fr}}
 
 .cb-quiz-qs{display:flex;flex-direction:column;gap:12px}
+.cb-quiz-match{margin:6px 4px 0}
 .cb-quiz-q{border:1px solid var(--la-border);border-radius:8px;background:var(--la-bg);padding:12px 14px;margin:0;min-width:0}
 .cb-quiz-q.right{border-color:var(--p-green)}
 .cb-quiz-q.wrong{border-color:var(--p-red)}
+.cb-quiz-q.partial{border-color:var(--p-yellow)}
 .cb-quiz-q-text{display:flex;gap:9px;align-items:flex-start;font-size:13px;font-weight:600;color:var(--la-ink);line-height:1.55;padding:0 4px}
 .cb-quiz-num{width:18px;height:18px;border-radius:50%;background:var(--la-accent-dim);color:var(--la-accent);border:1px solid var(--la-accent-line);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .cb-quiz-opt{display:flex;align-items:flex-start;gap:9px;padding:6px 8px;border-radius:6px;font-size:12.5px;color:var(--la-soft);line-height:1.55;cursor:pointer}

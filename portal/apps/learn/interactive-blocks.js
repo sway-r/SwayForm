@@ -2,6 +2,7 @@
    A block that must be solved to finish a lab carries data-gate and fires cb-gate when it changes. */
 
 import { isAdminView } from './admin-view.js';
+import { hasPassedQuiz, recordQuizPass } from '../../services/quiz-passes.js';
 
 const LETTERS = 'ABCDEFGH';
 
@@ -115,6 +116,7 @@ function renderMatch(block, h){
 /* A scored set of questions. Passing needs passPercent or better; failing shows which ones missed and allows a retry. */
 function renderQuiz(block, h){
   const pass = block.passPercent || 80;
+  const saves = !!(block.savePass && block.id);
   const draw = Math.min(block.count || block.questions.length, block.questions.length);
   const wrap = h.el('div', 'cb-q cb-quiz');
   initGate(wrap, block, `Score at least ${pass}% on the quiz to finish this lab.`);
@@ -125,53 +127,123 @@ function renderQuiz(block, h){
   let qs = [];
   let attempt = 0;
 
+  // Questions are multiple choice, or `type: 'match'` (pairs + optional
+  // distractors, dropdowns like the match block). Every question is worth one
+  // point; a match question gives partial credit, split evenly across its pairs.
+  // `matchCount` draws that many match questions on every try, so each try is a mix.
+  const matchBank = block.questions.filter((q) => q.type === 'match');
+  const choiceBank = block.questions.filter((q) => q.type !== 'match');
+  const matchDraw = Math.min(block.matchCount || 0, matchBank.length, draw);
+  function pickQuestions(){
+    if (!matchDraw) return shuffled(block.questions).slice(0, draw);
+    return shuffled(shuffled(matchBank).slice(0, matchDraw).concat(shuffled(choiceBank).slice(0, draw - matchDraw)));
+  }
+  const updateSubmit = () => { submitBtn.disabled = !qs.every((x) => x.isAnswered()); };
+
+  function renderChoice(q, box, name){
+    shuffled(q.options.map((text, index) => ({ text, index }))).forEach((opt, oi) => {
+      const label = h.el('label', 'cb-quiz-opt');
+      label.innerHTML = `<input type="radio" name="${name}" value="${opt.index}"><span class="cb-quiz-opt-letter">${LETTERS[oi]}</span><span>${h.inlineHtml(opt.text)}</span>`;
+      label.querySelector('input').addEventListener('change', updateSubmit);
+      box.appendChild(label);
+    });
+    if (isAdminView()) box.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(q.options[q.answer])}</strong>`));
+    return {
+      isAnswered: () => !!box.querySelector('input:checked'),
+      grade(){
+        const picked = box.querySelector('input:checked');
+        box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+        const ok = !!picked && Number(picked.value) === q.answer;
+        return { credit: ok ? 1 : 0 };
+      },
+    };
+  }
+
+  function renderMatchQuestion(q, box){
+    const rowsEl = h.el('div', 'cb-match-rows cb-quiz-match');
+    const rights = shuffled(q.pairs.map((p) => p[1]).concat(q.distractors || []));
+    const rows = q.pairs.map(([left, right]) => {
+      const row = h.el('div', 'cb-match-row');
+      const select = h.el('select', 'cb-match-select');
+      select.setAttribute('aria-label', `Match for ${left.replace(/`/g, '')}`);
+      select.appendChild(new Option('Choose…', ''));
+      rights.forEach((text) => select.appendChild(new Option(text, text)));
+      select.addEventListener('change', updateSubmit);
+      row.appendChild(h.el('div', 'cb-match-left', h.inlineHtml(left)));
+      row.appendChild(select);
+      rowsEl.appendChild(row);
+      return { row, select, right };
+    });
+    box.appendChild(rowsEl);
+    if (isAdminView()) box.appendChild(adminNote(q.pairs.map(([l, r]) => `${h.inlineHtml(l)} &rarr; <strong>${h.inlineHtml(r)}</strong>`).join('<br>')));
+    return {
+      isAnswered: () => rows.every((r) => r.select.value !== ''),
+      grade(){
+        let matched = 0;
+        rows.forEach(({ row, select, right }) => {
+          const ok = select.value === right;
+          row.classList.toggle('right', ok);
+          row.classList.toggle('wrong', !ok);
+          select.disabled = true;
+          if (ok) matched++;
+        });
+        return { credit: matched / rows.length, matched, of: rows.length };
+      },
+    };
+  }
+
   function build(){
     attempt++;
+    qsEl.hidden = false;
     qsEl.innerHTML = '';
     feedback.className = 'cb-q-feedback';
     feedback.textContent = '';
     submitBtn.textContent = 'Submit answers';
     submitBtn.disabled = true;
-    qs = shuffled(block.questions).slice(0, draw).map((q, qi) => {
+    qs = pickQuestions().map((q, qi) => {
       const box = h.el('fieldset', 'cb-quiz-q');
       box.appendChild(h.el('legend', 'cb-quiz-q-text', `<span class="cb-quiz-num">${qi + 1}</span>${h.inlineHtml(q.question)}`));
-      const name = `quiz-${block.id || 'q'}-${attempt}-${qi}`;
-      shuffled(q.options.map((text, index) => ({ text, index }))).forEach((opt, oi) => {
-        const label = h.el('label', 'cb-quiz-opt');
-        label.innerHTML = `<input type="radio" name="${name}" value="${opt.index}"><span class="cb-quiz-opt-letter">${LETTERS[oi]}</span><span>${h.inlineHtml(opt.text)}</span>`;
-        label.querySelector('input').addEventListener('change', () => { submitBtn.disabled = !qs.every((x) => x.box.querySelector('input:checked')); });
-        box.appendChild(label);
-      });
-      if (isAdminView()) box.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(q.options[q.answer])}</strong>`));
+      const kind = q.type === 'match' ? renderMatchQuestion(q, box) : renderChoice(q, box, `quiz-${block.id || 'q'}-${attempt}-${qi}`);
       const note = h.el('div', 'cb-quiz-note');
       box.appendChild(note);
       qsEl.appendChild(box);
-      return { box, note, answer: q.answer, explain: q.explain, review: q.review };
+      return { box, note, explain: q.explain, review: q.review, ...kind };
     });
   }
 
   submitBtn.addEventListener('click', () => {
     if (submitBtn.dataset.mode === 'retry'){ submitBtn.dataset.mode = ''; build(); return; }
-    let right = 0;
+    let score = 0;
+    let anyPartial = false;
     qs.forEach((q) => {
-      const picked = q.box.querySelector('input:checked');
-      const ok = !!picked && Number(picked.value) === q.answer;
-      if (ok) right++;
-      q.box.classList.toggle('right', ok);
-      q.box.classList.toggle('wrong', !ok);
-      q.box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+      const { credit, matched, of } = q.grade();
+      score += credit;
+      const full = credit === 1;
+      const partial = credit > 0 && !full;
+      if (partial) anyPartial = true;
+      q.box.classList.toggle('right', full);
+      q.box.classList.toggle('partial', partial);
+      q.box.classList.toggle('wrong', credit === 0);
       const review = q.review ? `<span class="cb-quiz-review">Review: <a href="/learn/activity/${encodeURIComponent(q.review.id)}" target="_blank" rel="noopener">${h.inlineHtml(q.review.label)}</a></span>` : '';
-      q.note.innerHTML = ok ? '<strong>Correct.</strong>' : `<strong>Not quite.</strong> ${q.explain ? h.inlineHtml(q.explain) : 'Take another look at this one.'}${review}`;
+      const why = `${q.explain ? h.inlineHtml(q.explain) : 'Take another look at this one.'}${review}`;
+      q.note.innerHTML = full ? '<strong>Correct.</strong>'
+        : partial ? `<strong>Partly right: ${matched} of ${of} pairs.</strong> ${why}`
+        : `<strong>Not quite.</strong> ${why}`;
     });
-    const percent = Math.round((right / qs.length) * 100);
-    const passed = right * 100 >= pass * qs.length;
+    score = Math.round(score * 100) / 100; // keep thirds from adding up to 7.999…
+    const percent = Math.round((score / qs.length) * 100);
+    const passed = score * 100 >= pass * qs.length;
+    const tally = anyPartial
+      ? `${Number.isInteger(score) ? score : score.toFixed(1)} of ${qs.length} points, with partial credit`
+      : `${score} of ${qs.length} correct`;
     feedback.className = `cb-q-feedback ${passed ? 'ok' : 'bad'}`;
     feedback.innerHTML = passed
-      ? `<strong>${percent}%, you passed.</strong> ${right} of ${qs.length} correct.`
-      : `<strong>${percent}%.</strong> ${right} of ${qs.length} correct, and you need ${pass}%. Read the notes on the ones you missed, then try again.`;
+      ? `<strong>${percent}%, you passed.</strong> ${tally}.`
+      : `<strong>${percent}%.</strong> ${tally}, and you need ${pass}%. Read the notes on the ones you missed, then try again.`;
     if (passed){
       wrap.classList.add('solved');
       submitBtn.disabled = true;
+      if (saves) recordQuizPass(block.id);
       setGate(wrap, 'done');
     } else {
       submitBtn.textContent = 'Try again';
@@ -181,6 +253,18 @@ function renderQuiz(block, h){
   });
 
   build();
+  // savePass: a pass is remembered (see quiz-passes.js), so after a reload the
+  // quiz shows as passed instead of making the student take it again.
+  if (saves && hasPassedQuiz(block.id)){
+    qsEl.hidden = true;
+    wrap.classList.add('solved');
+    if (wrap.dataset.gate !== undefined) wrap.dataset.gate = 'done';
+    feedback.className = 'cb-q-feedback ok';
+    feedback.innerHTML = '<strong>You already passed this quiz.</strong> You can take it again for practice.';
+    submitBtn.textContent = 'Take it again';
+    submitBtn.dataset.mode = 'retry';
+    submitBtn.disabled = false;
+  }
   return wrap;
 }
 

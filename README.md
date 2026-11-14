@@ -77,10 +77,22 @@ right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
 `required: false` to a block to exempt it. Until a lab's first required
 question is solved, the steps after it are blurred and can't be used. A section
-with `sequential: true` in `curriculum.js` (Wave) opens its labs one at a time:
-a lab stays locked until every lab before it is complete, and the lab's Next
-button opens once the lab itself is complete. `lab.robotGate` (see lab 6) holds
-Queue on Robot back until named labs are complete and named files have no TODO.
+with `sequential: true` in `curriculum.js` (Wave and More Sections; Foundation
+Labs stay open for now) opens its labs
+one at a time: a lab stays locked until every lab before it is complete, and
+the lab's Next button opens once the lab itself is complete. Admins (teachers)
+skip every lock and see every answer, with each `reveal` block's hint and
+solution already open. Students must press Show Hint before a `reveal` block's
+Show Solution button works. `lab.robotGate` (see lab 6) holds
+Queue on Robot back until named labs are complete (`needsComplete`), named
+quizzes are passed (`needsQuiz`), and named files have no TODO (`needsNoTodos`).
+A quiz used in `needsQuiz` needs `savePass: true`: its pass is remembered in
+that browser for that account, so it shows as passed after a reload. A quiz
+question can also be `{ type: 'match', question, pairs, distractors, explain, review }`,
+worth one point split evenly across its pairs, so partly right earns partial
+credit; `matchCount` on the quiz draws
+that many match questions on every try. Lab 6 opens with a final quiz (10
+questions per try: 3 matching and 7 multiple choice) that unlocks the robot run.
 
 **Lab 6 sends the real `wave.py` to the robot**, not the student's file. Robot
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side

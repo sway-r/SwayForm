@@ -147,24 +147,48 @@ function renderBlock(block, ctx){
       return wrap;
     }
 
-    /* Hint always visible; Show Solution gated behind the same collapsible
-       accordion pattern as 'troubleshoot', reuses its CSS/toggle classes. */
+    /* Show Hint, then Show Solution, in the same collapsible accordion style
+       as 'troubleshoot' (reuses its CSS). Students must open the hint before
+       Show Solution works; once opened, it stays usable even if they close
+       the hint again. Admins see both already open. */
     case 'reveal': {
+      const admin = isAdminView();
       const wrap = el('div', 'cb-reveal-item');
-      if (isAdminView()) wrap.classList.add('open');
-      const hint = el('div', 'cb-reveal-hint');
-      hint.innerHTML = `<div class="cb-tr-lbl">Hint</div><p>${inlineHtml(block.hint || '')}</p>`;
-      wrap.appendChild(hint);
 
-      const btn = el('button', 'cb-tr-hdr');
-      btn.type = 'button';
-      btn.innerHTML = `<span class="cb-tr-symp">Show Solution</span><span class="cb-tr-plus">+</span>`;
+      const hintBtn = el('button', 'cb-tr-hdr cb-reveal-hint-btn');
+      hintBtn.type = 'button';
+      hintBtn.innerHTML = `<span class="cb-tr-symp">Show Hint</span><span class="cb-tr-plus">+</span>`;
+      const hint = el('div', 'cb-reveal-hint');
+      hint.innerHTML = `<p>${inlineHtml(block.hint || '')}</p>`;
+
+      const solBtn = el('button', 'cb-tr-hdr cb-reveal-sol-btn');
+      solBtn.type = 'button';
+      solBtn.innerHTML = `<span class="cb-tr-symp">Show Solution <span class="cb-reveal-locked-note">(open the hint first)</span></span><span class="cb-tr-plus">+</span>`;
       const body = el('div', 'cb-tr-body');
       if (block.solution && block.solution.text) body.appendChild(el('p', 'cb-p', inlineHtml(block.solution.text)));
       if (block.solution && block.solution.code) body.appendChild(renderBlock({ type: 'code', ...block.solution.code }, ctx));
-      btn.addEventListener('click', () => wrap.classList.toggle('open'));
 
-      wrap.appendChild(btn);
+      function unlockSolution(){
+        solBtn.disabled = false;
+        solBtn.removeAttribute('title');
+        wrap.classList.add('hint-seen');
+      }
+      if (admin){
+        wrap.classList.add('hint-open', 'open');
+        unlockSolution();
+      } else {
+        solBtn.disabled = true;
+        solBtn.title = 'Open the hint first';
+      }
+      hintBtn.addEventListener('click', () => {
+        wrap.classList.toggle('hint-open');
+        unlockSolution();
+      });
+      solBtn.addEventListener('click', () => { if (!solBtn.disabled) wrap.classList.toggle('open'); });
+
+      wrap.appendChild(hintBtn);
+      wrap.appendChild(hint);
+      wrap.appendChild(solBtn);
       wrap.appendChild(body);
       return wrap;
     }

@@ -12,6 +12,7 @@ import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
 import { setWorkspaceAccount } from './apps/learn/editor/mock-fs.js';
+import { setQuizAccount } from './services/quiz-passes.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
 const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp, WorkspaceApp]
@@ -649,6 +650,7 @@ async function showDesktop(){
   const session = await getSession();
   if (!session){ showLogin(); return; }
   setWorkspaceAccount(session);
+  setQuizAccount(session);
 
   // Every path into the desktop (boot, Google login, guest login) funnels
   // through here, so this is the one place a first-time real login gets

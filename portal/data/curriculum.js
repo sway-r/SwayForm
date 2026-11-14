@@ -184,7 +184,7 @@ export const CURRICULUM = {
       items: s5,
     },
     {
-      id: 'behavior-sections', number: 6, title: 'More Sections', type: 'lab', icon: 'projects',
+      id: 'behavior-sections', number: 6, title: 'More Sections', type: 'lab', icon: 'projects', sequential: true,
       description: 'After Wave: about 9 more sections of 10–12 labs, each built around one behavior. Planned.',
       items: s6,
     },

@@ -1,4 +1,6 @@
 /* One message per unmet Queue on Robot gate of a lab (activity.robotGate), or [] when clear. An admin still has to approve the job. */
+import { hasPassedQuiz } from '../../../services/quiz-passes.js';
+
 export async function unmetRobotGates(activity, read, getCompleted){
   const gate = activity.robotGate;
   if (!gate) return [];
@@ -8,6 +10,8 @@ export async function unmetRobotGates(activity, read, getCompleted){
     const done = new Set(await getCompleted().catch(() => []));
     gate.needsComplete.forEach((g) => { if (!done.has(g.id)) unmet.push(g.text); });
   }
+  // A quiz in the lab itself (block needs savePass: true) that must be passed first.
+  (gate.needsQuiz || []).forEach((g) => { if (!hasPassedQuiz(g.id)) unmet.push(g.text); });
   (gate.needsNoTodos || []).forEach((g) => {
     if (/#\s*TODO/i.test(read(g.path) || '')) unmet.push(g.text);
   });

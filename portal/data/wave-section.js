@@ -302,7 +302,6 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Loops', 'Repetition'],
           steps: [
-            goals(['What a `for` loop does: it repeats the indented lines under it.', 'What `range(n)` does, and why the indent decides which lines repeat.', 'Write the loop that repeats `wave_once`.']),
             {
               id: 'repeat-without-copy-paste', title: 'Repeat Without Copy and Paste',
               blocks: [
@@ -369,8 +368,7 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open the `wave` function. Replace the `# TODO lab 4` note and the `pass` below it with a `for` loop that calls `wave_once(motion)` once for each cycle." },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'The call must be indented under the for line. If it is not indented, it is not inside the loop.' },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 5 of 7 pieces done.' },
-                RESET_TIP,
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There are now 2 TODO notes left.' },
                 { type: 'reveal', hint: 'It is the same two lines from the loop way above: `for _ in range(WAVE_CYCLES):` and an indented `wave_once(motion)`.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def wave(motion: MotionClient) -> None:\n    for _ in range(WAVE_CYCLES):\n        wave_once(motion)' } } },
               ],
             },
@@ -394,6 +392,12 @@ export const WAVE_LEVEL = {
                 { type: 'mcq', question: 'How many times does `say("done")` run?', options: ['Once, after the loop is done', 'Three times', 'Never', 'Four times'], answer: 0, explain: 'It is not indented, so it is outside the loop. It runs one time, after the three swings.' },
               ],
             },
+            {
+              id: 'what-you-learned', title: 'What You Learned',
+              blocks: [
+                { type: 'list', items: ['A `for` loop repeats the indented lines under it.', '`range(n)` says how many times.', 'A `while` loop repeats as long as a condition is true.', 'Only indented lines are inside the loop.', 'Hooking a loop to a setting lets one number control the whole behavior.'] },
+              ],
+            },
           ],
           completionSummary: { text: 'You wrote the loop that repeats the wave, and you know why the indent matters.', conceptsUsed: ['Loops', 'Repetition'] },
         },
@@ -405,7 +409,6 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Sequences', 'Function calls', 'try / finally', 'Safety'],
           steps: [
-            goals(['Why order matters: a program runs top to bottom.', 'Call `open_hand`, `raise_arm`, and `wave` in the right order.', 'What `try` and `finally` do, and why `finally` always runs.', 'Use `finally` to send the arm home, and finish the program.']),
             {
               id: 'top-to-bottom', title: 'Top to Bottom',
               blocks: [
@@ -444,7 +447,7 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open `perform_wave`. Replace the first `# TODO lab 5` note with three calls, in the wave order above: `open_hand`, `raise_arm`, then `wave`. Each takes `motion`." },
                 { type: 'p', text: "Leave the second `# TODO lab 5` note and the `pass` line alone for now. They are for the cleanup, later in this lab." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 6 of 7 pieces done. The last piece is the cleanup, later in this lab.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There is now 1 TODO note left.' },
                 { type: 'reveal', hint: 'Three lines, each one a name followed by (motion).', solution: { text: 'The three calls:', code: { lang: 'python', filename: 'wave_builder.py', code: 'open_hand(motion)\nraise_arm(motion)\nwave(motion)' } } },
               ],
             },
@@ -470,8 +473,7 @@ export const WAVE_LEVEL = {
               id: 'add-the-cleanup', title: 'Your Turn: Add the Cleanup',
               blocks: [
                 { type: 'p', text: "Open `perform_wave` one more time. Wrap your three calls in `try:`, and add a `finally:` that sends `right_arm` back to `HOME_ARM`, the same way you sent it to `RAISED_ARM` in lab 3. Delete the last `# TODO lab 5` note and the `pass` line." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 7 of 7 pieces done, with no TODO notes left.' },
-                RESET_TIP,
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should now say no TODO markers remain.' },
                 { type: 'reveal', hint: 'The calls move one level to the right, under try. The finally block has one line, and it uses move_joint_group.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def perform_wave(motion: MotionClient) -> None:\n    try:\n        open_hand(motion)\n        raise_arm(motion)\n        wave(motion)\n    finally:\n        motion.move_joint_group("right_arm", HOME_ARM)' } } },
               ],
             },
@@ -493,6 +495,12 @@ export const WAVE_LEVEL = {
                 { type: 'mcq', question: 'Everything works and the wave finishes normally. Does the `finally` block still run?', options: ['Yes, it runs after a normal finish too', 'No, it only runs after a crash', 'Only if WAVE_CYCLES is more than 1', 'Only when an admin approves it'], answer: 0, explain: 'finally runs every time, after a normal finish or after a crash. That is why the arm always comes home.' },
               ],
             },
+            {
+              id: 'what-you-learned', title: 'What You Learned',
+              blocks: [
+                { type: 'list', items: ['Programs run top to bottom, so order matters.', 'A call runs a function you already defined.', 'A behavior is a list of calls in the right order.', '`finally` runs no matter how the `try` part ends.', 'Cleanup code is how a robot ends in a safe place.', 'You now have a complete program: pre-written code plus the pieces you wrote.'] },
+              ],
+            },
           ],
           completionSummary: { text: 'You called your functions in the order that makes a wave and finished the program, including the cleanup that brings the arm home.', conceptsUsed: ['Sequences', 'Function calls', 'try / finally', 'Safety'] },
         },
@@ -509,7 +517,6 @@ export const WAVE_LEVEL = {
           },
           relatedConcepts: ['Behaviors', 'Safety', 'Review'],
           steps: [
-            goals(['Review the ideas from labs 2 to 5.', 'See how your `wave_builder.py` lines up with the real `wave.py`.', 'Queue it, get an admin to approve it, and watch SwayForm wave.']),
             {
               id: 'last-minute-review', title: 'Last-Minute Review',
               blocks: [

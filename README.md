@@ -26,7 +26,7 @@ The curriculum lives across two files, deliberately kept separate:
 - **`portal/data/curriculum.js`**: the listing/navigation layer on top: it
   groups activities into sections (Getting Started, Intro to ROS 2,
   Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built),
-  **Wave** (behavior section 1, 12 labs), and **More Sections** (planned)),
+  **Wave** (behavior section 1, 6 labs), and **More Sections** (planned)),
   assigns numbering
   (`4.3`), and pulls each activity's real content *by reference* from
   `learning-path.js` via `pull(id)`. It never retypes lesson content itself.
@@ -41,17 +41,20 @@ joint-to-keyboard teleop capstone.
 
 ## The Wave section
 
-Behavior section 1 is section 5 in `curriculum.js`: 12 labs, all written in
+Behavior section 1 is section 5 in `curriculum.js`: 6 labs, all written in
 one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
 for the lab team to expand and sharpen.
 
 | Lab | Format |
 |---|---|
 | 1 | Intro, no code |
-| 2, 4, 5, 7, 9, 10 | Code labs that each fill one marked gap in a shared file |
-| 3, 8, 11 | Multiple-choice checks |
-| 6 | Quiz, 80% to pass |
-| 12 | Robot run: needs the lab 6 quiz, a finished program, and admin approval |
+| 2 | Imports and settings, code plus multiple-choice checks |
+| 3 | Functions, code, then the quiz (80% to pass) |
+| 4 | Loops, code plus multiple-choice checks |
+| 5 | Order and cleanup, code that finishes the program |
+| 6 | A short content review, then the robot run: needs the lab 3 quiz, a finished program, and admin approval |
+
+Labs 2 to 5 each fill marked gaps in one shared file.
 
 **The 70/30 idea.** Students write about 30% of one program. The starter
 `wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
@@ -76,10 +79,10 @@ A lab can't be marked complete until every question in it is solved; add
 question is solved, the steps after it are blurred and can't be used. A section
 with `sequential: true` in `curriculum.js` (Wave) opens its labs one at a time:
 a lab stays locked until every lab before it is complete, and the lab's Next
-button opens once the lab itself is complete. `lab.robotGate` (see lab 12) holds
+button opens once the lab itself is complete. `lab.robotGate` (see lab 6) holds
 Queue on Robot back until named labs are complete and named files have no TODO.
 
-**Lab 12 sends the real `wave.py` to the robot**, not the student's file. Robot
+**Lab 6 sends the real `wave.py` to the robot**, not the student's file. Robot
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side
 work first. Ask Swayam before changing anything about how that run works.
 

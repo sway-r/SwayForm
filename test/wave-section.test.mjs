@@ -19,62 +19,63 @@ const typesOf = (item) => new Set(blocksOf(item).map((b) => b.type));
 // What a student writes for each marked gap, in lab order (the finished program).
 const FILLS = [
   ['# TODO lab 2: import sleep from the time module so the wave can pause', 'from time import sleep'],
-  ['# TODO lab 4: set WAVE_CYCLES (how many waves) and WAVE_DELAY_SECONDS (seconds per swing)', 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3'],
-  ['# TODO lab 5: write open_hand(motion), it sets "right_hand" to the "open" pose',
+  ['# TODO lab 2: set WAVE_CYCLES (how many waves) and WAVE_DELAY_SECONDS (seconds per swing)', 'WAVE_CYCLES = 3\nWAVE_DELAY_SECONDS = 0.3'],
+  ['# TODO lab 3: write open_hand(motion), it sets "right_hand" to the "open" pose',
     'def open_hand(motion: MotionClient) -> None:\n    motion.set_hand_pose("right_hand", "open")'],
-  ['# TODO lab 5: write raise_arm(motion), it moves the "right_arm" group to RAISED_ARM',
+  ['# TODO lab 3: write raise_arm(motion), it moves the "right_arm" group to RAISED_ARM',
     'def raise_arm(motion: MotionClient) -> None:\n    motion.move_joint_group("right_arm", RAISED_ARM)'],
-  ['    # TODO lab 7: use a for loop to call wave_once(motion) WAVE_CYCLES times\n    pass',
+  ['    # TODO lab 4: use a for loop to call wave_once(motion) WAVE_CYCLES times\n    pass',
     '    for _ in range(WAVE_CYCLES):\n        wave_once(motion)'],
-  ['    # TODO lab 9: call open_hand, raise_arm, then wave, in that order\n    # TODO lab 10: wrap those calls in try and finally, and in finally move "right_arm" to HOME_ARM\n    pass',
+  ['    # TODO lab 5: call open_hand, raise_arm, then wave, in that order\n    # TODO lab 5: wrap those calls in try and finally, and in finally move "right_arm" to HOME_ARM\n    pass',
     '    try:\n        open_hand(motion)\n        raise_arm(motion)\n        wave(motion)\n    finally:\n        motion.move_joint_group("right_arm", HOME_ARM)'],
 ];
 const EM_DASH = String.fromCharCode(0x2014);
 const todos = (text) => (text.match(/#\s*TODO/gi) || []).length;
 const codeLines = (text) => text.split('\n').filter((l) => l.trim() !== '');
 
-test('Wave is section 5 with 12 labs in the agreed format', () => {
+test('Wave is section 5 with 6 labs in the agreed format', () => {
   assert.equal(CURRICULUM.sections[4].id, 'wave');
-  assert.equal(wave.items.length, 12);
+  assert.equal(wave.items.length, 6);
   wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
   assert.equal(findSection('behavior-sections').number, 6);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
-  [3, 8, 11].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq') && lab(n).kind === 'reading', `lab ${n} is an mcq check`));
-  assert.ok(typesOf(lab(6)).has('quiz') && lab(6).kind === 'reading');
-  [2, 4, 5, 7, 9, 10].forEach((n) => assert.ok(lab(n).kind === 'activity' && lab(n).workspaceFile === BUILDER, `lab ${n} edits the builder`));
+  [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
+  assert.ok(!typesOf(lab(6)).has('mcq'), 'lab 6 opens with a review, not questions');
+  assert.ok(typesOf(lab(3)).has('quiz'), 'lab 3 ends with the quiz');
+  [2, 3, 4, 5].forEach((n) => assert.ok(lab(n).kind === 'activity' && lab(n).workspaceFile === BUILDER, `lab ${n} edits the builder`));
 });
 
 test('every activity resolves server-side, so progress writes are accepted', () => {
   wave.items.forEach((item) => assert.ok(findActivity(item.id), item.id));
-  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.06');
+  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.03');
 });
 
-test('lab 6 quiz needs 80% and lab 12 is gated on it plus a finished builder', () => {
-  const quiz = blocksOf(lab(6)).find((b) => b.type === 'quiz');
+test('lab 3 quiz needs 80% and lab 6 is gated on it plus a finished builder', () => {
+  const quiz = blocksOf(lab(3)).find((b) => b.type === 'quiz');
   assert.equal(quiz.passPercent, 80);
   assert.equal(quiz.count, 10);
   assert.ok(quiz.questions.length > quiz.count, 'the bank is bigger than one try, so a retry is a different mix');
-  const gate = lab(12).robotGate;
-  assert.deepEqual(gate.needsComplete.map((g) => g.id), [lab(6).id]);
+  const gate = lab(6).robotGate;
+  assert.deepEqual(gate.needsComplete.map((g) => g.id), [lab(3).id]);
   assert.deepEqual(gate.needsNoTodos.map((g) => g.path), [BUILDER]);
-  assert.equal(lab(12).workspaceFile, REAL_WAVE);
+  assert.equal(lab(6).workspaceFile, REAL_WAVE);
   assert.ok(isCanonicalRobotPath(REAL_WAVE));
 });
 
-test('lab 12 stays locked until the quiz lab is complete and the builder has no TODO left', async () => {
+test('lab 6 stays locked until the quiz lab is complete and the builder has no TODO left', async () => {
   const starter = WORKSPACE_FILES[BUILDER];
   const finished = FILLS.reduce((text, [from, to]) => text.replace(from, to), starter);
   const read = (text) => () => text;
   const completed = (ids) => async () => ids;
-  assert.equal((await unmetRobotGates(lab(12), read(starter), completed([]))).length, 2);
-  assert.equal((await unmetRobotGates(lab(12), read(finished), completed([]))).length, 1, 'quiz missing');
-  assert.equal((await unmetRobotGates(lab(12), read(starter), completed([WAVE_QUIZ_ID]))).length, 1, 'TODO left');
-  assert.deepEqual(await unmetRobotGates(lab(12), read(finished), completed([WAVE_QUIZ_ID])), []);
-  assert.equal((await unmetRobotGates(lab(12), read(finished), async () => { throw new Error('offline'); })).length, 1, 'unreadable progress keeps it shut');
+  assert.equal((await unmetRobotGates(lab(6), read(starter), completed([]))).length, 2);
+  assert.equal((await unmetRobotGates(lab(6), read(finished), completed([]))).length, 1, 'quiz missing');
+  assert.equal((await unmetRobotGates(lab(6), read(starter), completed([WAVE_QUIZ_ID]))).length, 1, 'TODO left');
+  assert.deepEqual(await unmetRobotGates(lab(6), read(finished), completed([WAVE_QUIZ_ID])), []);
+  assert.equal((await unmetRobotGates(lab(6), read(finished), async () => { throw new Error('offline'); })).length, 1, 'unreadable progress keeps it shut');
   assert.deepEqual(await unmetRobotGates(lab(2), read(starter), completed([])), [], 'ordinary labs have no gate');
 });
 
-test('lab 12 queues the real wave.py: only WAVE_CYCLES = 5 is accepted', () => {
+test('lab 6 queues the real wave.py: only WAVE_CYCLES = 5 is accepted', () => {
   const real = WORKSPACE_FILES[REAL_WAVE];
   assert.equal(validateAgainstCanonicalSource(REAL_WAVE, real.replace('WAVE_CYCLES = 1', 'WAVE_CYCLES = 5')).status, 'complete');
   assert.notEqual(validateAgainstCanonicalSource(REAL_WAVE, real).status, 'complete');
@@ -112,7 +113,7 @@ test('interactive blocks are well formed', () => {
 test('wave_builder.py starts with 7 TODO notes and loses them lab by lab', () => {
   let text = WORKSPACE_FILES[BUILDER];
   assert.equal(todos(text), 7);
-  assert.ok([...text.matchAll(/# TODO lab (\d+)/g)].every((m) => [2, 4, 5, 7, 9, 10].includes(Number(m[1]))));
+  assert.ok([...text.matchAll(/# TODO lab (\d+)/g)].every((m) => [2, 3, 4, 5].includes(Number(m[1]))));
   const expectedLeft = [6, 5, 3, 2, 0];
   const left = [];
   FILLS.forEach(([from, to]) => {
@@ -120,7 +121,7 @@ test('wave_builder.py starts with 7 TODO notes and loses them lab by lab', () =>
     text = text.replace(from, to);
     left.push(todos(text));
   });
-  assert.deepEqual([left[0], left[1], left[3], left[4], left[5]], expectedLeft, 'counts the lessons promise after labs 2, 4, 5, 7, 10');
+  assert.deepEqual([left[0], left[1], left[3], left[4], left[5]], expectedLeft, 'counts the lessons promise after each Your Turn step in labs 2 to 5');
   assert.equal(todos(text), 0);
 });
 

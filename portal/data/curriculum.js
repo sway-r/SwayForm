@@ -24,7 +24,7 @@
  *   3. Pre-Installed Demos, explore existing behaviors (5 items, all built)
  *   4. Foundation Labs   , 20 labs, one behavior or task each: labs 1-10
  *        available, labs 11-20 planned placeholders
- *   5. Wave              , behavior section 1: 12 labs, about 30% of the code
+ *   5. Wave              , behavior section 1: 6 labs, about 30% of the code
  *        written by the student (authored in wave-section.js)
  *   6. More Sections     , labs 21+, about 10 sections in all; the rest are Planned
  *
@@ -141,17 +141,11 @@ const s4 = [
 // Wave, behavior section 1: content lives in wave-section.js.
 const s5 = [
   real('wv-01-intro', 'wave', '5.01'),
-  real('wv-02-imports', 'wave', '5.02'),
-  real('wv-03-toolbox-check', 'wave', '5.03'),
-  real('wv-04-settings', 'wave', '5.04'),
-  real('wv-05-functions', 'wave', '5.05'),
-  real('wv-06-quiz', 'wave', '5.06'),
-  real('wv-07-loops', 'wave', '5.07'),
-  real('wv-08-loops-check', 'wave', '5.08'),
-  real('wv-09-order', 'wave', '5.09'),
-  real('wv-10-cleanup', 'wave', '5.10'),
-  real('wv-11-preflight', 'wave', '5.11'),
-  real('wv-12-run', 'wave', '5.12'),
+  real('wv-02-imports-settings', 'wave', '5.02'),
+  real('wv-03-functions', 'wave', '5.03'),
+  real('wv-04-loops', 'wave', '5.04'),
+  real('wv-05-order-cleanup', 'wave', '5.05'),
+  real('wv-06-run', 'wave', '5.06'),
 ];
 
 // No other behavior section titles are published yet, so one placeholder.
@@ -186,7 +180,7 @@ export const CURRICULUM = {
     },
     {
       id: 'wave', number: 5, title: 'Wave', type: 'lab', icon: 'play', sequential: true,
-      description: 'Behavior section 1. Finish a wave program one piece at a time, then send it to the robot. 12 labs.',
+      description: 'Behavior section 1. Finish a wave program one piece at a time, then send it to the robot. 6 labs.',
       items: s5,
     },
     {

@@ -45,8 +45,6 @@ export const WAVE_LEVEL = {
           summary: 'What you are going to build, how the 6 labs work, and what it takes to run on the real robot.',
           relatedConcepts: ['Behaviors', 'Planning'],
           steps: [
-            goals(['What `def` does: it gives a list of steps one name.', 'The difference between defining a function and calling it.', 'Write `open_hand` and `raise_arm`.', 'Pass the quiz with 80% or better to unlock the robot run in lab 6.']),
-            goals(['What an import line does: it brings a tool into your program.', 'What `sleep` and `MotionClient` do.', 'What a variable is, and why settings are written in CAPITAL LETTERS.', 'Add the import for `sleep`, then set `WAVE_CYCLES` and `WAVE_DELAY_SECONDS` in `wave_builder.py`.']),
             goals(['What you will build: a wave program that runs on SwayForm.', 'The 70 / 30 idea: most of the program is written, and you fill in the marked parts.', 'The three things that must be true before the robot runs your wave.']),
             {
               id: 'the-goal', title: 'What You Will Build',
@@ -100,6 +98,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Imports', 'Modules', 'Variables', 'Constants'],
           steps: [
+            goals(['What an import line does: it brings a tool into your program.', 'What `sleep` and `MotionClient` do.', 'What a variable is, and why settings are written in CAPITAL LETTERS.', 'Add the import for `sleep`, then set `WAVE_CYCLES` and `WAVE_DELAY_SECONDS` in `wave_builder.py`.']),
             {
               id: 'open-the-file', title: 'Open the File',
               blocks: [
@@ -209,6 +208,7 @@ export const WAVE_LEVEL = {
           workspaceFile: BUILDER,
           relatedConcepts: ['Functions', 'Parameters', 'Imports', 'Variables'],
           steps: [
+            goals(['What `def` does: it gives a list of steps one name.', 'The difference between defining a function and calling it.', 'Write `open_hand` and `raise_arm`.', 'Pass the quiz with 80% or better to unlock the robot run in lab 6.']),
             {
               id: 'a-named-recipe', title: 'A Named Recipe',
               blocks: [

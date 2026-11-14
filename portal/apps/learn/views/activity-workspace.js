@@ -50,6 +50,20 @@ const READING_DEFAULT_LAYOUT = {
   notebook: { xPct: 0.3, yPct: 0.5, wPct: 99.4, hPct: 99 },
 };
 
+// Sections whose labs never need a shell. Run/Check/Queue already report
+// through the Code Editor's own Output/Problems panel, and these lessons
+// print no terminal commands of their own, so Terminal is left unregistered
+// entirely: no window, no dock entry, no Terminal Focus preset, no Ctrl+`.
+const NO_TERMINAL_SECTIONS = new Set(['wave']);
+
+// Without Terminal both tiled presets collapse to the same two-column split,
+// with Code Editor taking back the bottom third WORKSPACE_LAYOUT lends the
+// shell rather than leaving a gap where it used to sit.
+const NO_TERMINAL_LAYOUT = {
+  notebook:   LEARN_CODE_LAYOUT.notebook,
+  codeEditor: LEARN_CODE_LAYOUT.codeEditor,
+};
+
 const PRESETS = [
   { id: 'default', label: 'Workspace' },
   { id: 'learnCode', label: 'Learn + Code' },
@@ -67,6 +81,9 @@ export function mount(container, params, nav, ctx){
   // three-window workstation; a demo is still real, runnable code, just
   // framed as "study this" rather than "write this from scratch".
   const isReading = activity.kind === 'reading' || activity.kind === 'placeholder';
+  const hasTerminal = !isReading && !NO_TERMINAL_SECTIONS.has(section.id);
+  const tiledLayout = hasTerminal ? WORKSPACE_LAYOUT : NO_TERMINAL_LAYOUT;
+  const splitLayout = hasTerminal ? LEARN_CODE_LAYOUT : NO_TERMINAL_LAYOUT;
 
   container.innerHTML = `
     <div class="aw-root">
@@ -120,7 +137,7 @@ export function mount(container, params, nav, ctx){
 
   const wm = new WorkspaceWindowManager(desktopEl, {
     storageKey: LAYOUT_STORAGE_PREFIX + '.' + activity.id,
-    defaultLayout: isReading ? READING_DEFAULT_LAYOUT : LEARN_CODE_LAYOUT,
+    defaultLayout: isReading ? READING_DEFAULT_LAYOUT : splitLayout,
   });
 
   // A placeholder has no learning-path.js content at all, its id doesn't
@@ -176,7 +193,7 @@ export function mount(container, params, nav, ctx){
       render: (bodyEl, winApi) => CodeEditorApp.mount(bodyEl, winApi, { activity }),
     });
 
-    wm.registerApp('terminal', {
+    if (hasTerminal) wm.registerApp('terminal', {
       title: TerminalApp.meta.title, icon: TerminalApp.meta.icon, minWidth: 320, minHeight: 200,
       // activity is passed so per-lesson terminal bounds in
       // workspace-config.js can apply.
@@ -187,7 +204,7 @@ export function mount(container, params, nav, ctx){
   /* ---------------------------------------------------------------- dock */
   function renderDock(){
     dockEl.innerHTML = '';
-    const order = isReading ? ['notebook'] : ['notebook', 'codeEditor', 'terminal'];
+    const order = isReading ? ['notebook'] : hasTerminal ? ['notebook', 'codeEditor', 'terminal'] : ['notebook', 'codeEditor'];
     order.forEach((id) => {
       const cfg = { notebook: NotebookApp.meta, codeEditor: CodeEditorApp.meta, terminal: TerminalApp.meta }[id];
       const state = wm.getState(id);
@@ -203,18 +220,18 @@ export function mount(container, params, nav, ctx){
 
   /* ---------------------------------------------------------------- presets */
   if (presetsEl){
-    presetsEl.innerHTML = PRESETS.map((p) => `<button type="button" class="aw-preset-btn" data-preset="${p.id}">${p.label}</button>`).join('');
+    presetsEl.innerHTML = PRESETS.filter((p) => hasTerminal || p.id !== 'terminal').map((p) => `<button type="button" class="aw-preset-btn" data-preset="${p.id}">${p.label}</button>`).join('');
     presetsEl.querySelectorAll('[data-preset]').forEach((btn) => {
       btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
     });
   }
 
   function applyPreset(name){
-    if (name === 'default'){ wm.applyLayout(WORKSPACE_LAYOUT); return; }
-    if (name === 'learnCode'){ wm.applyLayout(LEARN_CODE_LAYOUT); return; }
+    if (name === 'default'){ wm.applyLayout(tiledLayout); return; }
+    if (name === 'learnCode'){ wm.applyLayout(splitLayout); return; }
     if (name === 'code'){ wm.open('codeEditor'); wm.maximize('codeEditor'); return; }
     if (name === 'learn'){ wm.open('notebook'); wm.maximize('notebook'); return; }
-    if (name === 'terminal'){ wm.open('terminal'); wm.maximize('terminal'); return; }
+    if (name === 'terminal' && hasTerminal){ wm.open('terminal'); wm.maximize('terminal'); return; }
   }
 
   container.querySelector('[data-reset-layout]').addEventListener('click', () => wm.resetLayout());
@@ -235,7 +252,7 @@ export function mount(container, params, nav, ctx){
       e.preventDefault();
       const ed = wm.getInstance('codeEditor');
       if (ed && ed.save) ed.save();
-    } else if (e.key === '`'){
+    } else if (e.key === '`' && hasTerminal){
       e.preventDefault();
       wm.open('terminal');
     }
@@ -269,7 +286,7 @@ export function mount(container, params, nav, ctx){
     // Code Editor (the primary work surface) is opened last.
     wm.open('notebook', { silent: true });
     if (!isReading){
-      wm.open('terminal', { silent: true });
+      if (hasTerminal) wm.open('terminal', { silent: true });
       wm.open('codeEditor', { silent: true });
     }
     renderDock();

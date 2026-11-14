@@ -368,7 +368,7 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open the `wave` function. Replace the `# TODO lab 4` note and the `pass` below it with a `for` loop that calls `wave_once(motion)` once for each cycle." },
                 { type: 'callout', tone: 'tip', label: 'Tip', text: 'The call must be indented under the for line. If it is not indented, it is not inside the loop.' },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There are now 2 TODO notes left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 5 of 7 pieces done.' },
                 { type: 'reveal', hint: 'It is the same two lines from the loop way above: `for _ in range(WAVE_CYCLES):` and an indented `wave_once(motion)`.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def wave(motion: MotionClient) -> None:\n    for _ in range(WAVE_CYCLES):\n        wave_once(motion)' } } },
               ],
             },
@@ -447,7 +447,7 @@ export const WAVE_LEVEL = {
               blocks: [
                 { type: 'p', text: "Open `perform_wave`. Replace the first `# TODO lab 5` note with three calls, in the wave order above: `open_hand`, `raise_arm`, then `wave`. Each takes `motion`." },
                 { type: 'p', text: "Leave the second `# TODO lab 5` note and the `pass` line alone for now. They are for the cleanup, later in this lab." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. There is now 1 TODO note left.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 6 of 7 pieces done. The last piece is the cleanup, later in this lab.' },
                 { type: 'reveal', hint: 'Three lines, each one a name followed by (motion).', solution: { text: 'The three calls:', code: { lang: 'python', filename: 'wave_builder.py', code: 'open_hand(motion)\nraise_arm(motion)\nwave(motion)' } } },
               ],
             },
@@ -473,7 +473,7 @@ export const WAVE_LEVEL = {
               id: 'add-the-cleanup', title: 'Your Turn: Add the Cleanup',
               blocks: [
                 { type: 'p', text: "Open `perform_wave` one more time. Wrap your three calls in `try:`, and add a `finally:` that sends `right_arm` back to `HOME_ARM`, the same way you sent it to `RAISED_ARM` in lab 3. Delete the last `# TODO lab 5` note and the `pass` line." },
-                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should now say no TODO markers remain.' },
+                { type: 'callout', tone: 'note', label: 'Check', text: 'Click Check. It should say 7 of 7 pieces done, with no TODO notes left.' },
                 { type: 'reveal', hint: 'The calls move one level to the right, under try. The finally block has one line, and it uses move_joint_group.', solution: { text: 'The finished function:', code: { lang: 'python', filename: 'wave_builder.py', code: 'def perform_wave(motion: MotionClient) -> None:\n    try:\n        open_hand(motion)\n        raise_arm(motion)\n        wave(motion)\n    finally:\n        motion.move_joint_group("right_arm", HOME_ARM)' } } },
               ],
             },

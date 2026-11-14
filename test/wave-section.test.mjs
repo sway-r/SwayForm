@@ -3,11 +3,26 @@ import assert from 'node:assert/strict';
 import { CURRICULUM, findSection, findItem } from '../portal/data/curriculum.js';
 import { findActivity } from '../portal/data/learning-path.js';
 import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
-import { WAVE_QUIZ_ID } from '../portal/data/wave-section.js';
+import { WAVE_QUIZ_ID, WAVE_FINAL_QUIZ_ID } from '../portal/data/wave-section.js';
+import { setQuizAccount, recordQuizPass } from '../portal/services/quiz-passes.js';
 import { isCanonicalRobotPath } from '../portal/apps/learn/workspace/ros-paths.js';
 import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js';
 import { unmetRobotGates } from '../portal/apps/learn/workspace/robot-gate.js';
 import { readFileSync } from 'node:fs';
+
+// quiz-passes.js keeps the final-quiz pass in localStorage, which node has no
+// business having; the smallest stub that lets the real module run unchanged.
+function storage(){
+  const data = new Map();
+  return { getItem: (k) => data.get(k) ?? null, setItem: (k, v) => data.set(k, String(v)), removeItem: (k) => data.delete(k) };
+}
+globalThis.localStorage = storage();
+// Passes are stored per account, so switching accounts is how a test gets a
+// student who has not passed the final quiz yet.
+const finalQuizPassed = (passed) => {
+  setQuizAccount({ email: passed ? 'passed@example.test' : 'fresh@example.test' });
+  if (passed) recordQuizPass(WAVE_FINAL_QUIZ_ID);
+};
 
 const BUILDER = 'swayform_ws/src/swayform_labs/wave_builder.py';
 const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
@@ -39,7 +54,10 @@ test('Wave is section 5 with 6 labs in the agreed format', () => {
   wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
   assert.equal(findSection('behavior-sections').number, 6);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
-  [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
+  assert.ok(typesOf(lab(2)).has('mcq'), 'lab 2 has mcq checks');
+  // Labs 4 and 5 swapped their inline questions for worked troubleshooting and
+  // reveals. They still have to teach actively, so hold them to that instead.
+  [4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('troubleshoot') && typesOf(lab(n)).has('reveal'), `lab ${n} teaches through troubleshooting and reveals`));
   assert.ok(!typesOf(lab(6)).has('mcq'), 'lab 6 opens with a review, not questions');
   assert.ok(typesOf(lab(3)).has('quiz'), 'lab 3 ends with the quiz');
   [2, 3, 4, 5].forEach((n) => assert.ok(lab(n).kind === 'activity' && lab(n).workspaceFile === BUILDER, `lab ${n} edits the builder`));
@@ -57,20 +75,26 @@ test('lab 3 quiz needs 80% and lab 6 is gated on it plus a finished builder', ()
   assert.ok(quiz.questions.length > quiz.count, 'the bank is bigger than one try, so a retry is a different mix');
   const gate = lab(6).robotGate;
   assert.deepEqual(gate.needsComplete.map((g) => g.id), [lab(3).id]);
+  assert.deepEqual(gate.needsQuiz.map((g) => g.id), [WAVE_FINAL_QUIZ_ID]);
   assert.deepEqual(gate.needsNoTodos.map((g) => g.path), [BUILDER]);
   assert.equal(lab(6).workspaceFile, REAL_WAVE);
   assert.ok(isCanonicalRobotPath(REAL_WAVE));
 });
 
-test('lab 6 stays locked until the quiz lab is complete and the builder has no TODO left', async () => {
+test('lab 6 stays locked until the quiz lab, the final quiz and the builder are all done', async () => {
   const starter = WORKSPACE_FILES[BUILDER];
   const finished = FILLS.reduce((text, [from, to]) => text.replace(from, to), starter);
   const read = (text) => () => text;
   const completed = (ids) => async () => ids;
-  assert.equal((await unmetRobotGates(lab(6), read(starter), completed([]))).length, 2);
-  assert.equal((await unmetRobotGates(lab(6), read(finished), completed([]))).length, 1, 'quiz missing');
+
+  finalQuizPassed(false);
+  assert.equal((await unmetRobotGates(lab(6), read(starter), completed([]))).length, 3, 'nothing done yet');
+  assert.equal((await unmetRobotGates(lab(6), read(finished), completed([WAVE_QUIZ_ID]))).length, 1, 'final quiz alone keeps it shut');
+
+  finalQuizPassed(true);
+  assert.equal((await unmetRobotGates(lab(6), read(finished), completed([]))).length, 1, 'quiz lab missing');
   assert.equal((await unmetRobotGates(lab(6), read(starter), completed([WAVE_QUIZ_ID]))).length, 1, 'TODO left');
-  assert.deepEqual(await unmetRobotGates(lab(6), read(finished), completed([WAVE_QUIZ_ID])), []);
+  assert.deepEqual(await unmetRobotGates(lab(6), read(finished), completed([WAVE_QUIZ_ID])), [], 'all three met');
   assert.equal((await unmetRobotGates(lab(6), read(finished), async () => { throw new Error('offline'); })).length, 1, 'unreadable progress keeps it shut');
   assert.deepEqual(await unmetRobotGates(lab(2), read(starter), completed([])), [], 'ordinary labs have no gate');
 });
@@ -83,9 +107,17 @@ test('lab 6 queues the real wave.py: only WAVE_CYCLES = 5 is accepted', () => {
 
 test('interactive blocks are well formed', () => {
   const unique = (list) => new Set(list).size === list.length;
-  const checkQuestion = (q, where) => {
+  const checkChoice = (q, where) => {
     assert.ok(Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.options.length, `${where}: answer index`);
     assert.ok(q.options.length >= 2 && unique(q.options), `${where}: options`);
+  };
+  const checkPairs = (q, where) => {
+    assert.ok(Array.isArray(q.pairs) && q.pairs.length >= 2, `${where}: pairs`);
+    assert.ok(unique(q.pairs.map((p) => p[1]).concat(q.distractors || [])), `${where}: right-hand texts and distractors must be unique`);
+  };
+  // A quiz bank holds both kinds; a standalone mcq block is always a choice.
+  const checkQuestion = (q, where) => {
+    if (q.type === 'match') checkPairs(q, where); else checkChoice(q, where);
     assert.ok(q.explain, `${where}: explain`);
   };
   let seen = 0;
@@ -104,6 +136,12 @@ test('interactive blocks are well formed', () => {
       });
       assert.ok(unique(b.questions.map((q) => q.question)), `${where}: repeated question`);
       assert.ok(b.count <= b.questions.length, `${where}: count is larger than the bank`);
+      // matchCount is how many match questions every try draws; past either
+      // limit the draw silently shrinks instead of erroring.
+      if (b.matchCount){
+        assert.ok(b.matchCount <= b.questions.filter((q) => q.type === 'match').length, `${where}: matchCount above the match bank`);
+        assert.ok(b.matchCount <= b.count, `${where}: matchCount above the draw`);
+      }
       seen++;
     }
   }));

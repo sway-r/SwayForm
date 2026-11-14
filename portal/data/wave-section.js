@@ -7,7 +7,7 @@ export const WAVE_QUIZ_ID = 'wv-03-functions';
 export const WAVE_QUIZ_PASS = 80;
 // Lab 6 opens with a final quiz. Queue on Robot stays locked until it is passed
 // (robotGate.needsQuiz, remembered in this browser by quiz-passes.js).
-const WAVE_FINAL_QUIZ_ID = 'wv-06-final-quiz';
+export const WAVE_FINAL_QUIZ_ID = 'wv-06-final-quiz';
 const REVIEW = {
   intro: { id: 'wv-01-intro', label: 'Lab 1, Meet the Wave' },
   imports: { id: 'wv-02-imports-settings', label: 'Lab 2, Imports' },

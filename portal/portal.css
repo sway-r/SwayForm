@@ -46,6 +46,13 @@
   --la-accent:var(--p-accent);
   --la-accent-dim:var(--p-accent-dim);
   --la-accent-line:var(--p-accent-line);
+  /* Inline `code` in prose, tuned apart from --la-accent: a chip appears
+     several times a paragraph, so it carries the accent at lower volume
+     than a button or a link does. Deeper ink than --la-accent on white,
+     which reads calmer AND clears 4.5:1 at the chip's 11.5px. */
+  --la-code-ink:#2f72d6;
+  --la-code-bg:rgba(61,139,255,.07);
+  --la-code-line:rgba(61,139,255,.13);
   --la-focus-border:rgba(20,26,44,.28);
 }
 
@@ -67,6 +74,11 @@
   --la-hover:rgba(255,255,255,.06);
   --la-hover-strong:rgba(255,255,255,.09);
   --la-focus-border:rgba(255,255,255,.22);
+  /* Desaturated rather than deepened: on a dark surface the calmer chip is
+     the softer, less electric blue, and it keeps well over 4.5:1. */
+  --la-code-ink:#9dbcf0;
+  --la-code-bg:rgba(125,170,255,.09);
+  --la-code-line:rgba(125,170,255,.14);
 }
 
 .portal-body{background:var(--p-bg);color:var(--p-ink);font-family:var(--font);overflow:hidden;height:100vh}

@@ -174,3 +174,6 @@
 .cb-quiz-note:not(:empty){margin-top:6px;padding-top:6px;border-top:1px solid var(--la-border-soft)}
 .cb-quiz-review{display:block;margin-top:4px}
 .cb-quiz-review a{color:var(--la-accent);font-weight:600;text-decoration:underline;text-decoration-color:var(--la-accent-line);text-underline-offset:2px}
+
+.cb-admin-answer{margin-top:10px;padding:8px 12px;border:1px dashed var(--la-border);border-radius:8px;background:var(--la-hover);font-size:12.5px;line-height:1.55;color:var(--la-soft)}
+.cb-admin-answer>span{display:inline-block;margin-right:8px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--la-accent)}

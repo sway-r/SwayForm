@@ -9,6 +9,7 @@ import { icon } from '../../icons.js';
 import { CURRICULUM, LAB_SECTION_IDS, blockingItem, search as searchCurriculum } from '../../data/curriculum.js';
 import { getPrefs } from '../../prefs.js';
 import { getCompletedActivities } from '../../services/progress-service.js';
+import { isAdminView, loadAdminView } from './admin-view.js';
 import { escapeHtml } from '../../utils.js';
 
 // Module-level so expanded sections survive close/reopen within the session
@@ -20,7 +21,7 @@ function statusIcon(item, completedIds, currentId) {
   if (item.kind === 'placeholder') return '<span class="ci-status ci-status-placeholder"></span>';
   if (item.id === currentId) return `<span class="ci-status ci-status-current">${icon('dot')}</span>`;
   if (completedIds.has(item.id)) return `<span class="ci-status ci-status-done">${icon('checkCircle')}</span>`;
-  if (blockingItem(item.id, completedIds)) return `<span class="ci-status ci-status-locked" title="Locked">${icon('lock')}</span>`;
+  if (!isAdminView() && blockingItem(item.id, completedIds)) return `<span class="ci-status ci-status-locked" title="Locked">${icon('lock')}</span>`;
   return '<span class="ci-status ci-status-open"></span>';
 }
 
@@ -82,6 +83,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
 
   async function renderList() {
     completedIds = new Set(await getCompletedActivities());
+    await loadAdminView();
     const currentId = getCurrentItemId();
     const query = searchInput.value.trim();
     if (query) { renderSearchResults(query); return; }

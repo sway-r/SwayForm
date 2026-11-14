@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS admin_accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- `slot` (1 or 2) is a real column, not an implicit position inferred from
+-- `slot` (1, 2 or 3) is a real column, not an implicit position inferred from
 -- row id order: the unique index below makes "only one admin per slot"
 -- a database guarantee that api/admin.js's set_admin_email upserts against
 -- (ON CONFLICT (admin_account_id, slot)), instead of a read-existing-rows-
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS admin_emails (
   id SERIAL PRIMARY KEY,
   admin_account_id INTEGER NOT NULL REFERENCES admin_accounts(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
-  slot SMALLINT CHECK (slot IN (1, 2)),
+  slot SMALLINT CHECK (slot IN (1, 2, 3)),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_admin_emails_account_slot ON admin_emails (admin_account_id, slot);

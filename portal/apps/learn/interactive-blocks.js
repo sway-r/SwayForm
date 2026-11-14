@@ -1,7 +1,16 @@
 /* Interactive lesson blocks: mcq, match, quiz (fields are listed in README.md).
    A block that must be solved to finish a lab carries data-gate and fires cb-gate when it changes. */
 
+import { isAdminView } from './admin-view.js';
+
 const LETTERS = 'ABCDEFGH';
+
+function adminNote(html){
+  const d = document.createElement('div');
+  d.className = 'cb-admin-answer';
+  d.innerHTML = '<span>Admin only</span>' + html;
+  return d;
+}
 
 function shuffled(list){
   const out = list.slice();
@@ -53,6 +62,7 @@ function renderMcq(block, h){
     });
     opts.appendChild(btn);
   });
+  if (isAdminView()) wrap.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(block.options[block.answer])}</strong>${block.explain ? '<br>' + h.inlineHtml(block.explain) : ''}`));
   return wrap;
 }
 
@@ -98,6 +108,7 @@ function renderMatch(block, h){
       feedback.textContent = `${correct} of ${rows.length} match. Fix the red ones and check again.`;
     }
   });
+  if (isAdminView()) wrap.appendChild(adminNote(block.pairs.map(([l, r]) => `${h.inlineHtml(l)} &rarr; <strong>${h.inlineHtml(r)}</strong>`).join('<br>')));
   return wrap;
 }
 
@@ -131,6 +142,7 @@ function renderQuiz(block, h){
         label.querySelector('input').addEventListener('change', () => { submitBtn.disabled = !qs.every((x) => x.box.querySelector('input:checked')); });
         box.appendChild(label);
       });
+      if (isAdminView()) box.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(q.options[q.answer])}</strong>`));
       const note = h.el('div', 'cb-quiz-note');
       box.appendChild(note);
       qsEl.appendChild(box);

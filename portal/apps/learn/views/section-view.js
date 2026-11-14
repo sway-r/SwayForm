@@ -2,6 +2,7 @@ import { icon } from '../../../icons.js';
 import { findSection, sectionProgress, itemStatus, blockingItem } from '../../../data/curriculum.js';
 import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
+import { isAdminView, loadAdminView } from '../admin-view.js';
 
 function diffTag(item){
   if (item.kind === 'reading') return `<span class="diff-tag reading">${item.tagLabel || 'Reading'}</span>`;
@@ -69,7 +70,8 @@ export function mount(container, params, nav, ctx){
     function addRow(item, parent){
       // Without loaded progress nothing is known, so nothing shows as locked.
       const status = progressNote ? 'open' : itemStatus(item, completedIds, current);
-      const blocker = status === 'locked' ? blockingItem(item.id, completedIds) : null;
+      const shown = status === 'locked' && isAdminView() ? 'open' : status;
+      const blocker = shown === 'locked' ? blockingItem(item.id, completedIds) : null;
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'sv-item-row' + (item.kind === 'placeholder' ? ' is-placeholder' : '') + (blocker ? ' is-locked' : '');
@@ -85,9 +87,9 @@ export function mount(container, params, nav, ctx){
         </span>
         <span class="sv-item-status">${
           item.kind === 'placeholder' ? ''
-          : status === 'done' ? `<span class="sv-status done">${icon('checkCircle')}<span>Complete</span></span>`
-          : status === 'locked' ? `<span class="sv-status locked">${icon('lock')}<span>Locked</span></span>`
-          : status === 'progress' ? `<span class="sv-status current">${icon('dot')}<span>In Progress</span></span>`
+          : shown === 'done' ? `<span class="sv-status done">${icon('checkCircle')}<span>Complete</span></span>`
+          : shown === 'locked' ? `<span class="sv-status locked">${icon('lock')}<span>Locked</span></span>`
+          : shown === 'progress' ? `<span class="sv-status current">${icon('dot')}<span>In Progress</span></span>`
           : `<span class="sv-status open">${icon('chevronRight')}</span>`
         }</span>`;
       if (!blocker) row.addEventListener('click', () => nav.activity(item.id));
@@ -108,7 +110,7 @@ export function mount(container, params, nav, ctx){
   }
 
   let lastState = { completedIds: [], current: null, note: 'Progress unavailable, showing lessons only.' };
-  Promise.all([getCompletedActivities(), getCurrentActivity()])
+  Promise.all([getCompletedActivities(), getCurrentActivity(), loadAdminView()])
     .then(([completedIds, current]) => { lastState = { completedIds, current, note: undefined }; renderItems(completedIds, current); })
     .catch(() => renderItems([], null, lastState.note));
   const onPrefs = () => renderItems(lastState.completedIds, lastState.current, lastState.note);

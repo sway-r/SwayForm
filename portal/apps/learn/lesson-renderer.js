@@ -14,6 +14,7 @@
 import { icon } from '../../icons.js';
 import { escapeHtml } from '../../utils.js';
 import { renderInteractive } from './interactive-blocks.js';
+import { isAdminView } from './admin-view.js';
 
 function el(tag, cls, html){
   const e = document.createElement(tag);
@@ -150,6 +151,7 @@ function renderBlock(block, ctx){
        accordion pattern as 'troubleshoot', reuses its CSS/toggle classes. */
     case 'reveal': {
       const wrap = el('div', 'cb-reveal-item');
+      if (isAdminView()) wrap.classList.add('open');
       const hint = el('div', 'cb-reveal-hint');
       hint.innerHTML = `<div class="cb-tr-lbl">Hint</div><p>${inlineHtml(block.hint || '')}</p>`;
       wrap.appendChild(hint);

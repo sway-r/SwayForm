@@ -6,6 +6,7 @@
  * only how many steps render at once has changed. */
 import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
+import { isAdminView } from '../admin-view.js';
 import { getPrefs } from '../../../prefs.js';
 
 export const meta = { id: 'notebook', title: 'Textbook', icon: 'book' };
@@ -113,7 +114,7 @@ export function mount(bodyEl, winApi, opts) {
             // real lab" that only reveals it was unfinished after the click.
             ? `<button type="button" class="p-btn ghost" data-next-activity>${icon('clock')}<span>Coming Soon: ${nextActivity.title}</span></button>`
             // While a question is unsolved this stays shut: it marks the lab complete on the way out.
-            : `<button type="button" class="p-btn ghost" data-next-activity${pendingGate ? ' disabled' : ''}>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
+            : `<button type="button" class="p-btn ghost" data-next-activity${pendingGate && !isAdminView() ? ' disabled' : ''}>${icon('arrowRight')}<span>${nextActivity.title}</span></button>`
           : ''}
       </div>`;
     completeBlock.querySelector('[data-mark-complete]').addEventListener('click', async () => {
@@ -133,7 +134,7 @@ export function mount(bodyEl, winApi, opts) {
   unlockNote.className = 'nb-unlock-note';
   unlockNote.innerHTML = `${icon('lock')}<span>Finish the activity above to unlock the rest of this lab.</span>`;
   function updateLocks() {
-    const firstGated = done ? -1 : sectionEls.findIndex((sec) => sec.querySelector('[data-gate="pending"]'));
+    const firstGated = done || isAdminView() ? -1 : sectionEls.findIndex((sec) => sec.querySelector('[data-gate="pending"]'));
     const lockedFrom = firstGated >= 0 ? firstGated + 1 : sectionEls.length;
     sectionEls.forEach((sec, i) => {
       const locked = i >= lockedFrom;

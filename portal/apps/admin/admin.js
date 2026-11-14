@@ -156,7 +156,7 @@ function adminEmailRow(slot, email){
   }
   return `
     <div class="set-row">
-      <span class="set-row-text"><span class="set-row-label">Admin ${slot}</span><span class="set-row-desc">Empty, add a second admin email</span></span>
+      <span class="set-row-text"><span class="set-row-label">Admin ${slot}</span><span class="set-row-desc">Empty, add an admin email</span></span>
       <form class="adm-inline-form" data-add-admin-email data-slot="${slot}">
         <input type="email" placeholder="email@school.edu" required>
         <button type="submit" class="p-btn ghost">Save</button>
@@ -460,6 +460,7 @@ export function mount(container, ctx){
           <div class="set-card">
             ${adminEmailRow(1, state.adminEmails[0])}
             ${adminEmailRow(2, state.adminEmails[1])}
+            ${adminEmailRow(3, state.adminEmails[2])}
           </div>
         </div>
 

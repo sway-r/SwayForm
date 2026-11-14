@@ -7,6 +7,7 @@ import * as TerminalApp from '../workspace/terminal-app.js';
 import { markComplete, setCurrentActivity, getCurrentActivity, getCompletedActivities } from '../../../services/progress-service.js';
 import { getSession } from '../../../services/auth-service.js';
 import { getPrefs } from '../../../prefs.js';
+import { isAdminView, loadAdminView } from '../admin-view.js';
 import { startTracking, formatClock, formatTotal } from '../../../services/time-tracker.js';
 
 // Per-activity, not a single shared key; the layout was previously stored
@@ -107,7 +108,7 @@ export function mount(container, params, nav, ctx){
   function renderLabNav(isDone){
     prevBtn.disabled = !prevLab;
     prevBtn.title = prevLab ? `${prevLab.number} ${prevLab.title}` : 'This is the first lab in the section';
-    const nextOpen = !!nextLab && (isDone || !section.sequential);
+    const nextOpen = !!nextLab && (isDone || !section.sequential || isAdminView());
     nextBtn.disabled = !nextOpen;
     nextBtn.title = !nextLab ? 'This is the last lab in the section'
       : nextOpen ? `${nextLab.number} ${nextLab.title}`
@@ -294,11 +295,11 @@ export function mount(container, params, nav, ctx){
   // not fire) into a workspace nobody will ever clean up again.
   let disposed = false;
 
-  Promise.all([getCurrentActivity(), getCompletedActivities()]).then(([current, completedIds]) => {
+  Promise.all([getCurrentActivity(), getCompletedActivities(), loadAdminView()]).then(([current, completedIds]) => {
     if (disposed) return;
     const done = completedIds.includes(activity.id);
     renderLabNav(done);
-    const blocker = blockingItem(activity.id, completedIds);
+    const blocker = isAdminView() ? null : blockingItem(activity.id, completedIds);
     if (blocker){ showLocked(blocker); return; }
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;

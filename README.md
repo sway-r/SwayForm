@@ -50,11 +50,37 @@ for the lab team to expand and sharpen.
 | 1 | Intro, no code |
 | 2 | Imports and settings, code plus multiple-choice checks |
 | 3 | Functions, code, then the quiz (80% to pass) |
-| 4 | Loops, code plus multiple-choice checks |
-| 5 | Order and cleanup, code that finishes the program |
-| 6 | A short content review, then the robot run: needs the lab 3 quiz, a finished program, and admin approval |
+| 4 | Loops, code, bug hunts and multiple-choice checks |
+| 5 | Order and cleanup, code that finishes the program, bug hunts and multiple-choice checks |
+| 6 | A short review, the final quiz, then the robot run: needs both quizzes, a finished program, and admin approval |
 
 Labs 2 to 5 each fill marked gaps in one shared file.
+
+**How lab text is written.** Every lab, in Wave and after it, follows the same
+pattern and voice: a friendly instructor talking the student through it, step
+by step.
+
+- Open with a **Summary** step (`id: 'summary'`, shown without a number; the
+  `summary()` helper in `wave-section.js` builds it): "Estimated time to
+  completion: 20 minutes", then "In this lab, you are going to learn about..."
+  and a short list of what they will do.
+- Then numbered sections, one idea each. The textbook numbers them from the lab
+  number (lab 5.04 gives 5.4.1, 5.4.2, ...).
+- In each section: explain the idea in plain words ("In simple terms, ..."),
+  with an everyday comparison if it helps, show a short example ("Have a look:"),
+  then have the student do it ("Let's fix that.", "Now, it's your turn.").
+- Caption every code block with what it is for: `Example`, `Write in wave_builder.py`,
+  `Find this in wave_builder.py`, or `Edit in wave.py`.
+- After every action (Check, Run, Queue on Robot), show the result: "You should
+  get something similar to this:", then a `terminal` block with `label: 'Output'`
+  holding what the screen really prints, then "As you can see, ..." to explain it.
+- Ask before you tell: "So, what do you think would happen if ...? Let's find
+  out!" Bug hunts (a `troubleshoot` block) work this way.
+- Short, warm sentences: "Let's", "Have a look", "Pretty useful, right?", "But
+  there's more!". Keep exclamation marks to one or two per section. No em dashes
+  and no AI-sounding words.
+- Keep the page plain: prose and code first. A table only for a real comparison,
+  a callout only for safety or the Reset tip.
 
 **The 70/30 idea.** Students write about 30% of one program. The starter
 `wave_builder.py` (in `portal/data/workspace-files.js`) opens with about 70%
@@ -67,13 +93,22 @@ That test pins the TODO counts the lessons promise and the 25 to 35% share.
 
 - `{ type: 'mcq', question, options: [...], answer: 0, explain }`
 - `{ type: 'match', prompt, pairs: [[left, right], ...], distractors: [...] }` (right-hand texts must be unique; optional `distractors` are extra wrong answers, so the last pair can't be guessed by elimination)
-- `{ type: 'quiz', id, title, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
+- `{ type: 'quiz', id, title, prepare, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
 
-A quiz draws `count` questions at random from its bank on every try, so keep
-the bank bigger than `count`. `review` is the lab a missed question links back
-to. Students can retry as often as they like with no cooldown, on purpose for
-now; Swayam decides if that changes. Options are shuffled on screen, so the
-right answer can be first in the list.
+In the lab, a quiz only shows what to prepare (`prepare`, plus the rules) and a
+**Start quiz** button, which asks "Have you prepared?" before it starts. The quiz
+then fills the whole screen with nothing but the questions and their choices.
+A student can't leave it until they submit: the rest of the portal is locked,
+and leaving the page anyway still counts as a try. Every try draws `count`
+questions at random from the bank in a new order, with the choices shuffled,
+so keep the bank bigger than `count`. Quiz questions are multiple choice only.
+After a try the student waits 15 minutes (`QUIZ_WAIT_MINUTES` in
+`portal/services/quiz-passes.js`) before the next one; the results page marks
+what they missed, with `explain` and a link to the `review` lab. A pass is
+remembered, so the quiz stays passed after a reload. Passes and tries are kept
+in that browser for that account, like code drafts. Admins never wait, see the
+answers, and can close the quiz without submitting. Options are shuffled on
+screen, so the right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
 `required: false` to a block to exempt it. Until a lab's first required
 question is solved, the steps after it are blurred and can't be used. A section
@@ -86,13 +121,8 @@ solution already open. Students must press Show Hint before a `reveal` block's
 Show Solution button works. `lab.robotGate` (see lab 6) holds
 Queue on Robot back until named labs are complete (`needsComplete`), named
 quizzes are passed (`needsQuiz`), and named files have no TODO (`needsNoTodos`).
-A quiz used in `needsQuiz` needs `savePass: true`: its pass is remembered in
-that browser for that account, so it shows as passed after a reload. A quiz
-question can also be `{ type: 'match', question, pairs, distractors, explain, review }`,
-worth one point split evenly across its pairs, so partly right earns partial
-credit; `matchCount` on the quiz draws
-that many match questions on every try. Lab 6 opens with a final quiz (10
-questions per try: 3 matching and 7 multiple choice) that unlocks the robot run.
+Lab 6 has a final quiz (10 questions per try from a bank of 25) that unlocks
+the robot run.
 
 **Lab 6 sends the real `wave.py` to the robot**, not the student's file. Robot
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side

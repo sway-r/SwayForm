@@ -4,7 +4,7 @@ import { CURRICULUM, findSection, findItem } from '../portal/data/curriculum.js'
 import { findActivity } from '../portal/data/learning-path.js';
 import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
 import { WAVE_QUIZ_ID, WAVE_FINAL_QUIZ_ID } from '../portal/data/wave-section.js';
-import { setQuizAccount, recordQuizPass } from '../portal/services/quiz-passes.js';
+import { setQuizAccount, recordQuizPass, hasPassedQuiz, startQuizTry, finishQuizTry, lastQuizTry, nextQuizTryAt, QUIZ_WAIT_MINUTES } from '../portal/services/quiz-passes.js';
 import { isCanonicalRobotPath } from '../portal/apps/learn/workspace/ros-paths.js';
 import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js';
 import { unmetRobotGates } from '../portal/apps/learn/workspace/robot-gate.js';
@@ -54,12 +54,10 @@ test('Wave is section 5 with 6 labs in the agreed format', () => {
   wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
   assert.equal(findSection('behavior-sections').number, 6);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
-  assert.ok(typesOf(lab(2)).has('mcq'), 'lab 2 has mcq checks');
-  // Labs 4 and 5 swapped their inline questions for worked troubleshooting and
-  // reveals. They still have to teach actively, so hold them to that instead.
-  [4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('troubleshoot') && typesOf(lab(n)).has('reveal'), `lab ${n} teaches through troubleshooting and reveals`));
+  [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
+  [4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('troubleshoot') && typesOf(lab(n)).has('reveal'), `lab ${n} keeps its bug hunts and reveals`));
   assert.ok(!typesOf(lab(6)).has('mcq'), 'lab 6 opens with a review, not questions');
-  assert.ok(typesOf(lab(3)).has('quiz'), 'lab 3 ends with the quiz');
+  assert.ok(typesOf(lab(3)).has('quiz') && typesOf(lab(6)).has('quiz'), 'labs 3 and 6 each have a quiz');
   [2, 3, 4, 5].forEach((n) => assert.ok(lab(n).kind === 'activity' && lab(n).workspaceFile === BUILDER, `lab ${n} edits the builder`));
 });
 
@@ -107,17 +105,11 @@ test('lab 6 queues the real wave.py: only WAVE_CYCLES = 5 is accepted', () => {
 
 test('interactive blocks are well formed', () => {
   const unique = (list) => new Set(list).size === list.length;
-  const checkChoice = (q, where) => {
-    assert.ok(Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.options.length, `${where}: answer index`);
-    assert.ok(q.options.length >= 2 && unique(q.options), `${where}: options`);
-  };
-  const checkPairs = (q, where) => {
-    assert.ok(Array.isArray(q.pairs) && q.pairs.length >= 2, `${where}: pairs`);
-    assert.ok(unique(q.pairs.map((p) => p[1]).concat(q.distractors || [])), `${where}: right-hand texts and distractors must be unique`);
-  };
-  // A quiz bank holds both kinds; a standalone mcq block is always a choice.
+  // Quiz questions and mcq blocks are all multiple choice.
   const checkQuestion = (q, where) => {
-    if (q.type === 'match') checkPairs(q, where); else checkChoice(q, where);
+    assert.ok(!q.type || q.type === 'mcq', `${where}: quizzes hold multiple choice only`);
+    assert.ok(Array.isArray(q.options) && Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.options.length, `${where}: answer index`);
+    assert.ok(q.options.length >= 2 && unique(q.options), `${where}: options`);
     assert.ok(q.explain, `${where}: explain`);
   };
   let seen = 0;
@@ -135,13 +127,8 @@ test('interactive blocks are well formed', () => {
         assert.ok(q.review && findActivity(q.review.id) && q.review.label, `${where} q${qi}: review must point at a real lab`);
       });
       assert.ok(unique(b.questions.map((q) => q.question)), `${where}: repeated question`);
-      assert.ok(b.count <= b.questions.length, `${where}: count is larger than the bank`);
-      // matchCount is how many match questions every try draws; past either
-      // limit the draw silently shrinks instead of erroring.
-      if (b.matchCount){
-        assert.ok(b.matchCount <= b.questions.filter((q) => q.type === 'match').length, `${where}: matchCount above the match bank`);
-        assert.ok(b.matchCount <= b.count, `${where}: matchCount above the draw`);
-      }
+      assert.ok(b.count < b.questions.length, `${where}: the bank must be bigger than one try`);
+      assert.ok(b.id && b.title && b.prepare, `${where}: a quiz needs an id, a title and what to prepare`);
       seen++;
     }
   }));
@@ -177,7 +164,7 @@ test('the student writes about 30% of the finished program', () => {
 });
 
 test('new Wave files follow the repo writing rules (no em dashes)', () => {
-  ['portal/data/wave-section.js', 'portal/apps/learn/interactive-blocks.js'].forEach((file) => {
+  ['portal/data/wave-section.js', 'portal/apps/learn/interactive-blocks.js', 'portal/services/quiz-passes.js'].forEach((file) => {
     assert.ok(!readFileSync(new URL(`../${file}`, import.meta.url), 'utf8').includes(EM_DASH), `${file} has an em dash`);
   });
   assert.ok(!WORKSPACE_FILES[BUILDER].includes(EM_DASH));
@@ -208,4 +195,32 @@ test('match distractors are wrong answers, never a copy of a right one', () => {
     b.distractors.forEach((d) => assert.ok(!rights.has(d), `${item.id}: ${d}`));
   }));
   assert.ok(!JSON.stringify(lab(2)).includes('move_joint'), 'lab 2 no longer asks about move_joint');
+});
+
+test('every Wave lab opens with an unnumbered Summary that gives the estimated time', () => {
+  wave.items.forEach((item) => {
+    const [first, ...rest] = item.steps;
+    assert.equal(first.id, 'summary', `${item.id} opens with its Summary`);
+    assert.ok(first.blocks[0].text.includes(item.estimatedTime), `${item.id}: Summary time matches the lab`);
+    assert.ok(rest.every((s) => s.id !== 'summary'), `${item.id}: only one Summary`);
+  });
+});
+
+test('a quiz try means a wait before the next one, and a pass is kept', () => {
+  setQuizAccount({ email: 'tries@example.test' });
+  const id = WAVE_QUIZ_ID;
+  const min = 60000;
+  assert.equal(nextQuizTryAt(id), 0, 'no try yet, no wait');
+  startQuizTry(id, 1000);
+  assert.equal(nextQuizTryAt(id), 1000 + QUIZ_WAIT_MINUTES * min, 'a try left without submitting counts from its start');
+  assert.equal(lastQuizTry(id).endedAt, undefined);
+  finishQuizTry(id, 60, 1000 + 7 * min);
+  assert.equal(nextQuizTryAt(id), 1000 + (7 + QUIZ_WAIT_MINUTES) * min, 'a submitted try counts from the submit');
+  assert.deepEqual(lastQuizTry(id), { startedAt: 1000, endedAt: 1000 + 7 * min, percent: 60 });
+  assert.equal(QUIZ_WAIT_MINUTES, 15);
+  assert.ok(!hasPassedQuiz(id));
+  recordQuizPass(id);
+  assert.ok(hasPassedQuiz(id));
+  setQuizAccount({ email: 'someone-else@example.test' });
+  assert.ok(!hasPassedQuiz(id) && nextQuizTryAt(id) === 0, 'tries and passes are per account');
 });

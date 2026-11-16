@@ -2,9 +2,10 @@
    A block that must be solved to finish a lab carries data-gate and fires cb-gate when it changes. */
 
 import { isAdminView } from './admin-view.js';
-import { hasPassedQuiz, recordQuizPass } from '../../services/quiz-passes.js';
+import { hasPassedQuiz, recordQuizPass, lastQuizTry, startQuizTry, finishQuizTry, nextQuizTryAt, QUIZ_WAIT_MINUTES } from '../../services/quiz-passes.js';
 
-const LETTERS = 'ABCDEFGH';
+// The quiz open full screen in this page, if any, so its lab block can tell a running try from an abandoned one.
+let openQuizId = null;
 
 function adminNote(html){
   const d = document.createElement('div');
@@ -22,6 +23,16 @@ function shuffled(list){
   return out;
 }
 
+function button(label, primary){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = primary ? 'p-btn primary' : 'p-btn';
+  b.textContent = label;
+  return b;
+}
+
+const clockTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
 function setGate(node, state){
   if (node.dataset.gate === undefined) return;
   node.dataset.gate = state;
@@ -38,7 +49,7 @@ function initGate(node, block, hint){
 function renderMcq(block, h){
   const wrap = h.el('div', 'cb-q');
   initGate(wrap, block, 'Answer every question to finish this lab.');
-  wrap.innerHTML = `<div class="cb-q-lbl">Check yourself</div><p class="cb-q-text">${h.inlineHtml(block.question)}</p><div class="cb-q-opts"></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
+  wrap.innerHTML = `<p class="cb-q-text">${h.inlineHtml(block.question)}</p><div class="cb-q-opts"></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
   const opts = wrap.querySelector('.cb-q-opts');
   const feedback = wrap.querySelector('.cb-q-feedback');
   shuffled(block.options.map((text, index) => ({ text, index }))).forEach((opt) => {
@@ -51,13 +62,11 @@ function renderMcq(block, h){
         btn.classList.add('right');
         wrap.classList.add('solved');
         opts.querySelectorAll('.cb-q-opt').forEach((b) => { b.disabled = true; });
-        feedback.className = 'cb-q-feedback ok';
         feedback.innerHTML = `<strong>Correct.</strong> ${block.explain ? h.inlineHtml(block.explain) : ''}`;
         setGate(wrap, 'done');
       } else {
         btn.classList.add('wrong');
         btn.disabled = true;
-        feedback.className = 'cb-q-feedback bad';
         feedback.textContent = block.hint ? `Not quite. ${block.hint}` : 'Not quite. Try another answer.';
       }
     });
@@ -72,7 +81,7 @@ function renderMcq(block, h){
 function renderMatch(block, h){
   const wrap = h.el('div', 'cb-q cb-match');
   initGate(wrap, block, 'Finish the matching activity to finish this lab.');
-  wrap.innerHTML = `<div class="cb-q-lbl">Match it up</div><p class="cb-q-text">${h.inlineHtml(block.prompt || 'Match each item on the left with the right description.')}</p><div class="cb-match-rows"></div><div class="cb-q-actions"><button type="button" class="p-btn primary" data-check>Check matches</button></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
+  wrap.innerHTML = `<p class="cb-q-text">${h.inlineHtml(block.prompt || 'Match each item on the left with the right description.')}</p><div class="cb-match-rows"></div><div class="cb-q-actions"><button type="button" class="p-btn" data-check>Check matches</button></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
   const rowsEl = wrap.querySelector('.cb-match-rows');
   const feedback = wrap.querySelector('.cb-q-feedback');
   const checkBtn = wrap.querySelector('[data-check]');
@@ -101,171 +110,201 @@ function renderMatch(block, h){
     if (correct === rows.length){
       checkBtn.disabled = true;
       wrap.classList.add('solved');
-      feedback.className = 'cb-q-feedback ok';
       feedback.innerHTML = `<strong>All ${rows.length} match.</strong> ${block.explain ? h.inlineHtml(block.explain) : ''}`;
       setGate(wrap, 'done');
     } else {
-      feedback.className = 'cb-q-feedback bad';
-      feedback.textContent = `${correct} of ${rows.length} match. Fix the red ones and check again.`;
+      feedback.textContent = `${correct} of ${rows.length} match. Fix the marked ones and check again.`;
     }
   });
   if (isAdminView()) wrap.appendChild(adminNote(block.pairs.map(([l, r]) => `${h.inlineHtml(l)} &rarr; <strong>${h.inlineHtml(r)}</strong>`).join('<br>')));
   return wrap;
 }
 
-/* A scored set of questions. Passing needs passPercent or better; failing shows which ones missed and allows a retry. */
+/* A scored quiz. In the lab it says how to prepare and offers Start; the quiz itself runs full screen (openQuizScreen).
+   A pass is remembered. Students wait QUIZ_WAIT_MINUTES between tries; admins never wait. */
 function renderQuiz(block, h){
   const pass = block.passPercent || 80;
-  const saves = !!(block.savePass && block.id);
-  const draw = Math.min(block.count || block.questions.length, block.questions.length);
+  const count = Math.min(block.count || block.questions.length, block.questions.length);
+  const admin = isAdminView();
   const wrap = h.el('div', 'cb-q cb-quiz');
-  initGate(wrap, block, `Score at least ${pass}% on the quiz to finish this lab.`);
-  wrap.innerHTML = `<div class="cb-q-lbl">${h.inlineHtml(block.title || 'Quiz')}</div><p class="cb-q-text">${draw} questions. You need ${pass}% or better to pass, and you can try again as many times as you like.${draw < block.questions.length ? ' Each try draws a fresh mix of questions.' : ''}</p><div class="cb-quiz-qs"></div><div class="cb-q-actions"><button type="button" class="p-btn primary" data-submit disabled>Submit answers</button></div><div class="cb-q-feedback" role="status" aria-live="polite"></div>`;
-  const qsEl = wrap.querySelector('.cb-quiz-qs');
-  const submitBtn = wrap.querySelector('[data-submit]');
-  const feedback = wrap.querySelector('.cb-q-feedback');
-  let qs = [];
-  let attempt = 0;
+  initGate(wrap, block, `Pass the quiz with ${pass}% or better to finish this lab.`);
+  wrap.innerHTML = `
+    <p class="cb-quiz-title">${h.inlineHtml(block.title || 'Quiz')}</p>
+    <div data-intro>
+      <p class="cb-p">${count} questions. You need ${pass}% or better to pass.</p>
+      <p class="cb-quiz-sub">Before you start</p>
+      <ul class="cb-list">
+        ${block.prepare ? `<li class="cb-li">${h.inlineHtml(block.prepare)}</li>` : ''}
+        <li class="cb-li">The quiz fills the screen, and you can't leave it until you submit.</li>
+        <li class="cb-li">The questions come in a different order every time.</li>
+        <li class="cb-li">If you don't pass, you can take it again ${QUIZ_WAIT_MINUTES} minutes after you submit.</li>
+      </ul>
+    </div>
+    <p class="cb-quiz-status" role="status" aria-live="polite"></p>
+    <div class="cb-q-actions"></div>`;
+  const intro = wrap.querySelector('[data-intro]');
+  const status = wrap.querySelector('.cb-quiz-status');
+  const actions = wrap.querySelector('.cb-q-actions');
+  let timer = null;
 
-  // Questions are multiple choice, or `type: 'match'` (pairs + optional
-  // distractors, dropdowns like the match block). Every question is worth one
-  // point; a match question gives partial credit, split evenly across its pairs.
-  // `matchCount` draws that many match questions on every try, so each try is a mix.
-  const matchBank = block.questions.filter((q) => q.type === 'match');
-  const choiceBank = block.questions.filter((q) => q.type !== 'match');
-  const matchDraw = Math.min(block.matchCount || 0, matchBank.length, draw);
-  function pickQuestions(){
-    if (!matchDraw) return shuffled(block.questions).slice(0, draw);
-    return shuffled(shuffled(matchBank).slice(0, matchDraw).concat(shuffled(choiceBank).slice(0, draw - matchDraw)));
-  }
-  const updateSubmit = () => { submitBtn.disabled = !qs.every((x) => x.isAnswered()); };
+  const show = (text, ...buttons) => { status.textContent = text; actions.replaceChildren(...buttons); };
+  const later = (ms) => { timer = setTimeout(() => { if (wrap.isConnected) refresh(); }, ms); };
 
-  function renderChoice(q, box, name){
-    shuffled(q.options.map((text, index) => ({ text, index }))).forEach((opt, oi) => {
-      const label = h.el('label', 'cb-quiz-opt');
-      label.innerHTML = `<input type="radio" name="${name}" value="${opt.index}"><span class="cb-quiz-opt-letter">${LETTERS[oi]}</span><span>${h.inlineHtml(opt.text)}</span>`;
-      label.querySelector('input').addEventListener('change', updateSubmit);
-      box.appendChild(label);
+  function startButton(label){
+    const btn = button(label, true);
+    btn.addEventListener('click', () => {
+      const go = button('Start now', true);
+      const back = button('Not yet');
+      go.addEventListener('click', start);
+      back.addEventListener('click', refresh);
+      show(`Have you prepared? Once the quiz starts you can't leave it until you submit, and if you don't pass you wait ${QUIZ_WAIT_MINUTES} minutes to try again.`, go, back);
+      go.focus();
     });
-    if (isAdminView()) box.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(q.options[q.answer])}</strong>`));
-    return {
-      isAnswered: () => !!box.querySelector('input:checked'),
-      grade(){
-        const picked = box.querySelector('input:checked');
-        box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
-        const ok = !!picked && Number(picked.value) === q.answer;
-        return { credit: ok ? 1 : 0 };
-      },
-    };
+    return btn;
   }
 
-  function renderMatchQuestion(q, box){
-    const rowsEl = h.el('div', 'cb-match-rows cb-quiz-match');
-    const rights = shuffled(q.pairs.map((p) => p[1]).concat(q.distractors || []));
-    const rows = q.pairs.map(([left, right]) => {
-      const row = h.el('div', 'cb-match-row');
-      const select = h.el('select', 'cb-match-select');
-      select.setAttribute('aria-label', `Match for ${left.replace(/`/g, '')}`);
-      select.appendChild(new Option('Choose…', ''));
-      rights.forEach((text) => select.appendChild(new Option(text, text)));
-      select.addEventListener('change', updateSubmit);
-      row.appendChild(h.el('div', 'cb-match-left', h.inlineHtml(left)));
-      row.appendChild(select);
-      rowsEl.appendChild(row);
-      return { row, select, right };
-    });
-    box.appendChild(rowsEl);
-    if (isAdminView()) box.appendChild(adminNote(q.pairs.map(([l, r]) => `${h.inlineHtml(l)} &rarr; <strong>${h.inlineHtml(r)}</strong>`).join('<br>')));
-    return {
-      isAnswered: () => rows.every((r) => r.select.value !== ''),
-      grade(){
-        let matched = 0;
-        rows.forEach(({ row, select, right }) => {
-          const ok = select.value === right;
-          row.classList.toggle('right', ok);
-          row.classList.toggle('wrong', !ok);
-          select.disabled = true;
-          if (ok) matched++;
-        });
-        return { credit: matched / rows.length, matched, of: rows.length };
-      },
-    };
+  function start(){
+    if (!admin && (hasPassedQuiz(block.id) || nextQuizTryAt(block.id) > Date.now())){ refresh(); return; }
+    openQuizScreen(block, h, () => { refresh(); actions.querySelector('button')?.focus(); });
+    refresh();
   }
 
-  function build(){
-    attempt++;
-    qsEl.hidden = false;
-    qsEl.innerHTML = '';
-    feedback.className = 'cb-q-feedback';
-    feedback.textContent = '';
-    submitBtn.textContent = 'Submit answers';
-    submitBtn.disabled = true;
-    qs = pickQuestions().map((q, qi) => {
-      const box = h.el('fieldset', 'cb-quiz-q');
-      box.appendChild(h.el('legend', 'cb-quiz-q-text', `<span class="cb-quiz-num">${qi + 1}</span>${h.inlineHtml(q.question)}`));
-      const kind = q.type === 'match' ? renderMatchQuestion(q, box) : renderChoice(q, box, `quiz-${block.id || 'q'}-${attempt}-${qi}`);
-      const note = h.el('div', 'cb-quiz-note');
-      box.appendChild(note);
-      qsEl.appendChild(box);
-      return { box, note, explain: q.explain, review: q.review, ...kind };
-    });
-  }
-
-  submitBtn.addEventListener('click', () => {
-    if (submitBtn.dataset.mode === 'retry'){ submitBtn.dataset.mode = ''; build(); return; }
-    let score = 0;
-    let anyPartial = false;
-    qs.forEach((q) => {
-      const { credit, matched, of } = q.grade();
-      score += credit;
-      const full = credit === 1;
-      const partial = credit > 0 && !full;
-      if (partial) anyPartial = true;
-      q.box.classList.toggle('right', full);
-      q.box.classList.toggle('partial', partial);
-      q.box.classList.toggle('wrong', credit === 0);
-      const review = q.review ? `<span class="cb-quiz-review">Review: <a href="/learn/activity/${encodeURIComponent(q.review.id)}" target="_blank" rel="noopener">${h.inlineHtml(q.review.label)}</a></span>` : '';
-      const why = `${q.explain ? h.inlineHtml(q.explain) : 'Take another look at this one.'}${review}`;
-      q.note.innerHTML = full ? '<strong>Correct.</strong>'
-        : partial ? `<strong>Partly right: ${matched} of ${of} pairs.</strong> ${why}`
-        : `<strong>Not quite.</strong> ${why}`;
-    });
-    score = Math.round(score * 100) / 100; // keep thirds from adding up to 7.999…
-    const percent = Math.round((score / qs.length) * 100);
-    const passed = score * 100 >= pass * qs.length;
-    const tally = anyPartial
-      ? `${Number.isInteger(score) ? score : score.toFixed(1)} of ${qs.length} points, with partial credit`
-      : `${score} of ${qs.length} correct`;
-    feedback.className = `cb-q-feedback ${passed ? 'ok' : 'bad'}`;
-    feedback.innerHTML = passed
-      ? `<strong>${percent}%, you passed.</strong> ${tally}.`
-      : `<strong>${percent}%.</strong> ${tally}, and you need ${pass}%. Read the notes on the ones you missed, then try again.`;
-    if (passed){
-      wrap.classList.add('solved');
-      submitBtn.disabled = true;
-      if (saves) recordQuizPass(block.id);
-      setGate(wrap, 'done');
-    } else {
-      submitBtn.textContent = 'Try again';
-      submitBtn.dataset.mode = 'retry';
-      submitBtn.disabled = false;
+  function refresh(){
+    clearTimeout(timer);
+    const last = lastQuizTry(block.id);
+    if (openQuizId === block.id){ intro.hidden = true; show('Quiz in progress.'); later(1000); return; }
+    if (hasPassedQuiz(block.id)){
+      if (wrap.dataset.gate === 'pending') setGate(wrap, 'done');
+      intro.hidden = true;
+      show(last?.percent != null ? `Passed with ${last.percent}%.` : 'Passed.', ...(admin ? [startButton('Take it again')] : []));
+      return;
     }
+    intro.hidden = false;
+    const wait = admin ? 0 : nextQuizTryAt(block.id);
+    if (wait > Date.now()){
+      const minutes = Math.ceil((wait - Date.now()) / 60000);
+      const lastText = last.endedAt == null ? 'Your last try was not submitted, so it counts as a try.' : `Last try: ${last.percent}%. You need ${pass}%.`;
+      const btn = startButton('Start quiz');
+      btn.disabled = true;
+      show(`${lastText} You can take it again at ${clockTime(wait)}, in ${minutes} minute${minutes === 1 ? '' : 's'}.`, btn);
+      later(Math.min(wait - Date.now() + 250, 30000));
+      return;
+    }
+    show(last?.percent != null ? `Last try: ${last.percent}%. You need ${pass}%.` : '', startButton('Start quiz'));
+  }
+
+  refresh();
+  return wrap;
+}
+
+/* The quiz itself: only the questions and their answers, over the whole screen. A student can't leave it until they
+   submit (leaving the page anyway still counts as a try). Admins see the answers and can close it. */
+function openQuizScreen(block, h, onClose){
+  const admin = isAdminView();
+  const pass = block.passPercent || 80;
+  const picked = shuffled(block.questions).slice(0, Math.min(block.count || block.questions.length, block.questions.length));
+  const run = Date.now().toString(36);
+  if (!admin) startQuizTry(block.id);
+  openQuizId = block.id;
+
+  const screen = h.el('div', 'qz-screen la-surface');
+  screen.setAttribute('role', 'dialog');
+  screen.setAttribute('aria-modal', 'true');
+  screen.setAttribute('aria-labelledby', `qz-title-${run}`);
+  screen.innerHTML = `
+    <div class="qz-bar"><div class="qz-bar-in">
+      <h2 class="qz-title" id="qz-title-${run}" tabindex="-1">${h.inlineHtml(block.title || 'Quiz')}</h2>
+      <span class="qz-count" data-count></span>
+      ${admin ? '<button type="button" class="p-btn" data-close>Close</button>' : ''}
+    </div></div>
+    <div class="qz-scroll p-scroll" data-scroll><div class="qz-doc">
+      <p class="qz-result" data-result hidden></p>
+      <div data-list></div>
+      <div class="qz-foot"><button type="button" class="p-btn primary" data-submit disabled>Submit</button><span class="qz-foot-note" data-note></span></div>
+    </div></div>`;
+  const $ = (sel) => screen.querySelector(sel);
+  const list = $('[data-list]');
+  const countEl = $('[data-count]');
+  const submitBtn = $('[data-submit]');
+  const footNote = $('[data-note]');
+  const titleEl = $('.qz-title');
+
+  const items = picked.map((q, qi) => {
+    const box = h.el('div', 'qz-q');
+    box.setAttribute('role', 'radiogroup');
+    box.setAttribute('aria-labelledby', `qz-${run}-${qi}`);
+    box.innerHTML = `<p class="qz-q-text" id="qz-${run}-${qi}"><span class="qz-num">${qi + 1}.</span><span>${h.inlineHtml(q.question)}</span></p><div class="qz-opts"></div><p class="qz-note"></p>`;
+    const opts = box.querySelector('.qz-opts');
+    shuffled(q.options.map((text, index) => ({ text, index }))).forEach((opt) => {
+      const label = h.el('label', 'qz-opt');
+      label.innerHTML = `<input type="radio" name="qz-${run}-${qi}" value="${opt.index}"><span>${h.inlineHtml(opt.text)}</span>`;
+      opts.appendChild(label);
+    });
+    if (admin) box.appendChild(adminNote(`Answer: <strong>${h.inlineHtml(q.options[q.answer])}</strong>`));
+    list.appendChild(box);
+    return { q, box, note: box.querySelector('.qz-note') };
   });
 
-  build();
-  // savePass: a pass is remembered (see quiz-passes.js), so after a reload the
-  // quiz shows as passed instead of making the student take it again.
-  if (saves && hasPassedQuiz(block.id)){
-    qsEl.hidden = true;
-    wrap.classList.add('solved');
-    if (wrap.dataset.gate !== undefined) wrap.dataset.gate = 'done';
-    feedback.className = 'cb-q-feedback ok';
-    feedback.innerHTML = '<strong>You already passed this quiz.</strong> You can take it again for practice.';
-    submitBtn.textContent = 'Take it again';
-    submitBtn.dataset.mode = 'retry';
-    submitBtn.disabled = false;
+  const answered = () => items.filter((it) => it.box.querySelector('input:checked')).length;
+  function update(){
+    const n = answered();
+    countEl.textContent = `${n} of ${items.length} answered`;
+    submitBtn.disabled = n < items.length;
+    footNote.textContent = n < items.length ? 'Answer every question to submit.' : '';
   }
-  return wrap;
+  list.addEventListener('change', update);
+  update();
+
+  // Lock the rest of the page: nothing behind is clickable or focusable, and app shortcuts don't fire.
+  const behind = Array.from(document.body.children).filter((el) => !el.inert);
+  behind.forEach((el) => { el.inert = true; });
+  const stopKeys = (e) => e.stopPropagation();
+  const warnLeave = (e) => { e.preventDefault(); e.returnValue = ''; };
+  window.addEventListener('keydown', stopKeys, true);
+  window.addEventListener('beforeunload', warnLeave);
+  document.body.appendChild(screen);
+  titleEl.focus();
+
+  function close(){
+    window.removeEventListener('keydown', stopKeys, true);
+    window.removeEventListener('beforeunload', warnLeave);
+    behind.forEach((el) => { el.inert = false; });
+    screen.remove();
+    openQuizId = null;
+    onClose();
+  }
+  if (admin) $('[data-close]').addEventListener('click', close);
+
+  let graded = false;
+  submitBtn.addEventListener('click', () => {
+    if (graded){ close(); return; }
+    if (answered() < items.length) return;
+    let right = 0;
+    items.forEach(({ q, box, note }) => {
+      const ok = Number(box.querySelector('input:checked').value) === q.answer;
+      if (ok) right++;
+      box.querySelectorAll('input').forEach((i) => { i.disabled = true; });
+      box.classList.add(ok ? 'right' : 'wrong');
+      const review = q.review ? ` Review: <a href="/learn/activity/${encodeURIComponent(q.review.id)}" target="_blank" rel="noopener">${h.inlineHtml(q.review.label)}</a>.` : '';
+      note.innerHTML = ok ? '<strong>Correct.</strong>' : `<strong>Incorrect.</strong> ${q.explain ? h.inlineHtml(q.explain) : ''}${review}`;
+    });
+    const percent = Math.round((right / items.length) * 100);
+    const passed = right * 100 >= pass * items.length;
+    finishQuizTry(block.id, percent);
+    if (passed) recordQuizPass(block.id);
+    graded = true;
+    window.removeEventListener('beforeunload', warnLeave);
+    const result = $('[data-result]');
+    result.hidden = false;
+    result.innerHTML = passed
+      ? `<strong>You passed with ${percent}%.</strong> ${right} of ${items.length} correct.`
+      : `<strong>You scored ${percent}%.</strong> ${right} of ${items.length} correct, and you need ${pass}% to pass.${admin ? '' : ` You can take the quiz again at ${clockTime(nextQuizTryAt(block.id))}.`} The questions you missed are marked below.`;
+    countEl.textContent = `${percent}%`;
+    submitBtn.textContent = 'Back to the lab';
+    footNote.textContent = '';
+    $('[data-scroll]').scrollTop = 0;
+    titleEl.focus();
+  });
 }
 
 /** Returns a DOM node for an interactive block type, or null if `block` is not one. */

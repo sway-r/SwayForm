@@ -86,19 +86,19 @@ function renderBlock(block, ctx){
 
     case 'callout': {
       const tone = block.tone || 'note';
-      const iconName = tone === 'safety' ? 'shield' : tone === 'warn' ? 'warning' : tone === 'tip' ? 'tip' : 'info';
       const label = block.label || (tone === 'safety' ? 'Safety' : tone === 'warn' ? 'Warning' : tone === 'tip' ? 'Tip' : 'Note');
       const wrap = el('div', `cb-callout ${tone}`);
-      wrap.innerHTML = `<div class="cb-callout-lbl">${icon(iconName)}${escapeHtml(label)}</div><p>${inlineHtml(block.text)}</p>`;
+      wrap.innerHTML = `<div class="cb-callout-lbl">${escapeHtml(label)}</div><p>${inlineHtml(block.text)}</p>`;
       return wrap;
     }
 
     case 'divider':
       return el('div', 'cb-divider');
 
+    // label: 'Output' for what a button prints; defaults to 'Terminal'.
     case 'terminal': {
       const wrap = el('div', 'cb-term');
-      wrap.innerHTML = `<div class="cb-term-bar"><span class="cb-term-dot r"></span><span class="cb-term-dot y"></span><span class="cb-term-dot g"></span><span class="cb-term-lbl">Terminal</span></div><div class="cb-term-body"></div>`;
+      wrap.innerHTML = `<div class="cb-term-bar"><span class="cb-term-lbl">${escapeHtml(block.label || 'Terminal')}</span></div><div class="cb-term-body"></div>`;
       wrap.querySelector('.cb-term-body').textContent = (block.lines || []).join('\n');
       return wrap;
     }
@@ -113,7 +113,7 @@ function renderBlock(block, ctx){
       const tbody = el('tbody');
       (block.rows || []).forEach((row) => {
         const tr = el('tr');
-        row.forEach((cell) => tr.appendChild(el('td', null, escapeHtml(cell))));
+        row.forEach((cell) => tr.appendChild(el('td', null, inlineHtml(cell))));
         tbody.appendChild(tr);
       });
       table.appendChild(thead); table.appendChild(tbody);
@@ -132,11 +132,11 @@ function renderBlock(block, ctx){
     }
 
     case 'troubleshoot': {
-      const wrap = el('div');
+      const wrap = el('div', 'cb-tr');
       (block.items || []).forEach((t) => {
         const item = el('div', 'cb-tr-item');
         item.innerHTML = `
-          <button type="button" class="cb-tr-hdr"><span class="cb-tr-symp">${escapeHtml(t.symptom)}</span><span class="cb-tr-plus">+</span></button>
+          <button type="button" class="cb-tr-hdr"><span class="cb-tr-symp">${inlineHtml(t.symptom)}</span><span class="cb-tr-plus">+</span></button>
           <div class="cb-tr-body">
             ${t.cause ? `<div class="cb-tr-row"><div class="cb-tr-lbl">Likely cause</div><div class="cb-tr-val">${inlineHtml(t.cause)}</div></div>` : ''}
             <div class="cb-tr-row"><div class="cb-tr-lbl">Fix</div><div class="cb-tr-fix">${inlineHtml(t.fix)}</div></div>
@@ -250,7 +250,7 @@ function renderBlock(block, ctx){
       if (block.copy !== false){
         const copyBtn = el('button', 'cb-code-btn');
         copyBtn.type = 'button';
-        copyBtn.innerHTML = `${icon('file')}<span>Copy</span>`;
+        copyBtn.innerHTML = '<span>Copy</span>';
         copyBtn.addEventListener('click', () => {
           navigator.clipboard.writeText(block.code || '').then(() => {
             copyBtn.classList.add('ok');
@@ -270,14 +270,14 @@ function renderBlock(block, ctx){
       if (block.workspaceFile && ctx && ctx.openFile){
         const openBtn = el('button', 'cb-code-btn');
         openBtn.type = 'button';
-        openBtn.innerHTML = `${icon('file')}<span>Open ${escapeHtml(block.workspaceFile.split('/').pop())}</span>`;
+        openBtn.innerHTML = `<span>Open ${escapeHtml(block.workspaceFile.split('/').pop())}</span>`;
         openBtn.addEventListener('click', () => ctx.openFile(block.workspaceFile, block.line));
         actions.appendChild(openBtn);
       }
       if (block.insertable && ctx && ctx.insertCode){
         const insBtn = el('button', 'cb-code-btn');
         insBtn.type = 'button';
-        insBtn.innerHTML = `${icon('plus')}<span>Insert into editor</span>`;
+        insBtn.innerHTML = '<span>Insert into editor</span>';
         insBtn.addEventListener('click', () => ctx.insertCode(block.code || ''));
         actions.appendChild(insBtn);
       }

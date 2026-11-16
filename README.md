@@ -110,13 +110,16 @@ in that browser for that account, like code drafts. Admins never wait, see the
 answers, and can close the quiz without submitting. Options are shuffled on
 screen, so the right answer can be first in the list.
 A lab can't be marked complete until every question in it is solved; add
-`required: false` to a block to exempt it. Until a lab's first required
-question is solved, the steps after it are blurred and can't be used. A section
-with `sequential: true` in `curriculum.js` (Wave and More Sections; Foundation
-Labs stay open for now) opens its labs
-one at a time: a lab stays locked until every lab before it is complete, and
-the lab's Next button opens once the lab itself is complete. Admins (teachers)
-skip every lock and see every answer, with each `reveal` block's hint and
+`required: false` to a block to exempt it.
+
+**Locks are off until launch.** `LABS_LOCKED` in `curriculum.js` is `false`,
+so every lab and every step is open to everyone. Setting it to `true` brings
+back two locks. First, until a lab's first required question is solved, the
+steps after it are blurred and can't be used. Second, a section with
+`sequential: true` (Wave and More Sections; Foundation Labs stay open) opens its
+labs one at a time: a lab stays locked until every lab before it is complete,
+and the lab's Next button opens once the lab itself is complete. Admins
+(teachers) skip every lock and see every answer, with each `reveal` block's hint and
 solution already open. Students must press Show Hint before a `reveal` block's
 Show Solution button works. `lab.robotGate` (see lab 6) holds
 Queue on Robot back until named labs are complete (`needsComplete`), named

@@ -170,23 +170,34 @@ test('new Wave files follow the repo writing rules (no em dashes)', () => {
   assert.ok(!WORKSPACE_FILES[BUILDER].includes(EM_DASH));
 });
 
-test('Wave labs open one at a time, and only finished labs count as complete', async () => {
+test('with LABS_LOCKED on (at launch), Wave labs open one at a time', async () => {
   const { blockingItem, itemStatus, prevInSection, nextInSection } = await import('../portal/data/curriculum.js');
   const ids = wave.items.map((i) => i.id);
-  assert.equal(blockingItem(ids[0], []), null, 'lab 1 is always open');
-  assert.equal(blockingItem(ids[1], []).id, ids[0], 'lab 2 waits on lab 1');
-  assert.equal(blockingItem(ids[3], ids.slice(0, 2)).id, ids[2], 'a gap anywhere before keeps it locked');
-  assert.equal(blockingItem(ids[3], ids.slice(0, 3)), null);
-  assert.equal(blockingItem(ids[5], [ids[5]]), null, 'a lab already complete stays open');
-  assert.equal(itemStatus(lab(1), [], null), 'open');
-  assert.equal(itemStatus(lab(1), [], { activityId: ids[0] }), 'progress');
-  assert.equal(itemStatus(lab(2), [ids[0]], null), 'progress', 'the open, unfinished lab after a finished one is in progress');
-  assert.equal(itemStatus(lab(3), [ids[0]], null), 'locked');
-  assert.equal(itemStatus(lab(1), [ids[0]], null), 'done');
+  const on = true;
+  assert.equal(blockingItem(ids[0], [], on), null, 'lab 1 is always open');
+  assert.equal(blockingItem(ids[1], [], on).id, ids[0], 'lab 2 waits on lab 1');
+  assert.equal(blockingItem(ids[3], ids.slice(0, 2), on).id, ids[2], 'a gap anywhere before keeps it locked');
+  assert.equal(blockingItem(ids[3], ids.slice(0, 3), on), null);
+  assert.equal(blockingItem(ids[5], [ids[5]], on), null, 'a lab already complete stays open');
+  assert.equal(itemStatus(lab(1), [], null, on), 'open');
+  assert.equal(itemStatus(lab(1), [], { activityId: ids[0] }, on), 'progress');
+  assert.equal(itemStatus(lab(2), [ids[0]], null, on), 'progress', 'the open, unfinished lab after a finished one is in progress');
+  assert.equal(itemStatus(lab(3), [ids[0]], null, on), 'locked');
+  assert.equal(itemStatus(lab(1), [ids[0]], null, on), 'done');
   assert.equal(prevInSection(ids[0]), null);
   assert.equal(prevInSection(ids[1]).id, ids[0]);
-  assert.equal(nextInSection(ids[11]), null, 'Next stops at the end of the section');
-  assert.equal(blockingItem('timed-torso-rotation', []), null, 'sections without locks are unchanged');
+  assert.equal(nextInSection(ids[5]), null, 'Next stops at the end of the section');
+  assert.equal(blockingItem('timed-torso-rotation', [], on), null, 'sections without locks are unchanged');
+});
+
+test('with LABS_LOCKED off (until launch), every lab is open to everyone', async () => {
+  const { blockingItem, itemStatus, LABS_LOCKED } = await import('../portal/data/curriculum.js');
+  const ids = wave.items.map((i) => i.id);
+  ids.forEach((id) => assert.equal(blockingItem(id, [], false), null, id));
+  assert.equal(itemStatus(lab(3), [ids[0]], null, false), 'open', 'nothing shows as locked');
+  assert.equal(itemStatus(lab(2), [ids[0]], null, false), 'open', 'only the lab being worked on shows in progress');
+  assert.equal(itemStatus(lab(2), [ids[0]], { activityId: ids[1] }, false), 'progress');
+  assert.equal(blockingItem(ids[5], []) === null, !LABS_LOCKED, 'the default follows the switch');
 });
 
 test('match distractors are wrong answers, never a copy of a right one', () => {

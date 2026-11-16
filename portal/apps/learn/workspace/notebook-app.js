@@ -8,6 +8,7 @@ import { icon } from '../../../icons.js';
 import { renderBlocks } from '../lesson-renderer.js';
 import { isAdminView } from '../admin-view.js';
 import { getPrefs } from '../../../prefs.js';
+import { LABS_LOCKED } from '../../../data/curriculum.js';
 
 export const meta = { id: 'notebook', title: 'Textbook', icon: 'book' };
 
@@ -137,7 +138,7 @@ export function mount(bodyEl, winApi, opts) {
   unlockNote.className = 'nb-unlock-note';
   unlockNote.textContent = 'Answer the questions above to unlock the rest of this lab.';
   function updateLocks() {
-    const firstGated = done || isAdminView() ? -1 : sectionEls.findIndex((sec) => sec.querySelector('[data-gate="pending"]'));
+    const firstGated = done || !LABS_LOCKED || isAdminView() ? -1 : sectionEls.findIndex((sec) => sec.querySelector('[data-gate="pending"]'));
     const lockedFrom = firstGated >= 0 ? firstGated + 1 : sectionEls.length;
     sectionEls.forEach((sec, i) => {
       const locked = i >= lockedFrom;

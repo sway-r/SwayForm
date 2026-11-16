@@ -1,5 +1,5 @@
 import { icon } from '../../../icons.js';
-import { findItem, nextItem, prevInSection, nextInSection, blockingItem } from '../../../data/curriculum.js';
+import { findItem, nextItem, prevInSection, nextInSection, blockingItem, LABS_LOCKED } from '../../../data/curriculum.js';
 import { WorkspaceWindowManager } from '../workspace/window-manager.js';
 import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
@@ -125,7 +125,7 @@ export function mount(container, params, nav, ctx){
   function renderLabNav(isDone){
     prevBtn.disabled = !prevLab;
     prevBtn.title = prevLab ? `${prevLab.number} ${prevLab.title}` : 'This is the first lab in the section';
-    const nextOpen = !!nextLab && (isDone || !section.sequential || isAdminView());
+    const nextOpen = !!nextLab && (isDone || !LABS_LOCKED || !section.sequential || isAdminView());
     nextBtn.disabled = !nextOpen;
     nextBtn.title = !nextLab ? 'This is the last lab in the section'
       : nextOpen ? `${nextLab.number} ${nextLab.title}`

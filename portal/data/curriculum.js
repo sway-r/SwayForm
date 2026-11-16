@@ -239,12 +239,15 @@ export function nextInSection(itemId) {
   return items[idx + 1] || null;
 }
 
+// Off for everyone until launch: every lab and every step stays open. true brings back labs in order and step locks.
+export const LABS_LOCKED = false;
+
 /** In a sequential section, a lab opens only once every lab before it is complete.
  * Returns the first earlier lab still to finish, or null when itemId is open.
  * A lab already marked complete always stays open. */
-export function blockingItem(itemId, completedIds) {
+export function blockingItem(itemId, completedIds, locked = LABS_LOCKED) {
   const found = findItem(itemId);
-  if (!found || !found.section.sequential) return null;
+  if (!locked || !found || !found.section.sequential) return null;
   const done = new Set(completedIds);
   if (done.has(itemId)) return null;
   const items = found.section.items;
@@ -252,14 +255,14 @@ export function blockingItem(itemId, completedIds) {
 }
 
 /** Status of one lab for lists: 'done', 'locked', 'progress' (started, not finished) or 'open'. */
-export function itemStatus(item, completedIds, current) {
+export function itemStatus(item, completedIds, current, locked = LABS_LOCKED) {
   const done = new Set(completedIds);
   if (done.has(item.id)) return 'done';
-  if (blockingItem(item.id, completedIds)) return 'locked';
+  if (blockingItem(item.id, completedIds, locked)) return 'locked';
   if (current && current.activityId === item.id) return 'progress';
-  // In a sequential section the one open, unfinished lab is the one being worked on.
+  // In a locked sequential section the one open, unfinished lab is the one being worked on.
   const found = findItem(item.id);
-  if (found && found.section.sequential) {
+  if (locked && found && found.section.sequential) {
     const started = found.section.items.some((i) => done.has(i.id) || (current && current.activityId === i.id));
     if (started) return 'progress';
   }

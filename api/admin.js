@@ -7,6 +7,7 @@ import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 import { privateResponse, requireBrowserMutation, rateLimit, validEmail } from './_lib/browser-security.js';
 import { findItem } from '../portal/data/curriculum.js';
 import { summarizeQuizResults } from './_lib/grades.js';
+import { sendEmail, invitationEmail } from './_lib/email.js';
 
 const CODE_SERVER_TOKEN_TTL_SECONDS = 60;
 
@@ -138,7 +139,10 @@ export default async function handler(req, res){
       ]);
       if (!inserted.length){ res.status(400).json({ error: 'total_limit', message: 'Remove an unused invitation or roster entry before inviting another student.' }); return; }
       await audit('invite_student', email);
-      res.status(200).json({ ok: true, invited: true });
+      // Sends nothing until an email provider is configured (api/_lib/email.js); the invitation works either way.
+      const [robot] = await sql`SELECT school_name FROM robots WHERE id = ${robotId}`;
+      const mail = await sendEmail({ to: email, ...invitationEmail({ schoolName: robot && robot.school_name }) });
+      res.status(200).json({ ok: true, invited: true, emailed: mail.sent });
       return;
     }
 

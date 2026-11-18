@@ -12,7 +12,7 @@ import { startTracking, formatClock, formatTotal } from '../../../services/time-
 
 // Per-activity, not a single shared key; the layout was previously stored
 // under one constant key for every activity, so customizing one lab's
-// windows (e.g. the "Code Focus" preset, which maximizes Code Editor)
+// windows (e.g. maximizing Code Editor)
 // silently carried over into the next, unrelated activity you opened,
 // making it look like activities randomly opened with Code Editor alone.
 // Scoping the key per activity.id means a brand-new activity always starts
@@ -53,8 +53,8 @@ const READING_DEFAULT_LAYOUT = {
 // Sections whose labs never need a shell. Run/Check/Queue already report
 // through the Code Editor's own Output/Problems panel, and these lessons
 // print no terminal commands of their own, so Terminal is left unregistered
-// entirely: no window, no dock entry, no Terminal Focus preset, no Ctrl+`.
-const NO_TERMINAL_SECTIONS = new Set(['wave']);
+// entirely: no window, no dock entry, no Ctrl+`.
+const NO_TERMINAL_SECTIONS = new Set(['wave', 'handshake']);
 
 // Without Terminal both tiled presets collapse to the same two-column split,
 // with Code Editor taking back the bottom third WORKSPACE_LAYOUT lends the
@@ -65,12 +65,12 @@ const NO_TERMINAL_LAYOUT = {
 };
 
 const PRESETS = [
-  { id: 'default', label: 'Workspace' },
   { id: 'learnCode', label: 'Learn + Code' },
-  { id: 'code', label: 'Code Focus' },
-  { id: 'learn', label: 'Learn Focus' },
-  { id: 'terminal', label: 'Terminal Focus' },
+  { id: 'default', label: 'Workspace' },
 ];
+
+// Demos, Foundation, Wave and Handshake only need the split; later sections also get Workspace.
+const SPLIT_ONLY_SECTIONS = new Set(['demos', 'foundation', 'wave', 'handshake']);
 
 export function mount(container, params, nav, ctx){
   const found = findItem(params.activityId);
@@ -112,6 +112,7 @@ export function mount(container, params, nav, ctx){
   const presetsEl = container.querySelector('[data-presets]');
 
   ctx.setTitle && ctx.setTitle(activity.title);
+  ctx.setChromeHidden && ctx.setChromeHidden(true);
 
   const nextActivity = nextItem(activity.id);
 
@@ -220,7 +221,7 @@ export function mount(container, params, nav, ctx){
 
   /* ---------------------------------------------------------------- presets */
   if (presetsEl){
-    presetsEl.innerHTML = PRESETS.filter((p) => hasTerminal || p.id !== 'terminal').map((p) => `<button type="button" class="aw-preset-btn" data-preset="${p.id}">${p.label}</button>`).join('');
+    presetsEl.innerHTML = PRESETS.filter((p) => p.id === 'learnCode' || !SPLIT_ONLY_SECTIONS.has(section.id)).map((p) => `<button type="button" class="aw-preset-btn" data-preset="${p.id}">${p.label}</button>`).join('');
     presetsEl.querySelectorAll('[data-preset]').forEach((btn) => {
       btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
     });
@@ -229,9 +230,6 @@ export function mount(container, params, nav, ctx){
   function applyPreset(name){
     if (name === 'default'){ wm.applyLayout(tiledLayout); return; }
     if (name === 'learnCode'){ wm.applyLayout(splitLayout); return; }
-    if (name === 'code'){ wm.open('codeEditor'); wm.maximize('codeEditor'); return; }
-    if (name === 'learn'){ wm.open('notebook'); wm.maximize('notebook'); return; }
-    if (name === 'terminal' && hasTerminal){ wm.open('terminal'); wm.maximize('terminal'); return; }
   }
 
   container.querySelector('[data-reset-layout]').addEventListener('click', () => wm.resetLayout());
@@ -327,6 +325,7 @@ export function mount(container, params, nav, ctx){
   return {
     unmount(){
       disposed = true;
+      ctx.setChromeHidden && ctx.setChromeHidden(false);
       clearInterval(timerTick);
       if (tracker) tracker.stop();
       window.removeEventListener('swayform:prefs-changed', renderTimer);

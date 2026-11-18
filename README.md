@@ -131,6 +131,40 @@ the robot run.
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side
 work first. Ask Swayam before changing anything about how that run works.
 
+## Section 2: Handshake, Fist Bump and Beckon
+
+Behavior section 2 is section 6 in `curriculum.js`: 12 labs, all in
+**`portal/data/handshake-section.js`**. The idea of the whole section: one
+movement structure (get into a pose, do the finishing move, come back home),
+three behaviors. It is a working first draft, written in the same voice and
+format as Wave, for the lab team to expand.
+
+| Labs | Behavior | What they cover | Practice file |
+|---|---|---|---|
+| 1 to 5 | Handshake | 1 reviews Wave and warms up; 2 joint control; 3 movement sequencing; 4 coordination; 5 review, five-question quiz, robot run | `handshake_builder.py`, 7 TODOs |
+| 6 to 10 | Fist Bump | 6 reuses the handshake structure; 7 joint positions; 8 timing; 9 the finishing move (and `if`); 10 review, five-question quiz, robot run | `fist_bump_builder.py`, 6 TODOs |
+| 11 and 12 | Beckon | 11 video, requirements, starter code, planning; 12 the challenge, written on their own, then the robot run | `beckon_builder.py`, 4 TODOs |
+
+The practice files live in `portal/data/workspace-files.js`. The students
+write about 30% of the handshake and the fist bump, and more of the beckon.
+If you change a practice file or what a lab asks for, update `FILLS` in
+`test/handshake-section.test.mjs`: it pins the TODO counts the Check outputs
+promise, the 25 to 35% share, and every line a lesson points at.
+
+Keep the beckon true to the real robot: the shoulder swings forward, the
+wrist turns palm up, and the four fingers curl in and out 3 times. **The elbow
+and the thumb do not move**, and the lessons say so.
+
+Still to do:
+
+- **Lab 11's video.** The `video` block has no `src` yet. Add the beckon
+  clip to `videos/` and set `src` (and a `poster`) on that block.
+- **Lab 12's robot run** needs the Pi side first: `beckon.py` must start at
+  `BECKON_CYCLES = 1` and the agent must accept beckon jobs. After that,
+  `beckon.py` gets added to `CANONICAL_ROBOT_PATHS` (`ros-paths.js`) and to
+  `TUNABLES` (`api/_lib/canonical-source.js`). Ask Swayam.
+- Anything deeper: more bug hunts, more questions, a bigger quiz bank.
+
 ## Previewing your changes
 
 Run the pages on your own computer before you commit. Save a file, refresh the browser, and you see the change.

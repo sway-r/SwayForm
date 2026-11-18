@@ -58,7 +58,7 @@ jobs:
         run: |
           git config user.name "Swayam R"
           git config user.email "swayamrathod2006@gmail.com"
-          git add portal/data/workspace-files.js portal/data/learning-path.js portal/data/wave-section.js
+          git add portal/data/workspace-files.js portal/data/learning-path.js portal/data/wave-section.js portal/data/handshake-section.js
           git commit -m "Sync robot source from swayform_ws master @${{ steps.sync.outputs.sha }}"
           git push origin main
 

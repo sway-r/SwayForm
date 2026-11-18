@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const FILES_JS = ROOT + 'portal/data/workspace-files.js';
-const LESSON_FILES = ['portal/data/learning-path.js', 'portal/data/wave-section.js'].map((p) => ROOT + p);
+const LESSON_FILES = ['portal/data/learning-path.js', 'portal/data/wave-section.js', 'portal/data/handshake-section.js'].map((p) => ROOT + p);
 const REPO = 'https://api.github.com/repos/sway-r/swayform_ws';
 const PREFIX = 'swayform_ws/';
 const MIRRORED = 'swayform_ws/src/swayform_robot/';
@@ -43,6 +43,9 @@ export function parseEntries(src){
 const decode = (s) => s.replace(/\\([\\`$])/g, '$1');
 const encode = (s) => s.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 
+// The start of a setting or def line, so a ref can follow `NAME = 1` when it becomes `NAME = 3`.
+const lineKey = (line) => ((line || '').match(/^\s*(?:def\s+\w+|class\s+\w+|[A-Za-z_]\w*\s*=)/) || [])[0];
+
 // Moves `workspaceFile: '<path>', line: N` refs so they keep pointing at the same line text.
 export function moveLineRefs(lessonSrc, path, oldText, newText){
   const oldLines = oldText.split('\n');
@@ -51,7 +54,9 @@ export function moveLineRefs(lessonSrc, path, oldText, newText){
   const re = new RegExp(`(workspaceFile: ['"]${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"], line: )(\\d+)`, 'g');
   const out = lessonSrc.replace(re, (all, head, n) => {
     const line = oldLines[Number(n) - 1];
-    const hits = newLines.flatMap((l, i) => (l === line ? [i + 1] : []));
+    let hits = newLines.flatMap((l, i) => (l === line ? [i + 1] : []));
+    const key = lineKey(line);
+    if (hits.length !== 1 && key) hits = newLines.flatMap((l, i) => (lineKey(l) === key ? [i + 1] : []));
     if (hits.length === 1){
       if (hits[0] !== Number(n)) notes.push(`${path}: line ref ${n} -> ${hits[0]}`);
       return head + hits[0];
@@ -95,12 +100,13 @@ async function main(){
   writeFileSync(FILES_JS, src);
 
   for (const file of LESSON_FILES){
-    let lesson = readFileSync(file, 'utf8');
+    const before = readFileSync(file, 'utf8');
+    let lesson = before;
     for (const c of changed) if (!c.missing){
       const r = moveLineRefs(lesson, c.path, c.entry.content, c.remote);
       lesson = r.out; notes.push(...r.notes);
     }
-    writeFileSync(file, lesson);
+    if (lesson !== before) writeFileSync(file, lesson);
   }
   notes.forEach((n) => console.log('  ' + n));
   console.log(`Synced to ${head.sha.slice(0, 7)}. Check any "(line N)" mentions in lesson prose, then run npm test.`);

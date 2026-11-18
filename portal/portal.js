@@ -272,6 +272,7 @@ function createWindow(mod, saved){
   const ctx = {
     windowEl: body,
     setTitle(sub){ subEl.textContent = sub ? '- ' + sub : ''; },
+    setChromeHidden(on){ el.classList.toggle('chrome-hidden', !!on); },
     setAppTitle(t){ titleEl.textContent = t; },
     navigate(path, params){ navigateForApp(mod.meta.id, params, path); },
     openApp(id, p){ openApp(id, p); },
@@ -613,6 +614,21 @@ launcherEl.addEventListener('click', () => minimizeAllWindows());
 launcherEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launcherEl.click(); }
 });
+
+/* ---------------------------------------------------------- Fullscreen */
+const fullscreenBtnEl = document.getElementById('taskbar-fullscreen');
+function renderFullscreenBtn(){
+  const on = !!document.fullscreenElement;
+  fullscreenBtnEl.innerHTML = icon(on ? 'exitFullscreen' : 'fullscreen');
+  fullscreenBtnEl.title = on ? 'Exit full screen' : 'Full screen';
+  fullscreenBtnEl.setAttribute('aria-label', fullscreenBtnEl.title);
+}
+fullscreenBtnEl.addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else document.documentElement.requestFullscreen().catch(() => {});
+});
+document.addEventListener('fullscreenchange', renderFullscreenBtn);
+renderFullscreenBtn();
 
 /* ---------------------------------------------------------- Logout */
 // The one primary way to end the session, Account's own Sign Out button

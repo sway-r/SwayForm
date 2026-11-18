@@ -52,7 +52,7 @@ test('Wave is section 5 with 6 labs in the agreed format', () => {
   assert.equal(CURRICULUM.sections[4].id, 'wave');
   assert.equal(wave.items.length, 6);
   wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
-  assert.equal(findSection('behavior-sections').number, 6);
+  assert.equal(findSection('behavior-sections').number, 7);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
   [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
   [4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('troubleshoot') && typesOf(lab(n)).has('reveal'), `lab ${n} keeps its bug hunts and reveals`));

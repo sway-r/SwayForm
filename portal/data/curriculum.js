@@ -18,7 +18,7 @@
  * nothing here retypes lesson content. Only the grouping/numbering/labeling
  * around that content is new.
  *
- * Six sections:
+ * Seven sections:
  *   1. Getting Started   , orientation, safety, and how the portal works (5 items, active)
  *   2. Introduction to ROS 2, the software ideas behind the labs (9 items, active)
  *   3. Pre-Installed Demos, explore existing behaviors (5 items, all built)
@@ -26,7 +26,9 @@
  *        available, labs 11-20 planned placeholders
  *   5. Wave              , behavior section 1: 6 labs, about 30% of the code
  *        written by the student (authored in wave-section.js)
- *   6. More Sections     , labs 21+, about 10 sections in all; the rest are Planned
+ *   6. Handshake, Fist Bump and Beckon, behavior section 2: 12 labs, one
+ *        movement structure reused for three behaviors (handshake-section.js)
+ *   7. More Sections     , the behavior sections still to come, Planned
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -148,10 +150,26 @@ const s5 = [
   real('wv-06-run', 'wave', '5.06'),
 ];
 
-// No other behavior section titles are published yet, so one placeholder.
+// Handshake, Fist Bump and Beckon, behavior section 2: content lives in handshake-section.js.
 const s6 = [
-  placeholder('behavior-sections-21', 'behavior-sections', '6.01', 'More Sections: Coming Soon',
-    'Wave is the first behavior section. About 9 more follow, each built around one behavior. Students write more of the code in each one, from about 30% in Wave to about 75% by the tenth. Exact section and lab titles will be finalized as development continues.'),
+  real('hs-01-meet-the-handshake', 'handshake', '6.01'),
+  real('hs-02-joint-control', 'handshake', '6.02'),
+  real('hs-03-sequencing', 'handshake', '6.03'),
+  real('hs-04-coordination', 'handshake', '6.04'),
+  real('hs-05-run', 'handshake', '6.05'),
+  real('fb-06-from-handshake', 'handshake', '6.06'),
+  real('fb-07-positions', 'handshake', '6.07'),
+  real('fb-08-timing', 'handshake', '6.08'),
+  real('fb-09-finish', 'handshake', '6.09'),
+  real('fb-10-run', 'handshake', '6.10'),
+  real('bk-11-plan', 'handshake', '6.11'),
+  real('bk-12-challenge', 'handshake', '6.12'),
+];
+
+// No other behavior section titles are published yet, so one placeholder.
+const s7 = [
+  placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Sections: Coming Soon',
+    'Wave and Handshake, Fist Bump and Beckon are the first two behavior sections. More follow, each built around robot behaviors. Students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Exact section and lab titles will be finalized as development continues.'),
 ];
 
 export const CURRICULUM = {
@@ -184,9 +202,14 @@ export const CURRICULUM = {
       items: s5,
     },
     {
-      id: 'behavior-sections', number: 6, title: 'More Sections', type: 'lab', icon: 'projects', sequential: true,
-      description: 'After Wave: about 9 more sections of 10–12 labs, each built around one behavior. Planned.',
+      id: 'handshake', number: 6, title: 'Handshake, Fist Bump and Beckon', type: 'lab', icon: 'play', sequential: true,
+      description: 'Behavior section 2. One movement structure, three behaviors: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.',
       items: s6,
+    },
+    {
+      id: 'behavior-sections', number: 7, title: 'More Sections', type: 'lab', icon: 'projects', sequential: true,
+      description: 'After the first two behavior sections: more sections of 10–12 labs, each built around robot behaviors. Planned.',
+      items: s7,
     },
   ],
 };
@@ -195,7 +218,7 @@ export const CURRICULUM = {
 
 /** Sections 4-6 only: the lab sections. Getting Started / ROS 2 / Demos are
  * NOT part of the lab count. */
-export const LAB_SECTION_IDS = ['foundation', 'wave', 'behavior-sections'];
+export const LAB_SECTION_IDS = ['foundation', 'wave', 'handshake', 'behavior-sections'];
 
 export function findSection(sectionId) {
   return CURRICULUM.sections.find((s) => s.id === sectionId) || null;

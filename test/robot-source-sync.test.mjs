@@ -20,6 +20,14 @@ test('line refs follow their line when code moves, and flag a line that vanished
   assert.match(r.notes[1], /CHECK BY HAND/);
 });
 
+test('a line ref follows a setting whose value changed, and a def that moved', () => {
+  const path = 'swayform_ws/src/y.py';
+  const lesson = `{ workspaceFile: '${path}', line: 2 }, { workspaceFile: '${path}', line: 3 }`;
+  const r = moveLineRefs(lesson, path, 'x\nCOUNT = 3   # old\ndef go(a):', 'x\nnew\nCOUNT = 1\n\ndef go(a):');
+  assert.equal(r.out, `{ workspaceFile: '${path}', line: 3 }, { workspaceFile: '${path}', line: 5 }`);
+  assert.ok(r.notes.every((n) => !n.startsWith('CHECK BY HAND')));
+});
+
 test('the portal matches swayform_ws master', { skip: !(process.env.CHECK_ROBOT_SOURCE && githubToken()) && 'set CHECK_ROBOT_SOURCE=1 to check against GitHub' }, () => {
   try {
     execFileSync('node', ['scripts/sync-robot-source.mjs'], { cwd: new URL('..', import.meta.url), encoding: 'utf8' });

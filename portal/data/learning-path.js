@@ -47,6 +47,7 @@
  */
 
 import { WAVE_LEVEL } from './wave-section.js';
+import { HANDSHAKE_LEVEL } from './handshake-section.js';
 
 export const LEARNING_PATH = {
   id: 'swayform-fundamentals',
@@ -1868,6 +1869,9 @@ export const LEARNING_PATH = {
 
     // Wave (behavior section 1), authored in wave-section.js
     WAVE_LEVEL,
+
+    // Handshake, Fist Bump and Beckon (behavior section 2), authored in handshake-section.js
+    HANDSHAKE_LEVEL,
   ],
 };
 

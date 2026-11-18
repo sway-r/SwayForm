@@ -180,6 +180,7 @@
 }
 .window-header:active{cursor:grabbing}
 .window.maximized .window-header{cursor:default}
+.window.maximized.chrome-hidden > .window-header{display:none}
 .window.maximized .window-header:active{cursor:default}
 .window-title-icon{width:15px;height:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.85}
 .window-title-icon svg{width:14px;height:14px;stroke:var(--la-soft);fill:none;stroke-width:1.7}
@@ -224,6 +225,13 @@
 .taskbar-win:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
 .taskbar-win.active{background:var(--p-accent-dim);border-color:var(--p-accent-line);color:#eaf2ff}
 .taskbar-spacer{flex:1}
+
+.taskbar-fullscreen{
+  flex-shrink:0;width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  background:none;border:1px solid transparent;color:var(--p-soft);transition:all .15s;
+}
+.taskbar-fullscreen:hover{background:rgba(255,255,255,.08);color:var(--p-ink)}
+.taskbar-fullscreen svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
 
 /* ── Logout: a persistent system control, bottom-right of the taskbar.
    Subtle by default; only leans toward "warning red" on hover, not at rest. ── */

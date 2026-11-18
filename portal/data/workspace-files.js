@@ -104,6 +104,7 @@ setup(
             'handshake = swayform_robot.behaviors.handshake:main',
             'handshake_left = swayform_robot.behaviors.handshake_left:main',
             'fist_bump = swayform_robot.behaviors.fist_bump:main',
+            'beckon = swayform_robot.behaviors.beckon:main',
             'finger_count = swayform_robot.behaviors.finger_count:main',
             'target_lock = swayform_robot.behaviors.target_lock:main',
             'target_probe = swayform_robot.targeting.probe:main',
@@ -856,6 +857,190 @@ class FistBumpNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = FistBumpNode()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    if node.failed:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()
+`,
+  "swayform_ws/src/swayform_robot/swayform_robot/behaviors/beckon.py": `"""Beckon behavior: swing the right shoulder forward, turn the palm up, and curl the fingers in and out as if waving someone closer."""
+
+import time
+import threading
+
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+
+from swayform_robot.hardware import servo_control as sc
+
+PCA_HAND = 0x40
+PCA_REACH = 0x60
+
+THUMB = 0
+FINGERS = [1, 2, 3, 4]
+WRIST = 5
+ELBOW = 6
+SHOULDER_ROLL = 7
+SHOULDER_PITCH = 1  # on PCA_REACH
+
+CENTERS = {
+    (PCA_HAND, THUMB): 50,
+    (PCA_HAND, 1): 135,
+    (PCA_HAND, 2): 135,
+    (PCA_HAND, 3): 135,
+    (PCA_HAND, 4): 135,
+    (PCA_HAND, WRIST): 100,
+    (PCA_HAND, ELBOW): 130,
+    (PCA_HAND, SHOULDER_ROLL): 160,
+    (PCA_REACH, SHOULDER_PITCH): 170,
+}
+
+LIMITS = {
+    (PCA_HAND, THUMB): (50, 135),
+    (PCA_HAND, 1): (50, 135),
+    (PCA_HAND, 2): (50, 135),
+    (PCA_HAND, 3): (50, 135),
+    (PCA_HAND, 4): (50, 135),
+    (PCA_HAND, WRIST): (60, 170),  # raised from the usual 160: confirmed safe on hardware for palm-up
+    (PCA_HAND, ELBOW): (40, 140),
+    (PCA_HAND, SHOULDER_ROLL): (40, 170),
+    (PCA_REACH, SHOULDER_PITCH): (150, 260),
+}
+
+SERVO_RANGES = {
+    (PCA_HAND, ELBOW): 270.0,
+    (PCA_HAND, SHOULDER_ROLL): 270.0,
+    (PCA_REACH, SHOULDER_PITCH): 270.0,
+}
+
+REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
+
+WRIST_PALM_UP = 170   # confirmed on hardware with servo_tester
+
+# Forward from center, same magnitude fist_bump.py already uses for this same joint.
+SHOULDER_FORWARD_OFFSET = 35
+BECKON_PITCH = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + SHOULDER_FORWARD_OFFSET
+
+# Degrees the fingers curl in from open, out of the 85-degree full range (open 135 to curled 50).
+FINGER_CURL_AMOUNT = 60
+
+BECKON_CYCLES = 3   # number of times the fingers curl in and back out
+
+RAISE_DURATION = 1.5
+WRIST_DURATION = 0.5   # faster than the shoulder raise, the wrist was straining when moved slowly
+HOLD_BEFORE_BECKON = 0.3
+CURL_DURATION = 0.8
+EXTEND_DURATION = 0.8
+RETURN_DURATION = 2.0
+
+TICK_DELAY = 0.02  # matches the old motion_server's ~20ms interpolation tick
+
+
+def _mv(addr, ch, target, duration):
+    steps = max(1, round(duration / TICK_DELAY))
+    return {"addr": addr, "ch": ch, "target": target, "limits": LIMITS[(addr, ch)],
+            "steps": steps, "delay": TICK_DELAY,
+            "servo_range": SERVO_RANGES.get((addr, ch), 180.0)}
+
+
+def raise_arm(ctrl):
+    """Shoulder pitch swings forward and the wrist turns palm-up; the elbow and thumb stay put."""
+    ctrl.run_threads([
+        _mv(PCA_REACH, SHOULDER_PITCH, BECKON_PITCH, RAISE_DURATION),
+        _mv(PCA_HAND, WRIST, WRIST_PALM_UP, WRIST_DURATION),
+    ])
+
+
+def beckon(ctrl):
+    """Curl the four fingers in, then back open, BECKON_CYCLES times; the thumb stays put."""
+    for i in range(BECKON_CYCLES):
+        print(f"Beckoning {i + 1}/{BECKON_CYCLES}: curling in...")
+        ctrl.run_threads([
+            _mv(PCA_HAND, 1, CENTERS[(PCA_HAND, 1)] - FINGER_CURL_AMOUNT, CURL_DURATION),
+            _mv(PCA_HAND, 2, CENTERS[(PCA_HAND, 2)] - FINGER_CURL_AMOUNT, CURL_DURATION),
+            _mv(PCA_HAND, 3, CENTERS[(PCA_HAND, 3)] - FINGER_CURL_AMOUNT, CURL_DURATION),
+            _mv(PCA_HAND, 4, CENTERS[(PCA_HAND, 4)] - FINGER_CURL_AMOUNT, CURL_DURATION),
+        ])
+
+        print(f"Beckoning {i + 1}/{BECKON_CYCLES}: opening back up...")
+        ctrl.run_threads([
+            _mv(PCA_HAND, 1, CENTERS[(PCA_HAND, 1)], EXTEND_DURATION),
+            _mv(PCA_HAND, 2, CENTERS[(PCA_HAND, 2)], EXTEND_DURATION),
+            _mv(PCA_HAND, 3, CENTERS[(PCA_HAND, 3)], EXTEND_DURATION),
+            _mv(PCA_HAND, 4, CENTERS[(PCA_HAND, 4)], EXTEND_DURATION),
+        ])
+
+
+def return_to_rest(ctrl):
+    """Bring every joint back to the rest pose."""
+    ctrl.run_threads([_mv(addr, ch, target, RETURN_DURATION) for (addr, ch), target in REST.items()])
+
+
+def perform_beckon(mock=False):
+    """Run the full sequence: raise the arm -> beckon BECKON_CYCLES times -> return to the rest pose."""
+    with sc.hardware_lock():
+        ctrl = sc.ServoController([PCA_HAND, PCA_REACH], mock=mock)
+        ctrl.current = REST.copy()
+        try:
+            print("Raising arm...")
+            raise_arm(ctrl)
+            time.sleep(HOLD_BEFORE_BECKON)
+
+            print("Beckoning...")
+            beckon(ctrl)
+
+            print("Returning to the rest pose...")
+            return_to_rest(ctrl)
+
+        finally:
+            ctrl.close()
+
+
+# ── ROS2 node ────────────────────────────────────────────────────────────
+class BeckonNode(Node):
+    def __init__(self):
+        super().__init__("beckon")
+        self.declare_parameter("use_mock_hardware", False)
+        self._mock = self.get_parameter("use_mock_hardware").get_parameter_value().bool_value
+        self._started = False
+        self.failed = False
+        self.create_timer(1.0, self._start)
+
+    def _start(self):
+        if self._started:
+            return
+        self._started = True
+        if self._mock:
+            print("[MOCK] use_mock_hardware is true: this run prints moves only, the robot will not move.", flush=True)
+            self.get_logger().warning("use_mock_hardware is true: this run will not move the robot.")
+        self.get_logger().info("Beckon starting.")
+        threading.Thread(target=self._run, daemon=False).start()
+
+    def _run(self):
+        try:
+            perform_beckon(mock=self._mock)
+            self.get_logger().info("Beckon complete.")
+        except Exception as e:
+            self.failed = True
+            self.get_logger().error(f"Beckon failed: {e}")
+        finally:
+            if rclpy.ok():
+                rclpy.shutdown()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = BeckonNode()
     try:
         rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
@@ -3280,6 +3465,182 @@ def main() -> None:
     finally:
         go_home(motion)
         motion.unlock_behavior("wave_builder")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  "swayform_ws/src/swayform_labs/handshake_builder.py": `from swayform.motion import MotionClient
+# TODO lab 1: import sleep from the time module so the handshake can pause
+
+# TODO lab 1: set SHAKE_CYCLES (how many shakes) and HOLD_BEFORE_GRIP (seconds to wait before the grip)
+# TODO lab 2: set REACH_SHOULDER and REACH_ELBOW, the reach angles in degrees
+SHAKE_OFFSET = 5
+SHAKE_STEP_SECONDS = 0.3
+HOME_ARM = {"right_shoulder": 0, "right_elbow": 0}
+LEFT_ARM_BACK = {"left_shoulder": -40}
+LEFT_ARM_HOME = {"left_shoulder": 0}
+
+
+def say(text: str) -> None:
+    print(f"[handshake] {text}")
+
+
+def go_home(motion: MotionClient) -> None:
+    motion.safe_pose("idle")
+
+
+def reach_forward(motion: MotionClient) -> None:
+    say("reaching forward")
+    motion.set_hand_pose("right_hand", "open")
+    motion.move_joint_group("left_arm", LEFT_ARM_BACK)
+    # TODO lab 2: move "right_shoulder" to REACH_SHOULDER, then "right_elbow" to REACH_ELBOW, one joint at a time
+
+
+def grip(motion: MotionClient) -> None:
+    say("gripping")
+    motion.set_hand_pose("right_hand", "gentle_close")
+
+
+def shake(motion: MotionClient) -> None:
+    say("shaking")
+    # TODO lab 4: SHAKE_CYCLES times, move "right_elbow" up by SHAKE_OFFSET and then down by SHAKE_OFFSET, with a sleep after each move
+    motion.move_joint("right_elbow", REACH_ELBOW)
+
+
+def let_go(motion: MotionClient) -> None:
+    say("letting go")
+    motion.set_hand_pose("right_hand", "open")
+
+
+def perform_handshake(motion: MotionClient) -> None:
+    try:
+        # TODO lab 3: call reach_forward, wait HOLD_BEFORE_GRIP seconds, then call grip and shake, in that order
+        pass
+    finally:
+        let_go(motion)
+        # TODO lab 4: move the "right_arm" group to HOME_ARM and the "left_arm" group to LEFT_ARM_HOME
+
+
+def main() -> None:
+    motion = MotionClient()
+    go_home(motion)
+
+    try:
+        motion.lock_behavior("handshake_builder")
+        say("starting")
+        perform_handshake(motion)
+        say("done")
+    finally:
+        go_home(motion)
+        motion.unlock_behavior("handshake_builder")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  "swayform_ws/src/swayform_labs/fist_bump_builder.py": `from time import sleep
+from swayform.motion import MotionClient
+
+# TODO lab 7: set FIST_ARM, the raised-fist pose: "right_shoulder" at 35 and "right_elbow" at 10
+PUNCH_ARM = {"right_shoulder": 75, "right_elbow": 50}
+HOME_ARM = {"right_shoulder": 0, "right_elbow": 0}
+LEFT_ARM_BACK = {"left_shoulder": -50}
+LEFT_ARM_HOME = {"left_shoulder": 0}
+RAISE_SECONDS = 1.5
+# TODO lab 8: set HOLD_BEFORE_BUMP, PUNCH_SECONDS and RECOIL_SECONDS, the three timings of the bump
+ENABLE_HEAD_NOD = False
+NOD_UP = 10
+
+
+def say(text: str) -> None:
+    print(f"[fist_bump] {text}")
+
+
+def go_home(motion: MotionClient) -> None:
+    motion.safe_pose("idle")
+
+
+def raise_and_curl(motion: MotionClient) -> None:
+    say("raising fist")
+    motion.move_joint_group("left_arm", LEFT_ARM_BACK, seconds=RAISE_SECONDS)
+    # TODO lab 7: curl "right_hand" into the "fist" pose, then move the "right_arm" group to FIST_ARM over RAISE_SECONDS
+
+
+def bump(motion: MotionClient) -> None:
+    say("bump!")
+    # TODO lab 9: move the "right_arm" group to PUNCH_ARM over PUNCH_SECONDS, then back to FIST_ARM over RECOIL_SECONDS
+    # TODO lab 9: if ENABLE_HEAD_NOD is True, move "head_pitch" to NOD_UP and then back to 0
+
+
+def open_and_return(motion: MotionClient) -> None:
+    say("opening hand")
+    motion.set_hand_pose("right_hand", "open")
+    motion.move_joint_group("right_arm", HOME_ARM)
+    motion.move_joint_group("left_arm", LEFT_ARM_HOME)
+
+
+def perform_fist_bump(motion: MotionClient) -> None:
+    # TODO lab 6: same shape as perform_handshake: in try, call raise_and_curl, wait HOLD_BEFORE_BUMP, then bump; in finally, call open_and_return
+    pass
+
+
+def main() -> None:
+    motion = MotionClient()
+    go_home(motion)
+
+    try:
+        motion.lock_behavior("fist_bump_builder")
+        say("starting")
+        perform_fist_bump(motion)
+        say("done")
+    finally:
+        go_home(motion)
+        motion.unlock_behavior("fist_bump_builder")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  "swayform_ws/src/swayform_labs/beckon_builder.py": `from time import sleep
+from swayform.motion import MotionClient
+
+# TODO lab 11: set BECKON_SHOULDER, WRIST_PALM_UP, FINGER_CURL and BECKON_CYCLES from your plan
+HOME_ARM = {"right_shoulder": 0, "right_elbow": 0}
+FINGERS = ["right_index_finger", "right_middle_finger", "right_ring_finger", "right_pinky_finger"]
+CURL_SECONDS = 0.8
+
+
+def say(text: str) -> None:
+    print(f"[beckon] {text}")
+
+
+def go_home(motion: MotionClient) -> None:
+    motion.safe_pose("idle")
+
+
+def move_fingers(motion: MotionClient, angle: int) -> None:
+    for finger in FINGERS:
+        motion.move_joint(finger, angle)
+
+
+# TODO lab 12: write raise_arm(motion), it swings the shoulder forward and turns the palm up; the elbow does not move
+# TODO lab 12: write beckon(motion), it curls the four fingers in and back open, BECKON_CYCLES times
+# TODO lab 12: write perform_beckon(motion), it raises the arm and beckons, and in finally opens the fingers and sends the arm home
+
+
+def main() -> None:
+    motion = MotionClient()
+    go_home(motion)
+
+    try:
+        motion.lock_behavior("beckon_builder")
+        say("starting")
+        perform_beckon(motion)
+        say("done")
+    finally:
+        go_home(motion)
+        motion.unlock_behavior("beckon_builder")
 
 
 if __name__ == "__main__":

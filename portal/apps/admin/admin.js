@@ -200,7 +200,7 @@ function archivedRow(student){
     <div class="set-row">
       <span class="set-row-text"><span class="set-row-label">${escapeHtml(student.email)}</span><span class="set-row-desc">Archived, personal progress preserved</span></span>
       <span class="adm-row-actions">
-        <button type="button" class="p-btn ghost" data-restore="${escapeHtml(student.email)}">Invite again</button>
+        <button type="button" class="p-btn ghost" data-restore="${student.id}">Move back to class</button>
         <button type="button" class="p-btn ghost" data-delete="${student.id}">Remove from class</button>
       </span>
     </div>`;
@@ -227,7 +227,13 @@ function bindRosterActions(container, ctx, { fullRender }){
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = form.querySelector('input').value.trim();
-      try { await postAction({ action: 'add_student', email }); await fullRender(); showError(container, 'Invitation created. Ask the student to sign in and open Account to accept it. No email is sent automatically.'); }
+      try {
+        const data = await postAction({ action: 'add_student', email });
+        await fullRender();
+        showError(container, data.restored ? 'This student was archived, so they are back in the class. No invitation needed.'
+          : data.alreadyActive ? 'This student is already in the class.'
+          : 'Invitation created. Ask the student to sign in and open Account to accept it. No email is sent automatically.');
+      }
       catch (err){ showError(container, err.message); }
     });
   });
@@ -261,7 +267,7 @@ function bindRosterActions(container, ctx, { fullRender }){
 
   container.querySelectorAll('[data-restore]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      try { await postAction({ action: 'add_student', email: btn.dataset.restore }); await fullRender(); }
+      try { await postAction({ action: 'restore_student', studentId: Number(btn.dataset.restore) }); await fullRender(); }
       catch (err){ showError(container, err.message); }
     });
   });

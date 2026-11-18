@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { readSessionFromRequest } from './_lib/session.js';
-import { sql, fetchProgressSummary } from './_lib/db.js';
+import { sql, fetchProgressSummary, syncProfileSchoolToRobot } from './_lib/db.js';
 import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 import { privateResponse, requireBrowserMutation, rateLimit, validEmail } from './_lib/browser-security.js';
@@ -109,12 +109,61 @@ export default async function handler(req, res){
     await sql`INSERT INTO portal_audit_events (robot_id, actor_email, action, subject_email) VALUES (${robotId}, ${session.email}, ${action}, ${email})`;
   }
 
+  // Puts an archived student straight back into the first free seat, with no new invitation.
+  async function restoreStudent(email){
+    let restored;
+    try {
+      [, , restored] = await sql.transaction([
+        sql`SELECT pg_advisory_xact_lock(hashtext(${email}))`,
+        sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
+        sql`
+          UPDATE students s SET status = 'active', seat_number = seats.n, archived_at = NULL
+          FROM (
+            SELECT n FROM generate_series(1, ${MAX_ACTIVE_SEATS}) n
+            WHERE NOT EXISTS (SELECT 1 FROM students a WHERE a.robot_id = ${robotId} AND a.status = 'active' AND a.seat_number = n)
+            ORDER BY n LIMIT 1
+          ) seats
+          WHERE s.robot_id = ${robotId} AND s.email = ${email} AND s.status = 'archived'
+            AND NOT EXISTS (SELECT 1 FROM students o WHERE o.email = ${email} AND o.status = 'active')
+            AND NOT EXISTS (SELECT 1 FROM admin_emails WHERE email = ${email})
+          RETURNING s.id
+        `,
+      ]);
+    } catch (e){
+      if (e.code === '23505'){ res.status(409).json({ error: 'seat_unavailable', message: 'That seat was just taken. Try again.' }); return; }
+      throw e;
+    }
+    if (!restored.length){
+      const [elsewhere] = await sql`SELECT 1 FROM students WHERE email = ${email} AND status = 'active'
+        UNION ALL SELECT 1 FROM admin_emails WHERE email = ${email} LIMIT 1`;
+      res.status(409).json(elsewhere
+        ? { error: 'already_linked', message: 'This student is now in another class or is an admin, so they cannot be moved back.' }
+        : { error: 'no_seat', message: `All ${MAX_ACTIVE_SEATS} seats are taken. Archive a student to free a seat first.` });
+      return;
+    }
+    await sql`DELETE FROM school_invitations WHERE robot_id = ${robotId} AND email = ${email}`;
+    await syncProfileSchoolToRobot(email, robotId);
+    await audit('restore_student', email);
+    res.status(200).json({ ok: true, restored: true });
+  }
+
   switch (body.action){
+    case 'restore_student': {
+      const studentId = Number(body.studentId);
+      if (!Number.isSafeInteger(studentId) || studentId < 1){ res.status(400).json({ error: 'missing_student_id' }); return; }
+      const [row] = await sql`SELECT email FROM students WHERE id = ${studentId} AND robot_id = ${robotId} AND status = 'archived'`;
+      if (!row){ res.status(404).json({ error: 'not_found' }); return; }
+      await restoreStudent(row.email);
+      return;
+    }
+
     case 'add_student': {
       const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
       if (!validEmail(email)){ res.status(400).json({ error: 'invalid_email' }); return; }
       const [existing] = await sql`SELECT status FROM students WHERE robot_id = ${robotId} AND email = ${email}`;
       if (existing?.status === 'active'){ res.status(200).json({ ok: true, alreadyActive: true }); return; }
+      // Typing an archived student's email back in moves them back too, rather than inviting them again.
+      if (existing?.status === 'archived'){ await restoreStudent(email); return; }
       // Serialize invitation allocation for this robot, including concurrent admins.
       const [, inserted] = await sql.transaction([
         sql`SELECT id FROM robots WHERE id = ${robotId} FOR UPDATE`,
@@ -124,14 +173,7 @@ export default async function handler(req, res){
           WHERE (SELECT count(*) FROM students WHERE robot_id = ${robotId})
               + (SELECT count(*) FROM school_invitations WHERE robot_id = ${robotId} AND expires_at > now()) < ${MAX_TOTAL_STUDENTS}
             OR EXISTS (SELECT 1 FROM school_invitations WHERE robot_id = ${robotId} AND email = ${email})
-            -- Re-inviting an email that already has a roster row (active or
-            -- archived -- only the active case short-circuits earlier in
-            -- JS) never needs a NEW slot: accepting just updates that same
-            -- existing (robot_id, email) row via ON CONFLICT below, it does
-            -- not insert another one. The total-count gate above was
-            -- otherwise blocking reactivation of an already-archived
-            -- student the instant the roster (active + archived) hit the
-            -- 40-total cap, even with zero active seats.
+            -- A roster row that appeared since the check above takes no new slot.
             OR EXISTS (SELECT 1 FROM students WHERE robot_id = ${robotId} AND email = ${email})
           ON CONFLICT (robot_id, email) DO UPDATE SET invited_by = EXCLUDED.invited_by, expires_at = now() + interval '14 days'
           RETURNING id

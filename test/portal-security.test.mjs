@@ -306,10 +306,37 @@ test('reactivating an archived student is not blocked by the 40-total roster cap
   // one.
   const result = await call(admin, teacherDCookie, { action: 'add_student', email: 'archived0@example.test' });
   assert.equal(result.code, 200);
-  assert.equal(result.data.invited, true);
+  assert.equal(result.data.restored, true, 'an archived student goes straight back, no invitation');
+  const [back] = (await db.query(`SELECT status, seat_number FROM students WHERE robot_id = 4 AND email = 'archived0@example.test'`)).rows;
+  assert.deepEqual([back.status, back.seat_number], ['active', 1]);
+  assert.equal((await db.query(`SELECT 1 FROM school_invitations WHERE email = 'archived0@example.test'`)).rows.length, 0);
   // A genuinely NEW 41st student is still correctly refused.
   await db.query(`INSERT INTO user_profiles (email,display_name,school_name) VALUES ('new-student@example.test','New Student','School D')`);
   const blocked = await call(admin, teacherDCookie, { action: 'add_student', email: 'new-student@example.test' });
   assert.equal(blocked.code, 400);
   assert.equal(blocked.data.error, 'total_limit');
+});
+
+test('Move back to class restores an archived student without an invitation, and only when it is safe', async () => {
+  const teacherD = (await createSessionCookie({ email: 'teacher-d@example.test', mode: 'admin', robotId: 4 })).split(';')[0];
+  const idOf = async (email) => (await db.query('SELECT id FROM students WHERE robot_id = 4 AND email = $1', [email])).rows[0].id;
+  const restore = async (email) => call(admin, teacherD, { action: 'restore_student', studentId: await idOf(email) });
+
+  const ok = await restore('archived1@example.test');
+  assert.equal(ok.code, 200);
+  assert.equal((await db.query(`SELECT seat_number FROM students WHERE email = 'archived1@example.test'`)).rows[0].seat_number, 2);
+
+  // Someone who has since joined another class stays where they are.
+  await db.query(`INSERT INTO students (robot_id,email,seat_number,status) VALUES (3,'archived2@example.test',15,'active')`);
+  const moved = await restore('archived2@example.test');
+  assert.deepEqual([moved.code, moved.data.error], [409, 'already_linked']);
+  await db.query(`DELETE FROM students WHERE robot_id = 3 AND email = 'archived2@example.test'`);
+
+  for (let i = 3; i <= 15; i++) assert.equal((await restore(`archived${i}@example.test`)).code, 200);
+  const full = await restore('archived16@example.test');
+  assert.deepEqual([full.code, full.data.error], [409, 'no_seat'], 'all 15 seats are taken');
+
+  const wrongId = await call(admin, teacherD, { action: 'restore_student', studentId: 999999 });
+  assert.equal(wrongId.code, 404);
+  await db.query(`UPDATE students SET status = 'archived', seat_number = NULL WHERE robot_id = 4`);
 });

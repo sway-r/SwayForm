@@ -1,0 +1,74 @@
+name: Robot source sync
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+concurrency: robot-sync
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: robot-sync
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.SYNC_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Pull swayform_ws master into the portal
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          set +e
+          node scripts/sync-robot-source.mjs --write > sync.log 2>&1
+          code=$?
+          cat sync.log
+          echo "sha=$(head -1 sync.log | sed -n 's/^master @ \([0-9a-f]*\).*/\1/p')" >> "$GITHUB_OUTPUT"
+          if git diff --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; else echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+          if [ $code -ne 0 ]; then echo "Sync needs a person: see the lines marked above." >> sync.log; exit 1; fi
+
+      - name: Check the robot code still compiles
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          pip install --quiet pyyaml
+          node -e "import('./portal/data/workspace-files.js').then(({WORKSPACE_FILES})=>{const fs=require('fs'),p=require('path');for(const[k,v]of Object.entries(WORKSPACE_FILES)){if(!k.startsWith('swayform_ws/src/swayform_robot/'))continue;const f=p.join('robot-check',k);fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,v);}})"
+          python -m compileall -q robot-check 2>&1 | tee -a sync.log
+          python -c "import glob,yaml;[yaml.safe_load(open(f)) for f in glob.glob('robot-check/**/*.yaml',recursive=True)]" 2>&1 | tee -a sync.log
+          rm -rf robot-check
+
+      - name: Run the portal tests
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          npm ci --silent
+          npm test > test.log 2>&1 || { grep -E '^(not ok|✖)|Error|expected|actual' test.log | head -60 >> sync.log; exit 1; }
+
+      - name: Commit to main
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "Swayam R"
+          git config user.email "swayamrathod2006@gmail.com"
+          git add portal/data/workspace-files.js portal/data/learning-path.js portal/data/wave-section.js
+          git commit -m "Sync robot source from swayform_ws master @${{ steps.sync.outputs.sha }}"
+          git push origin main
+
+      - name: Flag it on GitHub
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.sync.outputs.sha }}
+        run: |
+          title="Robot code sync held back (swayform_ws master @${SHA:-unknown})"
+          if gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' | grep -q .; then exit 0; fi
+          { echo "@sway-r the hourly sync found new robot code on swayform_ws master but did not apply it, because it would break the portal."; echo; echo '```'; tail -80 sync.log; echo '```'; echo; echo "Fix it on the Pi side (or in the portal) and the next hourly run applies it. Run log: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > body.md
+          gh issue create --title "$title" --body-file body.md

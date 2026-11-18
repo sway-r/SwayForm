@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Pull swayform_ws master into the portal
         id: sync
@@ -50,7 +50,7 @@ jobs:
       - name: Run the portal tests
         if: steps.sync.outputs.changed == 'true'
         run: |
-          npm ci --silent
+          npm ci --silent && (cd bridge && npm ci --silent)
           npm test > test.log 2>&1 || { grep -E '^(not ok|✖)|Error|expected|actual' test.log | head -60 >> sync.log; exit 1; }
 
       - name: Commit to main

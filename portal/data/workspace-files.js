@@ -475,7 +475,7 @@ SHAKE_CYCLES = 1
 REACH_DURATION = 1.5
 HOLD_BEFORE_GRIP = 2.0  # pause at the reach pose before closing the hand
 GRIP_DURATION = 2.0
-FINGER_CURL_AMOUNT = 40  # degrees fingers curl in from open — thumb still curls all the way
+FINGER_CURL_AMOUNT = 40  # degrees fingers curl in from open, thumb still curls all the way
 SHAKE_STEP_DURATION = 0.3
 RETURN_DURATION = 2.0
 
@@ -629,7 +629,7 @@ ELBOW = 6
 SHOULDER_ROLL = 7
 SHOULDER_PITCH = 1  # on PCA_REACH
 SHOULDER_PITCH_LEFT = 0  # on PCA_REACH
-NECK_PITCH = 3      # on PCA_REACH — head nod
+NECK_PITCH = 3      # on PCA_REACH, head nod
 
 CENTERS = {
     (PCA_HAND, THUMB): 50,
@@ -642,7 +642,7 @@ CENTERS = {
     (PCA_HAND, SHOULDER_ROLL): 160,
     (PCA_REACH, SHOULDER_PITCH): 170,
     (PCA_REACH, SHOULDER_PITCH_LEFT): 215,
-    (PCA_REACH, NECK_PITCH): 161,  # head re-centered 2026-09-20
+    (PCA_REACH, NECK_PITCH): 161,
 }
 
 LIMITS = {
@@ -656,7 +656,7 @@ LIMITS = {
     (PCA_HAND, SHOULDER_ROLL): (40, 170),
     (PCA_REACH, SHOULDER_PITCH): (150, 260),
     (PCA_REACH, SHOULDER_PITCH_LEFT): (125, 265),
-    (PCA_REACH, NECK_PITCH): (130, 180),  # re-tested on hardware 2026-09-15, was (95, 125)
+    (PCA_REACH, NECK_PITCH): (130, 180),
 }
 
 # ELBOW, SHOULDER_ROLL, SHOULDER_PITCH and NECK_PITCH are 270 ROM servos (see robot.yaml).
@@ -670,9 +670,9 @@ SERVO_RANGES = {
 
 REST = {key: sc.REST_POSE[key] for key in CENTERS}  # start and end pose: elbow bent, shoulder slightly back
 
-FISTBUMP_PITCH_OFFSET = 35   # was 50 (handshake-matched)
+FISTBUMP_PITCH_OFFSET = 35   # degrees forward from center for the raised-fist pose
 ELBOW_BENT_IN = LIMITS[(PCA_HAND, ELBOW)][0] + 20  # used to derive JERK_ELBOW_PEAK
-FIST_ELBOW_BASE = ELBOW_BENT_IN - 10   # 50, was ELBOW_BENT_IN itself (60, handshake-matched) — bent in 10 more
+FIST_ELBOW_BASE = ELBOW_BENT_IN - 10   # elbow bends in further for the raised-fist pose
 
 # Left arm swings back while the right arm raises.
 LEFT_PITCH_SWING_BACK = 265
@@ -890,7 +890,7 @@ PCA_HAND_LEFT = 0x50
 PCA_REACH = 0x60
 
 THUMB = 0
-FINGER_ORDER = [1, 2, 3, 4]  # index, middle, ring, pinky — the order they extend in for counting
+FINGER_ORDER = [1, 2, 3, 4]  # index, middle, ring, pinky, the order they extend in for counting
 WRIST = 5
 ELBOW = 6
 SHOULDER_ROLL = 7
@@ -1947,7 +1947,7 @@ def load_pose(pose_name: str, config_file: str = "robot.yaml") -> dict:
     return dict(poses[pose_name])
 `,
 
-  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# Central servo and hardware configuration for SwayForm. Rebuild + re-source after editing.
+  "swayform_ws/src/swayform_robot/swayform_robot/config/robot.yaml": `# Central servo and hardware configuration for SwayForm.
 
 # ─── HARDWARE MODE ───
 # mock_mode: false once the PCA9685 boards are connected.
@@ -1956,7 +1956,7 @@ hardware:
   i2c_bus: 1
 
 # ─── PCA9685 BOARDS ───
-# Verify with \`i2cdetect -y 1\`; never use 0x70 (all-call broadcast).
+# Never use 0x70 (all-call broadcast).
 pca_boards:
   right_arm_pca:
     address: 0x40
@@ -1975,9 +1975,7 @@ pca_boards:
 
 # ─── JOINTS ───
 # servo_range: 180 for standard servos, 270 for wide-range units.
-# home_angle is the rest pose every behavior starts and ends in (elbows bent, shoulders slightly back): the robot
-# sits at a table edge and a straight elbow near the shoulder's centre hits the table. center_angle is calibration.
-# The rest pose the code uses lives in hardware/servo_control.py (REST_POSE); keep home_angle equal to it.
+# home_angle is the rest pose every behavior starts and ends in; must match REST_POSE in hardware/servo_control.py.
 
 joints:
 
@@ -2245,7 +2243,7 @@ poses:
     shoulder_roll: 160.0
     right_shoulder_pitch: 170.0
 
-  # Unverified against the current arm calibration; re-test on hardware before use.
+  # Unverified against the current arm calibration.
   handshake_ready:
     right_shoulder_pitch: 150.0
     elbow: 110.0
@@ -2277,7 +2275,7 @@ poses:
     left_shoulder_roll: 120.0
     left_shoulder_pitch: 215.0
 
-  # Remapped to the 2026-09-20 left-arm calibration; not yet run on hardware.
+  # Not yet run on hardware.
   left_grab_reach:
     left_shoulder_pitch: 180.0
 
@@ -2506,11 +2504,7 @@ def _go_to_pose(ctrl, pose, keys, last_keys, seconds, tick, last_scale):
 
 
 def go_to_rest(ctrl, keys=None, seconds=2.0, tick=0.02):
-    """Move joints to REST_POSE from wherever they are: elbows, hands and head first, shoulders back last.
-
-    \`keys\` defaults to every joint on the controller's boards. Joints already at rest are left alone, so
-    calling this on a resting robot does nothing.
-    """
+    """Move joints to REST_POSE from wherever they are: elbows, hands and head first, shoulders back last; joints already at rest are left alone."""
     _go_to_pose(ctrl, REST_POSE, REST_POSE if keys is None else keys, SHOULDER_PITCH_KEYS, seconds, tick, 0.6)
 
 

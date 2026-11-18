@@ -76,4 +76,7 @@
 .ci-completed-toggle svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .15s}
 .ci-completed-toggle.open svg{transform:rotate(90deg)}
 
-.ci-group-head { padding: 8px 10px 3px 34px; font-size: 12px; font-weight: 600; color: var(--la-muted); }
+.ci-group-head { width: 100%; display: flex; align-items: center; gap: 6px; padding: 8px 10px 3px 30px; background: none; border: none; font-size: 12px; font-weight: 600; color: var(--la-muted); text-align: left; cursor: pointer; }
+.ci-group-head:hover { color: var(--la-ink); }
+.ci-group-head svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.2; transition: transform .15s; }
+.ci-group-head.open svg { transform: rotate(90deg); }

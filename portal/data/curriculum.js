@@ -25,7 +25,7 @@
  *   4. Foundation Labs   , 20 labs, one behavior or task each: labs 1-10
  *        available, labs 11-20 planned placeholders
  *   5. Behavior Sections , the main course, one group per behavior section
- *        (item.group): 5.1 Wave (wave-section.js), 5.2 Greeting Gestures
+ *        (item.group): 5 Wave (wave-section.js), 6 Greeting Gestures
  *        (handshake-section.js), then the planned ones
  *
  * Item shape (superset of the learning-path.js activity shape):
@@ -141,20 +141,20 @@ const s4 = [
 ];
 
 // Behavior Sections: every behavior section lives in this one category, as numbered groups
-// (5.1 Wave, 5.2 Greeting Gestures, ...). Labs are numbered inside their group: 5.1.03.
+// (5 Wave, 6 Greeting Gestures, ...). Labs keep two-part numbers: 5.03, 6.12.
 function grouped(group, ids) {
   return ids.map((id, i) => ({ ...real(id, 'behavior-sections', `${group.number}.${String(i + 1).padStart(2, '0')}`), group }));
 }
-const WAVE = { id: 'wave', number: '5.1', title: 'Wave', description: 'Finish a wave program one piece at a time, then send it to the robot. 6 labs.' };
-const GREETINGS = { id: 'greeting-gestures', number: '5.2', title: 'Greeting Gestures', description: 'One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.' };
-const NEXT = { id: 'coming-soon', number: '5.3', title: 'More Behavior Sections', description: 'Planned.' };
+const WAVE = { id: 'wave', number: '5', title: 'Wave', description: 'Finish a wave program one piece at a time, then send it to the robot. 6 labs.' };
+const GREETINGS = { id: 'greeting-gestures', number: '6', title: 'Greeting Gestures', description: 'One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.' };
+const NEXT = { id: 'coming-soon', number: '7', title: 'More Behavior Sections', description: 'Planned.' };
 const s5 = [
   // Content lives in wave-section.js.
   ...grouped(WAVE, ['wv-01-intro', 'wv-02-imports-settings', 'wv-03-functions', 'wv-04-loops', 'wv-05-order-cleanup', 'wv-06-run']),
   // Content lives in handshake-section.js.
   ...grouped(GREETINGS, ['hs-01-meet-the-handshake', 'hs-02-joint-control', 'hs-03-sequencing', 'hs-04-coordination', 'hs-05-run',
     'fb-06-from-handshake', 'fb-07-positions', 'fb-08-timing', 'fb-09-finish', 'fb-10-run', 'bk-11-plan', 'bk-12-challenge']),
-  { ...placeholder('behavior-sections-21', 'behavior-sections', '5.3.01', 'More Behavior Sections: Coming Soon',
+  { ...placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Behavior Sections: Coming Soon',
     'Wave and Greeting Gestures are the first two behavior sections. About 10 in all, each built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built.'), group: NEXT },
 ];
 

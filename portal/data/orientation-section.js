@@ -99,7 +99,7 @@ export const GETTING_STARTED_ACTIVITIES = [
         id: 'finding-a-lesson', title: 'Finding a Lesson',
         blocks: [
           { type: 'p', text: "Open **Learn** and you land on Learning Home, with all five sections and how far you are in each. Click a section to see its lessons, and click a lesson to open it." },
-          { type: 'p', text: "Every lesson has a number. `1.03` is section 1, lesson 3. In Behavior Sections, there's one more level: `5.1.03` is lab 3 of the first behavior section, Wave." },
+          { type: 'p', text: "Every lesson has a number. `1.03` is section 1, lesson 3. Behavior Sections hold more than one group of labs, so the number tells you the group: `5.03` is lab 3 of Wave, and `6.03` is lab 3 of Greeting Gestures." },
           { type: 'p', text: "The **Curriculum Index** on the left lists every lesson, with a search box at the top. Pretty useful when you remember a topic but not where it was!" },
         ],
       },

@@ -78,13 +78,13 @@ function studentShare(path){
   return (written.length / done.length) * 100;
 }
 
-test('Greeting Gestures is group 5.2 of Behavior Sections: handshake 1 to 5, fist bump 6 to 10, beckon 11 and 12', () => {
+test('Greeting Gestures is group 6 of Behavior Sections: handshake 1 to 5, fist bump 6 to 10, beckon 11 and 12', () => {
   assert.equal(CURRICULUM.sections.length, 5);
   assert.equal(CURRICULUM.sections[4], category);
-  assert.equal(section.items[0].group.number, '5.2');
+  assert.equal(section.items[0].group.number, '6');
   assert.ok(category.sequential);
   assert.equal(section.items.length, 12);
-  section.items.forEach((item, i) => assert.equal(item.number, `5.2.${String(i + 1).padStart(2, '0')}`));
+  section.items.forEach((item, i) => assert.equal(item.number, `6.${String(i + 1).padStart(2, '0')}`));
   assert.deepEqual(section.items.map((i) => i.id.slice(0, 2)), ['hs', 'hs', 'hs', 'hs', 'hs', 'fb', 'fb', 'fb', 'fb', 'fb', 'bk', 'bk']);
   assert.equal(category.number, 5);
   assert.deepEqual(LAB_SECTION_IDS, ['foundation', 'behavior-sections']);

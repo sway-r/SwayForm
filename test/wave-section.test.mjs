@@ -48,10 +48,10 @@ const EM_DASH = String.fromCharCode(0x2014);
 const todos = (text) => (text.match(/#\s*TODO/gi) || []).length;
 const codeLines = (text) => text.split('\n').filter((l) => l.trim() !== '');
 
-test('Wave is group 5.1 of Behavior Sections, with 6 labs in the agreed format', () => {
+test('Wave is group 5 of Behavior Sections, with 6 labs in the agreed format', () => {
   assert.equal(CURRICULUM.sections[4].id, 'behavior-sections');
   assert.equal(wave.items.length, 6);
-  wave.items.forEach((item, i) => assert.equal(item.number, `5.1.${String(i + 1).padStart(2, '0')}`));
+  wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
   assert.equal(findSection('behavior-sections').number, 5);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
   [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
@@ -63,7 +63,7 @@ test('Wave is group 5.1 of Behavior Sections, with 6 labs in the agreed format',
 
 test('every activity resolves server-side, so progress writes are accepted', () => {
   wave.items.forEach((item) => assert.ok(findActivity(item.id), item.id));
-  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.1.03');
+  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.03');
 });
 
 test('lab 3 quiz needs 80% and lab 6 is gated on it plus a finished builder', () => {

@@ -41,7 +41,7 @@ joint-to-keyboard teleop capstone.
 
 ## The Wave section
 
-Behavior section 1 is group 5.1 of Behavior Sections in `curriculum.js`: 6 labs, all written in
+Behavior section 1 is group 5 of Behavior Sections (labs 5.01 to 5.06) in `curriculum.js`: 6 labs, all written in
 one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
 for the lab team to expand and sharpen.
 
@@ -133,7 +133,7 @@ work first. Ask Swayam before changing anything about how that run works.
 
 ## Section 2: Greeting Gestures
 
-Behavior section 2 is group 5.2 of Behavior Sections in `curriculum.js`: 12 labs, all in
+Behavior section 2 is group 6 of Behavior Sections (labs 6.01 to 6.12) in `curriculum.js`: 12 labs, all in
 **`portal/data/handshake-section.js`**. The idea of the whole section: one
 movement structure (get into a pose, do the finishing move, come back home),
 three behaviors. It is a working first draft, written in the same voice and

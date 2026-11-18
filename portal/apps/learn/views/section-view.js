@@ -3,6 +3,7 @@ import { findSection, sectionProgress, itemStatus, blockingItem } from '../../..
 import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
 import { isAdminView, loadAdminView } from '../admin-view.js';
+import { isGroupOpen, toggleGroup } from '../group-collapse.js';
 
 function diffTag(item){
   if (item.kind === 'reading') return `<span class="diff-tag reading">${item.tagLabel || 'Reading'}</span>`;
@@ -96,17 +97,33 @@ export function mount(container, params, nav, ctx){
       parent.appendChild(row);
     }
 
-    // Behavior Sections hold several groups (5.1 Wave, 5.2 Greeting Gestures, ...), each under its own heading.
+    // Behavior Sections hold several groups (5 Wave, 6 Greeting Gestures, ...), each under its own heading.
     let lastGroup = null;
+    let groupEl = itemsEl;
     visible.forEach((item) => {
       if (item.group && item.group !== lastGroup){
         lastGroup = item.group;
-        const head = document.createElement('div');
-        head.className = 'sv-group-head';
-        head.innerHTML = `<span class="sv-group-num">${item.group.number}</span><span class="sv-group-title">${item.group.title}</span><span class="sv-group-desc">${item.group.description || ''}</span>`;
+        const open = isGroupOpen(item.group.id);
+        const head = document.createElement('button');
+        head.type = 'button';
+        head.className = 'sv-group-head' + (open ? ' open' : '');
+        head.setAttribute('aria-expanded', String(open));
+        head.innerHTML = `<span class="sv-group-chev">${icon('chevronRight')}</span><span class="sv-group-num">${item.group.number}</span><span class="sv-group-title">${item.group.title}</span><span class="sv-group-desc">${item.group.description || ''}</span>`;
+        const body = document.createElement('div');
+        body.className = 'sv-group-body';
+        body.hidden = !open;
+        head.addEventListener('click', () => {
+          const nowOpen = toggleGroup(head.dataset.group);
+          body.hidden = !nowOpen;
+          head.classList.toggle('open', nowOpen);
+          head.setAttribute('aria-expanded', String(nowOpen));
+        });
+        head.dataset.group = item.group.id;
         itemsEl.appendChild(head);
+        itemsEl.appendChild(body);
+        groupEl = body;
       }
-      addRow(item, itemsEl);
+      addRow(item, item.group ? groupEl : itemsEl);
     });
 
     if (tucked.length){

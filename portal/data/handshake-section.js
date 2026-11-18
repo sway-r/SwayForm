@@ -1,4 +1,4 @@
-/* Greeting Gestures, behavior section 2 (12 labs): handshake, fist bump and beckon. Group 5.2 of Behavior Sections in curriculum.js; see README.md, "Section 2: Greeting Gestures". */
+/* Greeting Gestures, behavior section 2 (12 labs): handshake, fist bump and beckon. Group 6 (Greeting Gestures) of Behavior Sections in curriculum.js; see README.md, "Section 2: Greeting Gestures". */
 
 const HS_BUILDER = 'swayform_ws/src/swayform_labs/handshake_builder.py';
 const FB_BUILDER = 'swayform_ws/src/swayform_labs/fist_bump_builder.py';

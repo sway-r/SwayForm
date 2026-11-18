@@ -187,8 +187,13 @@
 .sv-completed-toggle.open svg{transform:rotate(90deg)}
 
 /* Group headings inside Behavior Sections (5.1 Wave, 5.2 Greeting Gestures, ...) */
-.sv-group-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 18px 4px 6px; border-bottom: 1px solid var(--la-border); }
+.sv-group-head { width: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding: 18px 4px 6px; background: none; border: none; border-bottom: 1px solid var(--la-border); font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .sv-group-head:first-child { padding-top: 4px; }
+.sv-group-head:hover .sv-group-title { text-decoration: underline; }
+.sv-group-chev { display: inline-flex; align-self: center; color: var(--la-muted); }
+.sv-group-chev svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; transition: transform .15s; }
+.sv-group-head.open .sv-group-chev svg { transform: rotate(90deg); }
+.sv-group-desc { padding-left: 22px; }
 .sv-group-num { font-variant-numeric: tabular-nums; color: var(--la-muted); }
 .sv-group-title { font-weight: 600; }
 .sv-group-desc { flex-basis: 100%; font-size: 13px; color: var(--la-muted); }

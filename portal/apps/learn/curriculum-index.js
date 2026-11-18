@@ -11,6 +11,7 @@ import { getPrefs } from '../../prefs.js';
 import { getCompletedActivities } from '../../services/progress-service.js';
 import { isAdminView, loadAdminView } from './admin-view.js';
 import { escapeHtml } from '../../utils.js';
+import { isGroupOpen, toggleGroup } from './group-collapse.js';
 
 // Module-level so expanded sections survive close/reopen within the session
 // (not persisted across page reloads, that would be over-engineering this).
@@ -113,6 +114,7 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
       const itemsEl = block.querySelector(`[data-items="${section.id}"]`);
       const hideDone = getPrefs().hideCompleted;
       const tucked = section.items.filter((item) => hideDone && completedIds.has(item.id) && item.id !== currentId);
+      let target = itemsEl;
       const addRow = (item) => {
         const row = document.createElement('button');
         row.type = 'button';
@@ -123,19 +125,27 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
           <span class="ci-item-num">${item.number}</span>
           <span class="ci-item-title">${item.title}</span>
           ${kindBadge(item)}`;
-        itemsEl.appendChild(row);
+        target.appendChild(row);
       };
       let lastGroup = null;
       section.items.filter((item) => !tucked.includes(item)).forEach((item) => {
         if (item.group && item.group !== lastGroup){
           lastGroup = item.group;
-          const head = document.createElement('div');
-          head.className = 'ci-group-head';
-          head.textContent = `${item.group.number} ${item.group.title}`;
+          const open = isGroupOpen(item.group.id);
+          const head = document.createElement('button');
+          head.type = 'button';
+          head.className = 'ci-group-head' + (open ? ' open' : '');
+          head.dataset.toggleGroup = item.group.id;
+          head.setAttribute('aria-expanded', String(open));
+          head.innerHTML = `${icon('chevronRight')}<span>${item.group.number} ${escapeHtml(item.group.title)}</span>`;
           itemsEl.appendChild(head);
+          target = document.createElement('div');
+          target.hidden = !open;
+          itemsEl.appendChild(target);
         }
         addRow(item);
       });
+      target = itemsEl;
       if (tucked.length){
         const open = expandedCompleted.has(section.id);
         const toggle = document.createElement('button');
@@ -155,6 +165,9 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
         if (expandedSections.has(id)) expandedSections.delete(id); else expandedSections.add(id);
         renderList();
       });
+    });
+    listEl.querySelectorAll('[data-toggle-group]').forEach((btn) => {
+      btn.addEventListener('click', () => { toggleGroup(btn.dataset.toggleGroup); renderList(); });
     });
     listEl.querySelectorAll('[data-toggle-completed]').forEach((btn) => {
       btn.addEventListener('click', () => {

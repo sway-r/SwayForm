@@ -207,7 +207,13 @@ test('the robot runs accept exactly what the labs ask for', () => {
   assert.ok(isCanonicalRobotPath(hs) && isCanonicalRobotPath(fb));
   assert.equal(validateAgainstCanonicalSource(hs, WORKSPACE_FILES[hs].replace('SHAKE_CYCLES = 1', 'SHAKE_CYCLES = 3')).status, 'complete');
   assert.equal(validateAgainstCanonicalSource(fb, WORKSPACE_FILES[fb].replace('ENABLE_HEAD_NOD = False', 'ENABLE_HEAD_NOD = True')).status, 'complete');
-  assert.equal(typeof WORKSPACE_FILES[`${BEHAVIORS}beckon.py`], 'string', 'the real beckon.py is mirrored for lab 12');
+  const bk = `${BEHAVIORS}beckon.py`;
+  assert.ok(isCanonicalRobotPath(bk));
+  assert.ok(lab(12).extraFiles.includes(bk));
+  assert.equal(validateAgainstCanonicalSource(bk, WORKSPACE_FILES[bk].replace(/^BECKON_CYCLES = 1\b/m, 'BECKON_CYCLES = 3')).status, 'complete');
+  const untouched = validateAgainstCanonicalSource(bk, WORKSPACE_FILES[bk]);
+  assert.deepEqual([untouched.status, untouched.tunable], ['not_started', { name: 'BECKON_CYCLES', from: '1', to: '3' }]);
+  assert.equal(validateAgainstCanonicalSource(bk, WORKSPACE_FILES[bk].replace(/^BECKON_CYCLES = 1\b/m, 'BECKON_CYCLES = 9')).status, 'tampered');
 });
 
 test('Section 2 labs never show a Terminal window', async () => {

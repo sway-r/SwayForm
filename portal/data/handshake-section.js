@@ -1,4 +1,4 @@
-/* Handshake, Fist Bump and Beckon, behavior section 2 (12 labs). Listed as section 6 in curriculum.js; see README.md, "Section 2". */
+/* Greeting Gestures, behavior section 2 (12 labs): handshake, fist bump and beckon. Listed as section 6 in curriculum.js; see README.md, "Section 2: Greeting Gestures". */
 
 const HS_BUILDER = 'swayform_ws/src/swayform_labs/handshake_builder.py';
 const FB_BUILDER = 'swayform_ws/src/swayform_labs/fist_bump_builder.py';
@@ -84,22 +84,22 @@ const STUCK = (builder) => ({
 });
 
 export const HANDSHAKE_LEVEL = {
-  id: 'handshake-section', number: 10, title: 'Handshake, Fist Bump and Beckon',
+  id: 'handshake-section', number: 10, title: 'Greeting Gestures',
   description: 'The second behavior section: three arm behaviors built on one movement structure.',
   sections: [
     {
-      id: 'handshake-labs', title: 'Handshake, Fist Bump and Beckon', difficulty: 'beginner', estimatedTime: '5 to 6 hours',
+      id: 'handshake-labs', title: 'Greeting Gestures', difficulty: 'beginner', estimatedTime: '5 to 6 hours',
       description: 'Twelve labs. Build a handshake, reuse its structure for a fist bump, then plan and write a beckon on your own.',
       activities: [
 
         // Lab 1
         {
           id: 'hs-01-meet-the-handshake', title: 'Meet the Handshake', kind: 'activity', difficulty: 'beginner', estimatedTime: '20 to 25 minutes',
-          summary: 'What Section 2 builds, a quick review of the Wave ideas, and the first two pieces of the handshake program.',
+          summary: 'What Greeting Gestures builds, a quick review of the Wave ideas, and the first two pieces of the handshake program.',
           workspaceFile: HS_BUILDER,
           relatedConcepts: ['Behaviors', 'Review', 'Imports', 'Variables'],
           steps: [
-            summary('20 to 25 minutes', 'In this lab, you are going to meet Section 2, go over what you learned in Wave, and start your handshake program. You will:', [
+            summary('20 to 25 minutes', 'In this lab, you are going to meet Greeting Gestures, the second behavior section, go over what you learned in Wave, and start your handshake program. You will:', [
               'See the three behaviors of this section, and the one structure they share.',
               'Review the six ideas from Wave: imports, settings, functions, loops, order and cleanup.',
               'Write the first two pieces of `handshake_builder.py`.',
@@ -1092,9 +1092,11 @@ export const HANDSHAKE_LEVEL = {
             {
               id: 'robot-run', title: 'Run the Real Beckon',
               blocks: [
-                { type: 'p', text: "In the real `beckon.py`, set `BECKON_CYCLES` to **3**, so the robot beckons three times, just like your program:" },
+                { type: 'p', text: "Now, let's send it to the robot. In the real `beckon.py`, find `BECKON_CYCLES`. It starts at 1, so the robot would only beckon once. Change it from 1 to **3**, so it beckons three times, just like your program:" },
                 { type: 'code', lang: 'python', filename: 'Edit in beckon.py', workspaceFile: REAL_BECKON, line: 63, code: 'BECKON_CYCLES = 3' },
-                { type: 'p', text: "Click **Run**, then **Queue on Robot**, and wait for an admin to approve it. While it runs, you should get something similar to this:" },
+                { type: 'p', text: "Click **Run**. If your `beckon_builder.py` is finished and only that line changed, you should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['$ ros2 run swayform_robot beckon', '[INFO] [beckon]: node started', '[INFO] Connecting to motion controller...', '[INFO] [beckon]: all required values are set', 'Objective complete: this matches the target solution. Queue on Robot is now available.'] },
+                { type: 'p', text: "Click **Queue on Robot**, and wait for an admin to approve it. While it runs, you should get something similar to this:" },
                 queueOutput(['Raising arm...', 'Beckoning...', 'Beckoning 1/3: curling in...', 'Beckoning 1/3: opening back up...', '...', 'Beckoning 3/3: opening back up...', 'Returning to the rest pose...']),
                 ROBOT_SAFETY,
               ],
@@ -1106,7 +1108,7 @@ export const HANDSHAKE_LEVEL = {
               ],
             },
           ],
-          completionSummary: { text: 'You wrote the beckon on your own and finished Section 2.', conceptsUsed: ['Behaviors', 'Functions', 'Loops', 'try / finally'] },
+          completionSummary: { text: 'You wrote the beckon on your own and finished Greeting Gestures.', conceptsUsed: ['Behaviors', 'Functions', 'Loops', 'try / finally'] },
         },
       ],
     },

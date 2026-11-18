@@ -37,6 +37,9 @@ const TUNABLES = {
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/fist_bump.py': [
     { name: 'ENABLE_HEAD_NOD', pattern: /^ENABLE_HEAD_NOD = (True|False)\b.*$/, targets: ['True'] },
   ],
+  'swayform_ws/src/swayform_robot/swayform_robot/behaviors/beckon.py': [
+    { name: 'BECKON_CYCLES', pattern: /^BECKON_CYCLES = (\d+)\b.*$/, targets: ['3'] },
+  ],
   'swayform_ws/src/swayform_robot/swayform_robot/behaviors/finger_count.py': [
     { name: 'NUMBER', pattern: /^NUMBER = (None|[1-5])$/, targets: ['1', '2', '3', '4', '5'] },
   ],

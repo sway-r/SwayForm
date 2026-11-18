@@ -131,7 +131,7 @@ the robot run.
 files are hash-pinned on the Pi, so running a student-built file needs Pi-side
 work first. Ask Swayam before changing anything about how that run works.
 
-## Section 2: Handshake, Fist Bump and Beckon
+## Section 2: Greeting Gestures
 
 Behavior section 2 is section 6 in `curriculum.js`: 12 labs, all in
 **`portal/data/handshake-section.js`**. The idea of the whole section: one
@@ -159,11 +159,12 @@ Still to do:
 
 - **Lab 11's video.** The `video` block has no `src` yet. Add the beckon
   clip to `videos/` and set `src` (and a `poster`) on that block.
-- **Lab 12's robot run** needs the Pi side first: `beckon.py` must start at
-  `BECKON_CYCLES = 1` and the agent must accept beckon jobs. After that,
-  `beckon.py` gets added to `CANONICAL_ROBOT_PATHS` (`ros-paths.js`) and to
-  `TUNABLES` (`api/_lib/canonical-source.js`). Ask Swayam.
 - Anything deeper: more bug hunts, more questions, a bigger quiz bank.
+
+The three robot runs send the real files: lab 5 changes `SHAKE_CYCLES` in
+`handshake.py` from 1 to 3, lab 10 switches `ENABLE_HEAD_NOD` in
+`fist_bump.py` to `True`, and lab 12 changes `BECKON_CYCLES` in `beckon.py`
+from 1 to 3. Ask Swayam before changing how any of them work.
 
 ## Previewing your changes
 

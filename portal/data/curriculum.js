@@ -26,7 +26,7 @@
  *        available, labs 11-20 planned placeholders
  *   5. Wave              , behavior section 1: 6 labs, about 30% of the code
  *        written by the student (authored in wave-section.js)
- *   6. Handshake, Fist Bump and Beckon, behavior section 2: 12 labs, one
+ *   6. Greeting Gestures, behavior section 2: 12 labs (handshake, fist bump, beckon), one
  *        movement structure reused for three behaviors (handshake-section.js)
  *   7. More Sections     , the behavior sections still to come, Planned
  *
@@ -150,7 +150,7 @@ const s5 = [
   real('wv-06-run', 'wave', '5.06'),
 ];
 
-// Handshake, Fist Bump and Beckon, behavior section 2: content lives in handshake-section.js.
+// Greeting Gestures, behavior section 2: content lives in handshake-section.js.
 const s6 = [
   real('hs-01-meet-the-handshake', 'handshake', '6.01'),
   real('hs-02-joint-control', 'handshake', '6.02'),
@@ -169,7 +169,7 @@ const s6 = [
 // No other behavior section titles are published yet, so one placeholder.
 const s7 = [
   placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Sections: Coming Soon',
-    'Wave and Handshake, Fist Bump and Beckon are the first two behavior sections. More follow, each built around robot behaviors. Students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Exact section and lab titles will be finalized as development continues.'),
+    'Wave and Greeting Gestures are the first two behavior sections. More follow, each built around robot behaviors. Students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Exact section and lab titles will be finalized as development continues.'),
 ];
 
 export const CURRICULUM = {
@@ -202,8 +202,8 @@ export const CURRICULUM = {
       items: s5,
     },
     {
-      id: 'handshake', number: 6, title: 'Handshake, Fist Bump and Beckon', type: 'lab', icon: 'play', sequential: true,
-      description: 'Behavior section 2. One movement structure, three behaviors: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.',
+      id: 'handshake', number: 6, title: 'Greeting Gestures', type: 'lab', icon: 'play', sequential: true,
+      description: 'Behavior section 2. One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.',
       items: s6,
     },
     {

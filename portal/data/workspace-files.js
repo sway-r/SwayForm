@@ -480,7 +480,7 @@ FINGER_CURL_AMOUNT = 40  # degrees fingers curl in from open, thumb still curls 
 SHAKE_STEP_DURATION = 0.3
 RETURN_DURATION = 2.0
 
-TICK_DELAY = 0.02  # matches the old motion_server's ~20ms interpolation tick
+TICK_DELAY = 0.02  # ~20ms interpolation tick
 
 
 def _mv(addr, ch, target, duration):
@@ -934,16 +934,16 @@ BECKON_PITCH = CENTERS[(PCA_REACH, SHOULDER_PITCH)] + SHOULDER_FORWARD_OFFSET
 # Degrees the fingers curl in from open, out of the 85-degree full range (open 135 to curled 50).
 FINGER_CURL_AMOUNT = 60
 
-BECKON_CYCLES = 3   # number of times the fingers curl in and back out
+BECKON_CYCLES = 1   # number of times the fingers curl in and back out
 
 RAISE_DURATION = 1.5
-WRIST_DURATION = 0.5   # faster than the shoulder raise, the wrist was straining when moved slowly
+WRIST_DURATION = 0.5   # faster than the shoulder raise
 HOLD_BEFORE_BECKON = 0.3
 CURL_DURATION = 0.8
 EXTEND_DURATION = 0.8
 RETURN_DURATION = 2.0
 
-TICK_DELAY = 0.02  # matches the old motion_server's ~20ms interpolation tick
+TICK_DELAY = 0.02  # ~20ms interpolation tick
 
 
 def _mv(addr, ch, target, duration):
@@ -2229,10 +2229,10 @@ joints:
     home_angle: 100.0
     center_angle: 100.0
     min_angle: 60.0
-    max_angle: 160.0
+    max_angle: 170.0
     direction: 1
     servo_range: 180
-    notes: "Wrist. Center 100. Range 60-160."
+    notes: "Wrist. Center 100. Range 60-170 (raised from 160 for palm-up)."
 
   elbow:
     board: right_arm_pca

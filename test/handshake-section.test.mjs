@@ -21,7 +21,8 @@ const BEHAVIORS = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/';
 const HS = `${LABS}handshake_builder.py`;
 const FB = `${LABS}fist_bump_builder.py`;
 const BK = `${LABS}beckon_builder.py`;
-const section = findSection('handshake');
+const category = findSection('behavior-sections');
+const section = { items: category.items.filter((i) => i.group && i.group.id === 'greeting-gestures') };
 const lab = (n) => section.items[n - 1];
 const blocksOf = (item) => item.steps.flatMap((s) => s.blocks);
 const typesOf = (item) => new Set(blocksOf(item).map((b) => b.type));
@@ -77,16 +78,17 @@ function studentShare(path){
   return (written.length / done.length) * 100;
 }
 
-test('Section 2 is section 6 with 12 labs: handshake 1 to 5, fist bump 6 to 10, beckon 11 and 12', () => {
-  assert.equal(CURRICULUM.sections[5].id, 'handshake');
-  assert.equal(section.number, 6);
-  assert.ok(section.sequential);
+test('Greeting Gestures is group 5.2 of Behavior Sections: handshake 1 to 5, fist bump 6 to 10, beckon 11 and 12', () => {
+  assert.equal(CURRICULUM.sections.length, 5);
+  assert.equal(CURRICULUM.sections[4], category);
+  assert.equal(section.items[0].group.number, '5.2');
+  assert.ok(category.sequential);
   assert.equal(section.items.length, 12);
-  section.items.forEach((item, i) => assert.equal(item.number, `6.${String(i + 1).padStart(2, '0')}`));
+  section.items.forEach((item, i) => assert.equal(item.number, `5.2.${String(i + 1).padStart(2, '0')}`));
   assert.deepEqual(section.items.map((i) => i.id.slice(0, 2)), ['hs', 'hs', 'hs', 'hs', 'hs', 'fb', 'fb', 'fb', 'fb', 'fb', 'bk', 'bk']);
-  assert.equal(findSection('behavior-sections').number, 7);
-  assert.ok(LAB_SECTION_IDS.includes('handshake'));
-  assert.equal(nextItem('wv-06-run').id, lab(1).id, 'Wave hands over to Section 2');
+  assert.equal(category.number, 5);
+  assert.deepEqual(LAB_SECTION_IDS, ['foundation', 'behavior-sections']);
+  assert.equal(nextItem('wv-06-run').id, lab(1).id, 'Wave hands over to Greeting Gestures');
   section.items.forEach((item) => assert.ok(findActivity(item.id), `${item.id} resolves server-side`));
 });
 
@@ -216,8 +218,8 @@ test('the robot runs accept exactly what the labs ask for', () => {
   assert.equal(validateAgainstCanonicalSource(bk, WORKSPACE_FILES[bk].replace(/^BECKON_CYCLES = 1\b/m, 'BECKON_CYCLES = 9')).status, 'tampered');
 });
 
-test('Section 2 labs never show a Terminal window', async () => {
+test('Behavior Sections labs never show a Terminal window', async () => {
   const src = readFileSync(new URL('../portal/apps/learn/views/activity-workspace.js', import.meta.url), 'utf8');
-  assert.match(src, /NO_TERMINAL_SECTIONS = new Set\(\[[^\]]*'handshake'/);
-  assert.equal(findItem(lab(1).id).section.id, 'handshake');
+  assert.match(src, /NO_TERMINAL_SECTIONS = new Set\(\['behavior-sections'\]\)/);
+  assert.equal(findItem(lab(1).id).section.id, 'behavior-sections');
 });

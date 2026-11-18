@@ -61,7 +61,7 @@ export function mount(bodyEl, winApi, opts) {
   doc.appendChild(head);
 
   // Steps are numbered like a textbook (lab 5.04, step 2 is 5.4.2). A step with id 'summary' goes unnumbered.
-  const prefix = /^\d+\.\d+$/.test(activity.number || '') ? activity.number.split('.').map(Number).join('.') + '.' : '';
+  const prefix = /^\d+(\.\d+)+$/.test(activity.number || '') ? activity.number.split('.').map(Number).join('.') + '.' : '';
   let stepCount = 0;
   const stepLabels = activity.steps.map((s) => (s.id === 'summary' ? '' : prefix + (++stepCount)));
 

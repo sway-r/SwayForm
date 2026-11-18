@@ -18,17 +18,15 @@
  * nothing here retypes lesson content. Only the grouping/numbering/labeling
  * around that content is new.
  *
- * Seven sections:
- *   1. Getting Started   , orientation, safety, and how the portal works (5 items, active)
- *   2. Introduction to ROS 2, the software ideas behind the labs (9 items, active)
+ * Five sections:
+ *   1. Getting Started   , orientation, safety, and how to use the portal
+ *   2. Introduction to ROS 2, the software ideas the labs rely on
  *   3. Pre-Installed Demos, explore existing behaviors (5 items, all built)
  *   4. Foundation Labs   , 20 labs, one behavior or task each: labs 1-10
  *        available, labs 11-20 planned placeholders
- *   5. Wave              , behavior section 1: 6 labs, about 30% of the code
- *        written by the student (authored in wave-section.js)
- *   6. Greeting Gestures, behavior section 2: 12 labs (handshake, fist bump, beckon), one
- *        movement structure reused for three behaviors (handshake-section.js)
- *   7. More Sections     , the behavior sections still to come, Planned
+ *   5. Behavior Sections , the main course, one group per behavior section
+ *        (item.group): 5.1 Wave (wave-section.js), 5.2 Greeting Gestures
+ *        (handshake-section.js), then the planned ones
  *
  * Item shape (superset of the learning-path.js activity shape):
  *   { id, sectionId, number: '4.3', title, kind: 'reading'|'demo'|'activity'|'placeholder',
@@ -140,36 +138,22 @@ const s4 = [
   placeholder('foundation-20', 'foundation', '4.20', 'Simple Dance Routine'),
 ];
 
-// Wave, behavior section 1: content lives in wave-section.js.
+// Behavior Sections: every behavior section lives in this one category, as numbered groups
+// (5.1 Wave, 5.2 Greeting Gestures, ...). Labs are numbered inside their group: 5.1.03.
+function grouped(group, ids) {
+  return ids.map((id, i) => ({ ...real(id, 'behavior-sections', `${group.number}.${String(i + 1).padStart(2, '0')}`), group }));
+}
+const WAVE = { id: 'wave', number: '5.1', title: 'Wave', description: 'Finish a wave program one piece at a time, then send it to the robot. 6 labs.' };
+const GREETINGS = { id: 'greeting-gestures', number: '5.2', title: 'Greeting Gestures', description: 'One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.' };
+const NEXT = { id: 'coming-soon', number: '5.3', title: 'More Behavior Sections', description: 'Planned.' };
 const s5 = [
-  real('wv-01-intro', 'wave', '5.01'),
-  real('wv-02-imports-settings', 'wave', '5.02'),
-  real('wv-03-functions', 'wave', '5.03'),
-  real('wv-04-loops', 'wave', '5.04'),
-  real('wv-05-order-cleanup', 'wave', '5.05'),
-  real('wv-06-run', 'wave', '5.06'),
-];
-
-// Greeting Gestures, behavior section 2: content lives in handshake-section.js.
-const s6 = [
-  real('hs-01-meet-the-handshake', 'handshake', '6.01'),
-  real('hs-02-joint-control', 'handshake', '6.02'),
-  real('hs-03-sequencing', 'handshake', '6.03'),
-  real('hs-04-coordination', 'handshake', '6.04'),
-  real('hs-05-run', 'handshake', '6.05'),
-  real('fb-06-from-handshake', 'handshake', '6.06'),
-  real('fb-07-positions', 'handshake', '6.07'),
-  real('fb-08-timing', 'handshake', '6.08'),
-  real('fb-09-finish', 'handshake', '6.09'),
-  real('fb-10-run', 'handshake', '6.10'),
-  real('bk-11-plan', 'handshake', '6.11'),
-  real('bk-12-challenge', 'handshake', '6.12'),
-];
-
-// No other behavior section titles are published yet, so one placeholder.
-const s7 = [
-  placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Sections: Coming Soon',
-    'Wave and Greeting Gestures are the first two behavior sections. More follow, each built around robot behaviors. Students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Exact section and lab titles will be finalized as development continues.'),
+  // Content lives in wave-section.js.
+  ...grouped(WAVE, ['wv-01-intro', 'wv-02-imports-settings', 'wv-03-functions', 'wv-04-loops', 'wv-05-order-cleanup', 'wv-06-run']),
+  // Content lives in handshake-section.js.
+  ...grouped(GREETINGS, ['hs-01-meet-the-handshake', 'hs-02-joint-control', 'hs-03-sequencing', 'hs-04-coordination', 'hs-05-run',
+    'fb-06-from-handshake', 'fb-07-positions', 'fb-08-timing', 'fb-09-finish', 'fb-10-run', 'bk-11-plan', 'bk-12-challenge']),
+  { ...placeholder('behavior-sections-21', 'behavior-sections', '5.3.01', 'More Behavior Sections: Coming Soon',
+    'Wave and Greeting Gestures are the first two behavior sections. About 10 in all, each built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built.'), group: NEXT },
 ];
 
 export const CURRICULUM = {
@@ -197,28 +181,18 @@ export const CURRICULUM = {
       items: s4,
     },
     {
-      id: 'wave', number: 5, title: 'Wave', type: 'lab', icon: 'play', sequential: true,
-      description: 'Behavior section 1. Finish a wave program one piece at a time, then send it to the robot. 6 labs.',
+      id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects', sequential: true,
+      description: 'The main course: about 10 sections, each built around robot behaviors. Each section ends with a run on the real robot.',
       items: s5,
-    },
-    {
-      id: 'handshake', number: 6, title: 'Greeting Gestures', type: 'lab', icon: 'play', sequential: true,
-      description: 'Behavior section 2. One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.',
-      items: s6,
-    },
-    {
-      id: 'behavior-sections', number: 7, title: 'More Sections', type: 'lab', icon: 'projects', sequential: true,
-      description: 'After the first two behavior sections: more sections of 10–12 labs, each built around robot behaviors. Planned.',
-      items: s7,
     },
   ],
 };
 
 /* ---- Lookup helpers: the single source of truth for every Learn view ---- */
 
-/** Sections 4-6 only: the lab sections. Getting Started / ROS 2 / Demos are
+/** Sections 4 and 5 only: the lab sections. Getting Started / ROS 2 / Demos are
  * NOT part of the lab count. */
-export const LAB_SECTION_IDS = ['foundation', 'wave', 'handshake', 'behavior-sections'];
+export const LAB_SECTION_IDS = ['foundation', 'behavior-sections'];
 
 export function findSection(sectionId) {
   return CURRICULUM.sections.find((s) => s.id === sectionId) || null;

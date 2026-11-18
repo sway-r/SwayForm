@@ -185,3 +185,10 @@
 .sv-completed-toggle:hover{background:var(--la-hover);color:var(--la-ink)}
 .sv-completed-toggle svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .15s}
 .sv-completed-toggle.open svg{transform:rotate(90deg)}
+
+/* Group headings inside Behavior Sections (5.1 Wave, 5.2 Greeting Gestures, ...) */
+.sv-group-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 18px 4px 6px; border-bottom: 1px solid var(--la-border); }
+.sv-group-head:first-child { padding-top: 4px; }
+.sv-group-num { font-variant-numeric: tabular-nums; color: var(--la-muted); }
+.sv-group-title { font-weight: 600; }
+.sv-group-desc { flex-basis: 100%; font-size: 13px; color: var(--la-muted); }

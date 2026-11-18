@@ -96,7 +96,18 @@ export function mount(container, params, nav, ctx){
       parent.appendChild(row);
     }
 
-    visible.forEach((item) => addRow(item, itemsEl));
+    // Behavior Sections hold several groups (5.1 Wave, 5.2 Greeting Gestures, ...), each under its own heading.
+    let lastGroup = null;
+    visible.forEach((item) => {
+      if (item.group && item.group !== lastGroup){
+        lastGroup = item.group;
+        const head = document.createElement('div');
+        head.className = 'sv-group-head';
+        head.innerHTML = `<span class="sv-group-num">${item.group.number}</span><span class="sv-group-title">${item.group.title}</span><span class="sv-group-desc">${item.group.description || ''}</span>`;
+        itemsEl.appendChild(head);
+      }
+      addRow(item, itemsEl);
+    });
 
     if (tucked.length){
       const toggle = document.createElement('button');

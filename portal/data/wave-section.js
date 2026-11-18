@@ -1,4 +1,4 @@
-/* Wave, behavior section 1 (6 labs). Listed as section 5 in curriculum.js; see README.md, "The Wave section". */
+/* Wave, behavior section 1 (6 labs). Group 5.1 of Behavior Sections in curriculum.js; see README.md, "The Wave section". */
 
 const BUILDER = 'swayform_ws/src/swayform_labs/wave_builder.py';
 const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';

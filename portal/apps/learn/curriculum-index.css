@@ -75,3 +75,5 @@
 .ci-completed-toggle:hover{color:var(--la-ink)}
 .ci-completed-toggle svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .15s}
 .ci-completed-toggle.open svg{transform:rotate(90deg)}
+
+.ci-group-head { padding: 8px 10px 3px 34px; font-size: 12px; font-weight: 600; color: var(--la-muted); }

@@ -125,7 +125,17 @@ export function mount(hostEl, { onNavigate, getCurrentItemId, getCurrentSectionI
           ${kindBadge(item)}`;
         itemsEl.appendChild(row);
       };
-      section.items.filter((item) => !tucked.includes(item)).forEach(addRow);
+      let lastGroup = null;
+      section.items.filter((item) => !tucked.includes(item)).forEach((item) => {
+        if (item.group && item.group !== lastGroup){
+          lastGroup = item.group;
+          const head = document.createElement('div');
+          head.className = 'ci-group-head';
+          head.textContent = `${item.group.number} ${item.group.title}`;
+          itemsEl.appendChild(head);
+        }
+        addRow(item);
+      });
       if (tucked.length){
         const open = expandedCompleted.has(section.id);
         const toggle = document.createElement('button');

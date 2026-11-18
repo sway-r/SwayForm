@@ -54,7 +54,7 @@ const READING_DEFAULT_LAYOUT = {
 // through the Code Editor's own Output/Problems panel, and these lessons
 // print no terminal commands of their own, so Terminal is left unregistered
 // entirely: no window, no dock entry, no Ctrl+`.
-const NO_TERMINAL_SECTIONS = new Set(['wave', 'handshake']);
+const NO_TERMINAL_SECTIONS = new Set(['behavior-sections']);
 
 // Without Terminal both tiled presets collapse to the same two-column split,
 // with Code Editor taking back the bottom third WORKSPACE_LAYOUT lends the
@@ -69,8 +69,8 @@ const PRESETS = [
   { id: 'default', label: 'Workspace' },
 ];
 
-// Demos, Foundation, Wave and Handshake only need the split; later sections also get Workspace.
-const SPLIT_ONLY_SECTIONS = new Set(['demos', 'foundation', 'wave', 'handshake']);
+// Demos, Foundation and Behavior Sections only need the split.
+const SPLIT_ONLY_SECTIONS = new Set(['demos', 'foundation', 'behavior-sections']);
 
 export function mount(container, params, nav, ctx){
   const found = findItem(params.activityId);

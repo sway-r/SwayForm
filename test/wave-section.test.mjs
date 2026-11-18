@@ -26,7 +26,7 @@ const finalQuizPassed = (passed) => {
 
 const BUILDER = 'swayform_ws/src/swayform_labs/wave_builder.py';
 const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
-const wave = findSection('wave');
+const wave = { items: findSection('behavior-sections').items.filter((i) => i.group && i.group.id === 'wave') };
 const lab = (n) => wave.items[n - 1];
 const blocksOf = (item) => item.steps.flatMap((s) => s.blocks);
 const typesOf = (item) => new Set(blocksOf(item).map((b) => b.type));
@@ -48,11 +48,11 @@ const EM_DASH = String.fromCharCode(0x2014);
 const todos = (text) => (text.match(/#\s*TODO/gi) || []).length;
 const codeLines = (text) => text.split('\n').filter((l) => l.trim() !== '');
 
-test('Wave is section 5 with 6 labs in the agreed format', () => {
-  assert.equal(CURRICULUM.sections[4].id, 'wave');
+test('Wave is group 5.1 of Behavior Sections, with 6 labs in the agreed format', () => {
+  assert.equal(CURRICULUM.sections[4].id, 'behavior-sections');
   assert.equal(wave.items.length, 6);
-  wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
-  assert.equal(findSection('behavior-sections').number, 7);
+  wave.items.forEach((item, i) => assert.equal(item.number, `5.1.${String(i + 1).padStart(2, '0')}`));
+  assert.equal(findSection('behavior-sections').number, 5);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
   [2, 4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('mcq'), `lab ${n} has mcq checks`));
   [4, 5].forEach((n) => assert.ok(typesOf(lab(n)).has('troubleshoot') && typesOf(lab(n)).has('reveal'), `lab ${n} keeps its bug hunts and reveals`));
@@ -63,7 +63,7 @@ test('Wave is section 5 with 6 labs in the agreed format', () => {
 
 test('every activity resolves server-side, so progress writes are accepted', () => {
   wave.items.forEach((item) => assert.ok(findActivity(item.id), item.id));
-  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.03');
+  assert.equal(findItem(WAVE_QUIZ_ID).item.number, '5.1.03');
 });
 
 test('lab 3 quiz needs 80% and lab 6 is gated on it plus a finished builder', () => {
@@ -186,7 +186,7 @@ test('with LABS_LOCKED on (at launch), Wave labs open one at a time', async () =
   assert.equal(itemStatus(lab(1), [ids[0]], null, on), 'done');
   assert.equal(prevInSection(ids[0]), null);
   assert.equal(prevInSection(ids[1]).id, ids[0]);
-  assert.equal(nextInSection(ids[5]), null, 'Next stops at the end of the section');
+  assert.equal(nextInSection(ids[5]).id, 'hs-01-meet-the-handshake', 'Next goes on to the next behavior section');
   assert.equal(blockingItem('timed-torso-rotation', [], on), null, 'sections without locks are unchanged');
 });
 

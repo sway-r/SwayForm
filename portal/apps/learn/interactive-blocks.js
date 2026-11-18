@@ -3,6 +3,7 @@
 
 import { isAdminView } from './admin-view.js';
 import { hasPassedQuiz, recordQuizPass, lastQuizTry, startQuizTry, finishQuizTry, nextQuizTryAt, QUIZ_WAIT_MINUTES } from '../../services/quiz-passes.js';
+import { recordQuizResult } from '../../services/progress-service.js';
 
 // The quiz open full screen in this page, if any, so its lab block can tell a running try from an abandoned one.
 let openQuizId = null;
@@ -292,6 +293,7 @@ function openQuizScreen(block, h, onClose){
     const passed = right * 100 >= pass * items.length;
     finishQuizTry(block.id, percent);
     if (passed) recordQuizPass(block.id);
+    recordQuizResult(block.id, right, items.length).catch(() => {});
     graded = true;
     window.removeEventListener('beforeunload', warnLeave);
     const result = $('[data-result]');

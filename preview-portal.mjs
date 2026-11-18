@@ -16,7 +16,7 @@ const TYPES = {
 };
 
 // Same routes vercel.json sends to the portal on learning.swayform.net.
-const PORTAL_ROUTES = [/^\/$/, /^\/login$/, /^\/learn(\/.*)?$/, /^\/account$/, /^\/help(\/.*)?$/, /^\/settings$/, /^\/my-robot$/, /^\/admin$/, /^\/workspace$/];
+const PORTAL_ROUTES = [/^\/$/, /^\/login$/, /^\/learn(\/.*)?$/, /^\/account$/, /^\/settings$/, /^\/my-robot$/, /^\/admin$/, /^\/workspace$/, /^\/grades$/];
 
 // Starts you signed in as a guest so there is no login screen and no backend.
 // With --admin (node preview-portal.mjs --admin) it starts you in the admin view

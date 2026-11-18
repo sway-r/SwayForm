@@ -63,6 +63,7 @@
     { "source": "/learn",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/learn/:path*",             "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/account",                  "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
+    { "source": "/grades",                   "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/settings",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/my-robot",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/admin",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },

@@ -6,6 +6,7 @@ import { requireCurrentAdmin } from './_lib/authz.js';
 import { MAX_ACTIVE_SEATS, MAX_TOTAL_STUDENTS } from './_lib/limits.js';
 import { privateResponse, requireBrowserMutation, rateLimit, validEmail } from './_lib/browser-security.js';
 import { findItem } from '../portal/data/curriculum.js';
+import { summarizeQuizResults } from './_lib/grades.js';
 
 const CODE_SERVER_TOKEN_TTL_SECONDS = 60;
 
@@ -22,6 +23,31 @@ export default async function handler(req, res){
   const robotId = await requireCurrentAdmin(session);
   if (!robotId){
     res.status(401).json({ error: 'not_authorized' });
+    return;
+  }
+
+  // The Grades app: every active student's quiz scores, finished labs and current lab.
+  if (req.method === 'GET' && req.query && req.query.view === 'grades'){
+    const students = await sql`
+      SELECT s.email, s.seat_number, p.display_name FROM students s
+      LEFT JOIN user_profiles p ON p.email = s.email
+      WHERE s.robot_id = ${robotId} AND s.status = 'active'
+      ORDER BY s.seat_number, s.created_at
+    `;
+    const emails = students.map((r) => r.email);
+    const [quizRows, completedRows, currentRows] = emails.length ? await Promise.all([
+      sql`SELECT email, quiz_id, percent, passed, finished_at FROM quiz_results WHERE email = ANY(${emails}) ORDER BY finished_at`,
+      sql`SELECT email, activity_id FROM progress_completed WHERE email = ANY(${emails})`,
+      sql`SELECT email, activity_id, updated_at FROM progress_current WHERE email = ANY(${emails})`,
+    ]) : [[], [], []];
+    res.status(200).json({
+      students: students.map((s) => ({
+        email: s.email, seatNumber: s.seat_number, name: s.display_name || null,
+        completed: completedRows.filter((r) => r.email === s.email).map((r) => r.activity_id),
+        current: (currentRows.filter((r) => r.email === s.email).map((r) => ({ activityId: r.activity_id, updatedAt: r.updated_at })))[0] || null,
+        quizResults: summarizeQuizResults(quizRows.filter((r) => r.email === s.email)),
+      })),
+    });
     return;
   }
 

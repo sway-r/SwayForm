@@ -34,6 +34,7 @@ const PATHS = {
   book:         '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/>',
   clock:        '<circle cx="12" cy="12" r="8.2"/><polyline points="12 7.2 12 12 15.6 14"/>',
   user:         '<circle cx="12" cy="8.2" r="3.4"/><path d="M4.8 20c1-3.6 4-5.6 7.2-5.6s6.2 2 7.2 5.6"/>',
+  grades:       '<rect x="5" y="4.5" width="14" height="16.5" rx="1.5"/><path d="M9 4.5V3h6v1.5"/><polyline points="8.5 11.5 10.5 13.5 14 9.5"/><line x1="8.5" y1="17" x2="15.5" y2="17"/>',
   building:     '<rect x="5" y="3.5" width="14" height="17" rx="1"/><path stroke-linecap="round" d="M9 7.5h.01M12 7.5h.01M15 7.5h.01M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01"/><path d="M10 20.5V17h4v3.5"/>',
   externalLink: '<path d="M9 6H5.5A1.5 1.5 0 0 0 4 7.5v11A1.5 1.5 0 0 0 5.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/><polyline points="14 4 20 4 20 10"/><line x1="20" y1="4" x2="11" y2="13"/>',
   bell:         '<path d="M6 10.5a6 6 0 1 1 12 0c0 4.5 1.5 5.5 1.5 5.5h-15S6 15 6 10.5Z"/><path d="M10 19a2 2 0 0 0 4 0"/>',

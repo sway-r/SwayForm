@@ -204,3 +204,16 @@ CREATE INDEX IF NOT EXISTS idx_certificate_attempts_email
   ON certificate_attempts (email, certificate_key, started_at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_certificate_attempts_one_open
   ON certificate_attempts (email, certificate_key) WHERE status = 'in_progress';
+
+-- Quiz results for the Grades app. See db/migrations/013_quiz_results.sql.
+CREATE TABLE IF NOT EXISTS quiz_results (
+  id          SERIAL PRIMARY KEY,
+  email       TEXT NOT NULL REFERENCES user_profiles(email) ON DELETE CASCADE,
+  quiz_id     TEXT NOT NULL,
+  correct     INTEGER NOT NULL CHECK (correct >= 0),
+  total       INTEGER NOT NULL CHECK (total > 0 AND correct <= total),
+  percent     INTEGER NOT NULL CHECK (percent BETWEEN 0 AND 100),
+  passed      BOOLEAN NOT NULL,
+  finished_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS quiz_results_email_quiz ON quiz_results (email, quiz_id, finished_at);

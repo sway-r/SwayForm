@@ -6,6 +6,7 @@ import * as AccountApp from './apps/account/account.js';
 import * as RobotApp from './apps/robot/robot.js';
 import * as AdminApp from './apps/admin/admin.js';
 import * as WorkspaceApp from './apps/workspace/workspace.js';
+import * as GradesApp from './apps/grades/grades.js';
 import * as Login from './auth/login.js';
 import * as Onboarding from './auth/onboarding.js';
 import { isAuthenticated, getSession, logout } from './services/auth-service.js';
@@ -13,7 +14,7 @@ import { setWorkspaceAccount } from './apps/learn/editor/mock-fs.js';
 import { setQuizAccount } from './services/quiz-passes.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
-const REGISTRY = [LearnApp, AccountApp, RobotApp, AdminApp, WorkspaceApp]
+const REGISTRY = [LearnApp, AccountApp, RobotApp, AdminApp, WorkspaceApp, GradesApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -153,6 +154,7 @@ function REGISTRY_ORDER(){
 // reason to hide the icon entirely.
 function visibleApps(session){
   const apps = REGISTRY_ORDER();
+  if (session && session.mode !== 'guest') apps.splice(1, 0, GradesApp);
   if (session && session.mode !== 'guest') apps.splice(1, 0, RobotApp);
   if (session && session.mode === 'admin') apps.splice(1, 0, AdminApp);
   if (session && session.mode === 'admin' && session.robotId) apps.splice(1, 0, WorkspaceApp);
@@ -493,6 +495,7 @@ const ROUTES = {
   'my-robot': { app: 'robot', parse: () => ({}) },
   admin: { app: 'admin', parse: () => ({}) },
   workspace: { app: 'workspace', parse: () => ({}) },
+  grades: { app: 'grades', parse: () => ({}) },
 };
 
 function routeFromPath(pathname){
@@ -514,6 +517,7 @@ function pathForApp(appId, params){
     case 'robot': return '/my-robot';
     case 'admin': return '/admin';
     case 'workspace': return '/workspace';
+    case 'grades': return '/grades';
     default: return '/';
   }
 }

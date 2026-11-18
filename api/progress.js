@@ -2,6 +2,8 @@ import { readSessionFromRequest } from './_lib/session.js';
 import { sql } from './_lib/db.js';
 import { privateResponse, requireBrowserMutation, rateLimit } from './_lib/browser-security.js';
 import { findActivity } from '../portal/data/learning-path.js';
+import { findQuiz } from '../portal/data/quizzes.js';
+import { summarizeQuizResults } from './_lib/grades.js';
 
 export default async function handler(req, res){
   privateResponse(res);
@@ -12,6 +14,12 @@ export default async function handler(req, res){
     return;
   }
   const email = session.email;
+
+  if (req.method === 'GET' && req.query && req.query.view === 'grades'){
+    const rows = await sql`SELECT quiz_id, percent, passed, finished_at FROM quiz_results WHERE email = ${email} ORDER BY finished_at`;
+    res.status(200).json({ quizResults: summarizeQuizResults(rows) });
+    return;
+  }
 
   if (req.method === 'GET'){
     const [completedRows, currentRows] = await Promise.all([
@@ -41,6 +49,22 @@ export default async function handler(req, res){
   }
 
   switch (body.action){
+    case 'quiz_result': {
+      // One finished try. The browser grades it, the server checks the shape and works out the score.
+      const quiz = typeof body.quizId === 'string' ? findQuiz(body.quizId) : null;
+      const { correct, total } = body;
+      if (!quiz || total !== quiz.count || !Number.isInteger(correct) || correct < 0 || correct > total){
+        res.status(400).json({ error: 'invalid_quiz_result' }); return;
+      }
+      if (!await rateLimit(res, 'quiz', email, 10)) return;
+      const percent = Math.round((correct / total) * 100);
+      await sql`
+        INSERT INTO quiz_results (email, quiz_id, correct, total, percent, passed)
+        VALUES (${email}, ${quiz.id}, ${correct}, ${total}, ${percent}, ${correct * 100 >= quiz.passPercent * total})
+      `;
+      res.status(200).json({ ok: true, percent });
+      return;
+    }
     case 'complete': {
       if (!body.activityId){ res.status(400).json({ error: 'missing_activity_id' }); return; }
       // Remember now whether this lab's own file already ran successfully on the robot; the

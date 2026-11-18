@@ -157,3 +157,21 @@ export async function resetProgress(){
   if (isGuest(await resolveSession())){ writeGuestCompleted(new Set()); writeGuestCurrent(null); return; }
   return mutateRemote(() => ({ body: { action: 'reset' }, apply: (state) => { state.completed = new Set(); state.current = null; } }));
 }
+
+/* ------------------------------------------------------------ quiz results (Grades app) */
+// One finished quiz try, kept on the server so the student and their teacher can see it. Guests keep nothing.
+export async function recordQuizResult(quizId, correct, total){
+  if (isGuest(await resolveSession())) return;
+  const res = await fetch('/api/progress', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'quiz_result', quizId, correct, total }), signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error('Your quiz score was not saved.');
+}
+
+export async function getMyQuizResults(){
+  if (isGuest(await resolveSession())) return [];
+  const res = await fetch('/api/progress?view=grades', { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+  if (!res.ok) throw new Error('Could not load your grades.');
+  return (await res.json()).quizResults || [];
+}

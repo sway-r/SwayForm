@@ -1,0 +1,13 @@
+.gr-root { padding: 20px 24px; color: var(--la-ink); }
+.gr-title { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+.gr-h3 { margin: 22px 0 8px; font-size: 14px; font-weight: 600; }
+.gr-meta { margin: 4px 0; color: var(--la-muted); font-size: 13px; }
+.gr-sub { color: var(--la-muted); font-size: 12px; font-weight: 400; }
+.gr-back { margin-bottom: 14px; }
+.gr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.gr-table th, .gr-table td { text-align: left; vertical-align: top; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--la-border); }
+.gr-table th { font-weight: 600; white-space: nowrap; }
+.gr-narrow { max-width: 560px; }
+.gr-class { min-width: 640px; }
+.gr-row { cursor: pointer; }
+.gr-row:hover td, .gr-row:focus td { background: var(--la-hover); }

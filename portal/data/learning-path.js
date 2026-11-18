@@ -48,6 +48,7 @@
 
 import { WAVE_LEVEL } from './wave-section.js';
 import { HANDSHAKE_LEVEL } from './handshake-section.js';
+import { ORIENTATION_LEVEL } from './orientation-section.js';
 
 export const LEARNING_PATH = {
   id: 'swayform-fundamentals',
@@ -63,7 +64,7 @@ export const LEARNING_PATH = {
           description: 'What SwayForm teaches, how the portal works, and the safety rules every session starts with.',
           activities: [
             {
-              id: 'welcome', title: 'Welcome to SwayForm', kind: 'reading', estimatedTime: '8 minutes',
+              id: 'welcome-original', title: 'Welcome to SwayForm', kind: 'reading', estimatedTime: '8 minutes',
               summary: 'What SwayForm teaches, how the portal is organized, and how your workspace is laid out.',
               steps: [
                 {
@@ -1872,6 +1873,9 @@ export const LEARNING_PATH = {
 
     // Greeting Gestures (behavior section 2), authored in handshake-section.js
     HANDSHAKE_LEVEL,
+
+    // Getting Started and Introduction to ROS 2 lessons, authored in orientation-section.js
+    ORIENTATION_LEVEL,
   ],
 };
 

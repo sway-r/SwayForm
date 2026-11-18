@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const FILES_JS = ROOT + 'portal/data/workspace-files.js';
-const LESSON_FILES = ['portal/data/learning-path.js', 'portal/data/wave-section.js', 'portal/data/handshake-section.js'].map((p) => ROOT + p);
+const LESSON_FILES = ['portal/data/learning-path.js', 'portal/data/wave-section.js', 'portal/data/handshake-section.js', 'portal/data/orientation-section.js'].map((p) => ROOT + p);
 const REPO = 'https://api.github.com/repos/sway-r/swayform_ws';
 const PREFIX = 'swayform_ws/';
 const MIRRORED = 'swayform_ws/src/swayform_robot/';

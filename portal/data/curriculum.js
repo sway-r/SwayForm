@@ -74,24 +74,26 @@ function placeholder(id, sectionId, number, title, note) {
   };
 }
 
+// Lessons written for the current portal live in orientation-section.js. Older lessons
+// (welcome-original, how-the-hub-works, connect-to-your-robot, your-project-and-updates,
+// how-swayform-uses-ros2, editing-and-running-python, terminal-basics, navigating-the-workspace,
+// meet-robot-yaml, joint-commands-and-motion-safety, debugging-basics) stay in learning-path.js, unlisted.
 const s1 = [
   real('welcome', 'getting-started', '1.01'),
   real('safety-first', 'getting-started', '1.02'),
-  real('how-the-hub-works', 'getting-started', '1.03'),
-  real('connect-to-your-robot', 'getting-started', '1.04'),
-  real('your-project-and-updates', 'getting-started', '1.05'),
+  real('using-the-portal', 'getting-started', '1.03'),
+  real('how-a-lab-works', 'getting-started', '1.04'),
+  real('quizzes-and-grades', 'getting-started', '1.05'),
 ];
 
 const s2 = [
   real('what-is-ros2', 'ros2-intro', '2.01'),
   real('nodes-topics-pubsub', 'ros2-intro', '2.02'),
-  real('how-swayform-uses-ros2', 'ros2-intro', '2.03'),
-  real('editing-and-running-python', 'ros2-intro', '2.04'),
-  real('terminal-basics', 'ros2-intro', '2.05'),
-  real('meet-robot-yaml', 'ros2-intro', '2.06'),
-  real('joint-commands-and-motion-safety', 'ros2-intro', '2.07'),
-  real('debugging-basics', 'ros2-intro', '2.08'),
-  real('navigating-the-workspace', 'ros2-intro', '2.09'),
+  real('ros2-on-swayform', 'ros2-intro', '2.03'),
+  real('packages-and-ros2-run', 'ros2-intro', '2.04'),
+  real('inside-a-behavior-file', 'ros2-intro', '2.05'),
+  real('joints-servos-and-limits', 'ros2-intro', '2.06'),
+  real('output-and-errors', 'ros2-intro', '2.07'),
 ];
 
 // Wave, Handshake, Fist Bump, and Finger Count are confirmed working demos
@@ -162,12 +164,12 @@ export const CURRICULUM = {
   sections: [
     {
       id: 'getting-started', number: 1, title: 'Getting Started', type: 'reading', icon: 'target',
-      description: 'Orientation, safety, and getting ready to use SwayForm.',
+      description: 'Safety, and how to use the Learning Portal: the apps, labs, robot runs, quizzes and grades.',
       items: s1,
     },
     {
       id: 'ros2-intro', number: 2, title: 'Introduction to ROS 2', type: 'reading', icon: 'layers',
-      description: "Understand the software ideas you'll use to control SwayForm.",
+      description: 'The ROS 2 ideas every lab relies on: nodes, packages, behavior files, joints and limits, and reading errors.',
       items: s2,
     },
     {

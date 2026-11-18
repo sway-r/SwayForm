@@ -3,8 +3,6 @@
 import { icon } from './icons.js';
 import * as LearnApp from './apps/learn/learn.js';
 import * as AccountApp from './apps/account/account.js';
-import * as HelpApp from './apps/help/help.js';
-import * as SettingsApp from './apps/settings/settings.js';
 import * as RobotApp from './apps/robot/robot.js';
 import * as AdminApp from './apps/admin/admin.js';
 import * as WorkspaceApp from './apps/workspace/workspace.js';
@@ -15,7 +13,7 @@ import { setWorkspaceAccount } from './apps/learn/editor/mock-fs.js';
 import { setQuizAccount } from './services/quiz-passes.js';
 import { startAdminJobWatch, stopAdminJobWatch, onPendingCountChange } from './services/robot-jobs-service.js';
 
-const REGISTRY = [LearnApp, AccountApp, HelpApp, SettingsApp, RobotApp, AdminApp, WorkspaceApp]
+const REGISTRY = [LearnApp, AccountApp, RobotApp, AdminApp, WorkspaceApp]
   .reduce((map, mod) => { map[mod.meta.id] = mod; return map; }, {});
 
 const STORAGE_KEY = 'swayform.portal.openApps';
@@ -144,7 +142,7 @@ function setAdminJobBadge(count){
 // Keep any conditional/session-based app visibility out of this function;
 // put it in visibleApps() below instead.
 function REGISTRY_ORDER(){
-  return [LearnApp, AccountApp, HelpApp, SettingsApp];
+  return [LearnApp, AccountApp];
 }
 
 // Session-gated apps (Robot, Admin) are spliced in here rather than in
@@ -490,8 +488,8 @@ const ROUTES = {
     },
   },
   account: { app: 'account', parse: () => ({}) },
-  help: { app: 'help', parse: (p) => ({ topic: p[0] }) },
-  settings: { app: 'settings', parse: () => ({}) },
+  // Settings is a section of Account now.
+  settings: { app: 'account', parse: () => ({}) },
   'my-robot': { app: 'robot', parse: () => ({}) },
   admin: { app: 'admin', parse: () => ({}) },
   workspace: { app: 'workspace', parse: () => ({}) },
@@ -513,8 +511,6 @@ function pathForApp(appId, params){
       if (params.view === 'section' && params.sectionId) return '/learn/section/' + params.sectionId;
       return '/learn';
     case 'account': return '/account';
-    case 'help': return '/help' + (params.topic ? '/' + params.topic : '');
-    case 'settings': return '/settings';
     case 'robot': return '/my-robot';
     case 'admin': return '/admin';
     case 'workspace': return '/workspace';

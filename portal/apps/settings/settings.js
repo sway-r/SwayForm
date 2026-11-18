@@ -1,18 +1,11 @@
 import { icon } from '../../icons.js';
 import { getTheme, setTheme } from '../../theme.js';
-import { getSession } from '../../services/auth-service.js';
-import { resetProgress } from '../../services/progress-service.js';
 import { getPrefs, setPref, resetPrefs, TEXT_SIZE_MIN, TEXT_SIZE_MAX } from '../../prefs.js';
 import '../../sounds.js';
 import { confirmDialog } from '../../confirm-dialog.js';
 import { exportProgress } from '../../services/export-progress.js';
 
-export const meta = {
-  id: 'settings',
-  title: 'Settings',
-  icon: 'settings',
-  defaultSize: { w: 560, h: 520 },
-};
+// The settings screen, shown as a section of the Account app.
 
 function toggleRow(id, label, desc, checked){
   return `
@@ -22,16 +15,16 @@ function toggleRow(id, label, desc, checked){
     </label>`;
 }
 
-export function mount(container, ctx){
+export function mountSettings(container){
   const prefs = getPrefs();
 
   container.innerHTML = `
-    <div class="set-root p-scroll la-surface">
+    <div class="set-root set-embedded">
       <div class="set-section">
         <div class="set-section-title">Appearance</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Theme</span><span class="set-row-desc">Applies across the whole portal: Learn, Textbook, Projects, Account, and Help. The Portal Desktop wallpaper and the Code Editor/Terminal stay dark either way.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Theme</span><span class="set-row-desc">Applies across the whole portal. The desktop wallpaper and the Code Editor stay dark either way.</span></span>
             <div class="set-theme-toggle" data-theme-toggle>
               <button type="button" data-theme="light" class="${getTheme() === 'light' ? 'active' : ''}">${icon('sun')}<span>Light</span></button>
               <button type="button" data-theme="dark" class="${getTheme() === 'dark' ? 'active' : ''}">${icon('moon')}<span>Dark</span></button>
@@ -44,7 +37,7 @@ export function mount(container, ctx){
         <div class="set-section-title">Accessibility</div>
         <div class="set-card">
           <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Text size</span><span class="set-row-desc">Scales lessons, the Terminal, the Code Editor and the Learn, Account and Help screens.</span></span>
+            <span class="set-row-text"><span class="set-row-label">Text size</span><span class="set-row-desc">Scales lessons, the Code Editor, and the Learn and Account screens.</span></span>
             <div class="set-stepper" data-font-size>
               <button type="button" data-step="-1" aria-label="Smaller">−</button>
               <span class="set-stepper-value" data-font-value>${prefs.textSize}</span>
@@ -88,10 +81,6 @@ export function mount(container, ctx){
           <div class="set-row">
             <span class="set-row-text"><span class="set-row-label">Reset preferences</span><span class="set-row-desc">Puts every setting above, except theme, back to its default.</span></span>
             <button type="button" class="p-btn ghost" data-reset-prefs>Reset preferences</button>
-          </div>
-          <div class="set-row">
-            <span class="set-row-text"><span class="set-row-label">Reset learning progress</span><span class="set-row-desc">Clears "completed" marks on every activity, for a signed-in account, everywhere, not just this browser.</span></span>
-            <button type="button" class="p-btn ghost" data-reset-progress>Reset progress</button>
           </div>
         </div>
       </div>
@@ -143,20 +132,5 @@ export function mount(container, ctx){
     fontValueEl.textContent = fresh.textSize;
   });
 
-  container.querySelector('[data-reset-progress]').addEventListener('click', async (e) => {
-    const session = await getSession();
-    const confirmMsg = (!session || session.mode === 'guest')
-      ? 'Reset all locally saved Guest progress? Every activity will show as not started. This cannot be undone.'
-      : 'Reset your progress? This permanently deletes your saved progress from your account (not just this browser); every activity will show as not started. This cannot be undone.';
-    if (!await confirmDialog(container, { title: 'Reset progress', message: confirmMsg, confirmLabel: 'Reset progress', typeWord: 'DELETE' })) return;
-    try { await resetProgress(); } catch { return; }
-    const btn = e.currentTarget;
-    const original = btn.textContent;
-    btn.textContent = 'Progress reset';
-    btn.disabled = true;
-    setTimeout(() => { if (btn.isConnected){ btn.textContent = original; btn.disabled = false; } }, 1500);
-  });
-
-  ctx.setAppTitle && ctx.setAppTitle('Settings');
   return {};
 }

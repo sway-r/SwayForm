@@ -53,11 +53,7 @@
     { "source": "/demos/rock-paper-scissors", "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/rock-paper-scissors",        "permanent": true },
     { "source": "/demos/hand-mimic",          "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/hand-mimic",                 "permanent": true },
     { "source": "/demos/interactive-exchange","has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/section/demos",                      "permanent": true },
-    { "source": "/labs",                      "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/finger-curl",         "permanent": true },
-    { "source": "/repair",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/help/repair",                                "permanent": true },
-    { "source": "/technical-reference",       "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/help/technical-reference",                   "permanent": true },
-    { "source": "/troubleshooting",           "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/help/troubleshooting",                       "permanent": true },
-    { "source": "/glossary",                  "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/help/glossary",                              "permanent": true }
+    { "source": "/labs",                      "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/learn/activity/finger-curl",         "permanent": true }
   ],
   "rewrites": [
     { "source": "/",                         "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
@@ -67,7 +63,6 @@
     { "source": "/learn",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/learn/:path*",             "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/account",                  "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
-    { "source": "/help/:path*",              "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/settings",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/my-robot",                 "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },
     { "source": "/admin",                    "has": [{ "type": "host", "value": "learning.swayform.net" }], "destination": "/portal/index.html" },

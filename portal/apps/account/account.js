@@ -5,6 +5,7 @@ import { getCompletedActivities, resetProgress } from '../../services/progress-s
 import { escapeHtml } from '../../utils.js';
 import { confirmDialog } from '../../confirm-dialog.js';
 import { mountCertificates } from './certificates.js';
+import { mountSettings } from '../settings/settings.js';
 
 export const meta = {
   id: 'account',
@@ -109,6 +110,10 @@ async function render(container, ctx){
       </div>
 
       <div class="acct-section">
+        <div class="acct-section-title">Settings</div>
+        <div data-settings></div>
+      </div>
+      <div class="acct-section">
         <div class="acct-section-title">Account</div>
         <div class="acct-rows">
           ${isGuest
@@ -137,6 +142,7 @@ async function render(container, ctx){
     </div>`;
 
   mountCertificates(container.querySelector('[data-certificates]'), { isGuest, defaultName: session.displayName || session.name || '' });
+  mountSettings(container.querySelector('[data-settings]'));
 
   container.querySelector('[data-signout]').addEventListener('click', async () => {
     if (!window.confirm('Log out of SwayForm Learning Portal?')) return;

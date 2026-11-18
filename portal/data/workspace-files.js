@@ -51,47 +51,77 @@ export const WORKSPACE_FILES = {
      which stay separate until they're real too. === */
 
   "swayform_ws/src/swayform_robot/package.xml": `<?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>swayform_robot</name>
   <version>0.1.0</version>
-  <description>SwayForm's real, running behaviors: wave, handshake, idle, and finger_wave, direct PCA9685 servo control, plus the shared hardware and config layers they're built on.</description>
+  <description>Main SwayForm robot package, direct-hardware behaviors, the vision pipeline, and camera nodes</description>
   <maintainer email="contact@swayform.net">SwayForm</maintainer>
   <license>Proprietary</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+
   <depend>rclpy</depend>
   <depend>python3-yaml</depend>
-  <exec_depend>ament_index_python</exec_depend>
+  <depend>ament_index_python</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
   </export>
 </package>
 `,
-  "swayform_ws/src/swayform_robot/setup.py": `from setuptools import find_packages, setup
+  "swayform_ws/src/swayform_robot/setup.py": `from setuptools import setup, find_packages
+import os
+from glob import glob
 
-package_name = "swayform_robot"
+package_name = 'swayform_robot'
 
 setup(
     name=package_name,
-    version="0.1.0",
-    packages=find_packages(exclude=["test"]),
+    version='0.1.0',
+    packages=find_packages(exclude=['test']),
     data_files=[
-        ("share/" + package_name + "/config", ["swayform_robot/config/robot.yaml"]),
+        ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'config'), glob('swayform_robot/config/*.yaml')),
+        (os.path.join('share', package_name, 'models'), glob('../../models/*')),
     ],
-    install_requires=["setuptools", "pyyaml"],
+    install_requires=['setuptools', 'pyyaml'],
     zip_safe=True,
-    maintainer="SwayForm",
-    maintainer_email="contact@swayform.net",
-    description="SwayForm's real, running behaviors, direct PCA9685 servo control.",
-    license="Proprietary",
+    maintainer='SwayForm',
+    maintainer_email='contact@swayform.net',
+    description='Main SwayForm robot package',
+    license='Proprietary',
+    tests_require=['pytest'],
     entry_points={
-        "console_scripts": [
-            "wave = swayform_robot.behaviors.wave:main",
-            "handshake = swayform_robot.behaviors.handshake:main",
-            "idle = swayform_robot.behaviors.idle:main",
-            "finger_wave = swayform_robot.behaviors.finger_wave:main",
-            "torso_control = swayform_robot.hardware.torso_motor:main",
+        'console_scripts': [
+            'wave = swayform_robot.behaviors.wave:main',
+            'wave_left = swayform_robot.behaviors.wave_left:main',
+            'handshake = swayform_robot.behaviors.handshake:main',
+            'handshake_left = swayform_robot.behaviors.handshake_left:main',
+            'fist_bump = swayform_robot.behaviors.fist_bump:main',
+            'finger_count = swayform_robot.behaviors.finger_count:main',
+            'target_lock = swayform_robot.behaviors.target_lock:main',
+            'target_probe = swayform_robot.targeting.probe:main',
+            'target_lock_local = swayform_robot.targeting.local_console:main',
+            'idle = swayform_robot.behaviors.idle:main',
+            'finger_wave = swayform_robot.behaviors.finger_wave:main',
+            'camera_node = swayform_robot.camera_nodes.camera_node:main',
+            'web_stream = swayform_robot.camera_nodes.web_stream:main',
+            'whip_stream = swayform_robot.camera_nodes.whip_stream:main',
+            'detection_node = swayform_robot.camera_nodes.detection_node:main',
+            'wave_detector_node = swayform_robot.camera_nodes.wave_detector_node:main',
+            'grab_node = swayform_robot.camera_nodes.grab_node:main',
+            'wave_detection_debug = swayform_robot.camera_nodes.wave_detection_debug_node:main',
+            'servo_tester = swayform_robot.tools.servo_tester:main',
+            'camera_stream = swayform_robot.tools.camera_stream:main',
+            'detect_demo = swayform_robot.tools.detect_demo:main',
+            'standalone_wave_detector = swayform_robot.tools.standalone_wave_detector:main',
+            'torso_control = swayform_robot.hardware.torso_motor:main',
         ],
     },
 )

@@ -44,7 +44,7 @@ setup(
 
 export const WORKSPACE_FILES = {
   /* === REAL ROBOT SOURCE (agent-authored, synced from the swayform_ws repo,
-     public-src branch, src/swayform_robot/swayform_robot/): this is the
+     master branch, src/swayform_robot/swayform_robot/): this is the
      actual code running on the robot for wave/handshake/idle/finger_wave,
      not a teaching simplification. See swayform_demos/ below for the
      planned-but-not-yet-real demos (pick and place, rock paper scissors),

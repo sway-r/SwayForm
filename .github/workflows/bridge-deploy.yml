@@ -1,0 +1,58 @@
+name: Bridge deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bridge/server.js'
+      - 'bridge/load-env.js'
+      - 'bridge/package.json'
+      - 'bridge/package-lock.json'
+  workflow_dispatch:
+
+concurrency: bridge-deploy
+
+permissions:
+  contents: read
+  deployments: read
+  issues: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: bridge-deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for Vercel to finish deploying this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 40); do
+            id=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$GITHUB_SHA&environment=Production" --jq '.[0].id // empty')
+            if [ -n "$id" ]; then
+              state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" --jq '.[0].state // empty')
+              echo "vercel: ${state:-pending}"
+              [ "$state" = success ] && exit 0
+              [ "$state" = failure ] || [ "$state" = error ] && { echo "Vercel deploy failed, bridge left alone"; exit 1; }
+            fi
+            sleep 30
+          done
+          echo "Vercel did not finish in 20 minutes, bridge left alone"; exit 1
+
+      - name: Send the bridge to the VPS
+        env:
+          KEY: ${{ secrets.BRIDGE_DEPLOY_KEY }}
+        run: |
+          install -m 600 /dev/null ~/deploykey && echo "$KEY" > ~/deploykey
+          echo "bridge.swayform.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPJte1AYDyK1KZMaCIiCaZ3ZLT7j+Hq1KR3Pys9BEU0z" > ~/known_hosts
+          tar -czf - -C bridge server.js load-env.js package.json package-lock.json \
+            | ssh -i ~/deploykey -o IdentitiesOnly=yes -o UserKnownHostsFile=~/known_hosts -o StrictHostKeyChecking=yes root@bridge.swayform.net | tee deploy.log
+
+      - name: Flag it on GitHub
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo "@sway-r the bridge deploy for ${GITHUB_SHA:0:7} did not go through. The live bridge is unchanged (or rolled back)."; echo; echo '```'; tail -40 deploy.log 2>/dev/null; echo '```'; echo; echo "Run log: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > body.md
+          gh issue create --title "Bridge deploy failed (${GITHUB_SHA:0:7})" --body-file body.md

@@ -12,7 +12,9 @@
 window.SWAYFORM = {
   labs: {
     availableNow: 10,
-    plannedTotal: 100,
+    plannedTotal: 140,
+    plannedTotalWithRobot: 340,
+    robotBasedLabs: 200,
     statusLine: "Twenty foundation labs, then about 10 behavior sections of 10–12 labs each.",
     sections: ["Getting Started", "Introduction to ROS 2", "Pre-Installed Demos", "Foundation Labs", "Behavior Sections"]
   },
@@ -30,8 +32,8 @@ window.SWAYFORM = {
     studentCapacity: "Designed for teams of up to 15 students using rotating engineering roles."
   },
   pricing: {
-    rev: "SwayForm Rev: $1,000 per year. Learning Portal (up to 200 lessons, quizzes, assessments) and browser simulation, up to 60 students, no robot.",
-    standardPackage: "Standard School Package: $7,000 ($1,000 deposit + $6,000). Robot with AI vision and human-like hands, lifetime Learning Portal, simulation and Cloud Classroom free for 3 years.",
+    learningPortalPackage: "Learning Portal: $1,000 per year, no deposit. 140+ labs (projected), quizzes, assessments and browser simulation, up to 60 students, no robot.",
+    standardPackage: "Standard School Package: $7,000 ($1,000 deposit + $6,000). Robot with AI vision and human-like hands, 340+ labs (projected, 200 robot-based), lifetime Learning Portal, simulation and Cloud Classroom free for 3 years.",
     afterYear3: "Cloud Classroom $140 per year (15 active, 60 enrolled); simulation optional at $500 per year; Learning Portal stays free for life.",
     robotPrice: "$7,000 per unit"
   },

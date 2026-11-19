@@ -155,7 +155,7 @@ const s5 = [
   ...grouped(GREETINGS, ['hs-01-meet-the-handshake', 'hs-02-joint-control', 'hs-03-sequencing', 'hs-04-coordination', 'hs-05-run',
     'fb-06-from-handshake', 'fb-07-positions', 'fb-08-timing', 'fb-09-finish', 'fb-10-run', 'bk-11-plan', 'bk-12-challenge']),
   { ...placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Behavior Sections: Coming Soon',
-    'Wave and Greeting Gestures are the first two behavior sections. About 10 in all, each built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built.'), group: NEXT },
+    'Wave and Greeting Gestures are the first two behavior sections. About 10 in all, each built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built. The full course is projected at 140+ labs in the Learning Portal, and 340+ with the robot, since 200 of them are built around it.'), group: NEXT },
 ];
 
 export const CURRICULUM = {

@@ -58,5 +58,20 @@ export async function mount(container, ctx){
     rootEl.querySelector('[data-role="reconnect"]').addEventListener('click', connect);
   }
 
-  await connect();
+  // Shown on every open; nothing connects to the robot until the admin accepts.
+  rootEl.innerHTML = `<div class="workspace-warn p-scroll">
+      <div class="workspace-warn-card" role="alertdialog" aria-labelledby="ws-warn-title">
+        <h2 id="ws-warn-title">Full access to the robot</h2>
+        <p>The Workspace gives you complete, unfiltered access to the robot's code. This is the robot's full source, completely open.</p>
+        <p>Anything you change here can and will change how the robot runs. Changes can be disruptive, and some of them may not be possible to undo.</p>
+        <p><strong>Only use the Workspace if you are 100% sure you know what you are doing.</strong></p>
+        <p>You can give your students access to the Workspace by emailing us at <a href="mailto:support@swayform.net">support@swayform.net</a>. The same risks apply, so be careful.</p>
+        <div class="workspace-warn-actions">
+          <button type="button" class="p-btn ghost" data-role="cancel">Close</button>
+          <button type="button" class="p-btn primary" data-role="accept">I understand, open the Workspace</button>
+        </div>
+      </div>
+    </div>`;
+  rootEl.querySelector('[data-role="cancel"]').addEventListener('click', () => ctx.close && ctx.close());
+  rootEl.querySelector('[data-role="accept"]').addEventListener('click', connect);
 }

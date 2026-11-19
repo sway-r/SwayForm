@@ -25,7 +25,7 @@ const COMING_SOON = [
   },
   {
     label: 'Subscription & Billing',
-    description: 'Subscriptions open at the Fall 2027 launch, with a 7-day free trial for Gmail accounts. Manage your subscription and billing here once they do.',
+    description: 'The Learning Portal is $1,000 a year for up to 60 students, or free for life with a SwayForm robot. Subscriptions open at the Fall 2027 launch, with a 7-day free trial for Gmail accounts. Manage your subscription and billing here once they do.',
   },
 ];
 

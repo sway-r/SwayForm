@@ -239,7 +239,7 @@ export function nextInSection(itemId) {
 }
 
 // Sections marked subscription: true open only for school accounts linked to a robot until subscriptions launch.
-export const SUBSCRIPTION_NOTE = 'This section is part of a SwayForm subscription. Subscriptions open when SwayForm launches in Fall 2027, with a 7-day free trial for Gmail accounts. Until then, the Pre-Installed Demos and Foundation Labs are open to everyone, and schools with a SwayForm robot have full access through their school account.';
+export const SUBSCRIPTION_NOTE = 'This section is part of a SwayForm subscription: the Learning Portal package ($1,000 a year for up to 60 students), or free for life with the Standard School Package and its robot. Subscriptions open when SwayForm launches in Fall 2027, with a 7-day free trial for Gmail accounts. Until then, the Pre-Installed Demos and Foundation Labs are open to everyone, and schools with a SwayForm robot have full access through their school account.';
 
 /** True when itemId sits in a subscription section and the viewer lacks full access. */
 export function needsSubscription(itemId, fullAccess) {

@@ -124,11 +124,12 @@
 .wo-portal{--wo:#0b8f6a}.wo-robot{--wo:#2f55f0}
 .wo-kicker{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--wo);margin-bottom:12px}
 .wo-card h3{font-size:clamp(24px,2.6vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0;color:#111}
-.wo-life{margin:22px 0 0;padding:18px 20px;border-radius:12px;background:var(--wo);color:#fff}
+.wo-life{margin:0 0 26px;padding:18px 20px;border-radius:12px;background:var(--wo);color:#fff}
 .wo-life b{display:block;font-size:21px;font-weight:800;letter-spacing:-.015em;line-height:1.25;color:#fff}
 .wo-life span{display:block;font-size:15px;line-height:1.5;margin-top:4px;color:rgba(255,255,255,.9)}
 .wo-feats{list-style:none;margin:26px 0 30px;padding:0;display:grid;gap:22px}
-.wo-feats li{padding-left:18px;border-left:3px solid var(--wo)}
+.wo-feats li{position:relative;padding-left:26px}
+.wo-feats li::before{content:"";position:absolute;left:0;top:8px;width:10px;height:10px;border-radius:50%;background:var(--wo)}
 .wo-ft b{display:block;font-size:19px;font-weight:800;color:#111;letter-spacing:-.015em;line-height:1.25}
 .wo-ft span{display:block;font-size:15px;color:#3f444d;line-height:1.5;margin-top:3px}
 .wo-foot{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:auto 0 16px}
@@ -258,7 +259,6 @@
       <div class="wo-card wo-robot">
         <span class="wo-kicker">Standard School Package</span>
         <h3>Put a real humanoid robot in your classroom.</h3>
-        <div class="wo-life"><b>The robot + the Learning Portal, free for life.</b><span>Lifetime Learning Portal access comes with the robot. On its own it is $1,000 a year.</span></div>
         <ul class="wo-feats">
           <li><span class="wo-ft"><b>A real humanoid robot in the room</b><span>A student presses Run and the robot across the room waves, because they told it to. AI vision and human-like hands.</span></span></li>
           <li><span class="wo-ft"><b>340+ labs</b><span>Everything in the Learning Portal, plus 200 labs for the real robot, from waving to grabbing and lifting objects.</span></span></li>
@@ -266,6 +266,7 @@
           <li><span class="wo-ft"><b>Cloud Classroom, free for 3 years</b><span>A robot normally connects to one person at a time. Cloud Classroom lets up to 15 students work at once, 60 enrolled. Then an optional $149 a year.</span></span></li>
           <li><span class="wo-ft"><b>A robot that pays for itself</b><span>3 years of free Learning Portal access saves $3,000, so the robot really costs $4,000. By year 7 it has paid for itself.</span></span></li>
         </ul>
+        <div class="wo-life"><b>The robot + the Learning Portal, free for life.</b><span>Lifetime Learning Portal access comes with the robot. On its own it is $1,000 a year.</span></div>
         <div class="wo-foot"><span class="wo-price">$7,000</span><span class="wo-sub">Robot + Learning Portal, free for life</span></div>
         <div class="wo-cta"><a class="wo-btn solid" href="/contact">Contact Sales &rarr;</a><a class="wo-btn ghost" href="/robot">Meet the robot</a></div>
       </div>

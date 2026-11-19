@@ -30,9 +30,10 @@ window.SWAYFORM = {
     studentCapacity: "Designed for teams of up to 15 students using rotating engineering roles."
   },
   pricing: {
-    robotPrice: "$6,999 per unit",
-    cloudSubscription: "$12 per month or $100 per year, first year free with every purchase.",
-    cloudPlanTiersHidden: "Classroom Hosting / Standard / Premium tiers hidden site-wide since 2026-09-23; their markup is kept in an HTML comment on for-schools.html."
+    rev: "SwayForm Rev: $1,000 per year. Learning Portal (up to 200 lessons, quizzes, assessments) and browser simulation, up to 60 students, no robot.",
+    standardPackage: "Standard School Package: $7,000 ($1,000 deposit + $6,000). Robot with AI vision and human-like hands, lifetime Learning Portal, simulation and Cloud Classroom free for 3 years.",
+    afterYear3: "Cloud Classroom $140 per year (15 active, 60 enrolled); simulation optional at $500 per year; Learning Portal stays free for life.",
+    robotPrice: "$7,000 per unit"
   },
   timeline: {
     pilotStatus: "Pilot interest is currently open.",

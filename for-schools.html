@@ -89,9 +89,8 @@
 .fs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)}
 .fs-price{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
 .fs-plan{position:relative;background:#fff;border:1px solid rgba(0,0,0,.14);border-radius:14px;padding:18px 20px;cursor:pointer;transition:border-color .15s,background .15s}
-.fs-plan[data-plan="Connect"]{--a:#2f6fed;--t:#e8f0ff}
-.fs-plan[data-plan="Simulate"]{--a:#0e9a6a;--t:#e3f6ec}
-.fs-plan[data-plan="Classroom+"]{--a:#7a4fe0;--t:#eee8ff}
+.fs-plan[data-plan="SwayForm Rev"]{--a:#0e9a6a;--t:#e3f6ec}
+.fs-plan[data-plan="Standard School Package"]{--a:#2f6fed;--t:#e8f0ff}
 .fs-plan{background:linear-gradient(180deg,var(--t) 0,#fff 170px)}
 .fs-plan .fs-pn{color:var(--a);font-size:clamp(22px,2.6vw,28px)}
 .fs-n{text-decoration:none;color:var(--a);font-weight:inherit}
@@ -425,7 +424,7 @@
     <div class="fs-grid" style="margin-top:20px">
       <div class="card" style="padding:22px"><div class="fs-big" style="color:var(--blue)">15</div><p class="fs-sm">students connected to one robot at once; the rest keep coding while they wait</p></div>
       <div class="card" style="padding:22px"><div class="fs-big" style="color:var(--blue)">2</div><p class="fs-sm">robots recommended for classes of 15–30 students; 2+ robots unlock labs where robots interact</p></div>
-      <div class="card" style="padding:22px"><div class="fs-big" style="color:var(--blue)">Free</div><p class="fs-sm">Learning Portal curriculum, for every student</p></div>
+      <div class="card" style="padding:22px"><div class="fs-big" style="color:var(--blue)">60</div><p class="fs-sm">students per school enrolled in the Learning Portal</p></div>
       <div class="card" style="padding:22px"><div class="fs-big" style="color:var(--blue)">Guide</div><p class="fs-sm">for teachers and club leaders on what to run each week</p></div>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px">
@@ -440,42 +439,54 @@
 <section id="pricing" style="background:#f4f5f7;color:#111;padding:52px 0;scroll-margin-top:70px">
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">Pricing</span>
-    <h2 style="font-size:clamp(24px,3.2vw,32px);font-weight:800;letter-spacing:-.025em;margin-bottom:28px;color:#111">One price for the complete program.</h2>
-    <div class="fs-price">
-      <div>
-        <div style="font-size:clamp(48px,8vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1">$6,999</div>
-        <div style="color:#3f444d;font-weight:600;margin:8px 0 20px">Complete program, per robot</div>
-        <ul class="fs-list" style="color:#3f444d"><li>One SwayForm Model S1 humanoid robot</li><li>First year of the Connect plan</li><li>Guided labs and learning content</li><li>Administrator controls and code-run approval</li></ul>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <div><div class="fs-pn">$1,000</div><div style="color:#3f444d">Reservation deposit</div></div>
-        <div><div class="fs-pn">$5,999</div><div style="color:#3f444d">Remaining balance</div></div>
-      </div>
-    </div>
-    <p style="color:#3f444d;margin:56px 0 6px;max-width:680px">The Learning Portal curriculum is always free. Every robot needs the Connect plan to link your students to it, with no way around it. Simulate and Classroom+ are optional upgrades that include Connect and add simulation for remote coding.</p>
-    <p style="color:#111;font-weight:700;margin-bottom:20px">Tap a plan to see what you would pay.</p>
-    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Connect" data-tot="$6,999" data-y1="Free" data-yr="$100"><span class="fs-tag req">Required for every robot</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Connect</div><div class="fs-pn">$100/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">Free the first year</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span></li><li><span>Live view through the robot’s eyes</span></li><li><span>Code sent straight to the robot</span></li><li class="n"><span>Remote coding from anywhere</span><em>-</em></li><li class="n"><span>Simulation environments at once</span><em>-</em></li><li class="n"><span>Simulation hours per month</span><em>-</em></li><li class="n"><span>Access to more labs</span><em>-</em></li><li class="n"><span>Printed-parts replacement</span><em>-</em></li></ul></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Simulate" data-tot="$7,299" data-y1="$300" data-yr="$500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Simulate</div><div class="fs-pn">$500/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">First year $300 (40% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span></li><li><span>Live view through the robot’s eyes</span></li><li><span>Code sent straight to the robot</span></li><li><span>Remote coding from anywhere</span></li><li><span><u class="fs-n">3</u> simulation environments at once</span></li><li><span><u class="fs-n">60</u> hours of simulation per month</span></li><li class="n"><span>Access to more labs</span><em>-</em></li><li class="n"><span>Printed-parts replacement</span><em>-</em></li></ul></div>
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Classroom+" data-tot="$7,999" data-y1="$1,000" data-yr="$1,500"><span class="fs-tag opt">Optional upgrade</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Classroom+</div><div class="fs-pn">$1,500/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">First year $1,000 (~33% off)</div><ul class="fs-cmp"><li><span>Student accounts and code queue</span></li><li><span>Live view through the robot’s eyes</span></li><li><span>Code sent straight to the robot</span></li><li><span>Remote coding from anywhere</span></li><li><span><u class="fs-n">15</u> simulation environments at once</span></li><li><span><u class="fs-n">180</u> hours of simulation per month</span></li><li><span>Access to more labs</span></li><li><span><u class="fs-n">$300</u> per year of printed-parts replacement, like a new body panel</span></li></ul></div>
+    <h2 style="font-size:clamp(24px,3.2vw,32px);font-weight:800;letter-spacing:-.025em;margin-bottom:12px;color:#111">Two ways to bring SwayForm to your school.</h2>
+    <p style="color:#3f444d;margin:0 0 6px;max-width:680px">Start with the Learning Portal and simulation on their own, or get the Standard School Package with a real humanoid robot and lifetime access to the Learning Portal.</p>
+    <p style="color:#111;font-weight:700;margin-bottom:20px">Tap a package to see what you would pay.</p>
+    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="SwayForm Rev"><span class="fs-tag opt">Learning Portal and simulation</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">SwayForm Rev</div><div class="fs-pn">$1,000/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">No robot needed</div><ul class="fs-cmp"><li><span>Up to <u class="fs-n">200</u> lessons across robotics topics, teaching critical thinking, math and coding</span></li><li><span>A simulation environment in the browser, so students watch their code move things instead of only reading about it</span></li><li><span>Interactive coding exercises with quizzes and assessments</span></li><li><span>Up to <u class="fs-n">60</u> students</span></li><li class="n"><span>A real humanoid robot</span><em>-</em></li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Standard School Package"><span class="fs-tag req">Recommended</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Standard School Package</div><div class="fs-pn">$7,000</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">Everything in SwayForm Rev, plus the robot</div><ul class="fs-cmp"><li><span>A real humanoid robot with AI vision and human-like hands</span></li><li><span>Lifetime access to the Learning Portal, normally <u class="fs-n">$1,000</u> a year</span></li><li><span>Simulation free for <u class="fs-n">3</u> years, then <u class="fs-n">$500</u> a year (optional)</span></li><li><span>Cloud Classroom free for <u class="fs-n">3</u> years, then <u class="fs-n">$140</u> a year</span></li><li><span>Up to <u class="fs-n">15</u> students active at once and <u class="fs-n">60</u> enrolled</span></li></ul></div>
     </div>
     <div class="fs-due" id="fs-due" hidden aria-live="polite"></div>
+    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:40px">
+      <div class="card" style="padding:24px;background:#fff">
+        <div style="font-weight:700;margin-bottom:8px;color:#111">Cloud Classroom</div>
+        <p class="fs-sm" style="color:#3f444d">You own the robot, but a robot can only be controlled by one person at a time. Cloud Classroom enrolls your school on our hosted server, so up to 15 students can be active at once and up to 60 students can have accounts. It is free for the first 3 years, then $140 a year.</p>
+      </div>
+      <div class="card" style="padding:24px;background:#fff">
+        <div style="font-weight:700;margin-bottom:8px;color:#111">Simulation after year 3</div>
+        <p class="fs-sm" style="color:#3f444d">Simulation is free for the first 3 years and $500 a year after that. It is completely optional: with the real robot in the classroom, students don't need a simulation to see their code run.</p>
+      </div>
+    </div>
+    <h3 style="font-size:clamp(20px,2.6vw,24px);font-weight:800;letter-spacing:-.02em;margin:48px 0 20px;color:#111">What the Standard School Package works out to.</h3>
+    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">
+      <div class="card" style="padding:22px;background:#fff"><div class="fs-big" style="color:var(--blue)">$3,000</div><p class="fs-sm" style="color:#3f444d">The Learning Portal and simulation are free for the first 3 years. On their own, that would cost $1,000 a year.</p></div>
+      <div class="card" style="padding:22px;background:#fff"><div class="fs-big" style="color:var(--blue)">$4,000</div><p class="fs-sm" style="color:#3f444d">What you are really paying for the robot once those 3 years are taken out.</p></div>
+      <div class="card" style="padding:22px;background:#fff"><div class="fs-big" style="color:var(--blue)">7 years</div><p class="fs-sm" style="color:#3f444d">After 7 years of Learning Portal access, the portal fees you didn't pay add up to $7,000, so the robot came at no extra cost.</p></div>
+    </div>
     <script>
     (function(){
+      var rows={
+        'SwayForm Rev':[
+          ['Year 1'],['Learning Portal and simulation','$1,000'],['Year 1 total','$1,000',1],
+          ['Every year after'],['Learning Portal and simulation','$1,000/yr',1]
+        ],
+        'Standard School Package':[
+          ['Year 1'],['Deposit','$1,000','Refundable through Feb 28, 2027'],['Remaining balance','$6,000'],['Learning Portal, simulation and Cloud Classroom','Included'],['Year 1 total','$7,000',1],
+          ['Years 2 and 3'],['Learning Portal, simulation and Cloud Classroom','$0',1],
+          ['Year 4 onward'],['Learning Portal','Free for life'],['Cloud Classroom','$140/yr',1],['Simulation (optional)','$500/yr']
+        ]
+      };
       var plans=document.querySelectorAll('.fs-plan'),box=document.getElementById('fs-due');
       function close(){box.hidden=true;plans.forEach(function(x){x.classList.remove('on');x.setAttribute('aria-pressed','false')})}
       function show(p){
         plans.forEach(function(x){var on=x===p;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
-        box.innerHTML='<button type="button" class="fs-x" aria-label="Close">&times;</button>'
-          +'<div class="fs-dh">Estimated cost with '+p.dataset.plan+'</div>'
-          +'<div class="fs-dl">Year 1</div>'
-          +'<div class="fs-dr"><span>Deposit <i>Refundable through Feb 28, 2027</i></span><b>$1,000</b></div>'
-          +'<div class="fs-dr"><span>Remaining balance</span><b>$5,999</b></div>'
-          +'<div class="fs-dr"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.y1+'</b></div>'
-          +'<div class="fs-dr fs-tot"><span>Year 1 total</span><b>'+p.dataset.tot+'</b></div>'
-          +'<div class="fs-dl">Every year after</div>'
-          +'<div class="fs-dr fs-tot"><span>'+p.dataset.plan+' plan</span><b>'+p.dataset.yr+'/yr</b></div>'
-          +'<p class="fs-fine">Estimate only, not a final price. Taxes and other charges may apply.</p>';
+        var h='<button type="button" class="fs-x" aria-label="Close">&times;</button><div class="fs-dh">Estimated cost with '+p.dataset.plan+'</div>';
+        rows[p.dataset.plan].forEach(function(r){
+          if(r.length===1){h+='<div class="fs-dl">'+r[0]+'</div>';return}
+          var note=typeof r[2]==='string'?' <i>'+r[2]+'</i>':'';
+          h+='<div class="fs-dr'+(r[2]===1?' fs-tot':'')+'"><span>'+r[0]+note+'</span><b>'+r[1]+'</b></div>';
+        });
+        box.innerHTML=h+'<p class="fs-fine">Estimate only, not a final price. Taxes and other charges may apply.</p>';
         box.hidden=false;
         box.querySelector('.fs-x').addEventListener('click',close);
       }

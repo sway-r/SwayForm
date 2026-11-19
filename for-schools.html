@@ -99,12 +99,10 @@
 .fs-plan:hover{border-color:rgba(0,0,0,.45)}
 .fs-plan.on{border-color:var(--a);box-shadow:0 0 0 1px var(--a)}
 .fs-plan:focus-visible{outline:2px solid #111;outline-offset:2px}
-.fs-cmp{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid rgba(0,0,0,.1)}
-.fs-cmp li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:13px;line-height:1.35;color:#111}
-.fs-cmp li span{flex:1}
-.fs-cmp li em{font-style:normal;font-size:13px;color:var(--a)}
-.fs-cmp li.n em{color:#9a9fa7}
-.fs-cmp li.n{color:#9a9fa7}
+.fs-cmp{list-style:none;margin:18px 0 4px;padding:0;display:flex;flex-direction:column;gap:12px}
+.fs-cmp li{position:relative;padding-left:32px;font-size:15px;line-height:1.45;color:#111}
+.fs-cmp li::before{content:"\2713";position:absolute;left:0;top:0;width:21px;height:21px;border-radius:50%;background:var(--a);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px color-mix(in srgb,var(--a) 35%,transparent)}
+.fs-cmp .fs-n{font-family:inherit;font-size:inherit;font-weight:800}
 .fs-tag{display:inline-block;margin-bottom:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 .fs-tag.req{background:var(--blue);color:#fff}
 .fs-tag.opt{background:#fff;color:var(--a);border:1px solid var(--a)}
@@ -121,6 +119,54 @@
 .fs-tot{font-weight:700;color:#111}
 .fs-pn{font-size:clamp(26px,3.5vw,34px);font-weight:800;color:#111;line-height:1.1}
 @media(max-width:900px){.fs-hero,.fs-price{grid-template-columns:1fr;gap:28px}}
+.wo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:24px}
+.wo-card{position:relative;overflow:hidden;isolation:isolate;border-radius:22px;padding:34px 32px 30px;color:#fff;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.wo-card:hover{transform:translateY(-4px)}
+.wo-portal{--wo:#0b8f6a;background:radial-gradient(120% 90% at 100% 0,rgba(255,255,255,.24) 0,transparent 55%),linear-gradient(135deg,#0b8f6a 0,#14b8a6 55%,#1fb6e8 100%);box-shadow:0 18px 44px rgba(20,184,166,.32)}
+.wo-robot{--wo:#3b5bff;background:radial-gradient(120% 90% at 100% 0,rgba(255,255,255,.22) 0,transparent 55%),linear-gradient(135deg,#0047e0 0,#3b5bff 50%,#7a4fe0 100%);box-shadow:0 18px 44px rgba(59,91,255,.35)}
+.wo-portal:hover{box-shadow:0 24px 56px rgba(20,184,166,.42)}
+.wo-robot:hover{box-shadow:0 24px 56px rgba(59,91,255,.45)}
+.wo-card::before{content:"";position:absolute;width:260px;height:260px;right:-90px;bottom:-110px;border-radius:50%;background:rgba(255,255,255,.12);z-index:-1}
+.wo-card::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.3) 48%,transparent 66%);transform:translateX(-120%);transition:transform 1s}
+.wo-card:hover::after{transform:translateX(120%)}
+.wo-kicker{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 12px;margin-bottom:18px}
+.wo-card h3{font-size:clamp(24px,2.6vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0;color:#fff}
+.wo-price{font-size:clamp(42px,5vw,56px);font-weight:900;letter-spacing:-.03em;line-height:1;margin:20px 0 4px}
+.wo-price small{font-size:18px;font-weight:700;opacity:.85;letter-spacing:0}
+.wo-sub{font-size:15px;opacity:.92;margin-bottom:24px}
+.wo-list{list-style:none;margin:0 0 30px;padding:0;display:flex;flex-direction:column;gap:13px}
+.wo-list li{position:relative;padding-left:36px;font-size:16px;line-height:1.5}
+.wo-list li::before{content:"\2713";position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:50%;background:#fff;color:var(--wo);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.wo-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto}
+.wo-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:800;font-size:15px;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.wo-btn.solid{background:#fff;color:var(--wo);box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.wo-btn.ghost{color:#fff;border:1.5px solid rgba(255,255,255,.65)}
+.wo-btn:hover{transform:translateY(-2px)}
+.pp{margin-top:48px;background:#fff;border-radius:22px;padding:clamp(24px,4vw,40px);border:1px solid rgba(0,87,255,.18);box-shadow:0 12px 36px rgba(0,87,255,.08)}
+.pp-h{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.025em;color:#111;margin:0 0 8px}
+.pp-lead{font-size:18px;color:#3f444d;margin:0 0 24px;max-width:760px;line-height:1.55}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px}
+.pp-step{border-radius:18px;padding:26px;background:#f4f7ff;border:1px solid rgba(0,87,255,.15)}
+.pp-step.hl{--wo:#3b5bff;background:radial-gradient(120% 90% at 100% 0,rgba(255,255,255,.2) 0,transparent 55%),linear-gradient(135deg,#0047e0,#3b5bff 55%,#7a4fe0);border:0;box-shadow:0 14px 36px rgba(59,91,255,.3)}
+.pp-when{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.pp-big{font-size:clamp(24px,2.8vw,30px);font-weight:900;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px;color:#111}
+.pp-step p{font-size:17px;line-height:1.6;margin:0;color:#3f444d}
+.pp-step.hl .pp-when{color:rgba(255,255,255,.8)}
+.pp-step.hl .pp-big{color:#fff}
+.pp-step.hl p{color:rgba(255,255,255,.94)}
+.pp-note{margin:22px 0 0;font-size:17px;color:#3f444d;line-height:1.6}
+.hs-banner{--wo:#3b5bff;margin-top:20px;display:grid;grid-template-columns:auto 1fr auto;gap:30px;align-items:center;padding:30px 34px;border-radius:22px;color:#fff;background:radial-gradient(100% 120% at 0 0,rgba(255,255,255,.2),transparent 50%),linear-gradient(120deg,#0047e0,#3b5bff 55%,#7a4fe0);box-shadow:0 16px 40px rgba(59,91,255,.3)}
+.hs-num{font-size:clamp(60px,8vw,88px);font-weight:900;letter-spacing:-.04em;line-height:1}
+.hs-title{font-size:clamp(20px,2.2vw,25px);font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+.hs-banner p{margin:0;font-size:16px;line-height:1.55;color:rgba(255,255,255,.92);max-width:620px}
+.wo-card p,.wo-card li,.wo-sub{color:#fff}
+.cur-access{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:800;flex-shrink:0}
+.cur-access.free{background:#e3f6ec;color:#0b7a55;border:1px solid rgba(14,154,106,.3)}
+.cur-access.sub{background:linear-gradient(135deg,#0047e0,#7a4fe0);color:#fff;border:1px solid transparent}
+.cur-key{display:grid;gap:12px;margin:-12px 0 36px;max-width:860px;padding:18px 20px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+.cur-key div{display:flex;gap:12px;align-items:baseline;font-size:15px;line-height:1.55;color:var(--ink)}
+@media(max-width:760px){.hs-banner{grid-template-columns:1fr;gap:14px}}
+@media(prefers-reduced-motion:reduce){.wo-card,.wo-card::after,.wo-btn{transition:none}.wo-card:hover{transform:none}}
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -194,30 +240,34 @@
 <section style="background:#fff;padding:40px 0 72px">
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">What we offer</span>
-    <h2 style="font-size:clamp(24px,3.2vw,32px);font-weight:800;letter-spacing:-.025em;margin-bottom:12px">The lessons, a simulation, and a real robot to run them on.</h2>
-    <p style="color:var(--muted);max-width:620px;margin-bottom:28px;line-height:1.7">Students write real code in the Learning Portal and watch it run in the browser simulation. Add the robot and they see the physical robot do exactly what they wrote.</p>
-    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))">
-      <div class="card" style="padding:28px">
-        <div style="font-weight:800;font-size:20px;margin-bottom:2px">Learning Portal</div>
-        <div style="color:var(--muted);font-weight:600;margin-bottom:16px">$1,000 a year, no robot needed</div>
-        <ul class="fs-list" style="list-style:disc;padding-left:20px;gap:10px;color:#3f444d;font-size:15px;line-height:1.55">
-          <li>140+ labs (projected) across different robotics topics, teaching critical thinking, math and coding.</li>
-          <li>A simulation environment right in the browser, so students see things actually move. Their code isn't just theory anymore.</li>
-          <li>Interactive coding exercises with quizzes and assessments.</li>
-          <li>Up to 60 students.</li>
+    <h2 style="font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-.03em;margin-bottom:12px">Two ways in. Both get your students coding.</h2>
+    <p style="color:var(--muted);max-width:640px;margin-bottom:32px;line-height:1.7;font-size:17px">Start in the browser with the Learning Portal, or bring a real humanoid robot into your classroom and give students something they will never forget.</p>
+    <div class="wo-grid">
+      <div class="wo-card wo-portal">
+        <span class="wo-kicker">Learning Portal</span>
+        <h3>Start coding today. No robot needed.</h3>
+        <div class="wo-price">$1,000<small> / year</small></div>
+        <div class="wo-sub">Up to 60 students, right in the browser</div>
+        <ul class="wo-list">
+          <li>140+ labs across robotics topics that build critical thinking, math and coding skills</li>
+          <li>A simulation right in the browser, so students watch their code move. It's not just theory anymore.</li>
+          <li>Interactive coding exercises, quizzes and assessments</li>
         </ul>
+        <div class="wo-cta"><a class="wo-btn solid" href="#pricing">See pricing &rarr;</a><a class="wo-btn ghost" href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Open the Learning Portal &#8599;</a></div>
       </div>
-      <div class="card" style="padding:28px;border-color:rgba(0,87,255,.35)">
-        <div style="font-weight:800;font-size:20px;margin-bottom:2px">Standard School Package</div>
-        <div style="color:var(--muted);font-weight:600;margin-bottom:16px">$7,000, everything in the Learning Portal plus the robot</div>
-        <ul class="fs-list" style="list-style:disc;padding-left:20px;gap:10px;color:#3f444d;font-size:15px;line-height:1.55">
-          <li>A real humanoid robot with AI vision and human-like hands.</li>
-          <li>340+ labs (projected), 200 of them built around the real robot.</li>
-          <li>Lifetime access to the Learning Portal, which normally costs $1,000 a year.</li>
-          <li>Simulation free for 3 years, then $500 a year. Completely optional, since students have the real robot in the classroom.</li>
-          <li>Cloud Classroom free for 3 years, then $140 a year. A robot can only be controlled by one person at a time, so we host your school on our Cloud Classroom server: up to 15 students active at once and up to 60 enrolled.</li>
-          <li>Teachers approve every run on the robot.</li>
+      <div class="wo-card wo-robot">
+        <span class="wo-kicker">Standard School Package</span>
+        <h3>Put a real humanoid robot in your classroom.</h3>
+        <div class="wo-price">$7,000</div>
+        <div class="wo-sub">The robot, plus the Learning Portal for life</div>
+        <ul class="wo-list">
+          <li>A real humanoid robot with AI vision and human-like hands</li>
+          <li>340+ labs, 200 of them built for the real robot</li>
+          <li>Lifetime Learning Portal access, normally $1,000 a year</li>
+          <li>Simulation and Cloud Classroom free for 3 years</li>
+          <li>Up to 15 students active at once, 60 enrolled</li>
         </ul>
+        <div class="wo-cta"><a class="wo-btn solid" href="/contact">Contact Sales &rarr;</a><a class="wo-btn ghost" href="/robot">Meet the robot</a></div>
       </div>
     </div>
   </div>
@@ -269,26 +319,29 @@
     <p style="color:#3f444d;margin:0 0 6px;max-width:680px">Start with the Learning Portal and simulation on their own, with no robot and no deposit, or get the Standard School Package with a real humanoid robot and lifetime access to the Learning Portal.</p>
     <p style="color:#111;font-weight:700;margin-bottom:20px">Tap a package to see what you would pay.</p>
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
-      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Learning Portal"><span class="fs-tag opt">Software only</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Learning Portal</div><div class="fs-pn">$1,000/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">No robot needed</div><ul class="fs-cmp"><li><span><u class="fs-n">140+</u> labs (projected) across robotics topics, teaching critical thinking, math and coding</span></li><li><span>A simulation environment in the browser, so students watch their code move things instead of only reading about it</span></li><li><span>Interactive coding exercises with quizzes and assessments</span></li><li><span>Up to <u class="fs-n">60</u> students</span></li><li class="n"><span>A real humanoid robot</span><em>-</em></li></ul></div>
+      <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Learning Portal"><span class="fs-tag opt">Software only</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Learning Portal</div><div class="fs-pn">$1,000/yr</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">No robot needed</div><ul class="fs-cmp"><li><span><u class="fs-n">140+</u> labs (projected) across robotics topics, teaching critical thinking, math and coding</span></li><li><span>A simulation environment in the browser, so students watch their code move things instead of only reading about it</span></li><li><span>Interactive coding exercises with quizzes and assessments</span></li><li><span>Up to <u class="fs-n">60</u> students</span></li></ul></div>
       <div class="fs-plan" role="button" tabindex="0" aria-pressed="false" data-plan="Standard School Package"><span class="fs-tag req">Recommended</span><div style="font-weight:700;color:#3f444d;margin-bottom:2px">Standard School Package</div><div class="fs-pn">$7,000</div><div style="color:#111;font-weight:700;font-size:13px;margin:2px 0 4px">Everything in the Learning Portal package, plus the robot</div><ul class="fs-cmp"><li><span>A real humanoid robot with AI vision and human-like hands</span></li><li><span><u class="fs-n">340+</u> labs (projected), <u class="fs-n">200</u> of them built around the real robot</span></li><li><span>Lifetime access to the Learning Portal, normally <u class="fs-n">$1,000</u> a year</span></li><li><span>Simulation free for <u class="fs-n">3</u> years, then <u class="fs-n">$500</u> a year (optional)</span></li><li><span>Cloud Classroom free for <u class="fs-n">3</u> years, then <u class="fs-n">$140</u> a year</span></li><li><span>Up to <u class="fs-n">15</u> students active at once and <u class="fs-n">60</u> enrolled</span></li></ul></div>
     </div>
     <div class="fs-due" id="fs-due" hidden aria-live="polite"></div>
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:40px">
       <div class="card" style="padding:24px;background:#fff">
-        <div style="font-weight:700;margin-bottom:8px;color:#111">Cloud Classroom</div>
-        <p class="fs-sm" style="color:#3f444d">You own the robot, but a robot can only be controlled by one person at a time. Cloud Classroom enrolls your school on our hosted server, so up to 15 students can be active at once and up to 60 students can have accounts. It is free for the first 3 years, then $140 a year.</p>
+        <div style="font-weight:800;font-size:19px;margin-bottom:8px;color:#111">Cloud Classroom</div>
+        <p style="color:#3f444d;font-size:16px;line-height:1.6;margin:0">You own the robot, but a robot can only be controlled by one person at a time. Cloud Classroom enrolls your school on our hosted server, so up to 15 students can be active at once and up to 60 students can have accounts. It is free for the first 3 years, then $140 a year.</p>
       </div>
       <div class="card" style="padding:24px;background:#fff">
-        <div style="font-weight:700;margin-bottom:8px;color:#111">Simulation after year 3</div>
-        <p class="fs-sm" style="color:#3f444d">Simulation is free for the first 3 years and $500 a year after that. It is completely optional: with the real robot in the classroom, students don't need a simulation to see their code run.</p>
+        <div style="font-weight:800;font-size:19px;margin-bottom:8px;color:#111">Simulation after year 3</div>
+        <p style="color:#3f444d;font-size:16px;line-height:1.6;margin:0">Simulation is free for the first 3 years and $500 a year after that. It is completely optional: with the real robot in the classroom, students don't need a simulation to see their code run.</p>
       </div>
     </div>
-    <h3 style="font-size:clamp(20px,2.6vw,24px);font-weight:800;letter-spacing:-.02em;margin:48px 0 20px;color:#111">Same price over 7 years. Only one comes with a robot.</h3>
-    <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">
-      <div class="card" style="padding:24px;background:#fff"><div style="font-weight:700;color:#3f444d">Learning Portal only</div><div class="fs-big" style="color:#111;margin-top:6px">$7,000</div><p class="fs-sm" style="color:#3f444d">$1,000 a year, for 7 years. No robot.</p></div>
-      <div class="card" style="padding:24px;background:#fff;border-color:rgba(0,87,255,.35)"><div style="font-weight:700;color:#3f444d">Standard School Package</div><div class="fs-big" style="color:var(--blue);margin-top:6px">$7,000</div><p class="fs-sm" style="color:#3f444d">Paid once. The Learning Portal is included for life, and you get a real humanoid robot.</p></div>
+    <div class="pp">
+      <h3 class="pp-h">Let's put it in perspective.</h3>
+      <p class="pp-lead">Say your school gets the $7,000 Standard School Package, with the robot and lifetime access to the Learning Portal.</p>
+      <div class="pp-grid">
+        <div class="pp-step"><div class="pp-when">After 3 years</div><div class="pp-big">The robot really cost you $4,000.</div><p>You would have paid $3,000 for the Learning Portal anyway. This time you also have the robot, so it only cost you $4,000.</p></div>
+        <div class="pp-step hl"><div class="pp-when">After 7 years</div><div class="pp-big">The robot paid for itself.</div><p>You would have paid $7,000 for the Learning Portal anyway. You paid the same, but this time you also got the robot. The yearly Learning Portal fees you skipped match its price, so the robot was essentially free.</p></div>
+      </div>
+      <p class="pp-note"><b>After the first 3 years</b>, Cloud Classroom is $140 a year. Simulation is $500 a year and completely optional.</p>
     </div>
-    <p style="color:#3f444d;margin:20px 0 0;max-width:720px;line-height:1.65">The first 3 years alone would cost $3,000 in Learning Portal fees, so the robot works out to $4,000. Cloud Classroom ($140 a year) and optional simulation ($500 a year) start in year 4.</p>
     <script>
     (function(){
       var rows={
@@ -333,7 +386,12 @@
     <div class="fs-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))">
       <div class="card" style="padding:24px"><div class="fs-big" style="color:var(--ink)">20</div><div class="fs-k">Foundation labs</div><div style="font-weight:700;margin:8px 0 4px">Explore</div><p class="fs-sm">A different behavior in each lab.</p></div>
       <div class="card" style="padding:24px"><div class="fs-big" style="color:var(--ink)">6–12</div><div class="fs-k">Labs per section</div><div style="font-weight:700;margin:8px 0 4px">Master</div><p class="fs-sm">One movement or task per section.</p></div>
-      <div class="card" style="padding:24px"><div class="fs-big" style="color:var(--blue)">15+</div><div class="fs-k">Projected sections</div><div style="font-weight:700;margin:8px 0 4px">Program independently</div><p class="fs-sm">Students write robot programs on their own. 35+ sections with a physical robot.</p></div>
+      <div class="card" style="padding:24px"><div class="fs-big" style="color:var(--blue)">15+</div><div class="fs-k">Projected sections</div><div style="font-weight:700;margin:8px 0 4px">Program independently</div><p class="fs-sm">Students write robot programs on their own, in the Learning Portal.</p></div>
+    </div>
+    <div class="hs-banner">
+      <div class="hs-num">35+</div>
+      <div><div class="hs-title">sections when your school has the physical robot</div><p>The Learning Portal alone has 15+ projected sections. With the robot, students get 35+, including 200 labs built for real hardware.</p></div>
+      <a class="wo-btn solid" href="#pricing">See the robot package &rarr;</a>
     </div>
     <div class="fs-grid" style="margin-top:20px">
       <div class="card" style="padding:20px"><div style="font-weight:700;margin-bottom:4px">Programming</div><p class="fs-sm">Write real code to control a real robot.</p></div>
@@ -351,13 +409,17 @@
     <h2 style="font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-.025em;margin-bottom:16px">The same path students see in the Learning Portal.</h2>
     <p style="color:var(--muted);max-width:720px;margin-bottom:36px;line-height:1.7">Twenty foundation labs, then behavior sections: 15+ in the Learning Portal and 35+ with the robot. Every lab has starter code, step-by-step instructions and a debug checklist, and runs in the simulation or on the real robot.</p>
 
+    <div class="cur-key">
+      <div><span class="cur-access free">Free</span><span>Getting Started, Introduction to ROS 2, the Pre-Installed Demos and the Foundation Labs are open to everyone.</span></div>
+      <div><span class="cur-access sub">Subscription</span><span>Behavior Sections come with the Learning Portal package ($1,000 a year), or are included for life with the Standard School Package. Subscriptions open at the Fall 2027 launch.</span></div>
+    </div>
     <p style="font-size:13px;color:var(--faint);margin:-20px 0 16px">Tap a section to see everything inside it.</p>
     <div class="cur-grid">
       <div class="cur-sec">
       <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-getting-started">
         <span class="cur-num">01</span>
         <span class="cur-main"><span class="cur-title">Getting Started</span><span class="cur-desc">Safety, and how to use the Learning Portal: the apps, labs, robot runs, quizzes and grades.</span></span>
-        <span class="cur-meta"><span class="cur-count">5 readings</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-meta"><span class="cur-access free">Free</span><span class="cur-count">5 readings</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
       <div class="cur-panel" id="cur-panel-getting-started" hidden>
         <ul class="cur-items">
@@ -373,7 +435,7 @@
       <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-ros2-intro">
         <span class="cur-num">02</span>
         <span class="cur-main"><span class="cur-title">Introduction to ROS 2</span><span class="cur-desc">The ROS 2 ideas every lab relies on: nodes, packages, behavior files, joints and limits, and reading errors.</span></span>
-        <span class="cur-meta"><span class="cur-count">7 readings</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-meta"><span class="cur-access free">Free</span><span class="cur-count">7 readings</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
       <div class="cur-panel" id="cur-panel-ros2-intro" hidden>
         <ul class="cur-items">
@@ -391,7 +453,7 @@
       <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-demos">
         <span class="cur-num">03</span>
         <span class="cur-main"><span class="cur-title">Pre-Installed Demos</span><span class="cur-desc">Explore and understand the programs already running on SwayForm, Wave, Handshake, Fist Bump, Finger Count, and Target Lock.</span></span>
-        <span class="cur-meta"><span class="cur-count">5 demos</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-meta"><span class="cur-access free">Free</span><span class="cur-count">5 demos</span><span class="cur-status avail">Available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
       <div class="cur-panel" id="cur-panel-demos" hidden>
         <ul class="cur-items">
@@ -407,7 +469,7 @@
       <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-foundation">
         <span class="cur-num">04</span>
         <span class="cur-main"><span class="cur-title">Foundation Labs</span><span class="cur-desc">One new behavior or task per lab, from a single finger curl to rock paper scissors.</span></span>
-        <span class="cur-meta"><span class="cur-count">20 labs</span><span class="cur-status avail">10 available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-meta"><span class="cur-access free">Free</span><span class="cur-count">20 labs</span><span class="cur-status avail">10 available</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
       <div class="cur-panel" id="cur-panel-foundation" hidden>
         <p class="cur-note">Labs 1–10 are available now. Labs 11–20 are planned; working titles below.</p>
@@ -439,7 +501,7 @@
       <button type="button" class="cur-row" aria-expanded="false" aria-controls="cur-panel-sections">
         <span class="cur-num">05</span>
         <span class="cur-main"><span class="cur-title">Behavior Sections</span><span class="cur-desc">After the foundation labs: sections of 6–12 labs, each built around one behavior. 15+ in the Learning Portal and 35+ with the robot projected.</span></span>
-        <span class="cur-meta"><span class="cur-count">Labs 21+</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="cur-meta"><span class="cur-access sub">Subscription</span><span class="cur-count">Labs 21+</span><span class="cur-status">Planned</span><svg class="cur-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </button>
       <div class="cur-panel" id="cur-panel-sections" hidden>
         <p class="cur-note">Each section follows one behavior, such as a wave, from its first line of code to a full program. Early labs teach one small piece. Later labs add concepts and how the robot is built and why. By the middle of a section students understand most of it, and by its last lab they write enough of the code on their own.</p>

@@ -36,7 +36,12 @@ export function mount(container, params, nav, ctx){
         <div class="sv-crumb">Learn / ${section.title}</div>
         <h1>${section.title}</h1>
         <p class="sv-desc">${section.description}</p>
-        <p class="sv-sub-note" data-sub-note hidden>${icon('lock')}<span>${SUBSCRIPTION_NOTE}</span></p>
+        <div class="sv-sub-card" data-sub-note hidden>
+          <div class="sv-sub-icon">${icon('lock')}</div>
+          <h2>Subscription required</h2>
+          <p>${SUBSCRIPTION_NOTE}</p>
+          <button type="button" class="p-btn primary" data-go-foundation>${icon('arrowRight')}<span>Go to Foundation Labs</span></button>
+        </div>
         <div class="sv-progress-row" data-progress-row></div>
       </div>
       <div class="sv-items" data-items></div>
@@ -48,6 +53,7 @@ export function mount(container, params, nav, ctx){
   const progressRowEl = root.querySelector('[data-progress-row]');
   const itemsEl = root.querySelector('[data-items]');
   const subNoteEl = root.querySelector('[data-sub-note]');
+  root.querySelector('[data-go-foundation]').addEventListener('click', () => nav.section('foundation'));
 
   // Renders this section's lesson rows regardless of whether progress
   // actually loaded, completedIds/current default to "nothing known" so a
@@ -115,7 +121,8 @@ export function mount(container, params, nav, ctx){
         head.type = 'button';
         head.className = 'sv-group-head' + (open ? ' open' : '');
         head.setAttribute('aria-expanded', String(open));
-        head.innerHTML = `<span class="sv-group-chev">${icon('chevronRight')}</span><span class="sv-group-num">${item.group.number}</span><span class="sv-group-title">${item.group.title}</span><span class="sv-group-desc">${item.group.description || ''}</span>`;
+        const groupLabs = section.items.filter((i) => i.group === item.group && i.kind !== 'placeholder').length;
+        head.innerHTML = `<span class="sv-group-chev">${icon('chevronRight')}</span><span class="sv-group-num">${item.group.number}</span><span class="sv-group-main"><span class="sv-group-title">${item.group.title}</span><span class="sv-group-desc">${item.group.description || ''}</span></span><span class="sv-group-count">${groupLabs ? `${groupLabs} labs` : ''}</span>`;
         const body = document.createElement('div');
         body.className = 'sv-group-body';
         body.hidden = !open;

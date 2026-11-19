@@ -145,8 +145,8 @@ const s4 = [
 function grouped(group, ids) {
   return ids.map((id, i) => ({ ...real(id, 'behavior-sections', `${group.number}.${String(i + 1).padStart(2, '0')}`), group }));
 }
-const WAVE = { id: 'wave', number: '5', title: 'Wave', description: 'Finish a wave program one piece at a time, then send it to the robot. 6 labs.' };
-const GREETINGS = { id: 'greeting-gestures', number: '6', title: 'Greeting Gestures', description: 'One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon. 12 labs.' };
+const WAVE = { id: 'wave', number: '5', title: 'Wave', description: 'Finish a wave program one piece at a time, then send it to the robot.' };
+const GREETINGS = { id: 'greeting-gestures', number: '6', title: 'Greeting Gestures', description: 'One movement structure, three greetings: build a handshake, reuse it for a fist bump, then plan and write a beckon.' };
 const NEXT = { id: 'coming-soon', number: '7', title: 'More Behavior Sections', description: 'Planned.' };
 const s5 = [
   // Content lives in wave-section.js.

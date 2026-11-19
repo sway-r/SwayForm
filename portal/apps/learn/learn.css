@@ -68,9 +68,13 @@
 .sv-head h1{font-size:22px;font-weight:800;letter-spacing:-.025em;color:var(--la-ink);margin-bottom:10px;display:flex;align-items:baseline;gap:10px}
 .sv-level{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--la-faint)}
 .sv-desc{font-size:13px;color:var(--la-muted);line-height:1.6;max-width:600px;margin-bottom:18px}
-.sv-sub-note{display:flex;gap:10px;align-items:flex-start;max-width:600px;margin:0 0 18px;padding:12px 14px;border:1px solid var(--la-border);border-radius:8px;font-size:13px;line-height:1.6;color:var(--la-soft)}
-.sv-sub-note[hidden]{display:none}
-.sv-sub-note svg{flex:none;width:15px;height:15px;margin-top:3px;stroke:var(--la-muted);fill:none;stroke-width:1.8}
+.sv-sub-card{max-width:560px;margin:8px auto 32px;padding:36px 32px;text-align:center;background:var(--la-bg2);border:1px solid var(--la-border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.sv-sub-card[hidden]{display:none}
+.sv-sub-icon{width:52px;height:52px;border-radius:50%;background:var(--la-hover);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.sv-sub-icon svg{width:24px;height:24px;stroke:var(--la-muted);fill:none;stroke-width:1.8}
+.sv-sub-card h2{font-size:20px;font-weight:800;color:var(--la-ink);letter-spacing:-.01em;margin-bottom:10px}
+.sv-sub-card p{font-size:14px;color:var(--la-soft);line-height:1.65;margin-bottom:22px}
+.sv-sub-card .p-btn{display:inline-flex}
 .sv-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:30px}
 .sv-progress-bar{width:160px;height:5px;border-radius:3px;background:var(--la-border);overflow:hidden;display:block}
 .sv-progress-bar span{display:block;height:100%;background:var(--la-accent);border-radius:3px}
@@ -191,13 +195,18 @@
 .sv-completed-toggle.open svg{transform:rotate(90deg)}
 
 /* Group headings inside Behavior Sections (5.1 Wave, 5.2 Greeting Gestures, ...) */
-.sv-group-head { width: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding: 18px 4px 6px; background: none; border: none; border-bottom: 1px solid var(--la-border); font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.sv-group-head:first-child { padding-top: 4px; }
-.sv-group-head:hover .sv-group-title { text-decoration: underline; }
-.sv-group-chev { display: inline-flex; align-self: center; color: var(--la-muted); }
-.sv-group-chev svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; transition: transform .15s; }
-.sv-group-head.open .sv-group-chev svg { transform: rotate(90deg); }
-.sv-group-desc { padding-left: 22px; }
-.sv-group-num { font-variant-numeric: tabular-nums; color: var(--la-muted); }
-.sv-group-title { font-weight: 600; }
-.sv-group-desc { flex-basis: 100%; font-size: 13px; color: var(--la-muted); }
+.sv-group-head{display:flex;align-items:center;gap:14px;width:100%;margin:0;padding:16px 6px;background:none;border:none;border-bottom:1px solid var(--la-border-soft);font:inherit;color:inherit;text-align:left;cursor:pointer;transition:background .15s}
+.sv-group-head:hover{background:var(--la-hover)}
+.sv-group-head:focus{outline:none}
+.sv-group-head:focus-visible{outline:2px solid var(--la-accent);outline-offset:-2px}
+.sv-group-chev{display:inline-flex;flex-shrink:0;color:var(--la-faint)}
+.sv-group-chev svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.2;transition:transform .15s}
+.sv-group-head.open .sv-group-chev svg{transform:rotate(90deg)}
+.sv-group-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--la-faint);width:20px;flex-shrink:0}
+.sv-group-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sv-group-title{font-size:14.5px;font-weight:700;color:var(--la-ink);letter-spacing:-.01em}
+.sv-group-desc{font-size:12px;color:var(--la-muted);line-height:1.5}
+.sv-group-count{flex-shrink:0;font-family:var(--mono);font-size:11.5px;color:var(--la-muted);white-space:nowrap}
+.sv-group-body{border-bottom:1px solid var(--la-border-soft)}
+.sv-group-body .sv-item-row{padding-left:40px}
+.sv-group-body .sv-item-row:last-child{border-bottom:none}

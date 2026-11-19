@@ -120,7 +120,9 @@
 .fs-pn{font-size:clamp(26px,3.5vw,34px);font-weight:800;color:#111;line-height:1.1}
 @media(max-width:900px){.fs-hero,.fs-price{grid-template-columns:1fr;gap:28px}}
 .wo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:24px}
-.wo-card{position:relative;border-radius:18px;padding:32px 30px 28px;background:#fff;border:1px solid var(--line);border-top:5px solid var(--wo);display:flex;flex-direction:column}
+.wo-card{position:relative;border-radius:18px;padding:32px 30px 28px;background:#fff;border:1px solid var(--line);border-top:5px solid var(--wo);display:grid;grid-row:span 2;grid-template-rows:subgrid;row-gap:0}
+.wo-body{display:flex;flex-direction:column}
+.wo-head .wo-kicker{display:block}
 .wo-portal{--wo:#0b8f6a}.wo-robot{--wo:#2f55f0}
 .wo-kicker{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--wo);margin-bottom:12px}
 .wo-card h3{font-size:clamp(24px,2.6vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0;color:#111}
@@ -241,12 +243,13 @@
 <section style="background:#fff;padding:40px 0 72px">
   <div class="section-wide">
     <span class="label" style="display:block;margin-bottom:12px;color:var(--blue)">What we offer</span>
-    <h2 style="font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-.03em;margin-bottom:12px">Two ways in. Both get your students coding.</h2>
+    <h2 style="font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-.03em;margin-bottom:12px">Two ways in. Both get your students learning.</h2>
     <p style="color:var(--muted);max-width:640px;margin-bottom:32px;line-height:1.7;font-size:17px">The Learning Portal is our self-paced online course, no robotics teacher needed. Start there, or bring a real humanoid robot into your classroom.</p>
     <div class="wo-grid">
       <div class="wo-card wo-portal">
-        <span class="wo-kicker">Learning Portal</span>
-        <h3>Start coding today. No robot needed.</h3>
+        <div class="wo-head"><span class="wo-kicker">Learning Portal</span>
+        <h3>Students build real skills. No robot needed.</h3></div>
+        <div class="wo-body">
         <ul class="wo-feats">
           <li><span class="wo-ft"><b>140+ labs that make them think</b><span>Students spot why the arm swings too far, do the math and write the code to fix it. Critical thinking, math and coding in one sitting.</span></span></li>
           <li><span class="wo-ft"><b>Code they can watch move</b><span>Press Run and a robot on screen moves the way their code says. Their code is not just theory anymore.</span></span></li>
@@ -255,10 +258,12 @@
         </ul>
         <div class="wo-foot"><span class="wo-price">$1,000<small> / year</small></span><span class="wo-sub">No robot or deposit needed</span></div>
         <div class="wo-cta"><a class="wo-btn solid" href="#pricing">See pricing &rarr;</a><a class="wo-btn ghost" href="https://learning.swayform.net/" target="_blank" rel="noopener noreferrer">Open the Learning Portal &#8599;</a></div>
+        </div>
       </div>
       <div class="wo-card wo-robot">
-        <span class="wo-kicker">Standard School Package</span>
-        <h3>Put a real humanoid robot in your classroom.</h3>
+        <div class="wo-head"><span class="wo-kicker">Standard School Package</span>
+        <h3>Put a real humanoid robot in your classroom.</h3></div>
+        <div class="wo-body">
         <ul class="wo-feats">
           <li><span class="wo-ft"><b>A real humanoid robot in the room</b><span>A student presses Run and the robot across the room waves, because they told it to. AI vision and human-like hands.</span></span></li>
           <li><span class="wo-ft"><b>340+ labs</b><span>Everything in the Learning Portal, plus 200 labs for the real robot, from waving to grabbing and lifting objects.</span></span></li>
@@ -269,6 +274,7 @@
         <div class="wo-life"><b>The robot + the Learning Portal, free for life.</b><span>Lifetime Learning Portal access comes with the robot. On its own it is $1,000 a year.</span></div>
         <div class="wo-foot"><span class="wo-price">$7,000</span><span class="wo-sub">Robot + Learning Portal, free for life</span></div>
         <div class="wo-cta"><a class="wo-btn solid" href="/contact">Contact Sales &rarr;</a><a class="wo-btn ghost" href="/robot">Meet the robot</a></div>
+        </div>
       </div>
     </div>
   </div>

@@ -15,7 +15,9 @@ window.SWAYFORM = {
     plannedTotal: 140,
     plannedTotalWithRobot: 340,
     robotBasedLabs: 200,
-    statusLine: "Twenty foundation labs, then about 10 behavior sections of 10–12 labs each.",
+    statusLine: "Twenty foundation labs, then behavior sections of 6–12 labs each: 15+ projected in the Learning Portal, 35+ with the robot.",
+    plannedSections: 15,
+    plannedSectionsWithRobot: 35,
     sections: ["Getting Started", "Introduction to ROS 2", "Pre-Installed Demos", "Foundation Labs", "Behavior Sections"]
   },
   demos: {

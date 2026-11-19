@@ -155,7 +155,7 @@ const s5 = [
   ...grouped(GREETINGS, ['hs-01-meet-the-handshake', 'hs-02-joint-control', 'hs-03-sequencing', 'hs-04-coordination', 'hs-05-run',
     'fb-06-from-handshake', 'fb-07-positions', 'fb-08-timing', 'fb-09-finish', 'fb-10-run', 'bk-11-plan', 'bk-12-challenge']),
   { ...placeholder('behavior-sections-21', 'behavior-sections', '7.01', 'More Behavior Sections: Coming Soon',
-    'Wave and Greeting Gestures are the first two behavior sections. About 10 in all, each built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built. The full course is projected at 140+ labs in the Learning Portal, and 340+ with the robot, since 200 of them are built around it.'), group: NEXT },
+    'Wave and Greeting Gestures are the first two behavior sections. 15+ are projected in the Learning Portal and 35+ with the robot, each 6 to 12 labs built around robot behaviors, and students write more of the code as they go, from about 30% in the first sections to about 75% by the last. Section and lab titles will be added here as they are built. The full course is projected at 140+ labs in the Learning Portal, and 340+ with the robot, since 200 of them are built around it.'), group: NEXT },
 ];
 
 export const CURRICULUM = {
@@ -184,7 +184,7 @@ export const CURRICULUM = {
     },
     {
       id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects', sequential: true,
-      description: 'The main course: about 10 sections, each built around robot behaviors. Each section ends with a run on the real robot.',
+      description: 'The main course: 15+ projected sections (35+ with the robot) of 6 to 12 labs, each built around robot behaviors. Each section ends with a run on the real robot.',
       items: s5,
     },
   ],

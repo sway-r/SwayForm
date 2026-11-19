@@ -15,7 +15,7 @@
  *     Pre-Installed Demos) are foundational: each one introduces a
  *     genuinely new movement or concept and closes one specific knowledge
  *     gap. No filler labs.
- *   - After that, the curriculum runs in focused ~10-12-lab behavior
+ *   - After that, the curriculum runs in focused 6-12-lab behavior
  *     sections, starting at lab 21. Every lab in a section works toward one
  *     larger final behavior, not a grab-bag of unrelated topics.
  *   - Within a section, the training wheels come off gradually: early labs

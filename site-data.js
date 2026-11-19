@@ -44,8 +44,7 @@ window.SWAYFORM = {
     commercialLaunchTarget: "Fall 2027"
   },
   contact: {
-    salesEmail: "contact@swayform.net",
-    supportEmail: "support@swayform.net"
+    salesEmail: "contact@swayform.net"
   }
 };
 

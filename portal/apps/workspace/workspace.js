@@ -65,7 +65,7 @@ export async function mount(container, ctx){
         <p>The Workspace gives you complete, unfiltered access to the robot's code. This is the robot's full source, completely open.</p>
         <p>Anything you change here can and will change how the robot runs. Changes can be disruptive, and some of them may not be possible to undo.</p>
         <p><strong>Only use the Workspace if you are 100% sure you know what you are doing.</strong></p>
-        <p>You can give your students access to the Workspace by emailing us at <a href="mailto:support@swayform.net">support@swayform.net</a>. The same risks apply, so be careful.</p>
+        <p>You can give your students access to the Workspace by emailing us at <a href="mailto:contact@swayform.net">contact@swayform.net</a>. The same risks apply, so be careful.</p>
         <div class="workspace-warn-actions">
           <button type="button" class="p-btn ghost" data-role="cancel">Close</button>
           <button type="button" class="p-btn primary" data-role="accept">I understand, open the Workspace</button>

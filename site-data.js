@@ -36,7 +36,7 @@ window.SWAYFORM = {
   pricing: {
     learningPortalPackage: "Learning Portal: $1,000 per year, no deposit. 140+ labs (projected), quizzes, assessments and browser simulation, up to 60 students, no robot.",
     standardPackage: "Standard School Package: $7,000 ($1,000 deposit + $6,000). Robot with AI vision and human-like hands, 340+ labs (projected, 200 robot-based), lifetime Learning Portal, simulation and Cloud Classroom free for 3 years.",
-    afterYear3: "Cloud Classroom $140 per year (15 active, 60 enrolled); simulation optional at $500 per year; Learning Portal stays free for life.",
+    afterYear3: "Cloud Classroom $140 per year (15 active, 60 enrolled); simulation optional at $500 per year; Learning Portal stays included for life.",
     robotPrice: "$7,000 per unit"
   },
   timeline: {

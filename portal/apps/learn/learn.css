@@ -50,7 +50,8 @@
 .lh-sec-level{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--la-faint)}
 .lh-sec-desc{font-size:12px;color:var(--la-muted);line-height:1.5}
 .lh-sec-meta{display:flex;align-items:center;gap:14px;flex-shrink:0}
-.lh-sec-progress{font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap}
+.lh-sec-progress{font-size:11.5px;color:var(--la-muted);font-family:var(--mono);white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.lh-sec-progress svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8}
 .lh-sec-chevron svg{width:14px;height:14px;stroke:var(--la-faint);fill:none;stroke-width:1.8}
 
 /* ============================================================
@@ -67,6 +68,9 @@
 .sv-head h1{font-size:22px;font-weight:800;letter-spacing:-.025em;color:var(--la-ink);margin-bottom:10px;display:flex;align-items:baseline;gap:10px}
 .sv-level{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--la-faint)}
 .sv-desc{font-size:13px;color:var(--la-muted);line-height:1.6;max-width:600px;margin-bottom:18px}
+.sv-sub-note{display:flex;gap:10px;align-items:flex-start;max-width:600px;margin:0 0 18px;padding:12px 14px;border:1px solid var(--la-border);border-radius:8px;font-size:13px;line-height:1.6;color:var(--la-soft)}
+.sv-sub-note[hidden]{display:none}
+.sv-sub-note svg{flex:none;width:15px;height:15px;margin-top:3px;stroke:var(--la-muted);fill:none;stroke-width:1.8}
 .sv-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:30px}
 .sv-progress-bar{width:160px;height:5px;border-radius:3px;background:var(--la-border);overflow:hidden;display:block}
 .sv-progress-bar span{display:block;height:100%;background:var(--la-accent);border-radius:3px}

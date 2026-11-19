@@ -25,7 +25,7 @@ const COMING_SOON = [
   },
   {
     label: 'Subscription & Billing',
-    description: 'Manage a paid Learning Hub plan and billing details once commercial plans are available.',
+    description: 'Subscriptions open at the Fall 2027 launch, with a 7-day free trial for Gmail accounts. Manage your subscription and billing here once they do.',
   },
 ];
 

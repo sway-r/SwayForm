@@ -183,7 +183,7 @@ export const CURRICULUM = {
       items: s4,
     },
     {
-      id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects', sequential: true,
+      id: 'behavior-sections', number: 5, title: 'Behavior Sections', type: 'lab', icon: 'projects', sequential: true, subscription: true,
       description: 'The main course: 15+ projected sections (35+ with the robot) of 6 to 12 labs, each built around robot behaviors. Each section ends with a run on the real robot.',
       items: s5,
     },
@@ -236,6 +236,15 @@ export function nextInSection(itemId) {
   const items = found.section.items;
   const idx = items.indexOf(found.item);
   return items[idx + 1] || null;
+}
+
+// Sections marked subscription: true open only for school accounts linked to a robot until subscriptions launch.
+export const SUBSCRIPTION_NOTE = 'This section is part of a SwayForm subscription. Subscriptions open when SwayForm launches in Fall 2027, with a 7-day free trial for Gmail accounts. Until then, the Pre-Installed Demos and Foundation Labs are open to everyone, and schools with a SwayForm robot have full access through their school account.';
+
+/** True when itemId sits in a subscription section and the viewer lacks full access. */
+export function needsSubscription(itemId, fullAccess) {
+  const found = findItem(itemId);
+  return !fullAccess && !!found && !!found.section.subscription && found.item.kind !== 'placeholder';
 }
 
 // Off for everyone until launch: every lab and every step stays open. true brings back labs in order and step locks.

@@ -1,5 +1,5 @@
 import { icon } from '../../../icons.js';
-import { findItem, nextItem, prevInSection, nextInSection, blockingItem, LABS_LOCKED } from '../../../data/curriculum.js';
+import { findItem, nextItem, prevInSection, nextInSection, blockingItem, needsSubscription, SUBSCRIPTION_NOTE, LABS_LOCKED } from '../../../data/curriculum.js';
 import { WorkspaceWindowManager } from '../workspace/window-manager.js';
 import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
@@ -7,7 +7,7 @@ import * as TerminalApp from '../workspace/terminal-app.js';
 import { markComplete, setCurrentActivity, getCurrentActivity, getCompletedActivities } from '../../../services/progress-service.js';
 import { getSession } from '../../../services/auth-service.js';
 import { getPrefs } from '../../../prefs.js';
-import { isAdminView, loadAdminView } from '../admin-view.js';
+import { isAdminView, hasFullAccess, loadAdminView } from '../admin-view.js';
 import { startTracking, formatClock, formatTotal } from '../../../services/time-tracker.js';
 
 // Per-activity, not a single shared key; the layout was previously stored
@@ -304,6 +304,19 @@ export function mount(container, params, nav, ctx){
     desktopEl.querySelector('[data-go-blocker]').addEventListener('click', () => nav.activity(blocker.id));
   }
 
+  function showSubscription(){
+    dockEl.hidden = true;
+    if (presetsEl) presetsEl.hidden = true;
+    desktopEl.innerHTML = `
+      <div class="aw-locked">
+        <div class="aw-locked-icon">${icon('lock')}</div>
+        <h2>Subscription required</h2>
+        <p>${SUBSCRIPTION_NOTE}</p>
+        <button type="button" class="p-btn primary" data-go-foundation>${icon('arrowRight')}<span>Go to Foundation Labs</span></button>
+      </div>`;
+    desktopEl.querySelector('[data-go-foundation]').addEventListener('click', () => nav.section('foundation'));
+  }
+
   // If this view is closed (unmount() below) before this resolves, the view
   // is already torn down; bootDefault() must not go on to open fresh
   // Notebook/Terminal/Code Editor instances (and setCurrentActivity must
@@ -314,13 +327,18 @@ export function mount(container, params, nav, ctx){
     if (disposed) return;
     const done = completedIds.includes(activity.id);
     renderLabNav(done);
+    if (needsSubscription(activity.id, hasFullAccess())){ showSubscription(); return; }
     const blocker = isAdminView() ? null : blockingItem(activity.id, completedIds);
     if (blocker){ showLocked(blocker); return; }
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
     if (!isPlaceholder) setCurrentActivity(activity.id, resumeStep).catch(() => {});
     bootDefault();
-  }).catch(() => { if (!disposed) bootDefault(); });
+  }).catch(() => loadAdminView().then(() => {
+    if (disposed) return;
+    if (needsSubscription(activity.id, hasFullAccess())) showSubscription();
+    else bootDefault();
+  }));
 
   return {
     unmount(){

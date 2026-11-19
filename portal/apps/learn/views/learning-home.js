@@ -1,6 +1,7 @@
 import { icon } from '../../../icons.js';
 import { CURRICULUM, LAB_SECTION_IDS, sectionProgress } from '../../../data/curriculum.js';
 import { getCompletedActivities } from '../../../services/progress-service.js';
+import { hasFullAccess, loadAdminView } from '../admin-view.js';
 
 export function mount(container, nav, ctx){
   const root = document.createElement('div');
@@ -38,6 +39,7 @@ export function mount(container, nav, ctx){
     sectionsEl.innerHTML = '';
     CURRICULUM.sections.forEach((section) => {
       const { complete, total } = sectionProgress(section.id, completedIds);
+      const paywalled = section.subscription && !hasFullAccess();
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'lh-sec-row';
@@ -49,7 +51,7 @@ export function mount(container, nav, ctx){
           <span class="lh-sec-desc">${section.description}</span>
         </span>
         <span class="lh-sec-meta">
-          <span class="lh-sec-progress">${total ? `${complete} / ${total}` : 'Planned'}</span>
+          <span class="lh-sec-progress">${paywalled ? `${icon('lock')} Subscription` : total ? `${complete} / ${total}` : 'Planned'}</span>
           <span class="lh-sec-chevron">${icon('chevronRight')}</span>
         </span>`;
       row.addEventListener('click', () => nav.section(section.id));
@@ -57,10 +59,10 @@ export function mount(container, nav, ctx){
     });
   }
 
-  getCompletedActivities().then(renderSections).catch(() => {
+  Promise.all([getCompletedActivities(), loadAdminView()]).then(([ids]) => renderSections(ids)).catch(() => loadAdminView().then(() => {
     summaryEl.textContent = 'Progress unavailable, showing curriculum only.';
     renderSections([]);
-  });
+  }));
 
   ctx.setTitle && ctx.setTitle('');
 

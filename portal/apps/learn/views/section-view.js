@@ -1,8 +1,8 @@
 import { icon } from '../../../icons.js';
-import { findSection, sectionProgress, itemStatus, blockingItem } from '../../../data/curriculum.js';
+import { findSection, sectionProgress, itemStatus, blockingItem, needsSubscription, SUBSCRIPTION_NOTE } from '../../../data/curriculum.js';
 import { getPrefs } from '../../../prefs.js';
 import { getCompletedActivities, getCurrentActivity } from '../../../services/progress-service.js';
-import { isAdminView, loadAdminView } from '../admin-view.js';
+import { isAdminView, hasFullAccess, loadAdminView } from '../admin-view.js';
 import { isGroupOpen, toggleGroup } from '../group-collapse.js';
 
 function diffTag(item){
@@ -36,6 +36,7 @@ export function mount(container, params, nav, ctx){
         <div class="sv-crumb">Learn / ${section.title}</div>
         <h1>${section.title}</h1>
         <p class="sv-desc">${section.description}</p>
+        <p class="sv-sub-note" data-sub-note hidden>${icon('lock')}<span>${SUBSCRIPTION_NOTE}</span></p>
         <div class="sv-progress-row" data-progress-row></div>
       </div>
       <div class="sv-items" data-items></div>
@@ -46,6 +47,7 @@ export function mount(container, params, nav, ctx){
 
   const progressRowEl = root.querySelector('[data-progress-row]');
   const itemsEl = root.querySelector('[data-items]');
+  const subNoteEl = root.querySelector('[data-sub-note]');
 
   // Renders this section's lesson rows regardless of whether progress
   // actually loaded, completedIds/current default to "nothing known" so a
@@ -57,6 +59,7 @@ export function mount(container, params, nav, ctx){
     const done = new Set(completedIds);
     const { complete, total } = sectionProgress(section.id, completedIds);
     const pct = total ? Math.round((complete / total) * 100) : 0;
+    subNoteEl.hidden = !section.subscription || hasFullAccess();
     progressRowEl.innerHTML = progressNote
       ? `<span class="sv-progress-text">${progressNote}</span>`
       : `<span class="sv-progress-bar"><span style="width:${pct}%"></span></span>
@@ -70,13 +73,17 @@ export function mount(container, params, nav, ctx){
 
     function addRow(item, parent){
       // Without loaded progress nothing is known, so nothing shows as locked.
-      const status = progressNote ? 'open' : itemStatus(item, completedIds, current);
+      const paywalled = needsSubscription(item.id, hasFullAccess());
+      const status = paywalled ? 'locked' : progressNote ? 'open' : itemStatus(item, completedIds, current);
       const shown = status === 'locked' && isAdminView() ? 'open' : status;
-      const blocker = shown === 'locked' ? blockingItem(item.id, completedIds) : null;
+      const blocker = shown === 'locked' && !paywalled ? blockingItem(item.id, completedIds) : null;
       const row = document.createElement('button');
       row.type = 'button';
-      row.className = 'sv-item-row' + (item.kind === 'placeholder' ? ' is-placeholder' : '') + (blocker ? ' is-locked' : '');
-      if (blocker){
+      row.className = 'sv-item-row' + (item.kind === 'placeholder' ? ' is-placeholder' : '') + (blocker || paywalled ? ' is-locked' : '');
+      if (paywalled){
+        row.disabled = true;
+        row.title = 'Requires a SwayForm subscription, available at launch in Fall 2027.';
+      } else if (blocker){
         row.disabled = true;
         row.title = `Finish ${blocker.number} ${blocker.title} first.`;
       }
@@ -93,7 +100,7 @@ export function mount(container, params, nav, ctx){
           : shown === 'progress' ? `<span class="sv-status current">${icon('dot')}<span>In Progress</span></span>`
           : `<span class="sv-status open">${icon('chevronRight')}</span>`
         }</span>`;
-      if (!blocker) row.addEventListener('click', () => nav.activity(item.id));
+      if (!blocker && !paywalled) row.addEventListener('click', () => nav.activity(item.id));
       parent.appendChild(row);
     }
 
@@ -140,7 +147,7 @@ export function mount(container, params, nav, ctx){
   let lastState = { completedIds: [], current: null, note: 'Progress unavailable, showing lessons only.' };
   Promise.all([getCompletedActivities(), getCurrentActivity(), loadAdminView()])
     .then(([completedIds, current]) => { lastState = { completedIds, current, note: undefined }; renderItems(completedIds, current); })
-    .catch(() => renderItems([], null, lastState.note));
+    .catch(() => loadAdminView().then(() => renderItems([], null, lastState.note)));
   const onPrefs = () => renderItems(lastState.completedIds, lastState.current, lastState.note);
   window.addEventListener('swayform:prefs-changed', onPrefs);
 

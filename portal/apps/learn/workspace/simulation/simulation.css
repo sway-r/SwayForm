@@ -1,0 +1,20 @@
+/* Simulation window: toolbar, 3D stage, status line, program output and measured joint table. */
+.sim-root{display:flex;flex-direction:column;height:100%;min-height:0;background:var(--la-bg);color:var(--la-ink)}
+.sim-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--la-border)}
+.sim-views{display:flex;gap:2px;margin-left:auto}
+.sim-views .p-btn{padding-left:8px;padding-right:8px}
+.sim-stage{position:relative;flex:1 1 55%;min-height:160px;background:var(--la-bg2)}
+.sim-canvas{position:absolute;inset:0}
+.sim-canvas canvas{display:block;width:100%;height:100%;touch-action:none}
+.sim-note{position:absolute;left:12px;right:12px;bottom:12px;padding:8px 10px;border:1px solid var(--la-border);background:var(--la-bg);color:var(--la-muted);font-size:13px;line-height:1.45}
+.sim-status{padding:4px 10px;border-top:1px solid var(--la-border);border-bottom:1px solid var(--la-border);color:var(--la-muted);font-size:12px;min-height:22px}
+.sim-bottom{display:flex;flex:0 0 32%;min-height:110px}
+.sim-output{flex:1 1 60%;overflow:auto;padding:6px 10px;font-family:var(--mono);font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.sim-line.is-err{color:var(--p-red)}
+.sim-line.is-note{color:var(--la-muted)}
+.sim-joints{flex:0 0 40%;overflow:auto;border-left:1px solid var(--la-border);font-size:12px}
+.sim-joints table{width:100%;border-collapse:collapse;font-family:var(--mono)}
+.sim-joints th{position:sticky;top:0;background:var(--la-bg);text-align:left;font-weight:600;padding:4px 8px;border-bottom:1px solid var(--la-border)}
+.sim-joints td{padding:2px 8px;border-bottom:1px solid var(--la-border)}
+.sim-joints td+td,.sim-joints th+th{text-align:right}
+.sim-joints-empty{margin:0;padding:8px 10px;color:var(--la-muted)}

@@ -4,6 +4,8 @@ import { WorkspaceWindowManager } from '../workspace/window-manager.js';
 import * as NotebookApp from '../workspace/notebook-app.js';
 import * as CodeEditorApp from '../workspace/code-editor-app.js';
 import * as TerminalApp from '../workspace/terminal-app.js';
+import * as SimulationApp from '../workspace/simulation/simulation-app.js';
+import { simVisible } from '../../../data/sim-config.js';
 import { markComplete, setCurrentActivity, getCurrentActivity, getCompletedActivities } from '../../../services/progress-service.js';
 import { getSession } from '../../../services/auth-service.js';
 import { getPrefs } from '../../../prefs.js';
@@ -191,7 +193,7 @@ export function mount(container, params, nav, ctx){
   if (!isReading){
     wm.registerApp('codeEditor', {
       title: CodeEditorApp.meta.title, icon: CodeEditorApp.meta.icon, minWidth: 420, minHeight: 300,
-      render: (bodyEl, winApi) => CodeEditorApp.mount(bodyEl, winApi, { activity }),
+      render: (bodyEl, winApi) => CodeEditorApp.mount(bodyEl, winApi, { activity, onSimulation: simEnabled ? openSimulation : null }),
     });
 
     if (hasTerminal) wm.registerApp('terminal', {
@@ -202,12 +204,32 @@ export function mount(container, params, nav, ctx){
     });
   }
 
+  // Registered only once access is known, so a layout reset or the dock never shows it to anyone else.
+  let simEnabled = false;
+  function maybeRegisterSimulation(){
+    if (isReading || simEnabled || !simVisible({ admin: isAdminView(), fullAccess: hasFullAccess() })) return;
+    simEnabled = true;
+    wm.registerApp('simulation', {
+      title: SimulationApp.meta.title, icon: SimulationApp.meta.icon, minWidth: 360, minHeight: 320, openOnReset: false,
+      render: (bodyEl, winApi) => SimulationApp.mount(bodyEl, winApi, {
+        getActiveFile: () => { const ed = wm.getInstance('codeEditor'); return ed && ed.activeFile ? ed.activeFile() : null; },
+      }),
+    });
+  }
+
+  function openSimulation(){
+    wm.open('simulation');
+    const inst = wm.getInstance('simulation');
+    if (inst) inst.runFromEditor();
+  }
+
   /* ---------------------------------------------------------------- dock */
   function renderDock(){
     dockEl.innerHTML = '';
     const order = isReading ? ['notebook'] : hasTerminal ? ['notebook', 'codeEditor', 'terminal'] : ['notebook', 'codeEditor'];
+    if (simEnabled) order.push('simulation');
     order.forEach((id) => {
-      const cfg = { notebook: NotebookApp.meta, codeEditor: CodeEditorApp.meta, terminal: TerminalApp.meta }[id];
+      const cfg = { notebook: NotebookApp.meta, codeEditor: CodeEditorApp.meta, terminal: TerminalApp.meta, simulation: SimulationApp.meta }[id];
       const state = wm.getState(id);
       const item = document.createElement('button');
       item.type = 'button';
@@ -333,11 +355,12 @@ export function mount(container, params, nav, ctx){
     resumeStep = (current && current.activityId === activity.id) ? (current.stepIndex || 0) : 0;
     resumeDone = done;
     if (!isPlaceholder) setCurrentActivity(activity.id, resumeStep).catch(() => {});
+    maybeRegisterSimulation();
     bootDefault();
   }).catch(() => loadAdminView().then(() => {
     if (disposed) return;
     if (needsSubscription(activity.id, hasFullAccess())) showSubscription();
-    else bootDefault();
+    else { maybeRegisterSimulation(); bootDefault(); }
   }));
 
   return {

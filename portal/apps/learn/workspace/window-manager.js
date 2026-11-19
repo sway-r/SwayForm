@@ -149,7 +149,8 @@ export class WorkspaceWindowManager {
     // explicit open order in activity-workspace.js, so Code Editor, the
     // primary work surface, ends up focused after a reset, not Terminal
     // (registration order alone would open Notebook, Code Editor, Terminal).
-    const keys = Array.from(this.apps.keys());
+    // openOnReset: false keeps a window (Simulation) closed until the student opens it.
+    const keys = Array.from(this.apps.keys()).filter((id) => this.apps.get(id).openOnReset !== false);
     const order = keys.includes('codeEditor')
       ? [...keys.filter((id) => id !== 'codeEditor'), 'codeEditor']
       : keys;

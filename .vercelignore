@@ -14,3 +14,6 @@ backups/
 
 # Local preview of the portal, not part of the site.
 preview-portal.mjs
+
+# Simulation orchestrator and Gazebo runtime, deployed to simulation hosts, never to Vercel. See sim/README.md.
+sim/

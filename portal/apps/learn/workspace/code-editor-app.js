@@ -160,7 +160,9 @@ export function mount(bodyEl, winApi, opts) {
     onRun: runActiveFile, onCheck: checkActiveFile, onSave: saveActiveFile, onReset: resetActiveFile,
     onQueueOnRobot: queueOnRobot,
     onToggleExplorer: () => setExplorerVisible(explorerEl.hidden),
+    onSimulation: () => opts.onSimulation && opts.onSimulation(),
   });
+  toolbar.setSimulationEnabled(!!opts.onSimulation);
 
   function setExplorerVisible(visible){
     explorerEl.hidden = !visible;
@@ -535,6 +537,8 @@ export function mount(bodyEl, winApi, opts) {
 
   return {
     openFile,
+    // What is on screen now, not the debounced save, same as Run uses.
+    activeFile(){ const p = tabs.activePath; return p ? { path: p, content: currentContent(p) } : null; },
     insertCode(code){ if (editor) editor.insertAtCursor(code); },
     save: saveActiveFile,
     dispose(){

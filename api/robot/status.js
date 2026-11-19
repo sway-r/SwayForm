@@ -6,6 +6,7 @@ import { sql } from '../_lib/db.js';
 import { callBridge } from '../_lib/bridge.js';
 import { ROBOT_ONLINE_CUTOFF_MS } from '../_lib/limits.js';
 import { logDbRead, approxBytes } from '../_lib/metrics.js';
+import { SIM_ROLES, simOrchestratorUrl, mintSimToken } from '../_lib/sim.js';
 
 import { isInteractiveRobotPath } from '../../portal/apps/learn/workspace/ros-paths.js';
 
@@ -72,6 +73,16 @@ export default async function handler(req, res){
     return;
   }
   const robotId = member.robotId;
+
+  // Folded in here because api/ is at Vercel Hobby's 12-function cap. 503 until simulation servers exist.
+  if (req.method === 'POST' && req.body?.action === 'sim-token'){
+    if (!SIM_ROLES.has(member.role)){ res.status(403).json({ error: 'not_authorized' }); return; }
+    const url = simOrchestratorUrl();
+    if (!url){ res.status(503).json({ error: 'sim_not_configured' }); return; }
+    const token = await mintSimToken({ email: session.email, role: member.role, robotId });
+    res.status(200).json({ token, url });
+    return;
+  }
 
   const started = Date.now();
   const rows = await sql`

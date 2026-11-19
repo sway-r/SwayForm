@@ -1,7 +1,7 @@
 import { icon } from '../../../icons.js';
 
 export class WorkspaceToolbar {
-  constructor(container, { onRun, onSave, onReset, onCheck, onQueueOnRobot, onToggleExplorer } = {}){
+  constructor(container, { onRun, onSave, onReset, onCheck, onQueueOnRobot, onToggleExplorer, onSimulation } = {}){
     this.container = container;
     container.innerHTML = `
       <div class="wt-left">
@@ -16,7 +16,7 @@ export class WorkspaceToolbar {
       </div>
       <div class="wt-right">
         <span class="wt-file-status" data-file-status></span>
-        <button type="button" class="p-btn ghost wt-sim" disabled title="Cloud simulation will appear here.">${icon('cloud')}<span>Simulation</span></button>
+        <button type="button" class="p-btn ghost wt-sim" data-act="sim" disabled title="Cloud simulation will appear here.">${icon('cloud')}<span>Simulation</span></button>
       </div>`;
 
     container.querySelector('[data-act="toggle-explorer"]').addEventListener('click', () => onToggleExplorer && onToggleExplorer());
@@ -25,6 +25,8 @@ export class WorkspaceToolbar {
     container.querySelector('[data-act="save"]').addEventListener('click', () => onSave && onSave());
     container.querySelector('[data-act="reset"]').addEventListener('click', () => onReset && onReset());
     container.querySelector('[data-act="queue-robot"]').addEventListener('click', () => onQueueOnRobot && onQueueOnRobot());
+    this.simBtn = container.querySelector('[data-act="sim"]');
+    this.simBtn.addEventListener('click', () => onSimulation && onSimulation());
 
     this.statusEl = container.querySelector('[data-file-status]');
     this.explorerToggleBtn = container.querySelector('[data-act="toggle-explorer"]');
@@ -41,6 +43,12 @@ export class WorkspaceToolbar {
     this.runBusy = false;
     this.queueBusy = false;
     this.queueRobotBtn.disabled = true;
+  }
+
+  /** Runs the open file on the cloud simulator; stays a disabled placeholder for accounts it is not open to yet. */
+  setSimulationEnabled(enabled){
+    this.simBtn.disabled = !enabled;
+    this.simBtn.title = enabled ? 'Run this file on the simulated robot.' : 'Cloud simulation will appear here.';
   }
 
   setFileStatus(text){

@@ -1,0 +1,13 @@
+{
+  "name": "swayform-sim-orchestrator",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "jose": "^5.9.6",
+    "ws": "^8.18.0"
+  }
+}

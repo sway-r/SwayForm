@@ -1,0 +1,22 @@
+# Trusted image: headless Gazebo Harmonic, ros2_control and the gateway. Built per robot-model version, never at session start.
+FROM ros:jazzy-ros-base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ros-jazzy-ros-gz ros-jazzy-gz-ros2-control ros-jazzy-ros2-controllers ros-jazzy-controller-manager \
+      ros-jazzy-xacro ros-jazzy-robot-state-publisher python3-websockets \
+    && rm -rf /var/lib/apt/lists/*
+# Check on first build: the gateway imports gz.transport13 / gz.msgs10 (Python bindings for Harmonic).
+
+# build-context/ws holds swayform_ws at the pinned commit (description, controllers, swayform_robot).
+COPY build-context/ws /opt/swayform_ws/src
+RUN . /opt/ros/jazzy/setup.sh && cd /opt/swayform_ws && colcon build --merge-install && rm -rf build log
+
+COPY build-context/joint-contract.json /opt/swayform/sim/joint-contract.json
+COPY launch/ /opt/swayform/sim/launch/
+COPY urdf/ /opt/swayform/sim/urdf/
+COPY worlds/ /opt/swayform/sim/worlds/
+COPY gateway/ /opt/swayform/sim/gateway/
+
+RUN useradd -u 10002 -m sim
+USER 10002
+CMD ["bash", "-c", ". /opt/ros/jazzy/setup.sh && . /opt/swayform_ws/install/setup.sh && exec ros2 launch /opt/swayform/sim/launch/sim.launch.py"]

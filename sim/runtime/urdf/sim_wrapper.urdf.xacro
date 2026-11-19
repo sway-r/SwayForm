@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!-- Adds only the Gazebo plugins to the founder's model; joints, links and the ros2_control block stay in the model itself. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="swayform_sim">
+  <xacro:arg name="robot_xacro" default=""/>
+  <xacro:arg name="controllers_yaml" default=""/>
+  <xacro:include filename="$(arg robot_xacro)"/>
+
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(arg controllers_yaml)</parameters>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher"/>
+  </gazebo>
+</robot>

@@ -1,0 +1,11 @@
+# Untrusted student code. Same swayform_ws commit as the sim image and the real robot, so it imports the same library.
+FROM ros:jazzy-ros-base
+
+COPY build-context/ws /opt/swayform_ws/src
+RUN . /opt/ros/jazzy/setup.sh && cd /opt/swayform_ws && colcon build --merge-install && rm -rf build log src
+
+COPY runner/run-student.sh /usr/local/bin/run-student.sh
+RUN chmod 0555 /usr/local/bin/run-student.sh && useradd -u 10001 -M -d /tmp/run student
+
+USER 10001
+ENTRYPOINT ["/usr/local/bin/run-student.sh"]

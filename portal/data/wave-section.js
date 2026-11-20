@@ -1,7 +1,50 @@
-/* Wave, behavior section 1 (6 labs). Group 5 (Wave) of Behavior Sections in curriculum.js; see README.md, "The Wave section". */
+/* Wave, behavior section 1 (7 labs: 6 that build and run the wave, then a debugging lab). Group 5 (Wave) of Behavior Sections in curriculum.js; see README.md, "The Wave section". */
 
 const BUILDER = 'swayform_ws/src/swayform_labs/wave_builder.py';
 const REAL_WAVE = 'swayform_ws/src/swayform_robot/swayform_robot/behaviors/wave.py';
+const DEBUG_FILE = 'swayform_ws/src/swayform_labs/wave_debug.py';
+
+// Lab 7's three planted bugs, in the order Python meets them. Run and Check read this (portal/apps/learn/workspace/debug-check.js).
+export const WAVE_DEBUGGING = {
+  path: DEBUG_FILE,
+  workingRun: ['[wave] opening hand', '[wave] raising arm', '[wave] swing', '[wave] swing', '[wave] swing', '[wave] done'],
+  bugs: [
+    {
+      id: 'colon', name: "Bug 1, it won't start",
+      brokenWhen: /^def wave_once\(motion: MotionClient\) -> None[ \t]*$/m,
+      fixedWhen: /^def wave_once\([^)]*\)[^:\n]*:[ \t]*$/m,
+      error: { kind: 'syntax', message: "SyntaxError: expected ':'" },
+      clues: [
+        'Click Run and read the last line of the error. Python is telling you which symbol it expected to find.',
+        'Go to the def wave_once line. Compare it with the def open_hand line above it. What does that one have at the very end that this one does not?',
+        'Every def line ends with a colon. Type : at the very end of the def wave_once line.',
+      ],
+    },
+    {
+      id: 'name', name: 'Bug 2, it crashes',
+      brokenWhen: /\bWAVE_CYCLE\b/,
+      fixedWhen: /range\(\s*WAVE_CYCLES\s*\)/,
+      error: { kind: 'runtime', where: 'wave', message: "NameError: name 'WAVE_CYCLE' is not defined. Did you mean: 'WAVE_CYCLES'?" },
+      runLines: ['[wave] opening hand'],
+      clues: [
+        'Click Run and read the last line. Python has never heard of one of the names, and it even suggests the right one!',
+        'Look at the for line inside the wave function. Compare the setting name there with the settings at the top of the file, letter by letter.',
+        'The setting is called WAVE_CYCLES, with an S at the end. Change range(WAVE_CYCLE) to range(WAVE_CYCLES).',
+      ],
+    },
+    {
+      id: 'order', name: 'Bug 3, the robot waves at the floor',
+      brokenWhen: /^[ \t]*wave\(motion\)[ \t]*\n[ \t]*raise_arm\(motion\)/m,
+      fixedWhen: /^[ \t]*raise_arm\(motion\)[ \t]*\n[ \t]*wave\(motion\)/m,
+      runLines: ['[wave] opening hand', '[wave] swing', '[wave] swing', '[wave] swing', '[wave] raising arm', '[wave] done'],
+      clues: [
+        'This one has no error message. Click Run and read the printed steps from top to bottom. Does the arm go up before or after the swings?',
+        'Look at perform_wave. Remember the wave order from lab 5: open the hand, raise the arm, then wave.',
+        'Swap the two lines wave(motion) and raise_arm(motion) in perform_wave, so raise_arm(motion) comes first.',
+      ],
+    },
+  ],
+};
 // The quiz sits at the end of lab 3, so the robot run is gated on that lab.
 export const WAVE_QUIZ_ID = 'wv-03-functions';
 export const WAVE_QUIZ_PASS = 80;
@@ -21,7 +64,7 @@ const REVIEW = {
 
 // Every lab opens with an unnumbered Summary: how long it takes and what it covers.
 const summary = (time, text, items) => ({
-  id: 'summary', title: 'Summary',
+  id: 'summary', title: 'Learning Targets', // id stays 'summary' so saved progress still matches
   blocks: [
     { type: 'p', text: `**Estimated time to completion:** ${time}` },
     { type: 'p', text },
@@ -50,16 +93,16 @@ export const WAVE_LEVEL = {
   sections: [
     {
       id: 'wave-labs', title: 'Wave', difficulty: 'beginner', estimatedTime: '2 to 3 hours',
-      description: 'Six short labs. You write about 30% of the program, learn what the rest does, and run it on SwayForm.',
+      description: 'Seven short labs. You write about 30% of the program, learn what the rest does, run it on SwayForm, and then debug a broken wave.',
       activities: [
 
         // Lab 1
         {
           id: 'wv-01-intro', title: 'Meet the Wave', kind: 'reading', tagLabel: 'Intro', estimatedTime: '5 minutes',
-          summary: 'What you are going to build, how the 6 labs work, and what it takes to run on the real robot.',
+          summary: 'What you are going to build, how the 7 labs work, and what it takes to run on the real robot.',
           relatedConcepts: ['Behaviors', 'Planning'],
           steps: [
-            summary('5 minutes', 'In this lab, you are going to learn what you will build in the Wave section, how its six labs fit together, and what has to happen before the real robot waves.'),
+            summary('5 minutes', 'In this lab, you are going to learn what you will build in the Wave section, how its seven labs fit together, and what has to happen before the real robot waves.'),
             {
               id: 'the-goal', title: 'What You Will Build',
               blocks: [
@@ -80,7 +123,7 @@ export const WAVE_LEVEL = {
                   ['4', 'Loops', 'A loop that repeats the wave'],
                   ['5', 'Order of steps, and cleanup (try / finally)', 'The three steps in order, and a safe way to end'],
                 ] },
-                { type: 'p', text: "This lab has no code to write. Labs 2, 4 and 5 have a few quick questions, and lab 3 ends with a quiz. Lab 6 has the final quiz, and then the robot run, where you change just one number." },
+                { type: 'p', text: "This lab has no code to write. Labs 2, 4 and 5 have a few quick questions, and lab 3 ends with a quiz. Lab 6 has the final quiz, and then the robot run, where you change just one number. And in lab 7, you become a debugger: you find and fix the bugs in a broken wave program." },
               ],
             },
             {
@@ -105,7 +148,7 @@ export const WAVE_LEVEL = {
               ],
             },
           ],
-          completionSummary: { text: 'You know what you are building, how the 6 labs fit together, and what has to happen before the robot waves.', conceptsUsed: [] },
+          completionSummary: { text: 'You know what you are building, how the 7 labs fit together, and what has to happen before the robot waves.', conceptsUsed: [] },
         },
 
         // Lab 2
@@ -759,6 +802,169 @@ export const WAVE_LEVEL = {
             },
           ],
           completionSummary: { text: 'You finished the Wave section: you built the program and sent a wave to the real robot.', conceptsUsed: ['Behaviors', 'Safety'] },
+        },
+
+        // Lab 7
+        {
+          id: 'wv-07-debugging', title: 'Debugging: Fix the Broken Wave', kind: 'activity', difficulty: 'beginner', estimatedTime: '25 to 30 minutes',
+          summary: 'What debugging is, why it is called a bug, and your first debugging mission: three planted bugs to find and fix in wave_debug.py.',
+          workspaceFile: DEBUG_FILE,
+          debugging: WAVE_DEBUGGING,
+          relatedConcepts: ['Debugging', 'Error messages', 'Syntax', 'Logic'],
+          steps: [
+            summary('25 to 30 minutes', 'In this lab, you are going to become a debugger! You will learn what debugging is and where the word comes from, and then fix a broken wave program, one bug at a time. You will:', [
+              'Learn what a bug is, the three kinds you will meet most, and how debuggers think.',
+              'Find out why programmers call them bugs in the first place.',
+              'Find and fix three bugs in `wave_debug.py`, with as many tries and clues as you need.',
+            ]),
+            {
+              id: 'what-is-debugging', title: 'What Is Debugging?',
+              blocks: [
+                { type: 'p', text: "In simple terms, a **bug** is a mistake in a program that makes it do something different from what you meant. Maybe it won't start at all, maybe it crashes halfway, or maybe it runs just fine but does the wrong thing. **Debugging** is the job of finding that mistake, understanding it, and fixing it." },
+                { type: 'p', text: "Here's the secret that every programmer knows: **everybody writes bugs**. Beginners, experts, the engineers who build real robots and the people who wrote the apps on your phone. Nobody writes perfect code on the first try. What makes someone a good programmer is not that they never make mistakes. It is that they know how to track them down. And that's a skill you can learn, starting today!" },
+                { type: 'p', text: "The bugs you will meet most come in three kinds:" },
+                { type: 'table', headers: ['Kind of bug', 'What it is', 'What you see'], rows: [
+                  ['**Syntax** bug', 'A typo in the rules of Python, like a missing colon or bracket. It is like a sentence with no period: Python can\'t even read it.', 'Python refuses to start, and prints a `SyntaxError`.'],
+                  ['**Name** bug', 'A name that is misspelled, or was never imported or set.', 'The program starts, then stops with a `NameError` when it reaches that line.'],
+                  ['**Logic** bug', 'The code is perfectly good Python, but the steps are wrong, like the right moves in the wrong order.', 'No error at all! The program runs, but the robot does the wrong thing. These are the sneakiest.'],
+                ] },
+                { type: 'p', text: "The good news: Python is on your side. For the first two kinds, it tells you exactly which line it got stuck on, and why. You just have to learn to read what it says." },
+              ],
+            },
+            {
+              id: 'the-first-bug', title: 'Why Is It Called a Bug?',
+              blocks: [
+                { type: 'p', text: "**Grace Hopper** was a math professor who joined the U.S. Navy during World War II and became one of the very first computer programmers. She later helped invent ways to write programs in words that people can read, which is a big part of why code looks the way it does today." },
+                { type: 'p', text: "Fun fact: the very first computer bug was a real bug! In 1947, Grace Hopper's team was trying to figure out why their room-sized computer, the Harvard Mark II, kept making mistakes. They opened it up and found the culprit: a **moth** stuck inside one of its switches." },
+                { type: 'p', text: "They pulled it out, taped it into their logbook, and wrote next to it: **\"First actual case of bug being found.\"** From then on, fixing a computer meant **debugging** it. (You can still see that moth today, at the Smithsonian museum in Washington, D.C.)" },
+                { type: 'p', text: "So, the next time your code has a bug, look on the bright side: at least it's not a moth in your computer. Let's go catch some!" },
+              ],
+            },
+            {
+              id: 'how-debuggers-think', title: 'How Debuggers Think',
+              blocks: [
+                { type: 'p', text: "Grace Hopper's team didn't fix their computer by guessing. They looked, one piece at a time, until they found the problem. Good debuggers today work the same way. Here is the plan you are going to use in this lab:" },
+                { type: 'steps', items: [
+                  '**Run it**, and watch what happens.',
+                  '**Read the error from the bottom up.** The last line says **what** is wrong. The lines above it say **where**.',
+                  '**Go to that line**, and compare it with code you know works, like a similar line just above it.',
+                  '**Fix one thing at a time.** Change one thing, then Run again.',
+                  '**Run again.** A new error is not a failure. It means you fixed one bug and found the next one. That\'s progress!',
+                ] },
+                { type: 'callout', tone: 'tip', label: 'The rubber duck trick', text: 'Stuck? Real programmers explain their code, line by line, out loud, to a rubber duck (or a friend, or a pencil). Saying what each line does very often makes the bug jump out at you. It sounds silly, but it works so well that it has a name: rubber duck debugging.' },
+              ],
+            },
+            {
+              id: 'reading-an-error', title: 'Reading an Error Message',
+              blocks: [
+                { type: 'p', text: "Error messages can look scary at first, but they are really just Python leaving you a note. Let's take one apart, piece by piece:" },
+                { type: 'terminal', label: 'Output', lines: ['  File "wave_builder.py", line 27', '    sleep(WAVE_DELAY_SECONDS)', "NameError: name 'sleep' is not defined"] },
+                { type: 'terms', items: [
+                  { term: 'File "wave_builder.py", line 27', def: 'Where: which file, and which line Python got stuck on.' },
+                  { term: 'sleep(WAVE_DELAY_SECONDS)', def: 'The line itself, copied out for you.' },
+                  { term: 'NameError', def: 'What kind of problem it is.' },
+                  { term: "name 'sleep' is not defined", def: 'The reason, in plain-ish English: Python has never heard of sleep. (The fix: import it!)' },
+                ] },
+                { type: 'mcq', required: false, question: 'Which part of an error message tells you **what** went wrong?', options: ['The last line', 'The first line', 'The file name', 'None of it, you have to guess'], answer: 0, hint: 'Remember: read it from the bottom up.', explain: 'The last line gives the kind of error and the reason. The lines above it show where.' },
+              ],
+            },
+            {
+              id: 'the-mission', title: 'Your Mission: Fix the Broken Wave',
+              blocks: [
+                { type: 'p', text: "Uh-oh. Another class wrote a wave program, and it is broken. They sent it over with three complaints:" },
+                { type: 'list', items: [
+                  '"It won\'t even start!"',
+                  '"Once we got it to start, it crashed!"',
+                  '"And when it finally ran, our robot waved at the floor..."',
+                ] },
+                { type: 'p', text: "There are **three bugs** hiding in their file, `wave_debug.py`. Your mission is to find all three and fix them. Click **Open wave_debug.py** below, or find it in the explorer of the Code Editor:" },
+                { type: 'code', lang: 'python', filename: 'The top of wave_debug.py', workspaceFile: DEBUG_FILE, line: 1, copy: false, code: '# Debugging challenge: this wave program has 3 bugs in it.\n# Click Run to see what goes wrong, and Check to count how many you have fixed.\nfrom time import sleep\n...' },
+                { type: 'p', text: "Here are your debugging tools. You can use every one of them as many times as you want. There's no limit, and nothing here is graded:" },
+                { type: 'table', headers: ['Button', 'What it does in this lab'], rows: [
+                  ['**Run**', 'Runs the program and shows you what Python prints, including the error message for the first bug it hits.'],
+                  ['**Check**', 'Counts how many of the 3 bugs you have fixed, and puts a clue for each one left in the **Problems** tab. Every time you click Check, the clues get a little more specific.'],
+                  ['**Reset**', 'Puts the file back exactly the way it started, bugs and all. Handy if your fixes made things worse.'],
+                ] },
+                { type: 'p', text: "Try a Check right now, before you change anything. You should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['Bugs fixed in wave_debug.py: ▱▱▱  0 of 3', '3 to go. The Problems tab has a clue for each one. Check as often as you like: every Check gives a more specific clue.'] },
+                { type: 'p', text: "Then, open the **Problems** tab to read your first clues. Ready? Let's start with the first complaint." },
+              ],
+            },
+            {
+              id: 'bug-1', title: 'Bug 1: "It Won\'t Even Start!"',
+              blocks: [
+                { type: 'p', text: "Click **Run**. Instead of a wave, you should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['$ ros2 run swayform_labs wave_debug', '  File "wave_debug.py", line 33', '    def wave_once(motion: MotionClient) -> None', "SyntaxError: expected ':'", 'Tip: Python found this before it even started. Read the error from the bottom up: the last line says what is wrong, the line above shows where.'] },
+                { type: 'p', text: "Notice that the robot didn't even start. Python reads the whole file before it runs anything, and it found a line it couldn't read. Let's be detectives. Answer each question to work out the fix. If you pick a wrong answer, it greys out, you get a clue, and you can try again." },
+                { type: 'mcq', question: 'What **kind** of error is this?', options: ['A SyntaxError', 'A NameError', 'An IndentationError', 'There is no error'], answer: 0, hint: 'Look at the very last line of the output, at the word before the colon.', explain: 'A SyntaxError means a typo in the rules of Python, so Python can\'t even read the file.' },
+                { type: 'mcq', question: 'Python says it **expected** something. What?', options: ['A colon `:`', 'A bracket `)`', 'A number', 'The word `def`'], answer: 0, hint: "Read the end of the last line again. The symbol is in quotes.", explain: "expected ':' means Python wanted a colon and didn't find one." },
+                { type: 'mcq', question: 'Compare the broken line with the `def` line of `open_hand`, a few lines above it. Where does the colon go?', options: ['At the very end of the `def wave_once` line', 'At the start of the line, before `def`', 'After the word `wave_once`', 'On a new line under it'], answer: 0, hint: 'Look at the def open_hand line. What is the very last character on it?', explain: 'Every def line ends with a colon. It tells Python: the steps of this function come next.' },
+                { type: 'heading', level: 3, text: 'Fix it' },
+                { type: 'steps', items: [
+                  'Go to **line 33**, the `def wave_once` line. (Click the line number from the error, or scroll to it.)',
+                  'Click at the very end of the line, right after `None`.',
+                  'Type a colon `:`.',
+                  'Click **Run** again.',
+                ] },
+                { type: 'p', text: "Did you get a **new** error this time? Perfect! That means bug 1 is fixed and Python got further. On to the next one." },
+                { type: 'reveal', hint: 'Every def line ends with a colon. Look at the end of the def wave_once line.', solution: { text: 'The fixed line:', code: { lang: 'python', filename: 'wave_debug.py', code: 'def wave_once(motion: MotionClient) -> None:' } } },
+              ],
+            },
+            {
+              id: 'bug-2', title: 'Bug 2: "Then It Crashed!"',
+              blocks: [
+                { type: 'p', text: "With bug 1 fixed, click **Run** again. This time, you should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['$ ros2 run swayform_labs wave_debug', '[INFO] [wave_debug]: node started', '[INFO] Connecting to motion controller...', '[wave] starting', '[wave] opening hand', 'Traceback (most recent call last):', '  File "wave_debug.py", line 43, in wave', '    for _ in range(WAVE_CYCLE):', "NameError: name 'WAVE_CYCLE' is not defined. Did you mean: 'WAVE_CYCLES'?", 'Tip: the program started, then crashed when it reached this line. The last line says what is wrong.'] },
+                { type: 'p', text: "Look at that, progress! The program started this time. It opened the hand, and then crashed when it got to the wave. Let's investigate:" },
+                { type: 'mcq', question: 'Which name has Python never heard of?', options: ['`WAVE_CYCLE`', '`WAVE_CYCLES`', '`range`', '`wave_once`'], answer: 0, hint: 'Read the last line. The unknown name is in quotes right after the word name.', explain: "Python says name 'WAVE_CYCLE' is not defined. Nothing in the file ever sets WAVE_CYCLE." },
+                { type: 'mcq', question: 'Python even gives you a hint: "Did you mean: WAVE_CYCLES?". Look at the settings at the top of the file. What is the difference between the two names?', options: ['One letter: the setting ends with an S', 'One is in capital letters', 'They are exactly the same', 'One has a number in it'], answer: 0, hint: 'Spell them both out, letter by letter: W-A-V-E-_-C-Y-C-L-E...', explain: 'The setting is WAVE_CYCLES, with an S. To Python, a name that is one letter off is a completely different name.' },
+                { type: 'heading', level: 3, text: 'Fix it' },
+                { type: 'steps', items: [
+                  'Go to **line 43**, the `for` line inside `wave`.',
+                  'Change `WAVE_CYCLE` to the real setting name, `WAVE_CYCLES`.',
+                  'Click **Run** again.',
+                ] },
+                { type: 'callout', tone: 'tip', label: 'Did you know?', text: 'Name bugs are the most common bugs of all, even for professional programmers. A single missing or extra letter is enough. That is why so many people copy a name instead of typing it again.' },
+                { type: 'reveal', hint: 'Compare the name in range(...) with the setting at the top of the file. One letter is missing.', solution: { text: 'The fixed line:', code: { lang: 'python', filename: 'wave_debug.py', code: '    for _ in range(WAVE_CYCLES):' } } },
+              ],
+            },
+            {
+              id: 'bug-3', title: 'Bug 3: The Sneaky One',
+              blocks: [
+                { type: 'p', text: "Click **Run** one more time. No error at all! You should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['$ ros2 run swayform_labs wave_debug', '[INFO] [wave_debug]: node started', '[INFO] Connecting to motion controller...', '[wave] starting', '[wave] opening hand', '[wave] swing', '[wave] swing', '[wave] swing', '[wave] raising arm', '[wave] done', 'Tip: no error this time! But read the steps the program printed, from top to bottom. Is that how a wave goes?'] },
+                { type: 'p', text: "So, are we done? Not quite. Remember the third complaint: \"our robot waved at the floor\". This is a **logic bug**. The code is perfectly good Python, so there is no error message to help you. You have to think like the robot, and read what it actually did." },
+                { type: 'mcq', question: 'Read the printed steps from top to bottom. What is wrong?', options: ['The arm goes up only **after** the swings, so the wrist swings while the arm is down', 'The hand never opens', 'It swings too many times', 'Nothing, this is a normal wave'], answer: 0, hint: 'Where does "raising arm" show up in the list? Before or after the swings?', explain: 'The swings happen with the arm still down, and then the arm goes up when the wave is already over. That is the robot waving at the floor!' },
+                { type: 'mcq', question: 'Which function prints those steps, and is where the order is decided?', options: ['`perform_wave`', '`wave_once`', '`say`', '`go_home`'], answer: 0, hint: 'Which function calls open_hand, raise_arm and wave, one after the other?', explain: 'perform_wave calls the steps, from top to bottom. The order of those calls is the order the robot moves in.' },
+                { type: 'mcq', question: 'Remember the wave order from lab 5. Which order should the calls under `try` be in?', options: ['`open_hand`, `raise_arm`, then `wave`', '`open_hand`, `wave`, then `raise_arm`', '`wave`, `raise_arm`, then `open_hand`', '`raise_arm`, `open_hand`, then `wave`'], answer: 0, hint: 'Open palm first, then the arm goes up, and only then the wrist swings.', explain: 'Open the hand, raise the arm, then wave. Same steps, right order.' },
+                { type: 'heading', level: 3, text: 'Fix it' },
+                { type: 'steps', items: [
+                  'Go to `perform_wave`, around **line 48**.',
+                  'Swap the two lines `wave(motion)` and `raise_arm(motion)`, so `raise_arm` comes first. Keep both lines indented the same way, under `try:`.',
+                  'Click **Run** again, and read the steps it prints.',
+                ] },
+                { type: 'reveal', hint: 'Two lines are in the wrong order. raise_arm(motion) has to come before wave(motion).', solution: { text: 'The fixed perform_wave:', code: { lang: 'python', filename: 'wave_debug.py', code: 'def perform_wave(motion: MotionClient) -> None:\n    try:\n        open_hand(motion)\n        raise_arm(motion)\n        wave(motion)\n    finally:\n        motion.move_joint_group("right_arm", HOME_ARM)' } } },
+              ],
+            },
+            {
+              id: 'mission-complete', title: 'Mission Complete?',
+              blocks: [
+                { type: 'p', text: "Let's make sure. Click **Run**. If every bug is fixed, you should get something similar to this:" },
+                { type: 'terminal', label: 'Output', lines: ['$ ros2 run swayform_labs wave_debug', '[INFO] [wave_debug]: node started', '[INFO] Connecting to motion controller...', '[wave] starting', '[wave] opening hand', '[wave] raising arm', '[wave] swing', '[wave] swing', '[wave] swing', '[wave] done', 'All 3 bugs fixed. The wave runs the way it should. Nice debugging!'] },
+                { type: 'p', text: "Open hand, arm up, three swings. That's a wave! Now, click **Check** to make it official:" },
+                { type: 'terminal', label: 'Output', lines: ['Bugs fixed in wave_debug.py: ▰▰▰  3 of 3', 'Check passed: every bug is fixed. Click Run to watch the wave work.'] },
+                { type: 'p', text: "Check still shows a bug left? Open the **Problems** tab and read its clue, then click Check again for a more specific one. You can do that as many times as you need." },
+                { type: 'p', text: "You just fixed three different kinds of bugs:" },
+                { type: 'checklist', items: [
+                  'A **syntax** bug: the missing colon. Python refused to start, and told you exactly what it expected.',
+                  'A **name** bug: `WAVE_CYCLE` instead of `WAVE_CYCLES`. Python crashed, and even suggested the fix.',
+                  'A **logic** bug: two steps in the wrong order. No error at all, so you had to read what the program really did.',
+                ] },
+                { type: 'p', text: "Grace Hopper would be proud. Welcome to the club of debuggers!" },
+              ],
+            },
+          ],
+          completionSummary: { text: 'You learned what debugging is and where the word comes from, and you found and fixed a syntax bug, a name bug and a logic bug in a real wave program.', conceptsUsed: ['Debugging', 'Error messages'] },
         },
       ],
     },

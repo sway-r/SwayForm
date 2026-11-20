@@ -18,6 +18,7 @@ import { watchJob } from '../../../services/job-watch.js';
 import { refreshQueueNow } from '../../../services/robot-jobs-service.js';
 import { getCompletedActivities } from '../../../services/progress-service.js';
 import { unmetRobotGates } from './robot-gate.js';
+import { debugRunSequence, debugCheck } from './debug-check.js';
 
 export const meta = { id: 'codeEditor', title: 'Code Editor', icon: 'learn' };
 
@@ -59,6 +60,10 @@ function formatDiff(d){
 
 export function mount(bodyEl, winApi, opts) {
   const { activity } = opts;
+  // A debugging lab's planted-bug file: Run shows Python's errors, Check counts fixes and gives clues (debug-check.js).
+  const debugging = activity.debugging || null;
+  const isDebugFile = (path) => !!debugging && path === debugging.path;
+  const debugCluesSeen = new Map(); // bug id -> Checks so far, so each Check gives a more specific clue
   let editor = null, editorReady = false, pendingOpenPath = null, pendingOpenLine = null;
   let saveTimer = null;
   const pendingSaves = new Map(); // path -> value awaiting the debounced write, flushed on dispose and page hide
@@ -265,10 +270,10 @@ export function mount(bodyEl, winApi, opts) {
     output.setActive('output');
     const { pkg, file } = packageAndEntry(path);
     const content = currentContent(path);
-    const stream = buildRunSequence(pkg, file, content);
+    const stream = isDebugFile(path) ? debugRunSequence(debugging, content, pkg, file) : buildRunSequence(pkg, file, content);
     stream.forEach((s) => setTimeout(() => {
       output.appendLine(s.text, s.cls, 'output');
-      if (s.cls === 'term-warn') output.appendLine(s.text, s.cls, 'problems');
+      if (s.problems || (!isDebugFile(path) && s.cls === 'term-warn')) output.appendLine(s.text, s.cls, 'problems');
     }, s.t));
     const runDuration = stream.length ? stream[stream.length - 1].t + 150 : 400;
 
@@ -330,6 +335,15 @@ export function mount(bodyEl, winApi, opts) {
     output.toggleCollapse(false);
     if (!path){ output.appendLine('No file is open to check.', 'term-warn', 'problems'); output.setActive('problems'); return; }
     const content = currentContent(path);
+    if (isDebugFile(path)){
+      const report = debugCheck(debugging, content, debugCluesSeen);
+      output.clear('problems');
+      output.clear('output');
+      report.output.forEach((l) => output.appendLine(l.text, l.cls, 'output'));
+      report.problems.forEach((l) => output.appendLine(l.text, l.cls, 'problems'));
+      output.setActive(report.problems.length ? 'problems' : 'output');
+      return;
+    }
     const todoMatches = content.match(/#\s*TODO[^\n]*/gi) || [];
     const name = path.split('/').pop();
     // How many of the file's starting TODO pieces are done, shown as a bar.

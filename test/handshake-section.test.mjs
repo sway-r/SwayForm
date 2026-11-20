@@ -88,7 +88,7 @@ test('Greeting Gestures is group 6 of Behavior Sections: handshake 1 to 5, fist 
   assert.deepEqual(section.items.map((i) => i.id.slice(0, 2)), ['hs', 'hs', 'hs', 'hs', 'hs', 'fb', 'fb', 'fb', 'fb', 'fb', 'bk', 'bk']);
   assert.equal(category.number, 5);
   assert.deepEqual(LAB_SECTION_IDS, ['foundation', 'behavior-sections']);
-  assert.equal(nextItem('wv-06-run').id, lab(1).id, 'Wave hands over to Greeting Gestures');
+  assert.equal(nextItem('wv-07-debugging').id, lab(1).id, 'Wave hands over to Greeting Gestures');
   section.items.forEach((item) => assert.ok(findActivity(item.id), `${item.id} resolves server-side`));
 });
 
@@ -103,14 +103,14 @@ test('every lab opens with a Summary that gives its estimated time, and is plain
   [HS, FB, BK].forEach((p) => assert.ok(!WORKSPACE_FILES[p].includes(EM_DASH), p));
 });
 
-test('labs 5 and 10 each hold one five-question quiz with a bigger bank, and no other lab has a quiz', () => {
+test('lab 5 holds a ten-question quiz and lab 10 a five-question quiz, each with a bigger bank, and no other lab has a quiz', () => {
   section.items.forEach((item, i) => {
     const quizzes = blocksOf(item).filter((b) => b.type === 'quiz');
     if (i + 1 === 5 || i + 1 === 10){
       assert.equal(quizzes.length, 1, item.id);
       const [q] = quizzes;
       assert.equal(q.id, i + 1 === 5 ? HANDSHAKE_QUIZ_ID : FIST_BUMP_QUIZ_ID);
-      assert.equal(q.count, 5);
+      assert.equal(q.count, i + 1 === 5 ? 10 : 5);
       assert.equal(q.passPercent, 80);
       assert.ok(q.questions.length > q.count, 'a retry is a different mix');
       q.questions.forEach((qq) => assert.ok(qq.review && findActivity(qq.review.id), `${q.id}: review points at a real lab`));

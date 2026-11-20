@@ -59,14 +59,14 @@ before(async () => {
 
 test('the quiz list holds every quiz in the course, in order', () => {
   assert.deepEqual(QUIZZES.map((q) => q.id), ['wv-03-functions', 'wv-06-final-quiz', 'hs-05-quiz', 'fb-10-quiz']);
-  assert.equal(findQuiz('hs-05-quiz').count, 5);
+  assert.equal(findQuiz('hs-05-quiz').count, 10);
 });
 
 test('a finished try is saved with its score, and a bad one is refused', async () => {
   const quiz = findQuiz('hs-05-quiz');
-  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 3, total: 5 }))).data.percent, 60);
-  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 5, total: 5 }))).code, 200);
-  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 6, total: 5 }))).code, 400);
+  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 6, total: 10 }))).data.percent, 60);
+  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 10, total: 10 }))).code, 200);
+  assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 11, total: 10 }))).code, 400);
   assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: quiz.id, correct: 2, total: 4 }))).code, 400, 'a try is the quiz\'s own length');
   assert.equal((await call(progress, request(ana, { action: 'quiz_result', quizId: 'made-up', correct: 1, total: 1 }))).code, 400);
   const mine = (await call(progress, request(ana, undefined, 'GET', { view: 'grades' }))).data.quizResults;

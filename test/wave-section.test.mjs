@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { CURRICULUM, findSection, findItem } from '../portal/data/curriculum.js';
 import { findActivity } from '../portal/data/learning-path.js';
 import { WORKSPACE_FILES } from '../portal/data/workspace-files.js';
-import { WAVE_QUIZ_ID, WAVE_FINAL_QUIZ_ID } from '../portal/data/wave-section.js';
+import { WAVE_QUIZ_ID, WAVE_FINAL_QUIZ_ID, WAVE_DEBUGGING } from '../portal/data/wave-section.js';
+import { isFixed, debugRunSequence, debugCheck } from '../portal/apps/learn/workspace/debug-check.js';
 import { setQuizAccount, recordQuizPass, hasPassedQuiz, startQuizTry, finishQuizTry, lastQuizTry, nextQuizTryAt, QUIZ_WAIT_MINUTES } from '../portal/services/quiz-passes.js';
 import { isCanonicalRobotPath } from '../portal/apps/learn/workspace/ros-paths.js';
 import { validateAgainstCanonicalSource } from '../api/_lib/canonical-source.js';
@@ -48,9 +49,9 @@ const EM_DASH = String.fromCharCode(0x2014);
 const todos = (text) => (text.match(/#\s*TODO/gi) || []).length;
 const codeLines = (text) => text.split('\n').filter((l) => l.trim() !== '');
 
-test('Wave is group 5 of Behavior Sections, with 6 labs in the agreed format', () => {
+test('Wave is group 5 of Behavior Sections, with 7 labs in the agreed format', () => {
   assert.equal(CURRICULUM.sections[4].id, 'behavior-sections');
-  assert.equal(wave.items.length, 6);
+  assert.equal(wave.items.length, 7);
   wave.items.forEach((item, i) => assert.equal(item.number, `5.${String(i + 1).padStart(2, '0')}`));
   assert.equal(findSection('behavior-sections').number, 5);
   assert.ok(lab(1).kind === 'reading' && !typesOf(lab(1)).has('mcq') && !typesOf(lab(1)).has('quiz'), 'lab 1 is a plain intro');
@@ -164,7 +165,7 @@ test('the student writes about 30% of the finished program', () => {
 });
 
 test('new Wave files follow the repo writing rules (no em dashes)', () => {
-  ['portal/data/wave-section.js', 'portal/apps/learn/interactive-blocks.js', 'portal/services/quiz-passes.js'].forEach((file) => {
+  ['portal/data/wave-section.js', 'portal/apps/learn/interactive-blocks.js', 'portal/services/quiz-passes.js', 'portal/apps/learn/workspace/debug-check.js'].forEach((file) => {
     assert.ok(!readFileSync(new URL(`../${file}`, import.meta.url), 'utf8').includes(EM_DASH), `${file} has an em dash`);
   });
   assert.ok(!WORKSPACE_FILES[BUILDER].includes(EM_DASH));
@@ -186,7 +187,8 @@ test('with LABS_LOCKED on (at launch), Wave labs open one at a time', async () =
   assert.equal(itemStatus(lab(1), [ids[0]], null, on), 'done');
   assert.equal(prevInSection(ids[0]), null);
   assert.equal(prevInSection(ids[1]).id, ids[0]);
-  assert.equal(nextInSection(ids[5]).id, 'hs-01-meet-the-handshake', 'Next goes on to the next behavior section');
+  assert.equal(nextInSection(ids[5]).id, ids[6], 'the robot run leads on to the debugging lab');
+  assert.equal(nextInSection(ids[6]).id, 'hs-01-meet-the-handshake', 'Next goes on to the next behavior section');
   assert.equal(blockingItem('timed-torso-rotation', [], on), null, 'sections without locks are unchanged');
 });
 
@@ -234,4 +236,62 @@ test('a quiz try means a wait before the next one, and a pass is kept', () => {
   assert.ok(hasPassedQuiz(id));
   setQuizAccount({ email: 'someone-else@example.test' });
   assert.ok(!hasPassedQuiz(id) && nextQuizTryAt(id) === 0, 'tries and passes are per account');
+});
+
+// Lab 7: the three fixes a student makes in wave_debug.py, in lab order.
+const DEBUG_FILE = 'swayform_ws/src/swayform_labs/wave_debug.py';
+const DEBUG_FIXES = [
+  ['def wave_once(motion: MotionClient) -> None\n', 'def wave_once(motion: MotionClient) -> None:\n'],
+  ['range(WAVE_CYCLE)', 'range(WAVE_CYCLES)'],
+  ['        wave(motion)\n        raise_arm(motion)', '        raise_arm(motion)\n        wave(motion)'],
+];
+const runText = (text) => debugRunSequence(WAVE_DEBUGGING, text, 'swayform_labs', 'wave_debug').map((s) => s.text);
+const terminals = (item) => blocksOf(item).filter((b) => b.type === 'terminal').map((b) => b.lines);
+
+test('lab 7 is a debugging lab on wave_debug.py with three planted bugs, each fixed by its own change', () => {
+  const debug = lab(7);
+  assert.equal(debug.id, 'wv-07-debugging');
+  assert.equal(debug.number, '5.07');
+  assert.equal(debug.workspaceFile, DEBUG_FILE);
+  assert.equal(debug.debugging, WAVE_DEBUGGING);
+  assert.equal(WAVE_DEBUGGING.path, DEBUG_FILE);
+  assert.ok(findActivity(debug.id), 'resolves server-side');
+  assert.match(JSON.stringify(debug), /Grace Hopper/);
+  assert.match(JSON.stringify(debug), /moth/);
+  const starter = WORKSPACE_FILES[DEBUG_FILE];
+  assert.ok(starter && !/#\s*TODO/i.test(starter));
+  assert.ok(WAVE_DEBUGGING.bugs.every((b) => !isFixed(b, starter)), 'every bug starts unfixed');
+  DEBUG_FIXES.forEach(([from, to], i) => {
+    assert.ok(starter.includes(from), `starter changed, update DEBUG_FIXES: ${from.trim()}`);
+    const once = starter.replace(from, to);
+    WAVE_DEBUGGING.bugs.forEach((b, j) => assert.equal(isFixed(b, once), i === j, `fix ${i + 1} only fixes bug ${i + 1}`));
+  });
+  const fixed = DEBUG_FIXES.reduce((t, [from, to]) => t.replace(from, to), starter);
+  assert.ok(WAVE_DEBUGGING.bugs.every((b) => isFixed(b, fixed)));
+  assert.ok(WAVE_DEBUGGING.bugs.every((b) => b.clues.length >= 2 && b.clues.every((c) => !c.includes('`'))), 'clues are plain text');
+});
+
+test('lab 7 prints exactly what Run and Check show, at every stage of the fix', () => {
+  let text = WORKSPACE_FILES[DEBUG_FILE];
+  const shown = terminals(lab(7)).filter((lines) => lines[0].startsWith('$ ros2 run'));
+  const stages = [runText(text)];
+  DEBUG_FIXES.forEach(([from, to]) => { text = text.replace(from, to); stages.push(runText(text)); });
+  assert.deepEqual(shown, [stages[0], stages[1], stages[2], stages[3]], 'bug 1, bug 2, bug 3, then the working wave');
+  const checks = terminals(lab(7)).filter((lines) => lines[0].startsWith('Bugs fixed'));
+  assert.deepEqual(checks[0], debugCheck(WAVE_DEBUGGING, WORKSPACE_FILES[DEBUG_FILE], new Map()).output.map((l) => l.text));
+  assert.deepEqual(checks[1], debugCheck(WAVE_DEBUGGING, text, new Map()).output.map((l) => l.text));
+});
+
+test('lab 7 Check has no limit, and each Check gives a more specific clue for every bug left', () => {
+  const seen = new Map();
+  const starter = WORKSPACE_FILES[DEBUG_FILE];
+  const clue = (n) => debugCheck(WAVE_DEBUGGING, starter, seen).problems.map((p) => p.text.match(/clue (\d+) of/)[1]);
+  assert.deepEqual(clue(), ['1', '1', '1']);
+  assert.deepEqual(clue(), ['2', '2', '2']);
+  assert.deepEqual(clue(), ['3', '3', '3']);
+  for (let i = 0; i < 20; i++) assert.deepEqual(clue(), ['3', '3', '3'], 'the last clue stays, and Check keeps working');
+  const oneFixed = starter.replace(DEBUG_FIXES[0][0], DEBUG_FIXES[0][1]);
+  const report = debugCheck(WAVE_DEBUGGING, oneFixed, new Map());
+  assert.equal(report.done, 1);
+  assert.equal(report.problems.length, 2, 'a fixed bug drops out of the clues');
 });

@@ -26,7 +26,7 @@ The curriculum lives across two files, deliberately kept separate:
 - **`portal/data/curriculum.js`**: the listing/navigation layer on top: it
   groups activities into sections (Getting Started, Intro to ROS 2,
   Pre-Installed Demos, **Foundation Labs** (20 labs, 10 built),
-  **Wave** (behavior section 1, 6 labs), and **More Sections** (planned)),
+  **Wave** (behavior section 1, 7 labs), and **More Sections** (planned)),
   assigns numbering
   (`4.3`), and pulls each activity's real content *by reference* from
   `learning-path.js` via `pull(id)`. It never retypes lesson content itself.
@@ -41,7 +41,7 @@ joint-to-keyboard teleop capstone.
 
 ## The Wave section
 
-Behavior section 1 is group 5 of Behavior Sections (labs 5.01 to 5.06) in `curriculum.js`: 6 labs, all written in
+Behavior section 1 is group 5 of Behavior Sections (labs 5.01 to 5.07) in `curriculum.js`: 7 labs, all written in
 one file, **`portal/data/wave-section.js`**, in lab order. It is a first draft
 for the lab team to expand and sharpen.
 
@@ -53,15 +53,24 @@ for the lab team to expand and sharpen.
 | 4 | Loops, code, bug hunts and multiple-choice checks |
 | 5 | Order and cleanup, code that finishes the program, bug hunts and multiple-choice checks |
 | 6 | A short review, the final quiz, then the robot run: needs both quizzes, a finished program, and admin approval |
+| 7 | Debugging: what a bug is, the Grace Hopper moth story, then fixing 3 planted bugs in `wave_debug.py` (a syntax bug, a name bug, a logic bug) |
 
 Labs 2 to 5 each fill marked gaps in one shared file.
+
+**Debugging labs (lab 7).** A lab with a `debugging: { path, bugs, workingRun }` field turns on
+debugging mode for that one file (`portal/apps/learn/workspace/debug-check.js`): **Run** prints the
+Python error for the first bug still in the file, and **Check** shows "Bugs fixed: N of 3" with a clue
+per bug left in the Problems tab, more specific on each Check, with no limit. Each bug has a
+`brokenWhen` and a `fixedWhen` regular expression. If you change `wave_debug.py` or a bug, update
+`DEBUG_FIXES` in `test/wave-section.test.mjs`: it checks each fix and that the lesson prints exactly
+what Run and Check show.
 
 **How lab text is written.** Every lab, in Wave and after it, follows the same
 pattern and voice: a friendly instructor talking the student through it, step
 by step.
 
-- Open with a **Summary** step (`id: 'summary'`, shown without a number; the
-  `summary()` helper in `wave-section.js` builds it): "Estimated time to
+- Open with a **Learning Targets** step (`id: 'summary'`, shown without a number; the
+  `summary()` helper in `wave-section.js` builds it, and `targets()` in `handshake-section.js` for labs 6.01 to 6.05): "Estimated time to
   completion: 20 minutes", then "In this lab, you are going to learn about..."
   and a short list of what they will do.
 - Then numbered sections, one idea each. The textbook numbers them from the lab
@@ -93,7 +102,8 @@ That test pins the TODO counts the lessons promise and the 25 to 35% share.
 
 - `{ type: 'mcq', question, options: [...], answer: 0, explain }`
 - `{ type: 'match', prompt, pairs: [[left, right], ...], distractors: [...] }` (right-hand texts must be unique; optional `distractors` are extra wrong answers, so the last pair can't be guessed by elimination)
-- `{ type: 'quiz', id, title, prepare, passPercent: 80, count: 10, questions: [{ question, options, answer, explain, review: { id, label } }] }`
+- `{ type: 'quiz', id, title, prepare, passPercent: 80, count: 10, questions: [{ question, code?, options, answer, explain, review: { id, label } }] }`
+  (optional `code` shows a snippet between the question and its answers, for "read the code" and "spot the bug" questions)
 
 In the lab, a quiz only shows what to prepare (`prepare`, plus the rules) and a
 **Start quiz** button, which asks "Have you prepared?" before it starts. The quiz
@@ -141,7 +151,7 @@ format as Wave, for the lab team to expand.
 
 | Labs | Behavior | What they cover | Practice file |
 |---|---|---|---|
-| 1 to 5 | Handshake | 1 reviews Wave and warms up; 2 joint control; 3 movement sequencing; 4 coordination; 5 review, five-question quiz, robot run | `handshake_builder.py`, 7 TODOs |
+| 1 to 5 | Handshake | 1 reviews Wave and warms up; 2 joint control; 3 movement sequencing; 4 coordination; 5 review, ten-question quiz (mixed question types), robot run | `handshake_builder.py`, 7 TODOs |
 | 6 to 10 | Fist Bump | 6 reuses the handshake structure; 7 joint positions; 8 timing; 9 the finishing move (and `if`); 10 review, five-question quiz, robot run | `fist_bump_builder.py`, 6 TODOs |
 | 11 and 12 | Beckon | 11 video, requirements, starter code, planning; 12 the challenge, written on their own, then the robot run | `beckon_builder.py`, 4 TODOs |
 

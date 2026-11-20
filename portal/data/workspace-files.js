@@ -3470,6 +3470,81 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 `,
+
+  /* Wave lab 7: a finished wave with 3 planted bugs (see `debugging` on wv-07-debugging in wave-section.js). */
+
+  "swayform_ws/src/swayform_labs/wave_debug.py": `# Debugging challenge: this wave program has 3 bugs in it.
+# Click Run to see what goes wrong, and Check to count how many you have fixed.
+from time import sleep
+from swayform.motion import MotionClient
+
+WAVE_CYCLES = 3
+WAVE_DELAY_SECONDS = 0.3
+RAISED_ARM = {"right_shoulder": 42, "right_elbow": 70}
+HOME_ARM = {"right_shoulder": 0, "right_elbow": 0}
+WRIST_LEFT = -20
+WRIST_RIGHT = 20
+WRIST_CENTER = 0
+
+
+def say(text: str) -> None:
+    print(f"[wave] {text}")
+
+
+def go_home(motion: MotionClient) -> None:
+    motion.safe_pose("idle")
+
+
+def open_hand(motion: MotionClient) -> None:
+    say("opening hand")
+    motion.set_hand_pose("right_hand", "open")
+
+
+def raise_arm(motion: MotionClient) -> None:
+    say("raising arm")
+    motion.move_joint_group("right_arm", RAISED_ARM)
+
+
+def wave_once(motion: MotionClient) -> None
+    say("swing")
+    motion.move_joint("right_wrist", WRIST_LEFT)
+    sleep(WAVE_DELAY_SECONDS)
+    motion.move_joint("right_wrist", WRIST_RIGHT)
+    sleep(WAVE_DELAY_SECONDS)
+    motion.move_joint("right_wrist", WRIST_CENTER)
+
+
+def wave(motion: MotionClient) -> None:
+    for _ in range(WAVE_CYCLE):
+        wave_once(motion)
+
+
+def perform_wave(motion: MotionClient) -> None:
+    try:
+        open_hand(motion)
+        wave(motion)
+        raise_arm(motion)
+    finally:
+        motion.move_joint_group("right_arm", HOME_ARM)
+
+
+def main() -> None:
+    motion = MotionClient()
+    go_home(motion)
+
+    try:
+        motion.lock_behavior("wave_debug")
+        say("starting")
+        perform_wave(motion)
+        say("done")
+    finally:
+        go_home(motion)
+        motion.unlock_behavior("wave_debug")
+
+
+if __name__ == "__main__":
+    main()
+`,
   "swayform_ws/src/swayform_labs/handshake_builder.py": `from swayform.motion import MotionClient
 # TODO lab 1: import sleep from the time module so the handshake can pause
 

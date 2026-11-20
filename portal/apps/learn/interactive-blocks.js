@@ -236,6 +236,12 @@ function openQuizScreen(block, h, onClose){
     box.setAttribute('aria-labelledby', `qz-${run}-${qi}`);
     box.innerHTML = `<p class="qz-q-text" id="qz-${run}-${qi}"><span class="qz-num">${qi + 1}.</span><span>${h.inlineHtml(q.question)}</span></p><div class="qz-opts"></div><p class="qz-note"></p>`;
     const opts = box.querySelector('.qz-opts');
+    // Optional `code` on a question: a snippet shown between the question and its answers ("read the code" questions).
+    if (q.code){
+      const snippet = h.el('div', 'cb-code qz-code', '<pre><code></code></pre>');
+      snippet.querySelector('code').textContent = q.code;
+      box.insertBefore(snippet, opts);
+    }
     shuffled(q.options.map((text, index) => ({ text, index }))).forEach((opt) => {
       const label = h.el('label', 'qz-opt');
       label.innerHTML = `<input type="radio" name="qz-${run}-${qi}" value="${opt.index}"><span>${h.inlineHtml(opt.text)}</span>`;

@@ -150,7 +150,7 @@ const GREETINGS = { id: 'greeting-gestures', number: '6', title: 'Greeting Gestu
 const NEXT = { id: 'coming-soon', number: '7', title: 'More Behavior Sections', description: 'Planned.' };
 const s5 = [
   // Content lives in wave-section.js.
-  ...grouped(WAVE, ['wv-01-intro', 'wv-02-imports-settings', 'wv-03-functions', 'wv-04-loops', 'wv-05-order-cleanup', 'wv-06-run']),
+  ...grouped(WAVE, ['wv-01-intro', 'wv-02-imports-settings', 'wv-03-functions', 'wv-04-loops', 'wv-05-order-cleanup', 'wv-06-run', 'wv-07-debugging']),
   // Content lives in handshake-section.js.
   ...grouped(GREETINGS, ['hs-01-meet-the-handshake', 'hs-02-joint-control', 'hs-03-sequencing', 'hs-04-coordination', 'hs-05-run',
     'fb-06-from-handshake', 'fb-07-positions', 'fb-08-timing', 'fb-09-finish', 'fb-10-run', 'bk-11-plan', 'bk-12-challenge']),

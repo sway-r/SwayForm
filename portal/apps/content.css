@@ -160,6 +160,7 @@
 .qz-q-text{display:flex;gap:6px;margin:0 0 10px;font-size:14.5px;font-weight:600;line-height:1.6;color:var(--la-ink)}
 .qz-num{flex-shrink:0;min-width:24px;color:var(--la-muted)}
 .qz-opts{display:flex;flex-direction:column;gap:2px;padding-left:22px}
+.qz-code{margin:0 0 10px 30px}
 .qz-opt{display:flex;align-items:flex-start;gap:10px;padding:6px 8px;border-radius:4px;font-size:14px;line-height:1.55;color:var(--la-soft);cursor:pointer}
 .qz-opt:hover{background:var(--la-hover)}
 .qz-opt input{flex-shrink:0;width:15px;height:15px;margin:3px 0 0;accent-color:var(--la-ink);cursor:pointer}
@@ -178,5 +179,5 @@
 @media (max-width:560px){
   .qz-bar-in,.qz-doc{padding-left:16px;padding-right:16px}
   .qz-opts{padding-left:0}
-  .qz-note,.qz-screen .cb-admin-answer{margin-left:0}
+  .qz-note,.qz-code,.qz-screen .cb-admin-answer{margin-left:0}
 }
